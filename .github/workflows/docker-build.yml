@@ -5,6 +5,7 @@ permissions:
 
 on:
   push:
+    branches: [main]
   pull_request:
 
 jobs:
@@ -14,7 +15,7 @@ jobs:
     env:
       API_DOCKERFILE: docker/api.Dockerfile
     steps:
-      - uses: actions/checkout@v4
-      - uses: docker/setup-buildx-action@v3
+      - uses: actions/checkout@v7
+      - uses: docker/setup-buildx-action@v4
       - run: docker compose config --quiet
       - run: docker compose build api web

@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.2 - 2026-07-18
+
+### Changed
+
+- Made public-release hashes reproducible across Windows, Linux, and WSL clones.
+- Added executable manifest and local Markdown link verification gates.
+- Updated GitHub Actions to their current Node 24-compatible major versions.
+- Added CodeQL analysis, issue forms, and a pull request checklist.
+- Enabled grouped, non-major Dependabot version updates to reduce review noise.
+- Removed the redundant internal public README whose root-relative links were invalid.
+
 ## 0.1.1 - 2026-06-05
 
 ### Changed

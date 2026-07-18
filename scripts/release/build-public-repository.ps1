@@ -55,6 +55,9 @@ New-Item -ItemType Directory -Path $Destination -Force | Out-Null
 function Test-PublicPath {
     param([string]$RelativePath)
 
+    if ($RelativePath.Replace('\', '/') -eq "docs/public/README.md") {
+        return $false
+    }
     $segments = $RelativePath -split '[\\/]'
     foreach ($segment in $segments) {
         if ($excludedSegments -contains $segment) {
@@ -123,6 +126,18 @@ Copy-Item -LiteralPath (Join-Path $SourceRoot "config\ann_terminal_conversation_
 Copy-Item -LiteralPath (Join-Path $SourceRoot "docs\public\README.md") `
     -Destination (Join-Path $Destination "README.md") -Force
 
+# The release manifest hashes exact exported bytes. Disabling checkout-time EOL
+# conversion keeps those hashes stable on Windows, Linux, and WSL clones.
+$attributes = @"
+# Public release checkouts use canonical LF endings on every platform.
+* text=auto eol=lf
+"@
+[IO.File]::WriteAllText(
+    (Join-Path $Destination ".gitattributes"),
+    $attributes.Replace("`r`n", "`n") + "`n",
+    [Text.UTF8Encoding]::new($false)
+)
+
 $blockedIdentityPatterns = @()
 if (-not [string]::IsNullOrWhiteSpace($env:USERPROFILE)) {
     $blockedIdentityPatterns += [regex]::Escape($env:USERPROFILE)
@@ -138,9 +153,9 @@ $privateKeyMarkers = @("RSA ", "EC ", "OPENSSH ", "") | ForEach-Object {
     "-----BEGIN $($_)PRIVATE KEY-----"
 }
 $textExtensions = @(
-    ".cfg", ".cff", ".cs", ".css", ".dockerfile", ".example", ".html",
+    ".bat", ".cfg", ".cff", ".cs", ".css", ".dockerfile", ".example", ".html",
     ".ini", ".js", ".json", ".jsonl", ".md", ".mjs", ".ps1", ".py",
-    ".toml", ".ts", ".tsx", ".txt", ".yaml", ".yml"
+    ".sql", ".toml", ".ts", ".tsx", ".txt", ".yaml", ".yml"
 )
 foreach ($file in Get-ChildItem -LiteralPath $Destination -File -Recurse -Force) {
     if ($textExtensions -notcontains $file.Extension.ToLowerInvariant() -and
@@ -179,6 +194,23 @@ locally after cloning.
 Set-Content -LiteralPath (Join-Path $Destination "PUBLIC_RELEASE_EXCLUSIONS.md") `
     -Value $exclusionDocument -Encoding UTF8
 
+# Normalize exported text before hashing so a fresh Windows clone verifies the
+# same bytes as Linux and WSL. Binary assets are never decoded or rewritten.
+$textNames = @(
+    "Dockerfile", "LICENSE", ".dockerignore", ".env.example",
+    ".gitattributes", ".gitignore", ".gitleaks.toml"
+)
+$utf8NoBom = [Text.UTF8Encoding]::new($false)
+foreach ($file in Get-ChildItem -LiteralPath $Destination -File -Recurse -Force) {
+    $extension = $file.Extension.ToLowerInvariant()
+    if ($textExtensions -notcontains $extension -and $textNames -notcontains $file.Name) {
+        continue
+    }
+    $content = [IO.File]::ReadAllText($file.FullName)
+    $normalized = $content.Replace("`r`n", "`n").Replace("`r", "`n")
+    [IO.File]::WriteAllText($file.FullName, $normalized, $utf8NoBom)
+}
+
 $manifestFiles = @(
     Get-ChildItem -LiteralPath $Destination -File -Recurse -Force |
         Where-Object { $_.Name -ne "PUBLIC_RELEASE_MANIFEST.json" } |
@@ -201,8 +233,33 @@ $manifest = [ordered]@{
     maximum_file_size_mb = [int]$config.maximum_file_size_mb
     files = $entries
 }
-$manifest | ConvertTo-Json -Depth 6 | Set-Content `
-    -LiteralPath (Join-Path $Destination "PUBLIC_RELEASE_MANIFEST.json") -Encoding UTF8
+$manifestLines = [Collections.Generic.List[string]]::new()
+$manifestLines.Add("{")
+$manifestLines.Add("  `"schema_version`": $($manifest.schema_version),")
+$manifestLines.Add("  `"generated_at_utc`": $(ConvertTo-Json -InputObject $manifest.generated_at_utc -Compress),")
+$manifestLines.Add("  `"release_stage`": $(ConvertTo-Json -InputObject $manifest.release_stage -Compress),")
+$manifestLines.Add("  `"source_revision`": $(ConvertTo-Json -InputObject $manifest.source_revision -Compress),")
+$manifestLines.Add("  `"file_count`": $($manifest.file_count),")
+$manifestLines.Add("  `"total_bytes`": $($manifest.total_bytes),")
+$manifestLines.Add("  `"maximum_file_size_mb`": $($manifest.maximum_file_size_mb),")
+$manifestLines.Add("  `"files`": [")
+for ($index = 0; $index -lt $entries.Count; $index++) {
+    $entry = $entries[$index]
+    $suffix = if ($index -lt ($entries.Count - 1)) { "," } else { "" }
+    $manifestLines.Add("    {")
+    $manifestLines.Add("      `"path`": $(ConvertTo-Json -InputObject $entry.path -Compress),")
+    $manifestLines.Add("      `"bytes`": $($entry.bytes),")
+    $manifestLines.Add("      `"sha256`": $(ConvertTo-Json -InputObject $entry.sha256 -Compress)")
+    $manifestLines.Add("    }$suffix")
+}
+$manifestLines.Add("  ]")
+$manifestLines.Add("}")
+$manifestJson = $manifestLines -join "`n"
+[IO.File]::WriteAllText(
+    (Join-Path $Destination "PUBLIC_RELEASE_MANIFEST.json"),
+    $manifestJson + "`n",
+    $utf8NoBom
+)
 
 Write-Host "ANN public repository exported successfully."
 Write-Host "Destination: $Destination"

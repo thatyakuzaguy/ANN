@@ -1,0 +1,26 @@
+name: Feature request
+description: Propose a focused improvement to ANN.
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What user or engineering problem should ANN solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Describe the desired outcome without prescribing unnecessary implementation detail.
+    validations:
+      required: true
+  - type: textarea
+    id: safety
+    attributes:
+      label: Safety and compatibility impact
+      description: Note effects on approvals, filesystem policy, model loading, or existing workflows.
+    validations:
+      required: true

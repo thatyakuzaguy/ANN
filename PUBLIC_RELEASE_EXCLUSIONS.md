@@ -1,4 +1,4 @@
-﻿# Public Release Exclusions
+# Public Release Exclusions
 
 This source export intentionally excludes local or sensitive runtime material:
 

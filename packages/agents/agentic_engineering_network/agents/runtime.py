@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
+from collections.abc import Callable
 from typing import Any
 from uuid import uuid4
 
@@ -22,9 +23,15 @@ class AgentRunResult:
 
 
 class AgentRuntime:
-    def __init__(self, provider: AIProvider, audit: AuditLogger) -> None:
+    def __init__(
+        self,
+        provider: AIProvider,
+        audit: AuditLogger,
+        provider_factory: Callable[[AgentDefinition], AIProvider] | None = None,
+    ) -> None:
         self.provider = provider
         self.audit = audit
+        self.provider_factory = provider_factory
 
     def run(self, agent: AgentDefinition, idea: str, context: dict[str, Any]) -> AgentRunResult:
         system = (
@@ -40,7 +47,14 @@ class AgentRuntime:
             message=f"{agent.name} started.",
             metadata={"agent": agent.name, "run_id": context.get("run_id"), "outputs": agent.outputs},
         )
-        provider_response = self.provider.generate(Prompt(system=system, user=idea))
+        provider = self.provider_factory(agent) if self.provider_factory else self.provider
+        try:
+            provider_response = provider.generate(Prompt(system=system, user=idea))
+        finally:
+            if provider is not self.provider:
+                close = getattr(provider, "close", None)
+                if callable(close):
+                    close()
         result = AgentRunResult(
             run_id=str(uuid4()),
             agent=agent.name,
@@ -62,3 +76,8 @@ class AgentRuntime:
             metadata=asdict(result),
         )
         return result
+
+    def close(self) -> None:
+        close = getattr(self.provider, "close", None)
+        if callable(close):
+            close()

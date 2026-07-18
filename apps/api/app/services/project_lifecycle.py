@@ -565,6 +565,7 @@ class ProjectLifecycleRunner:
             "failures": [asdict(step) for step in failures],
         }
         prompt_path.write_text(json.dumps(prompt_payload, indent=2), encoding="utf-8")
+        provider = None
         try:
             provider = build_provider(self.settings)
             response = provider.generate(
@@ -580,6 +581,10 @@ class ProjectLifecycleRunner:
                 "skipped",
                 f"Provider patch request unavailable; continuing with deterministic fix plan and failure evidence: {exc}",
             )
+        finally:
+            close = getattr(provider, "close", None)
+            if callable(close):
+                close()
 
         raw_path.write_text(response.content, encoding="utf-8")
         diff = self._extract_unified_diff(response.content)

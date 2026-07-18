@@ -8,6 +8,9 @@ import urllib.error
 import urllib.request
 
 from agentic_engineering_network.shared.config import Settings, ensure_inside_root
+from agentic_network.models.gpu_policy import llama_cpp_supports_gpu_offload
+from agentic_network.models.deepseek_gguf import clean_deepseek_output
+from agentic_network.runtime_engine.windows_dlls import configure_windows_runtime_dll_paths
 
 
 @dataclass(frozen=True)
@@ -126,13 +129,14 @@ class LlamaCppProvider(AIProvider):
                 "require GPU offload; use -1 or a positive layer count."
             )
         if self._llm is None:
+            configure_windows_runtime_dll_paths()
             try:
                 import llama_cpp
             except ImportError as exc:
                 raise RuntimeError(
                     "llama-cpp-python is not installed. Run setup.ps1 or rebuild the API image."
                 ) from exc
-            if getattr(llama_cpp, "LLAMA_SUPPORTS_GPU_OFFLOAD", True) is False:
+            if llama_cpp_supports_gpu_offload(llama_cpp) is not True:
                 raise RuntimeError("llama-cpp-python was built without GPU offload support.")
             self._llm = llama_cpp.Llama(
                 model_path=str(self.model_path),
@@ -146,23 +150,49 @@ class LlamaCppProvider(AIProvider):
 
     def generate(self, prompt: Prompt) -> ProviderResponse:
         llm = self._load()
-        text_prompt = (
-            "<|im_start|>system\n"
-            f"{prompt.system}\n"
-            "<|im_end|>\n"
-            "<|im_start|>user\n"
-            f"{prompt.user}\n"
-            "<|im_end|>\n"
-            "<|im_start|>assistant\n"
-        )
-        result = llm(  # type: ignore[operator]
-            text_prompt,
-            max_tokens=self.max_tokens,
-            temperature=self.temperature,
-            stop=["<|im_end|>", "<|im_start|>"],
-        )
-        content = str(result["choices"][0]["text"]).strip()
+        create_chat_completion = getattr(llm, "create_chat_completion", None)
+        if callable(create_chat_completion):
+            result = create_chat_completion(
+                messages=[
+                    {"role": "system", "content": prompt.system},
+                    {"role": "user", "content": prompt.user},
+                ],
+                max_tokens=self.max_tokens,
+                temperature=self.temperature,
+            )
+            first = result["choices"][0]
+            message = first.get("message", {}) if isinstance(first, dict) else {}
+            raw_content = str(message.get("content") or "")
+        else:
+            text_prompt = (
+                "<|im_start|>system\n"
+                f"{prompt.system}\n"
+                "<|im_end|>\n"
+                "<|im_start|>user\n"
+                f"{prompt.user}\n"
+                "<|im_end|>\n"
+                "<|im_start|>assistant\n"
+            )
+            result = llm(  # type: ignore[operator]
+                text_prompt,
+                max_tokens=self.max_tokens,
+                temperature=self.temperature,
+                stop=["<|im_end|>", "<|im_start|>"],
+            )
+            raw_content = str(result["choices"][0]["text"])
+        content = clean_deepseek_output(raw_content).strip()
+        if not content:
+            raise RuntimeError("Local model returned no final answer after reasoning cleanup.")
         return ProviderResponse(provider=self.name, model=self.model, content=content)
+
+    def close(self) -> None:
+        llm = self._llm
+        self._llm = None
+        if llm is None:
+            return
+        close = getattr(llm, "close", None)
+        if callable(close):
+            close()
 
 
 class DeterministicLocalProvider(AIProvider):
@@ -193,3 +223,41 @@ def build_provider(settings: Settings) -> AIProvider:
     if settings.ai_provider == "ollama":
         return OllamaProvider(settings.ollama_base_url, settings.ollama_model)
     return DeterministicLocalProvider()
+
+
+def build_provider_for_agent(settings: Settings, agent_name: str, execution_mode: str = "FAST") -> AIProvider:
+    """Build one policy-approved provider for one sequential ANN agent stage."""
+
+    if settings.ai_provider not in {"llama_cpp", "local_gguf", "qwen_direct"}:
+        return build_provider(settings)
+
+    from agentic_network.model_routing.router import resolve_model_route
+    from agentic_network.runtime_engine.model_inventory import resolve_model_record
+    from agentic_network.runtime_engine.model_policy import load_model_policy, validate_model_load_request
+
+    route = resolve_model_route(agent_name, execution_mode)
+    if route.status not in {"VALID", "FALLBACK"}:
+        raise RuntimeError(f"Model route blocked for {agent_name}: {route.errors}")
+    record = resolve_model_record(route.selected_model)
+    if record is None:
+        raise RuntimeError(f"Routed model is not declared: {route.selected_model}")
+    decision = validate_model_load_request(
+        record.name,
+        record.backend,
+        route.mode,
+        policy=load_model_policy(),
+    )
+    if not decision.allowed:
+        raise RuntimeError(f"Routed model load blocked by policy: {','.join(decision.errors)}")
+    if record.backend != "llama_cpp":
+        raise RuntimeError(f"Routed model backend is not supported by the canonical local provider: {record.backend}")
+    if not record.enabled or not record.path_exists:
+        raise RuntimeError(f"Routed model is unavailable: {record.name} ({record.path})")
+    return LlamaCppProvider(
+        Path(record.path),
+        record.context_tokens,
+        record.max_tokens,
+        record.temperature,
+        record.n_gpu_layers,
+        record.main_gpu,
+    )

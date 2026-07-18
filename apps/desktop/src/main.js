@@ -4,7 +4,24 @@ const fs = require("fs");
 const http = require("http");
 const path = require("path");
 
-const APP_ROOT = process.env.AEN_ROOT || "D:\\AgenticEngineeringNetwork";
+function resolveAppRoot() {
+  if (process.env.AEN_ROOT) {
+    return path.resolve(process.env.AEN_ROOT);
+  }
+  const candidates = [
+    path.resolve(process.resourcesPath, "..", ".."),
+    path.resolve(process.resourcesPath, "..", "..", ".."),
+    path.resolve(process.resourcesPath, "..", "..", "..", "..", ".."),
+    path.resolve(__dirname, "..", "..", ".."),
+    "D:\\AgenticEngineeringNetwork"
+  ];
+  return candidates.find((candidate) => (
+    fs.existsSync(path.join(candidate, "apps", "web"))
+    && fs.existsSync(path.join(candidate, "apps", "api"))
+  )) || candidates[0];
+}
+
+const APP_ROOT = resolveAppRoot();
 const WEB_URL = process.env.AEN_WEB_URL || "http://localhost:3000";
 const DESKTOP_WEB_URL = process.env.AEN_DESKTOP_WEB_URL || "http://127.0.0.1:3001";
 const HEALTH_URL = process.env.AEN_HEALTH_URL || "http://localhost:8000/api/health";
@@ -32,7 +49,7 @@ function createWindow() {
     minWidth: 1180,
     minHeight: 760,
     backgroundColor: "#0f172a",
-    title: "Agentic Engineering Network",
+    title: "ANN: Agentic Neural Network",
     show: false,
     webPreferences: {
       contextIsolation: true,
@@ -52,7 +69,7 @@ function createWindow() {
       minWidth: 520,
       minHeight: 420,
       backgroundColor: "#0f1216",
-      title: "Agentic Engineering Network",
+      title: "ANN: Agentic Neural Network",
       webPreferences: {
         contextIsolation: true,
         nodeIntegration: false,
@@ -148,7 +165,7 @@ function startDesktopWeb() {
   if (webProcess) {
     return true;
   }
-  const command = process.platform === "win32" ? "node.exe" : "node";
+  const command = process.execPath;
   const webRoot = path.join(APP_ROOT, "apps", "web");
   const standaloneServer = path.join(webRoot, ".next", "standalone", "apps", "web", "server.js");
   const standaloneStatic = path.join(webRoot, ".next", "standalone", "apps", "web", ".next", "static");
@@ -166,6 +183,9 @@ function startDesktopWeb() {
     stdio: ["ignore", "pipe", "pipe"],
     env: {
       ...process.env,
+      AEN_ROOT: APP_ROOT,
+      AEN_HOST_ROOT: APP_ROOT,
+      ELECTRON_RUN_AS_NODE: "1",
       HOSTNAME: "127.0.0.1",
       PORT: "3001",
       NEXT_TELEMETRY_DISABLED: "1"
@@ -185,11 +205,18 @@ function startDesktopWeb() {
 }
 
 function apiPythonPath() {
-  return process.env.AEN_API_PYTHON || "python.exe";
+  const candidates = [
+    process.env.AEN_API_PYTHON,
+    path.join(APP_ROOT, "runtime", "python", "python.exe"),
+    path.join(APP_ROOT, "runtime", "python.exe"),
+    "python.exe"
+  ].filter(Boolean);
+  return candidates.find((candidate) => candidate === "python.exe" || fs.existsSync(candidate)) || "python.exe";
 }
 
 function apiPythonPathEnv() {
   return [
+    APP_ROOT,
     path.join(APP_ROOT, "packages", "agents"),
     path.join(APP_ROOT, "packages", "orchestration"),
     path.join(APP_ROOT, "packages", "sandbox"),
@@ -263,7 +290,7 @@ function loadingHtml(message) {
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Agentic Engineering Network</title>
+  <title>ANN: Agentic Neural Network</title>
   <style>
     body {
       margin: 0;
@@ -298,7 +325,7 @@ function loadingHtml(message) {
 </head>
 <body>
   <main>
-    <h1>Agentic Engineering Network</h1>
+    <h1>ANN: Agentic Neural Network</h1>
     <p>${message}</p>
     <p>Root: <code>${APP_ROOT}</code></p>
   </main>

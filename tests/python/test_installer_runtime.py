@@ -71,7 +71,9 @@ def test_install_dirs_are_planned(tmp_path: Path) -> None:
 
     plan = build_install_plan(source, "D:/ANN")
 
-    assert str(Path("D:/ANN/app")) in plan.dirs_to_create
+    assert str(Path("D:/ANN/agentic_network")) in plan.dirs_to_create
+    assert str(Path("D:/ANN/apps")) in plan.dirs_to_create
+    assert str(Path("D:/ANN/desktop")) in plan.dirs_to_create
     assert str(Path("D:/ANN/projects")) in plan.dirs_to_create
     assert str(Path("D:/ANN/runtime")) in plan.dirs_to_create
 
@@ -81,7 +83,7 @@ def test_launcher_planned(tmp_path: Path) -> None:
 
     plan = build_install_plan(source, "D:/ANN")
 
-    assert str(Path("D:/ANN/runtime")) in plan.dirs_to_create
+    assert str(Path("D:/ANN/installer")) in plan.dirs_to_create
     assert any(path.endswith("installer\\ann_launcher.ps1") for path in plan.files_to_copy)
 
 
@@ -92,6 +94,7 @@ def test_shortcut_planned(tmp_path: Path) -> None:
 
     assert result.status == "CREATED"
     assert result.shortcut_path.endswith("ANN Desktop.lnk.cmd")
+    assert result.target_path.endswith("desktop\\Agentic Engineering Network.exe")
 
 
 def test_uninstall_preserves_projects_by_default() -> None:

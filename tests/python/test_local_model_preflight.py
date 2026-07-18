@@ -32,4 +32,4 @@ def test_preflight_detects_fast_and_powerful_targets() -> None:
     assert preflight["fast"]["available"] is True
     assert preflight["powerful"]["available"] is True
     assert preflight["powerful"]["blocked"] is True
-    assert names["deepseek_r1_distill_qwen_14b"]["backend"] == "deepseek_unsloth"
+    assert names["deepseek_r1_distill_qwen_14b"]["backend"] == "llama_cpp"

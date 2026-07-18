@@ -10,6 +10,7 @@ from typing import Any
 
 from agentic_network.model_routing.router import resolve_model_route
 from agentic_network.runtime_engine.backend_registry import get_backend
+from agentic_network.runtime_engine.backends.base import BackendGenerateResult
 from agentic_network.runtime_engine.loader import (
     get_loaded_models,
     get_runtime_metrics,
@@ -77,7 +78,12 @@ def execute_agent_runtime(
     model_record = resolve_model_record(route.selected_model)
     policy = load_model_policy()
     requested_backend = backend_name or policy.default_backend or "mock"
-    if backend_name is None and requested_backend != "mock" and model_record is not None and model_record.enabled:
+    if (
+        backend_name is None
+        and policy.allow_real_model_load
+        and model_record is not None
+        and model_record.enabled
+    ):
         requested_backend = model_record.backend
     policy_decision = validate_model_load_request(
         route.selected_model,
@@ -86,7 +92,7 @@ def execute_agent_runtime(
         policy=policy,
     )
     try:
-        backend = get_backend(requested_backend)
+        backend = get_backend(requested_backend, policy=policy.to_dict())
     except ValueError as exc:
         return RuntimeExecutionResult(
             status="BLOCKED",
@@ -108,68 +114,94 @@ def execute_agent_runtime(
             warnings=[],
             errors=[str(exc)],
         )
-    load = load_model(route.selected_model, backend_name=backend.name)
-    warnings.extend(load.get("warnings", []))
-    errors.extend(load.get("errors", []))
-    if load.get("status") == "BLOCKED":
-        metrics = get_runtime_metrics()
-        result = RuntimeExecutionResult(
-            status="BLOCKED",
-            agent_name=route.agent_name,
-            selected_model=route.selected_model,
-            execution_mode=route.mode,
-            backend_name=backend.name,
-            backend_status=str(load.get("backend_status", "BLOCKED")),
-            load_status=str(load.get("status", "BLOCKED")),
-            generate_status="SKIPPED",
-            unload_status="SKIPPED",
-            load_time_ms=int(load.get("load_time_ms", 0)),
-            execution_time_ms=0,
-            unload_time_ms=0,
-            peak_vram_mb=int(metrics.get("peak_vram_mb", 0)),
-            active_models=len(get_loaded_models()),
-            parallel_llm_loads=int(metrics.get("parallel_llm_loads", 0)),
-            artifact_paths=[],
-            warnings=_dedupe(warnings),
-            errors=_dedupe(errors),
-        )
-        artifacts = _write_artifacts(
-            output_dir,
-            result,
-            metrics,
-            {"result": "Backend load blocked."},
-            {
-                "load": load,
-                "model_record": model_record.to_dict() if model_record else None,
-                "inventory_status": "FOUND" if model_record else "MISSING",
-                "backend_policy_decision": policy_decision.to_dict(),
-                "load_allowed": policy_decision.allowed,
-                "real_model_load_attempted": False,
-            },
-            inventory.to_dict(),
-            policy_decision.to_dict(),
-        )
-        return RuntimeExecutionResult(**{**result.to_dict(), "artifact_paths": artifacts})
-    started = perf_counter()
-    generation = backend.generate(route.selected_model, _agent_prompt(route.agent_name, task), options=None)
-    record_generate_status(backend.name, generation.status)
-    warnings.extend(generation.warnings)
-    errors.extend(generation.errors)
-    execution_summary = _execute_agent_stub(route.agent_name, task, route.selected_model, generation.text)
-    execution_time_ms = max(0, int((perf_counter() - started) * 1000))
-    unload = unload_model(route.selected_model, backend_name=backend.name)
+    load: dict[str, Any]
+    unload: dict[str, Any]
+    generation: BackendGenerateResult | None = None
+    execution_summary = {"result": "Backend load did not complete."}
+    execution_time_ms = 0
+    try:
+        try:
+            load = load_model(route.selected_model, backend_name=backend.name, backend=backend)
+        except Exception as exc:
+            error = _exception_error("runtime_backend_load_failed", exc)
+            load = {
+                "status": "FAILED",
+                "model_name": route.selected_model,
+                "backend": backend.name,
+                "backend_status": "FAILED",
+                "load_time_ms": 0,
+                "errors": [error],
+                "warnings": [],
+            }
+        warnings.extend(load.get("warnings", []))
+        errors.extend(load.get("errors", []))
+        if load.get("status") == "LOADED":
+            started = perf_counter()
+            try:
+                generation = backend.generate(
+                    route.selected_model,
+                    _agent_prompt(route.agent_name, task),
+                    options=None,
+                )
+            except Exception as exc:
+                generation = BackendGenerateResult(
+                    status="FAILED",
+                    model_name=route.selected_model,
+                    backend=backend.name,
+                    text="",
+                    tokens_in=len(task.split()),
+                    tokens_out=0,
+                    duration_ms=max(0, int((perf_counter() - started) * 1000)),
+                    errors=[_exception_error("runtime_backend_generation_failed", exc)],
+                    warnings=[],
+                )
+            execution_time_ms = max(0, int((perf_counter() - started) * 1000))
+            record_generate_status(backend.name, generation.status)
+            warnings.extend(generation.warnings)
+            errors.extend(generation.errors)
+            execution_summary = _execute_agent_stub(
+                route.agent_name,
+                task,
+                route.selected_model,
+                generation.text,
+            )
+        elif load.get("status") == "BLOCKED":
+            execution_summary = {"result": "Backend load blocked."}
+        else:
+            execution_summary = {"result": "Backend load failed."}
+    finally:
+        try:
+            unload = unload_model(route.selected_model, backend_name=backend.name, backend=backend)
+        except Exception as exc:
+            error = _exception_error("runtime_backend_unload_failed", exc)
+            unload = {
+                "status": "FAILED",
+                "model_name": route.selected_model,
+                "backend": backend.name,
+                "unload_time_ms": 0,
+                "errors": [error],
+                "warnings": [],
+            }
     warnings.extend(unload.get("warnings", []))
     errors.extend(unload.get("errors", []))
     metrics = get_runtime_metrics()
+    load_status = str(load.get("status", "UNKNOWN"))
+    generate_status = generation.status if generation is not None else "SKIPPED"
+    if load_status == "BLOCKED":
+        result_status = "BLOCKED"
+    elif load_status != "LOADED" or generation is None or generation.status != "SUCCESS" or errors:
+        result_status = "FAILED"
+    else:
+        result_status = "SUCCESS"
     result = RuntimeExecutionResult(
-        status="SUCCESS" if not errors else "FAILED",
+        status=result_status,
         agent_name=route.agent_name,
         selected_model=route.selected_model,
         execution_mode=route.mode,
         backend_name=backend.name,
         backend_status=str(metrics.get("backend_status", "UNKNOWN")),
-        load_status=str(load.get("status", "UNKNOWN")),
-        generate_status=generation.status,
+        load_status=load_status,
+        generate_status=generate_status,
         unload_status=str(unload.get("status", "UNKNOWN")),
         load_time_ms=int(load.get("load_time_ms", 0)),
         execution_time_ms=execution_time_ms,
@@ -183,7 +215,7 @@ def execute_agent_runtime(
     )
     backend_payload = {
         "load": load,
-        "generate": generation.to_dict(),
+        "generate": generation.to_dict() if generation is not None else None,
         "unload": unload,
     }
     backend_payload.update(
@@ -192,7 +224,7 @@ def execute_agent_runtime(
             "inventory_status": "FOUND" if model_record else "MISSING",
             "backend_policy_decision": policy_decision.to_dict(),
             "load_allowed": policy_decision.allowed,
-            "real_model_load_attempted": False,
+            "real_model_load_attempted": policy_decision.allowed and backend.name != "mock",
         }
     )
     artifacts = _write_artifacts(
@@ -350,3 +382,8 @@ def _dedupe(values: list[str]) -> list[str]:
         seen.add(key)
         result.append(normalized)
     return result
+
+
+def _exception_error(prefix: str, exc: Exception) -> str:
+    detail = str(exc).strip()
+    return f"{prefix}:{type(exc).__name__}" + (f":{detail}" if detail else "")

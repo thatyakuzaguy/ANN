@@ -25,9 +25,11 @@ from time import perf_counter
 from typing import Any
 
 from agentic_network.runtime_engine.backends.llama_cpp_backend import LlamaCppBackend
+from agentic_network.models.gpu_policy import llama_cpp_supports_gpu_offload
 from agentic_network.runtime_engine.loader import get_loaded_models, get_runtime_metrics, reset_runtime_state
 from agentic_network.runtime_engine.model_inventory import load_model_inventory
 from agentic_network.runtime_engine.model_policy import load_model_policy
+from agentic_network.runtime_engine.windows_dlls import configure_windows_runtime_dll_paths
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -424,6 +426,7 @@ def run_controlled_qwen25_smoke(
 def diagnose_llama_cpp_backend(model_path: str | Path | None = None) -> dict[str, Any]:
     """Diagnose llama_cpp readiness without installing, compiling, or loading a model."""
 
+    configure_windows_runtime_dll_paths()
     inventory = load_model_inventory()
     policy = load_model_policy()
     record = next((item for item in inventory.models if item.model_name == QWEN25_MODEL_NAME), None)
@@ -440,7 +443,7 @@ def diagnose_llama_cpp_backend(model_path: str | Path | None = None) -> dict[str
             version = None
         try:
             llama_module = importlib.import_module("llama_cpp")
-            gpu_attr = getattr(llama_module, "LLAMA_SUPPORTS_GPU_OFFLOAD", None)
+            gpu_attr = llama_cpp_supports_gpu_offload(llama_module)
             if gpu_attr is True:
                 cuda_status = "CUDA_AVAILABLE"
                 gpu_support = "available"
@@ -792,7 +795,7 @@ def diagnose_llama_cpp_real_status(model_path: str | Path | None = None) -> dict
             llama_module = importlib.import_module("llama_cpp")
             llama_class_available = hasattr(llama_module, "Llama")
             metadata = {
-                "LLAMA_SUPPORTS_GPU_OFFLOAD": getattr(llama_module, "LLAMA_SUPPORTS_GPU_OFFLOAD", None),
+                "LLAMA_SUPPORTS_GPU_OFFLOAD": llama_cpp_supports_gpu_offload(llama_module),
                 "LLAMA_DEFAULT_SEED": getattr(llama_module, "LLAMA_DEFAULT_SEED", None),
             }
         except Exception as exc:  # pragma: no cover - optional native binding.
@@ -12705,6 +12708,9 @@ def _run_embedded_runtime_import_probe(
         "results = {}\n"
         "for name in packages:\n"
         "    try:\n"
+        "        if name == 'llama_cpp':\n"
+        "            from agentic_network.runtime_engine.windows_dlls import configure_windows_runtime_dll_paths\n"
+        "            configure_windows_runtime_dll_paths()\n"
         "        module = importlib.import_module(name)\n"
         "        try:\n"
         "            version = importlib.metadata.version({'llama_cpp': 'llama-cpp-python'}.get(name, name))\n"

@@ -9,6 +9,17 @@ from __future__ import annotations
 import importlib.metadata
 import json
 from pathlib import Path
+import sys
+
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from agentic_network.models.gpu_policy import llama_cpp_supports_gpu_offload  # noqa: E402
+from agentic_network.runtime_engine.windows_dlls import (  # noqa: E402
+    configure_windows_runtime_dll_paths,
+)
 
 
 QWEN25_GGUF = Path("D:/AgenticEngineeringNetwork/models/qwen2.5-coder-7b-q4_k_m.gguf")
@@ -24,6 +35,8 @@ def main() -> None:
         "qwen25_gguf_path": str(QWEN25_GGUF),
         "qwen25_gguf_exists": QWEN25_GGUF.is_file(),
     }
+    configured_dll_paths = configure_windows_runtime_dll_paths()
+    payload["configured_dll_paths"] = configured_dll_paths
     try:
         import llama_cpp
 
@@ -37,7 +50,7 @@ def main() -> None:
                 "llama_cpp_importable": True,
                 "llama_cpp_version": version,
                 "llama_class_available": hasattr(llama_cpp, "Llama"),
-                "gpu_offload_metadata": getattr(llama_cpp, "LLAMA_SUPPORTS_GPU_OFFLOAD", None),
+                "gpu_offload_metadata": llama_cpp_supports_gpu_offload(llama_cpp),
             }
         )
     except Exception as exc:  # pragma: no cover - depends on optional runtime.

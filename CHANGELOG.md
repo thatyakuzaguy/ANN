@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.1.4-rc.1 - 2026-07-18
+
+- Added an embedded Windows CUDA DLL bootstrap and verified llama.cpp GPU
+  offload in the installed runtime.
+- Completed sequential real-model lifecycle validation for Qwen3 4B, Qwen3 8B,
+  Qwen2.5-Coder 7B, and DeepSeek-R1-Distill-Qwen 14B.
+- Added a hash-verified offline model-pack installer contract with copy and NTFS
+  hard-link modes.
+- Verified a clean isolated install, native Desktop startup, real local
+  conversation inference, safe unload, and zero residual loaded models.
+- Hardened role-based routing and shared local providers so specialist stages
+  use the configured local model inventory without parallel model loads.
+- Fixed standalone CUDA diagnostics and embedded package audits so optional CI
+  environments report unavailable bindings without false runtime failures.
+- Promoted the public source channel from alpha to release candidate. Trusted
+  final Windows release remains blocked on real Authenticode and independent
+  clean-machine evidence.
+
 ## 0.1.3 - 2026-07-18
 
 ### Security

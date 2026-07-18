@@ -1,17 +1,11 @@
 {
   "name": "agentic-engineering-network",
   "private": true,
-  "version": "0.1.3",
+  "version": "0.1.4-rc.1",
   "workspaces": [
     "apps/web",
     "apps/desktop"
   ],
-  "overrides": {
-    "postcss": "^8.5.15",
-    "next": {
-      "postcss": "^8.5.15"
-    }
-  },
   "scripts": {
     "dev:web": "npm --workspace apps/web run dev",
     "build:web": "npm --workspace apps/web run build",

@@ -26,7 +26,12 @@ def test_electron_launcher_has_direct_web_fallback() -> None:
     assert '".next", "standalone", "apps", "web", "server.js"' in launcher
     assert "HOSTNAME: \"127.0.0.1\"" in launcher
     assert "PORT: \"3001\"" in launcher
-    assert '"node.exe"' in launcher
+    assert "const command = process.execPath" in launcher
+    assert 'ELECTRON_RUN_AS_NODE: "1"' in launcher
+    assert "AEN_ROOT: APP_ROOT" in launcher
+    assert "AEN_HOST_ROOT: APP_ROOT" in launcher
+    assert 'path.join(APP_ROOT, "runtime", "python", "python.exe")' in launcher
+    assert "resolveAppRoot" in launcher
     assert "startServices" in launcher
     assert "desktop-launcher.log" in launcher
     assert "Confirm Docker Desktop is running" not in launcher

@@ -12,6 +12,7 @@ from agentic_network.models.gpu_policy import (
     require_cuda_available,
     require_gguf_gpu_offload,
 )
+from agentic_network.runtime_engine.windows_dlls import configure_windows_runtime_dll_paths
 
 _QWEN3_HF_MISSING_MESSAGE = (
     "Qwen3 model is not available locally. Set QWEN3_BASE_MODEL to a local path or "
@@ -274,6 +275,7 @@ def _move_tokenizer_inputs(inputs: object, device: object) -> object:
 
 
 def _load_llama_class() -> object:
+    configure_windows_runtime_dll_paths()
     try:
         from llama_cpp import Llama
     except ImportError as exc:

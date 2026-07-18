@@ -1,7 +1,8 @@
 {
   "version": 1,
   "allow_real_inference": false,
-  "runtime_type": "external_wsl_conda",
+  "runtime_type": "embedded_windows_preferred",
+  "python_executable_windows": "D:/ANN/runtime/python/python.exe",
   "python_executable_wsl": "python3",
   "model_name": "qwen3_4b_conversation_orchestrator",
   "model_path_windows": "D:/Models/qwen3-4b-instruct-2507-q4_k_m.gguf",

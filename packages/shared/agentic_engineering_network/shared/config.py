@@ -15,7 +15,7 @@ WORKSPACE_DRIVE_MOUNT = Path(os.environ.get("AEN_WORKSPACE_DRIVE_MOUNT", "/host-
 class Settings:
     app_env: str = os.environ.get("APP_ENV", "local")
     approval_mode: str = os.environ.get("APPROVAL_MODE", "supervised")
-    ai_provider: str = os.environ.get("AI_PROVIDER", "ollama")
+    ai_provider: str = os.environ.get("AI_PROVIDER", "llama_cpp")
     ollama_base_url: str = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
     ollama_model: str = os.environ.get("OLLAMA_MODEL", "llama3.1")
     openai_model: str = os.environ.get("OPENAI_MODEL", "gpt-4.1-mini")

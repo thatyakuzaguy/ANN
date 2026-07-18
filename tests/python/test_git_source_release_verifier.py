@@ -78,6 +78,26 @@ def test_git_source_release_ready_without_authenticode(monkeypatch, tmp_path: Pa
     assert report["release_command_contract_ready"] is True
 
 
+def test_git_source_release_validates_runtime_wheels_directory(monkeypatch, tmp_path: Path) -> None:
+    _patch_ready(monkeypatch)
+    runtime_root = tmp_path / "runtime"
+    captured: dict[str, Path] = {}
+
+    def validate(wheelhouse_root: Path) -> dict[str, str]:
+        captured["wheelhouse_root"] = wheelhouse_root
+        return {"status": "HASH_VERIFIED"}
+
+    monkeypatch.setattr(verify_git_source_release, "validate_wheelhouse_integrity", validate)
+
+    report = verify_git_source_release.build_git_source_release_report(
+        repo_root=_source_root(tmp_path / "source"),
+        runtime_root=runtime_root,
+    )
+
+    assert report["status"] == "GIT_SOURCE_RELEASE_READY"
+    assert captured["wheelhouse_root"] == runtime_root / "wheels"
+
+
 def test_git_source_release_blocks_missing_source_path(monkeypatch, tmp_path: Path) -> None:
     _patch_ready(monkeypatch)
     root = _source_root(tmp_path)

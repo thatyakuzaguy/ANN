@@ -8,9 +8,13 @@ consensus, controlled patch application, verification, and release artifacts.
 It runs on the user's machine, exposes its decisions, and keeps humans in
 control of consequential actions.
 
-> **Status: public alpha.** ANN is a substantial working system and research
-> portfolio project, not a guarantee that one prompt will produce production-
-> ready or commercially successful software. Generated code requires review.
+> **Status: v0.1.4 release candidate.** The source distribution, embedded
+> runtime, GPU model lifecycle, isolated installer, and fresh-clone test matrix
+> have been validated. The trusted Windows installer channel is not final yet:
+> it still requires a real Authenticode certificate and transferred evidence
+> from a separate clean Windows 11 machine. ANN does not guarantee that one
+> prompt will produce commercially successful software; generated code still
+> requires qualified review.
 
 ![ANN dashboard](docs/assets/ann-dashboard.png)
 
@@ -146,6 +150,10 @@ The portable runtime example in
 `config/ann_terminal_conversation_runtime.json` disables real inference by
 default. Configure a local Python executable and model paths, then deliberately
 enable inference after validating GPU support.
+
+For the offline Windows installation flow, including an embedded runtime,
+packaged Desktop, optional hash-verified local model pack, and post-install
+verification, see [the installer guide](installer/README_INSTALLER.md).
 
 Install the optional Python model backend only in a trusted local environment:
 

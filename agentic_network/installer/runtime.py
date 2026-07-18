@@ -1,4 +1,4 @@
-"""Installer planning/runtime foundation for ANN Windows alpha."""
+"""Installer planning/runtime for the self-contained ANN Windows desktop."""
 
 from __future__ import annotations
 
@@ -20,7 +20,12 @@ from agentic_network.installer.paths import (
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 INSTALL_DIRS = (
-    "app",
+    "agentic_network",
+    "apps",
+    "packages",
+    "scripts",
+    "desktop",
+    "installer",
     "data",
     "projects",
     "outputs",
@@ -32,10 +37,16 @@ INSTALL_DIRS = (
 )
 TOP_LEVEL_INCLUDE = {
     "agentic_network",
+    "apps",
+    "packages",
+    "scripts",
     "config",
     "installer",
     "pyproject.toml",
+    "package.json",
     "README.md",
+    "start.ps1",
+    "stop.ps1",
 }
 
 
@@ -152,11 +163,11 @@ def build_install_plan(source_root: str | Path, install_root: str | Path | None 
 
 
 def create_launcher(install_root: str | Path) -> LauncherResult:
-    """Create an ANN launcher script inside install_root/runtime."""
+    """Create an ANN launcher script inside install_root/installer."""
 
     root = normalize_install_path(install_root)
     errors = _validate_mutation_root(root)
-    launcher = root / "runtime" / "ann_launcher.ps1"
+    launcher = root / "installer" / "ann_launcher.ps1"
     if errors:
         return LauncherResult("BLOCKED", str(launcher), [], errors)
     launcher.parent.mkdir(parents=True, exist_ok=True)
@@ -169,15 +180,15 @@ def create_shortcut(install_root: str | Path, shortcut_location: str | Path | No
 
     root = normalize_install_path(install_root)
     errors = _validate_mutation_root(root)
-    target = root / "runtime" / "ann_launcher.ps1"
+    target = root / "desktop" / "Agentic Engineering Network.exe"
     shortcut = normalize_install_path(shortcut_location) if shortcut_location else root / "ANN Desktop.lnk.cmd"
     if not is_relative_to(shortcut.parent.resolve(), root) and shortcut_location is None:
         errors.append("shortcut_location_invalid")
     if errors:
         return ShortcutResult("BLOCKED", str(shortcut), str(target), [], errors)
     shortcut.parent.mkdir(parents=True, exist_ok=True)
-    shortcut.write_text(f'powershell -ExecutionPolicy Bypass -File "{target}"\n', encoding="utf-8")
-    return ShortcutResult("CREATED", str(shortcut), str(target), ["PowerShell creates real .lnk in installer script."], [])
+    shortcut.write_text(f'"{target}"\n', encoding="utf-8")
+    return ShortcutResult("CREATED", str(shortcut), str(target), ["PowerShell creates a real .lnk in installer script."], [])
 
 
 def build_uninstall_plan(
@@ -202,7 +213,12 @@ def build_uninstall_plan(
         keep_names.add("logs")
     keep = [str(root / name) for name in sorted(keep_names)]
     removable = [
-        "app",
+        "agentic_network",
+        "apps",
+        "packages",
+        "scripts",
+        "desktop",
+        "installer",
         "runtime",
         "config",
         "adapters",
@@ -248,13 +264,18 @@ def _validate_mutation_root(root: Path) -> list[str]:
 
 
 def _launcher_script(root: Path) -> str:
-    app_root = root / "app"
+    desktop = root / "desktop" / "Agentic Engineering Network.exe"
+    python = root / "runtime" / "python" / "python.exe"
     return "\n".join(
         [
             "$ErrorActionPreference = 'Stop'",
-            f"$env:PYTHONPATH = '{app_root}'",
-            f"Set-Location '{app_root}'",
-            "python -m agentic_network.desktop_app.run",
+            f"$desktop = '{desktop}'",
+            f"$python = '{python}'",
+            f"$env:PYTHONPATH = '{root}'",
+            f"Set-Location '{root}'",
+            "if (Test-Path -LiteralPath $desktop) { Start-Process -FilePath $desktop; exit 0 }",
+            "if (-not (Test-Path -LiteralPath $python)) { throw 'Embedded Python missing.' }",
+            "& $python -m agentic_network.desktop_app.run",
             "",
         ]
     )

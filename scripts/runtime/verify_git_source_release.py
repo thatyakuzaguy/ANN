@@ -55,7 +55,8 @@ def build_git_source_release_report(
 ) -> dict[str, Any]:
     root = Path(repo_root).resolve()
     runtime = build_runtime_materialization_watcher(runtime_root)
-    wheelhouse = validate_wheelhouse_integrity(runtime_root)
+    wheelhouse_root = Path(runtime_root or "D:/ANN/runtime") / "wheels"
+    wheelhouse = validate_wheelhouse_integrity(wheelhouse_root)
     package_audit = build_embedded_runtime_package_audit(runtime_root)
     installer_rc = build_installer_rc_readiness()
     autonomous = build_autonomous_complex_capability_gate()

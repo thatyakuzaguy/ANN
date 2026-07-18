@@ -11,6 +11,7 @@ from agentic_network.model_routing.router import DEFAULT_CONFIG_PATH, load_routi
 from agentic_network.model_routing.runtime import build_pipeline_routing_plan
 from agentic_network.pipeline.runner import PipelineRunner
 from agentic_network.project_builder_orchestrator.runtime import run_end_to_end_project
+from agentic_network.runtime_engine.model_inventory import resolve_model_record
 
 
 def test_loads_default_routing_config() -> None:
@@ -21,11 +22,11 @@ def test_loads_default_routing_config() -> None:
     assert Path(DEFAULT_CONFIG_PATH).is_file()
 
 
-def test_fast_product_routes_to_qwen3_product_finetuned() -> None:
+def test_fast_product_routes_to_installed_qwen3_product_model() -> None:
     decision = resolve_model_route("product", "FAST")
 
     assert decision.status == "VALID"
-    assert decision.selected_model == "qwen3_product_finetuned"
+    assert decision.selected_model == "qwen3_8b_product_v9_repaired_v2_bullets"
 
 
 def test_powerful_product_routes_to_deepseek14b() -> None:
@@ -39,7 +40,7 @@ def test_unknown_agent_uses_fallback() -> None:
     decision = resolve_model_route("unknown_agent", "FAST")
 
     assert decision.status == "FALLBACK"
-    assert decision.selected_model == "qwen3_base"
+    assert decision.selected_model == "qwen3_4b_conversation_orchestrator"
 
 
 def test_invalid_mode_returns_invalid() -> None:
@@ -59,6 +60,17 @@ def test_sequential_required_is_true() -> None:
     decision = resolve_model_route("code", "FAST")
 
     assert decision.sequential_required is True
+
+
+@pytest.mark.parametrize(
+    "agent",
+    ["conversation_orchestrator", "product", "architect", "code", "test", "security", "reviewer", "fixer", "devops"],
+)
+def test_every_fast_route_resolves_to_declared_inventory_model(agent: str) -> None:
+    decision = resolve_model_route(agent, "FAST")
+
+    assert decision.status in {"VALID", "FALLBACK"}
+    assert resolve_model_record(decision.selected_model) is not None
 
 
 def test_build_pipeline_routing_plan_creates_decisions_for_all_stages(tmp_path: Path) -> None:
@@ -115,7 +127,7 @@ def test_pipeline_default_mode_remains_fast(tmp_path: Path) -> None:
 
     assert summary["execution_mode"] == "FAST"
     assert summary["model_routing_vram_policy"] == "SEQUENTIAL"
-    assert summary["model_routing_decisions"][0]["selected_model"] == "qwen3_product_finetuned"
+    assert summary["model_routing_decisions"][0]["selected_model"] == "qwen3_8b_product_v9_repaired_v2_bullets"
 
 
 def test_project_builder_accepts_execution_mode(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

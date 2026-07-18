@@ -54,6 +54,13 @@ class ModelRecord:
     estimated_vram_mb: int
     enabled: bool
     fallback_backend: str | None = None
+    size_bytes: int = 0
+    sha256: str = ""
+    context_tokens: int = 4096
+    max_tokens: int = 768
+    temperature: float = 0.2
+    n_gpu_layers: int = -1
+    main_gpu: int = 0
     model_declared: bool = True
     path_exists: bool = False
     adapter_exists: bool = False
@@ -115,7 +122,7 @@ def load_model_inventory(config_path: str | Path | None = None) -> ModelInventor
         if not isinstance(item, dict):
             warnings.append("inventory_model_entry_not_object")
             continue
-        record = _record_from_payload(item)
+        record = _record_from_payload(item, inventory_path=path)
         validation = validate_model_path(record)
         records.append(
             ModelRecord(
@@ -132,6 +139,13 @@ def load_model_inventory(config_path: str | Path | None = None) -> ModelInventor
                 estimated_vram_mb=record.estimated_vram_mb,
                 enabled=record.enabled,
                 fallback_backend=record.fallback_backend,
+                size_bytes=record.size_bytes,
+                sha256=record.sha256,
+                context_tokens=record.context_tokens,
+                max_tokens=record.max_tokens,
+                temperature=record.temperature,
+                n_gpu_layers=record.n_gpu_layers,
+                main_gpu=record.main_gpu,
                 model_declared=True,
                 path_exists=validation.exists,
                 adapter_exists=validation.adapter_exists,
@@ -159,7 +173,7 @@ def resolve_model_record(model_name: str, config_path: str | Path | None = None)
 
     clean_name = model_name.strip()
     for record in list_available_models(config_path):
-        if record.name == clean_name:
+        if record.name == clean_name or record.model_name == clean_name:
             return record
     return None
 
@@ -226,25 +240,48 @@ def validate_model_path(model_record: ModelRecord) -> ValidationResult:
     )
 
 
-def _record_from_payload(payload: dict[str, Any]) -> ModelRecord:
+def _record_from_payload(payload: dict[str, Any], *, inventory_path: Path = DEFAULT_INVENTORY_PATH) -> ModelRecord:
     model_name = str(payload.get("model_name") or payload.get("name") or "")
     source_path = str(payload.get("source_path") or payload.get("path") or "")
+    active_path = _resolve_inventory_path(str(payload.get("path") or source_path), inventory_path)
+    adapter_raw = str(payload["adapter_path"]) if payload.get("adapter_path") is not None else None
     return ModelRecord(
         model_name=model_name,
         name=str(payload.get("name") or model_name),
         family=str(payload.get("family") or ""),
         mode=str(payload.get("mode") or ""),
         backend=str(payload.get("backend") or ""),
-        path=source_path,
+        path=active_path,
         source_path=source_path,
         distribution_path=str(payload.get("distribution_path") or source_path),
-        adapter_path=str(payload["adapter_path"]) if payload.get("adapter_path") is not None else None,
+        adapter_path=_resolve_inventory_path(adapter_raw, inventory_path) if adapter_raw else None,
         quantization=str(payload.get("quantization") or ""),
         estimated_vram_mb=int(payload.get("estimated_vram_mb") or 0),
         enabled=bool(payload.get("enabled", False)),
         fallback_backend=str(payload["fallback_backend"]) if payload.get("fallback_backend") is not None else None,
+        size_bytes=int(payload.get("size_bytes") or 0),
+        sha256=str(payload.get("sha256") or "").lower(),
+        context_tokens=int(payload.get("context_tokens") or 4096),
+        max_tokens=int(payload.get("max_tokens") or 768),
+        temperature=float(payload.get("temperature") or 0.2),
+        n_gpu_layers=int(payload.get("n_gpu_layers", -1)),
+        main_gpu=int(payload.get("main_gpu") or 0),
         status=str(payload.get("status") or "declared"),
     )
+
+
+def _resolve_inventory_path(raw_path: str, inventory_path: Path) -> str:
+    """Resolve install-relative paths while preserving explicit D:/E: paths."""
+
+    if not raw_path:
+        return ""
+    normalized = raw_path.replace("\\", "/")
+    if normalized.startswith("/mnt/d/") or normalized.startswith("/mnt/e/"):
+        return raw_path
+    if PureWindowsPath(raw_path).drive:
+        return raw_path
+    install_root = inventory_path.resolve().parent.parent
+    return str((install_root / Path(normalized)).resolve())
 
 
 def _backend_available(backend: str) -> bool:

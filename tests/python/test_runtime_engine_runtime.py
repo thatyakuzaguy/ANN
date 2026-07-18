@@ -57,7 +57,7 @@ def test_fast_uses_qwen3_route(tmp_path: Path) -> None:
     result = execute_agent_runtime("product", "Build a CRM", execution_mode="FAST", run_dir=tmp_path)
 
     assert result.status == "SUCCESS"
-    assert result.selected_model == "qwen3_product_finetuned"
+    assert result.selected_model == "qwen3_8b_product_v9_repaired_v2_bullets"
     assert result.active_models == 0
 
 

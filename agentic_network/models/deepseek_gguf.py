@@ -9,6 +9,7 @@ from typing import Any
 from agentic_network.config import PipelineConfig
 from agentic_network.models.base import BaseModelClient
 from agentic_network.models.gpu_policy import require_gguf_gpu_offload
+from agentic_network.runtime_engine.windows_dlls import configure_windows_runtime_dll_paths
 
 _CODE_BLOCK_PATTERN = re.compile(r"```.*?```", re.DOTALL)
 _THINK_BLOCK_PATTERN = re.compile(r"<think\b[^>]*>.*?</think>", re.IGNORECASE | re.DOTALL)
@@ -39,6 +40,7 @@ class DeepSeekGGUFModel(BaseModelClient):
             raise RuntimeError(f"DeepSeek GGUF file does not exist: {model_path}")
         if config.require_gpu_for_llm:
             require_gguf_gpu_offload(config.deepseek_n_gpu_layers, "DeepSeek GGUF")
+        configure_windows_runtime_dll_paths()
         try:
             from llama_cpp import Llama
         except ImportError as exc:
@@ -112,6 +114,8 @@ def _clean_non_code_text(text: str) -> str:
     if "</think>" in text.lower():
         text = re.split(r"</think>", text, flags=re.IGNORECASE)[-1]
     text = _THINK_BLOCK_PATTERN.sub("", text)
+    if re.search(r"<think\b[^>]*>", text, flags=re.IGNORECASE):
+        text = re.split(r"<think\b[^>]*>", text, maxsplit=1, flags=re.IGNORECASE)[0]
     return _THINK_TAG_PATTERN.sub("", text)
 
 

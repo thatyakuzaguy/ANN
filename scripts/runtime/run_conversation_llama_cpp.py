@@ -19,23 +19,35 @@ import json
 import os
 import sys
 import time
-from pathlib import Path, PurePosixPath
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Any
+
+from agentic_network.models.gpu_policy import llama_cpp_supports_gpu_offload
+from agentic_network.runtime_engine.windows_dlls import configure_windows_runtime_dll_paths
+
+
+_RESULT_PATH: Path | None = None
 
 
 def main() -> int:
+    global _RESULT_PATH
     parser = argparse.ArgumentParser(description="Run one controlled ANN conversation inference.")
     parser.add_argument("--request-json", required=True)
+    parser.add_argument("--result-json")
     args = parser.parse_args()
+    _RESULT_PATH = _safe_result_path(args.result_json) if args.result_json else None
 
     started = time.perf_counter()
     payload = _read_request(Path(args.request_json))
-    model_path = _safe_model_path(str(payload.get("model_path_wsl") or ""))
+    model_path = _safe_model_path(
+        str(payload.get("model_path") or payload.get("model_path_wsl") or "")
+    )
     prompt = str(payload.get("prompt") or "").strip()
     if not prompt:
         _print({"status": "FAILED", "error": "prompt_required"})
         return 2
 
+    configure_windows_runtime_dll_paths()
     _prepare_cuda_library_path()
     _preload_cuda_libraries()
     try:
@@ -128,6 +140,19 @@ def _read_request(path: Path) -> dict[str, Any]:
 
 
 def _safe_model_path(raw_path: str) -> Path:
+    if os.name == "nt":
+        windows_path = PureWindowsPath(raw_path)
+        if windows_path.drive.upper() not in {"D:", "E:"}:
+            raise ValueError("model_path_must_be_on_d_or_e")
+        if ".." in windows_path.parts:
+            raise ValueError("model_path_traversal_blocked")
+        path = Path(raw_path).resolve()
+        if path.drive.upper() not in {"D:", "E:"}:
+            raise ValueError("resolved_model_path_must_be_on_d_or_e")
+        if not path.is_file():
+            raise FileNotFoundError(raw_path)
+        return path
+
     posix = PurePosixPath(raw_path)
     if not raw_path.startswith("/mnt/d/") and not raw_path.startswith("/mnt/e/"):
         raise ValueError("model_path_must_be_under_mnt_d_or_mnt_e")
@@ -136,6 +161,20 @@ def _safe_model_path(raw_path: str) -> Path:
     path = Path(raw_path)
     if not path.is_file():
         raise FileNotFoundError(raw_path)
+    return path
+
+
+def _safe_result_path(raw_path: str) -> Path:
+    raw_parts = str(raw_path).replace("\\", "/").split("/")
+    if ".." in raw_parts:
+        raise ValueError("result_path_traversal_blocked")
+    path = Path(raw_path).resolve()
+    if os.name == "nt" and path.drive.upper() not in {"D:", "E:"}:
+        raise ValueError("result_path_must_be_on_d_or_e")
+    protected = {".git", "models", "training", "datasets", "adapters", "memory", "knowledge"}
+    if any(part.casefold() in protected for part in path.parts):
+        raise ValueError("result_path_protected")
+    path.parent.mkdir(parents=True, exist_ok=True)
     return path
 
 
@@ -175,7 +214,7 @@ def _gpu_runtime_ready(llama_cpp_module: object, n_gpu_layers: int) -> tuple[boo
     if n_gpu_layers == 0:
         return False, "n_gpu_layers_zero_cpu_mode"
 
-    supports_offload = getattr(llama_cpp_module, "LLAMA_SUPPORTS_GPU_OFFLOAD", None)
+    supports_offload = llama_cpp_supports_gpu_offload(llama_cpp_module)
     if supports_offload is False:
         return False, "llama_cpp_gpu_offload_not_supported"
 
@@ -222,7 +261,10 @@ def _clean_model_text(text: str) -> str:
 
 
 def _print(payload: dict[str, Any]) -> None:
-    print(json.dumps(payload, ensure_ascii=False, sort_keys=True))
+    serialized = json.dumps(payload, ensure_ascii=False, sort_keys=True)
+    if _RESULT_PATH is not None:
+        _RESULT_PATH.write_text(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
+    print(serialized)
 
 
 if __name__ == "__main__":

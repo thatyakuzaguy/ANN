@@ -1,6 +1,7 @@
-# ANN Windows Installer Foundation
+# ANN Windows Installer
 
-This folder contains the developer/operator alpha installer foundation for ANN.
+This folder contains ANN's offline Windows installer, verifier, launcher, and
+uninstaller. The installer never downloads dependencies or model weights.
 
 ## Layout
 
@@ -21,11 +22,38 @@ D:\ANN
 
 ## Install
 
+### Source and runtime
+
 ```powershell
-powershell -ExecutionPolicy Bypass -File installer\install_ann.ps1 -InstallRoot D:\ANN
+powershell -NoProfile -ExecutionPolicy Bypass -File installer\install_ann.ps1 `
+  -SourceRoot D:\AgenticEngineeringNetwork `
+  -InstallRoot D:\ANN `
+  -RuntimeSource D:\ANN\runtime `
+  -DesktopSource "D:\AgenticEngineeringNetwork\apps\desktop\dist\Agentic Engineering Network-win32-x64"
 ```
 
-or:
+### Complete offline installation with local models
+
+ANN does not redistribute model weights. Prepare an authorized local model
+pack containing `MODEL_PACK_MANIFEST.json`, then install it with exact size and
+SHA-256 verification:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File installer\install_ann.ps1 `
+  -SourceRoot D:\AgenticEngineeringNetwork `
+  -InstallRoot D:\ANN `
+  -RuntimeSource D:\ANN\runtime `
+  -DesktopSource "D:\AgenticEngineeringNetwork\apps\desktop\dist\Agentic Engineering Network-win32-x64" `
+  -ModelSource D:\AgenticEngineeringNetwork\outputs\release_final\model_pack `
+  -ModelInstallMode HardLink `
+  -RequireModels
+```
+
+Use `-ModelInstallMode Copy` when the source and destination are on different
+volumes or when the installed copy must be independent. `HardLink` avoids
+duplicating model bytes but requires both paths to be on the same NTFS volume.
+
+The convenience wrapper uses the default payload locations:
 
 ```bat
 installer\ANN_Setup.bat
@@ -45,7 +73,9 @@ The installer creates a desktop shortcut that runs:
 powershell -ExecutionPolicy Bypass -File D:\ANN\runtime\ann_launcher.ps1
 ```
 
-The launcher sets `PYTHONPATH` to the installed app root and runs:
+The launcher opens the packaged native Desktop executable. If that executable
+is unavailable, its local fallback sets `PYTHONPATH` to the installed app root
+and runs:
 
 ```powershell
 python -m agentic_network.desktop_app.run
@@ -62,6 +92,19 @@ powershell -ExecutionPolicy Bypass -File installer\uninstall_ann.ps1 -InstallRoo
 Use `-RemoveProjects`, `-RemoveModels`, or `-RemoveOutputs` only when you intentionally want to delete those folders.
 
 ## Validate Installation
+
+Verify the installed runtime and Desktop:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File D:\ANN\installer\verify_install.ps1 -InstallRoot D:\ANN
+```
+
+For an installation that includes the complete local model pack, also verify
+the required model files and CUDA-enabled llama.cpp binding:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File D:\ANN\installer\verify_install.ps1 -InstallRoot D:\ANN -RequireModels
+```
 
 Local smoke validation verifies the installed layout without loading models, running inference, downloading packages, or installing dependencies:
 

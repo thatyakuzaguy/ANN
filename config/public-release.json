@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "repository_name": "agentic-neural-network",
-  "release_stage": "public-alpha",
+  "release_stage": "release-candidate",
   "maximum_file_size_mb": 25,
   "source_directories": [
     ".github",

@@ -1,15 +1,16 @@
-param(
-  [string]$InstallRoot = "D:\ANN"
-)
+param([string]$InstallRoot = "D:\ANN")
 
 $ErrorActionPreference = "Stop"
-$repoRoot = (Resolve-Path "$PSScriptRoot\..").Path
-$repoDesktopEntry = Join-Path $repoRoot "agentic_network\desktop_app\run.py"
-if (Test-Path $repoDesktopEntry) {
-  $appRoot = $repoRoot
-} else {
-  $appRoot = Join-Path $InstallRoot "app"
+$InstallRoot = [System.IO.Path]::GetFullPath($InstallRoot).TrimEnd('\')
+if ($InstallRoot -match '^[Cc]:\\') { throw "C:\ launch roots are blocked by default." }
+$desktop = Join-Path $InstallRoot "desktop\Agentic Engineering Network.exe"
+$python = Join-Path $InstallRoot "runtime\python\python.exe"
+
+if (Test-Path -LiteralPath $desktop -PathType Leaf) {
+  Start-Process -FilePath $desktop -WorkingDirectory (Split-Path -Parent $desktop)
+  exit 0
 }
-$env:PYTHONPATH = $appRoot
-Set-Location $appRoot
-python -m agentic_network.desktop_app.run
+if (-not (Test-Path -LiteralPath $python -PathType Leaf)) { throw "Embedded Python not found: $python" }
+$env:PYTHONPATH = $InstallRoot
+Set-Location $InstallRoot
+& $python -m agentic_network.desktop_app.run

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import socket
 import subprocess
 from pathlib import Path
@@ -32,13 +33,49 @@ def test_model_inventory_loads() -> None:
     assert any(record.name == "qwen3_8b_product_v9_repaired_v2_bullets" for record in inventory.models)
 
 
-def test_model_inventory_validates_disabled_model() -> None:
+def test_model_inventory_detects_powerful_model_but_keeps_policy_gate() -> None:
     record = resolve_model_record("deepseek_r1_distill_qwen_14b")
 
     assert record is not None
-    assert record.enabled is False
-    assert record.validation_status == "DISABLED"
-    assert "model_disabled" in (record.warnings or [])
+    assert record.enabled is True
+    assert record.backend == "llama_cpp"
+    assert record.path_exists is True
+    assert record.load_allowed is False
+    assert "real_model_load_blocked_by_policy" in record.load_blocked_reason
+
+
+def test_inventory_relative_model_path_rebases_from_install_root(tmp_path: Path) -> None:
+    install_root = Path("D:/AgenticEngineeringNetwork/outputs/test-runtime-inventory") / tmp_path.name
+    model_path = install_root / "models" / "model.gguf"
+    config_path = install_root / "config" / "ann_model_inventory.json"
+    try:
+        model_path.parent.mkdir(parents=True)
+        config_path.parent.mkdir(parents=True)
+        model_path.write_bytes(b"gguf")
+        config_path.write_text(
+            json.dumps(
+                {
+                    "version": 2,
+                    "models": [
+                        {
+                            "model_name": "portable",
+                            "path": "models/model.gguf",
+                            "backend": "llama_cpp",
+                            "mode": "FAST",
+                            "enabled": True,
+                        }
+                    ],
+                }
+            ),
+            encoding="utf-8",
+        )
+
+        record = load_model_inventory(config_path).models[0]
+
+        assert Path(record.path) == model_path.resolve()
+        assert record.path_exists is True
+    finally:
+        shutil.rmtree(install_root, ignore_errors=True)
 
 
 def test_model_path_outside_allowed_roots_blocked(tmp_path: Path) -> None:

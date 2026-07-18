@@ -6,39 +6,26 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+$root = [System.IO.Path]::GetFullPath($InstallRoot).TrimEnd('\')
+if ($root -match '^[Cc]:\\') { throw "C:\ uninstall roots are blocked by default." }
+if ($root -notmatch '^[DdEe]:\\' -or $root.Length -lt 6) { throw "Unsafe ANN uninstall root: $root" }
 
-function Test-BlockedRoot {
-  param([string]$PathValue)
-  $full = [System.IO.Path]::GetFullPath($PathValue)
-  if ($full -match '^[Cc]:\\') { throw "C:\ uninstall roots are blocked by default." }
-  if ($full.Length -lt 6) { throw "Refusing to uninstall from a shallow path." }
-}
-
-function Write-UninstallLog {
-  param([string]$Message)
-  $log = Join-Path $InstallRoot "uninstall_log.txt"
-  New-Item -ItemType Directory -Force -Path $InstallRoot | Out-Null
-  Add-Content -Path $log -Value "$(Get-Date -Format o) $Message"
-}
-
-Test-BlockedRoot $InstallRoot
-Write-UninstallLog "Starting ANN uninstall at $InstallRoot"
-
-$remove = @("app", "runtime", "config", "logs", "adapters", "ANN Desktop.lnk.cmd", "install_manifest.json", "install_log.txt")
+$remove = @(
+  "agentic_network", "apps", "packages", "scripts", "config", "installer", "desktop",
+  "runtime", "adapters", "pyproject.toml", "README.md", "start.ps1", "stop.ps1",
+  "install_manifest.json", "install_log.txt"
+)
 if ($RemoveProjects) { $remove += "projects" }
 if ($RemoveModels) { $remove += "models" }
-if ($RemoveOutputs) { $remove += "outputs"; $remove += "data" }
+if ($RemoveOutputs) { $remove += @("outputs", "data", "logs") }
 
 foreach ($name in $remove) {
-  $target = Join-Path $InstallRoot $name
-  if (-not (Test-Path $target)) { continue }
+  $target = Join-Path $root $name
+  if (-not (Test-Path -LiteralPath $target)) { continue }
   $full = [System.IO.Path]::GetFullPath($target)
-  $rootFull = [System.IO.Path]::GetFullPath($InstallRoot)
-  if (-not $full.StartsWith($rootFull)) { throw "Refusing to remove outside install root: $target" }
+  if (-not $full.StartsWith("$root\", [System.StringComparison]::OrdinalIgnoreCase)) {
+    throw "Refusing to remove outside install root: $target"
+  }
   Remove-Item -LiteralPath $target -Recurse -Force
-  Write-UninstallLog "Removed $target"
 }
-
-Write-UninstallLog "Uninstall complete. Preserved projects/models/outputs unless removal flags were supplied."
-Write-Host "ANN uninstall complete."
-
+Write-Host "ANN application removed. Projects, models, outputs, data, and logs were preserved unless explicitly selected."

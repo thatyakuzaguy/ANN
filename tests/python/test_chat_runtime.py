@@ -106,7 +106,7 @@ def test_submit_chat_task(tmp_path: Path, stores: tuple[ConversationStore, Works
     assert result.status == "SUCCESS"
     assert result.execution_mode == "FAST"
     assert result.current_agent == "architect"
-    assert result.current_model == "qwen3_architect_finetuned"
+    assert result.current_model == "qwen3_8b_product_v9_repaired_v2_bullets"
     assert Path(result.run_dir, "summary.json").is_file()
 
 

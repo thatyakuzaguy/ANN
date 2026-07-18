@@ -5,6 +5,19 @@ from __future__ import annotations
 from typing import Any
 
 
+def llama_cpp_supports_gpu_offload(llama_cpp_module: Any) -> bool | None:
+    """Return native llama.cpp GPU-offload capability across binding versions."""
+
+    probe = getattr(llama_cpp_module, "llama_supports_gpu_offload", None)
+    if callable(probe):
+        try:
+            return bool(probe())
+        except Exception:
+            return None
+    legacy = getattr(llama_cpp_module, "LLAMA_SUPPORTS_GPU_OFFLOAD", None)
+    return legacy if isinstance(legacy, bool) else None
+
+
 def require_cuda_available(torch_module: Any, backend_name: str) -> None:
     """Fail fast when a Transformers/Unsloth backend would fall back to CPU."""
 

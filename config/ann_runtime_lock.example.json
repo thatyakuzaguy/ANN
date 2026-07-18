@@ -60,7 +60,7 @@
     },
     {
       "name": "llama-cpp-python",
-      "version": "0.3.33",
+      "version": "0.3.32",
       "role": "qwen25_gguf",
       "required_for": [
         "required_for_qwen25_gguf"
@@ -357,10 +357,10 @@
     },
     {
       "name": "llama-cpp-python",
-      "version": "0.3.33",
-      "filename": "llama_cpp_python-0.3.33-py3-none-win_amd64.whl",
-      "sha256": "ac941f5788ef1288ab30e5336d585528d7d8c9434a8b8d2e8b5cd08f02d65aed",
-      "size_bytes": 6618795,
+      "version": "0.3.32",
+      "filename": "llama_cpp_python-0.3.32-py3-none-win_amd64.whl",
+      "sha256": "c2149da0ff1af565418f27a9d11e88ed66732b3e2c46023e5d5dc0e30678fdc0",
+      "size_bytes": 526832682,
       "source": "offline_wheelhouse",
       "role": "qwen25_gguf",
       "required": true,

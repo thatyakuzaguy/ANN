@@ -88,7 +88,10 @@ type ConversationModelState = {
   runtime?: {
     allowRealInference: boolean;
     runtimeType: string;
+    executionRuntime: "windows" | "wsl";
+    pythonExecutableWindows: string;
     pythonExecutableWsl: string;
+    modelPathWindows: string;
     modelPathWsl: string;
     maxTokens: number;
     contextTokens: number;
@@ -718,6 +721,7 @@ function getModelInventoryCapability() {
     backend: String(model.backend ?? "unknown"),
     status: String(model.status ?? "unknown"),
     path: String(model.path ?? model.source_path ?? ""),
+    distributionPath: String(model.distribution_path ?? ""),
     enabled: Boolean(model.enabled),
     role: String(model.role ?? ""),
   }));
@@ -745,7 +749,9 @@ function getTerminalConversationRuntime() {
   const config = readJson(configPath) as Record<string, unknown> | null;
   return {
     allowRealInference: Boolean(config?.allow_real_inference),
-    runtimeType: String(config?.runtime_type ?? "external_wsl_conda"),
+    runtimeType: String(config?.runtime_type ?? "embedded_windows_preferred"),
+    executionRuntime: "wsl" as "windows" | "wsl",
+    pythonExecutableWindows: String(config?.python_executable_windows ?? ""),
     pythonExecutableWsl: String(config?.python_executable_wsl ?? "python3"),
     modelName: String(config?.model_name ?? "qwen3_4b_conversation_orchestrator"),
     modelPathWindows: String(config?.model_path_windows ?? ""),
@@ -757,6 +763,59 @@ function getTerminalConversationRuntime() {
     nGpuLayers: Number(config?.n_gpu_layers ?? -1),
     timeoutMs: Number(config?.timeout_ms ?? 180000),
   };
+}
+
+function buildInferenceEnvironment() {
+  const pythonPaths = [
+    ROOT,
+    path.join(ROOT, "packages", "shared", "src"),
+    path.join(ROOT, "packages", "agents", "src"),
+    path.join(ROOT, "packages", "orchestration", "src"),
+    process.env.PYTHONPATH ?? "",
+  ].filter(Boolean);
+  return {
+    ...process.env,
+    AEN_ROOT: ROOT,
+    AEN_HOST_ROOT: ROOT,
+    PYTHONPATH: pythonPaths.join(path.delimiter),
+  };
+}
+
+function resolveWindowsPython(configuredExecutable: string) {
+  const candidates = [
+    configuredExecutable,
+    process.env.AEN_API_PYTHON ?? "",
+    path.join(ROOT, "runtime", "python", "python.exe"),
+    path.join(ROOT, "runtime", "python.exe"),
+  ];
+  return candidates.find((candidate) => candidate && fileExists(candidate)) ?? "";
+}
+
+function isWindowsRuntimeReady(pythonExecutableWindows: string) {
+  if (!pythonExecutableWindows) return { ready: false, reason: "embedded_python_not_found" };
+  if (process.env.NODE_ENV === "test") return { ready: true, reason: "test_runtime_skipped" };
+  try {
+    const probe = [
+      "from agentic_network.runtime_engine.windows_dlls import configure_windows_runtime_dll_paths",
+      "from agentic_network.models.gpu_policy import llama_cpp_supports_gpu_offload",
+      "configure_windows_runtime_dll_paths()",
+      "import llama_cpp",
+      "raise SystemExit(0 if llama_cpp_supports_gpu_offload(llama_cpp) is True else 4)",
+    ].join("; ");
+    const result = spawnSync(pythonExecutableWindows, ["-c", probe], {
+      cwd: ROOT,
+      encoding: "utf8",
+      timeout: 15000,
+      shell: false,
+      windowsHide: true,
+      env: buildInferenceEnvironment(),
+    });
+    if (result.status === 0) return { ready: true, reason: "llama_cpp_cuda_ready" };
+    return { ready: false, reason: result.stderr?.trim() || result.stdout?.trim() || `exit_${result.status}` };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "unknown_runtime_error";
+    return { ready: false, reason: message };
+  }
 }
 
 function isWslRuntimeReady(pythonExecutableWsl: string) {
@@ -806,9 +865,8 @@ function runRealConversationInference(input: {
   const requestPath = path.join(/*turbopackIgnore: true*/ outputDir, "request.json");
   const resultPath = path.join(/*turbopackIgnore: true*/ outputDir, "result.json");
   const prompt = buildRealConversationPrompt(input);
-  const requestPayload = {
+  const requestPayload: Record<string, unknown> = {
     model_name: model.modelName,
-    model_path_wsl: model.runtime.modelPathWsl,
     prompt,
     max_tokens: model.runtime.maxTokens,
     context_tokens: model.runtime.contextTokens,
@@ -816,29 +874,38 @@ function runRealConversationInference(input: {
     require_gpu: model.runtime.requireGpu,
     n_gpu_layers: model.runtime.nGpuLayers,
   };
+  if (model.runtime.executionRuntime === "windows") {
+    requestPayload.model_path = model.runtime.modelPathWindows;
+  } else {
+    requestPayload.model_path_wsl = model.runtime.modelPathWsl;
+  }
   fs.writeFileSync(requestPath, JSON.stringify(requestPayload, null, 2), "utf8");
 
   const scriptPath = path.join(/*turbopackIgnore: true*/ ROOT, "scripts", "runtime", "run_conversation_llama_cpp.py");
-  const result = spawnSync(
-    "wsl.exe",
-    [
-      "-e",
-      model.runtime.pythonExecutableWsl,
-      toWslPath(scriptPath),
-      "--request-json",
-      toWslPath(requestPath),
-    ],
-    {
-      cwd: ROOT,
-      encoding: "utf8",
-      timeout: model.runtime.timeoutMs,
-      shell: false,
-      windowsHide: true,
-      maxBuffer: 1024 * 1024 * 4,
-    },
-  );
+  const executable = model.runtime.executionRuntime === "windows" ? model.runtime.pythonExecutableWindows : "wsl.exe";
+  const args = model.runtime.executionRuntime === "windows"
+    ? [scriptPath, "--request-json", requestPath, "--result-json", resultPath]
+    : [
+        "-e",
+        model.runtime.pythonExecutableWsl,
+        toWslPath(scriptPath),
+        "--request-json",
+        toWslPath(requestPath),
+        "--result-json",
+        toWslPath(resultPath),
+      ];
+  const result = spawnSync(executable, args, {
+    cwd: ROOT,
+    encoding: "utf8",
+    timeout: model.runtime.timeoutMs,
+    shell: false,
+    windowsHide: true,
+    maxBuffer: 1024 * 1024 * 4,
+    env: buildInferenceEnvironment(),
+  });
 
-  const parsed = parseLastJsonLine(result.stdout);
+  const persistedResult = readJson(resultPath) as Record<string, unknown> | null;
+  const parsed = persistedResult ?? parseLastJsonLine(result.stdout);
   const diagnostic = {
     status: parsed?.status ?? "FAILED",
     exitCode: result.status,
@@ -848,6 +915,8 @@ function runRealConversationInference(input: {
     parsed,
     modelName: model.modelName,
     modelPath: model.expectedPath,
+    executionRuntime: model.runtime.executionRuntime,
+    pythonExecutable: executable,
     activeModelsAfter: parsed?.active_models_after ?? 0,
     parallelLlmLoadsAfter: parsed?.parallel_llm_loads_after ?? 0,
     safeModeFinal: parsed?.safe_mode_final ?? true,
@@ -859,7 +928,7 @@ function runRealConversationInference(input: {
     { kind: "status", text: "Ejecutando inferencia local controlada" },
   ];
   if (parsed?.status === "PASSED" && typeof parsed.text === "string" && parsed.text.trim()) {
-    events.push({ kind: "status", text: `Modelo descargado. active_models=${parsed.active_models_after ?? 0}, parallel_llm_loads=${parsed.parallel_llm_loads_after ?? 0}` });
+    events.push({ kind: "status", text: `Modelo liberado. active_models=${parsed.active_models_after ?? 0}, parallel_llm_loads=${parsed.parallel_llm_loads_after ?? 0}` });
     return { text: cleanAssistantVoice(parsed.text), events, result: diagnostic };
   }
   events.push({ kind: "error", text: `Real conversation inference failed; fallback deterministic response used. Artifact: ${resultPath}` });
@@ -950,7 +1019,15 @@ function inspectConversationModel(): ConversationModelState {
     inventory.models.find((item) => item.name === terminalRuntime.modelName)
     ?? inventory.models.find((item) => item.role === "CONVERSATION_ORCHESTRATOR" && item.enabled && item.status !== "missing")
     ?? inventory.models.find((item) => item.name === "qwen3_4b_conversation_orchestrator");
-  const expectedPath = terminalRuntime.modelPathWindows || model?.path || "D:/Models/qwen3-4b-instruct-2507-q4_k_m.gguf";
+  const configuredModelPath = terminalRuntime.modelPathWindows || model?.path || "D:/Models/qwen3-4b-instruct-2507-q4_k_m.gguf";
+  const bundledModelPath = path.join(ROOT, "models", path.basename(configuredModelPath));
+  const distributionModelPath = String(model?.distributionPath ?? "");
+  const expectedPath = [
+    process.env.AEN_CONVERSATION_MODEL_PATH ?? "",
+    bundledModelPath,
+    distributionModelPath,
+    configuredModelPath,
+  ].find((candidate) => candidate && fileExists(candidate)) ?? configuredModelPath;
   const exists = fileExists(expectedPath);
   if (!model) {
     return {
@@ -992,6 +1069,28 @@ function inspectConversationModel(): ConversationModelState {
       reason: "Conversation mode is unavailable because another local model appears active.",
     };
   }
+  const pythonExecutableWindows = resolveWindowsPython(terminalRuntime.pythonExecutableWindows);
+  const windowsReady = isWindowsRuntimeReady(pythonExecutableWindows);
+  if (windowsReady.ready) {
+    return {
+      status: "REAL_BACKEND_READY",
+      displayName: model.name,
+      backendKind: "real" as const,
+      expectedPath,
+      modelName: model.name,
+      reason: "Qwen3 real backend is available through ANN's embedded Windows runtime.",
+      runtime: {
+        ...terminalRuntime,
+        runtimeType: pythonExecutableWindows.startsWith(path.join(ROOT, "runtime"))
+          ? "embedded_windows"
+          : "verified_windows",
+        executionRuntime: "windows",
+        pythonExecutableWindows,
+        modelPathWindows: expectedPath,
+      },
+    };
+  }
+
   const wslReady = isWslRuntimeReady(terminalRuntime.pythonExecutableWsl);
   if (!wslReady.ready) {
     return {
@@ -1000,7 +1099,7 @@ function inspectConversationModel(): ConversationModelState {
       backendKind: "unavailable" as const,
       expectedPath,
       modelName: model.name,
-      reason: `Conversation mode is unavailable because the local inference runtime is not ready: ${wslReady.reason}`,
+      reason: `Conversation mode is unavailable because neither embedded Windows nor WSL inference is ready: windows=${windowsReady.reason}; wsl=${wslReady.reason}`,
     };
   }
   return {
@@ -1009,8 +1108,13 @@ function inspectConversationModel(): ConversationModelState {
     backendKind: "real" as const,
     expectedPath,
     modelName: model.name,
-    reason: "Qwen3 real backend is available through the controlled external WSL runtime.",
-    runtime: terminalRuntime,
+    reason: "Qwen3 real backend is available through the controlled external WSL development runtime.",
+    runtime: {
+      ...terminalRuntime,
+      executionRuntime: "wsl",
+      pythonExecutableWindows: "",
+      modelPathWindows: expectedPath,
+    },
   };
 }
 

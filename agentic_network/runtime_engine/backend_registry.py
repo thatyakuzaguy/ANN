@@ -32,27 +32,31 @@ def get_backend(
     backend_name: str | None = None,
     *,
     config: dict[str, Any] | None = None,
+    policy: dict[str, Any] | None = None,
 ) -> ModelBackend:
     """Resolve a backend adapter by name or runtime config."""
 
     runtime_config = config or load_runtime_config()
     selected = (backend_name or os.environ.get("ANN_RUNTIME_BACKEND") or runtime_config.get("backend") or "mock")
     name = str(selected).strip().lower()
-    policy = runtime_config.get("backend_policy") if isinstance(runtime_config.get("backend_policy"), dict) else {}
+    backend_policy = policy
+    if backend_policy is None:
+        configured_policy = runtime_config.get("backend_policy")
+        backend_policy = configured_policy if isinstance(configured_policy, dict) else {}
     if name == "mock":
-        return MockBackend(policy)
+        return MockBackend(backend_policy)
     if name == "embedded":
-        return EmbeddedBackend(policy)
+        return EmbeddedBackend(backend_policy)
     if name == "llama_cpp":
-        return LlamaCppBackend(policy)
+        return LlamaCppBackend(backend_policy)
     if name == "qwen_local":
-        return QwenLocalBackend(policy)
+        return QwenLocalBackend(backend_policy)
     if name == "ollama":
-        return OllamaBackend(policy)
+        return OllamaBackend(backend_policy)
     if name == "gguf":
-        return GGUFBackend(policy)
+        return GGUFBackend(backend_policy)
     if name == "unsloth_qwen":
-        return UnslothQwenBackend(policy)
+        return UnslothQwenBackend(backend_policy)
     raise ValueError(f"invalid_runtime_backend:{name}")
 
 

@@ -4,7 +4,7 @@ from dataclasses import asdict, dataclass
 from typing import Any
 from uuid import uuid4
 
-from agentic_engineering_network.agents.definitions import get_agent_registry
+from agentic_engineering_network.agents.definitions import AgentDefinition, get_agent_registry
 from agentic_engineering_network.agents.runtime import AgentRunResult, AgentRuntime
 from agentic_engineering_network.logs.audit import AuditLogger
 from agentic_engineering_network.orchestration.artifact_router import build_project_artifacts
@@ -13,7 +13,11 @@ from agentic_engineering_network.orchestration.workspace import ProposedFile, Wo
 from agentic_engineering_network.security.approvals import ApprovalCenter, ApprovalType
 from agentic_engineering_network.security.review import SecurityReviewer
 from agentic_engineering_network.shared.config import Settings, resolve_workspace_directory, to_host_path
-from agentic_engineering_network.shared.providers import build_provider, DeterministicLocalProvider
+from agentic_engineering_network.shared.providers import (
+    DeterministicLocalProvider,
+    build_provider,
+    build_provider_for_agent,
+)
 
 
 @dataclass(frozen=True)
@@ -39,7 +43,13 @@ class AgenticEngineeringNetwork:
                 provider = DeterministicLocalProvider()
         except RuntimeError:
             provider = DeterministicLocalProvider()
-        self.runtime = AgentRuntime(provider, audit)
+        provider_factory = None
+        if settings.ai_provider in {"llama_cpp", "local_gguf", "qwen_direct"}:
+            def routed_provider_factory(agent: AgentDefinition):
+                return build_provider_for_agent(settings, str(agent.name), "FAST")
+
+            provider_factory = routed_provider_factory
+        self.runtime = AgentRuntime(provider, audit, provider_factory=provider_factory)
         self.workspace = WorkspaceManager(settings.generated_projects_path, approvals)
         self.security = SecurityReviewer()
 
@@ -60,9 +70,12 @@ class AgenticEngineeringNetwork:
             "task_count": len(tasks),
             "workspace_directory": display_workspace,
         }
-        agent_results = tuple(
-            self.runtime.run(agent, idea, context) for agent in get_agent_registry()
-        )
+        try:
+            agent_results = tuple(
+                self.runtime.run(agent, idea, context) for agent in get_agent_registry()
+            )
+        finally:
+            self.runtime.close()
         files = self._starter_artifacts(idea, run_id)
         review = self.security.review_generated_files(files)
         proposed = tuple(

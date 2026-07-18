@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-07-18T00:26:03.2754166Z",
+  "generated_at_utc": "2026-07-18T00:33:05.6253320Z",
   "release_stage": "public-alpha",
   "source_revision": "cbb9c3b9adc5a16c7f487702a8870877c11a3a79",
   "file_count": 773,
-  "total_bytes": 5559162,
+  "total_bytes": 5559518,
   "maximum_file_size_mb": 25,
   "files": [
     {
@@ -1520,12 +1520,12 @@
     {
       "path": "apps/web/src/app/api/ui/browse/route.test.ts",
       "bytes": 1008,
-      "sha256": "61e81d2ff031a7563f565041feb1365b22e1ba486cb05e73ac1bc9fde3653651"
+      "sha256": "37c91502a21b1cc242a4b0dec93cc28f9c859cf9d7a4c184752ae0f8daeb8c6d"
     },
     {
       "path": "apps/web/src/app/api/ui/browse/route.ts",
-      "bytes": 3757,
-      "sha256": "4fb616bbca486a886bb8ed1c6b5c79442e087a39bec2e834d38be59cf761163b"
+      "bytes": 4113,
+      "sha256": "795a530d89fa0fba1f0f86334c1e73a5ac6264e2c48f62adf848421e68a0ceb3"
     },
     {
       "path": "apps/web/src/app/api/ui/state/route.ts",

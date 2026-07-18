@@ -14,7 +14,7 @@ describe("ANN read-only UI browser", () => {
     expect(payload.kind).toBe("file");
     expect(payload.path).toBe("README.md");
     expect(payload.previewable).toBe(true);
-    expect(payload.content).toContain("Agentic Engineering Network");
+    expect(payload.content).toContain("ANN: Agentic Neural Network");
   });
 
   it("blocks path traversal outside the ANN workspace", async () => {

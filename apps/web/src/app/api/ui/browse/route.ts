@@ -5,7 +5,18 @@ import { NextRequest, NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-const ROOT = path.resolve(/* turbopackIgnore: true */ process.env.AEN_ROOT || "D:\\AgenticEngineeringNetwork");
+function resolveWorkspaceRoot() {
+  if (process.env.AEN_ROOT) {
+    return path.resolve(/* turbopackIgnore: true */ process.env.AEN_ROOT);
+  }
+  const checkoutRoot = path.resolve(/* turbopackIgnore: true */ process.cwd(), "..", "..");
+  if (fs.existsSync(path.join(checkoutRoot, "PUBLIC_RELEASE_MANIFEST.json"))) {
+    return checkoutRoot;
+  }
+  return path.resolve(/* turbopackIgnore: true */ "D:\\AgenticEngineeringNetwork");
+}
+
+const ROOT = resolveWorkspaceRoot();
 const MAX_PREVIEW_BYTES = 1024 * 1024;
 const MAX_DOWNLOAD_BYTES = 64 * 1024 * 1024;
 const TEXT_EXTENSIONS = new Set([

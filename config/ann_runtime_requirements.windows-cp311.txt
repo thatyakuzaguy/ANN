@@ -7,7 +7,7 @@ torch>=2.10
 transformers>=4.45
 safetensors>=0.4
 numpy>=1.26
-psutil>=5.9
+psutil>=7.2.2
 packaging>=24
 
 # Qwen2.5 GGUF backend. For CUDA/cuBLAS on Windows this may require a

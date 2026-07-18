@@ -34,6 +34,53 @@ function Write-JsonUtf8NoBom {
   [System.IO.File]::WriteAllText($PathValue, $json, $encoding)
 }
 
+function Test-ReleasePayloadManifest {
+  param([string]$Root)
+  $payloadRoot = Join-Path $Root "payload"
+  $manifestPath = Join-Path $Root "RELEASE_PAYLOAD_MANIFEST.json"
+  if (-not (Test-Path -LiteralPath $payloadRoot -PathType Container)) {
+    return [pscustomobject]@{ status = "SOURCE_INSTALL"; path = ""; sha256 = ""; files_verified = 0 }
+  }
+  if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) {
+    throw "Packaged ANN payload requires RELEASE_PAYLOAD_MANIFEST.json."
+  }
+  $manifest = Get-Content -LiteralPath $manifestPath -Raw -Encoding UTF8 | ConvertFrom-Json
+  if (-not $manifest.files -or @($manifest.files).Count -eq 0) {
+    throw "ANN release payload manifest contains no files."
+  }
+  $rootPrefix = ([System.IO.Path]::GetFullPath($Root).TrimEnd('\') + '\')
+  $verified = 0
+  foreach ($entry in @($manifest.files)) {
+    $relative = [string]$entry.relative_path
+    $normalized = $relative.Replace('/', '\')
+    if (-not $relative -or [System.IO.Path]::IsPathRooted($normalized) -or $normalized.Split('\') -contains "..") {
+      throw "Unsafe release payload manifest path: $relative"
+    }
+    $candidate = [System.IO.Path]::GetFullPath((Join-Path $Root $normalized))
+    if (-not $candidate.StartsWith($rootPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+      throw "Release payload manifest path escapes source root: $relative"
+    }
+    if (-not (Test-Path -LiteralPath $candidate -PathType Leaf)) {
+      throw "Release payload file missing: $relative"
+    }
+    $file = Get-Item -LiteralPath $candidate
+    if ([int64]$entry.size_bytes -ne [int64]$file.Length) {
+      throw "Release payload size mismatch: $relative"
+    }
+    $actualHash = (Get-FileHash -LiteralPath $candidate -Algorithm SHA256).Hash.ToLowerInvariant()
+    if ($actualHash -ne ([string]$entry.sha256).ToLowerInvariant()) {
+      throw "Release payload SHA256 mismatch: $relative"
+    }
+    $verified += 1
+  }
+  return [pscustomobject]@{
+    status = "HASH_VERIFIED"
+    path = $manifestPath
+    sha256 = (Get-FileHash -LiteralPath $manifestPath -Algorithm SHA256).Hash.ToLowerInvariant()
+    files_verified = $verified
+  }
+}
+
 function Resolve-SafeRoot {
   param([string]$PathValue)
   $full = [System.IO.Path]::GetFullPath($PathValue)
@@ -150,14 +197,14 @@ function Update-InstalledModelConfiguration {
       $name = [string]$model.model_name
       if (-not $mapping.ContainsKey($name)) { continue }
       $candidate = Join-Path $modelRoot $mapping[$name]
-      if (-not (Test-Path -LiteralPath $candidate -PathType Leaf)) { continue }
+      $installed = Test-Path -LiteralPath $candidate -PathType Leaf
       $model.path = $candidate.Replace('\', '/')
       $model.source_path = $model.path
       $model.distribution_path = $model.path
       $model.backend = "llama_cpp"
       $model.adapter_path = $null
-      $model.status = "detected"
-      $model.enabled = $true
+      $model.status = if ($installed) { "detected" } else { "missing" }
+      $model.enabled = [bool]$installed
     }
     Write-JsonUtf8NoBom $inventory $inventoryPath
   }
@@ -168,27 +215,26 @@ function Update-InstalledModelConfiguration {
     $conversation.runtime_type = "embedded_windows"
     $conversation.python_executable_windows = (Join-Path $Root "runtime\python\python.exe").Replace('\', '/')
     $conversationModel = Join-Path $modelRoot "qwen3-4b-instruct-2507-q4_k_m.gguf"
-    if (Test-Path -LiteralPath $conversationModel -PathType Leaf) {
-      $conversation.model_path_windows = $conversationModel.Replace('\', '/')
-    }
+    $conversation.model_path_windows = $conversationModel.Replace('\', '/')
+    $conversation.allow_real_inference = [bool](Test-Path -LiteralPath $conversationModel -PathType Leaf)
+    $conversation.python_executable_wsl = ""
+    $conversation.model_path_wsl = ""
     Write-JsonUtf8NoBom $conversation $conversationPath
   }
 
-  if ($EnableRealModels) {
-    $policyPath = Join-Path $Root "config\ann_model_policy.json"
-    if (Test-Path -LiteralPath $policyPath -PathType Leaf) {
-      $policy = Get-Content -LiteralPath $policyPath -Raw | ConvertFrom-Json
-      $policy.allow_real_model_load = $true
-      $policy.default_backend = "llama_cpp"
-      Write-JsonUtf8NoBom $policy $policyPath
-    }
-    $runtimePath = Join-Path $Root "config\ann_runtime_engine.json"
-    if (Test-Path -LiteralPath $runtimePath -PathType Leaf) {
-      $runtime = Get-Content -LiteralPath $runtimePath -Raw | ConvertFrom-Json
-      $runtime.backend = "llama_cpp"
-      $runtime.backend_policy.allow_real_model_load = $true
-      Write-JsonUtf8NoBom $runtime $runtimePath
-    }
+  $policyPath = Join-Path $Root "config\ann_model_policy.json"
+  if (Test-Path -LiteralPath $policyPath -PathType Leaf) {
+    $policy = Get-Content -LiteralPath $policyPath -Raw | ConvertFrom-Json
+    $policy.allow_real_model_load = [bool]$EnableRealModels
+    $policy.default_backend = if ($EnableRealModels) { "llama_cpp" } else { "mock" }
+    Write-JsonUtf8NoBom $policy $policyPath
+  }
+  $runtimePath = Join-Path $Root "config\ann_runtime_engine.json"
+  if (Test-Path -LiteralPath $runtimePath -PathType Leaf) {
+    $runtime = Get-Content -LiteralPath $runtimePath -Raw | ConvertFrom-Json
+    $runtime.backend = if ($EnableRealModels) { "llama_cpp" } else { "mock" }
+    $runtime.backend_policy.allow_real_model_load = [bool]$EnableRealModels
+    Write-JsonUtf8NoBom $runtime $runtimePath
   }
 }
 
@@ -197,6 +243,7 @@ $InstallRoot = Resolve-SafeRoot $InstallRoot
 if ($InstallRoot.Equals($SourceRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
   throw "Install root must not equal source root."
 }
+$payloadVerification = Test-ReleasePayloadManifest $SourceRoot
 
 New-Item -ItemType Directory -Force -Path $InstallRoot | Out-Null
 Write-InstallLog "Starting ANN install from $SourceRoot to $InstallRoot"
@@ -252,10 +299,7 @@ if (-not $RuntimeSource) {
 }
 if (-not $RuntimeSource) { throw "Embedded ANN runtime payload was not found." }
 $RuntimeSource = [System.IO.Path]::GetFullPath($RuntimeSource).TrimEnd('\')
-Copy-Tree (Join-Path $RuntimeSource "python") (Join-Path $InstallRoot "runtime\python") @()
-if (Test-Path -LiteralPath (Join-Path $RuntimeSource "wheels") -PathType Container) {
-  Copy-Tree (Join-Path $RuntimeSource "wheels") (Join-Path $InstallRoot "runtime\wheels") @()
-}
+Copy-Tree $RuntimeSource (Join-Path $InstallRoot "runtime") @()
 
 if (-not $ModelSource) {
   foreach ($candidate in @(
@@ -283,7 +327,10 @@ if ($RequireModels) {
 }
 Update-InstalledModelConfiguration $InstallRoot ([bool]$RequireModels)
 
-foreach ($name in @("ann_launcher.ps1", "create_shortcut.ps1", "uninstall_ann.ps1", "verify_install.ps1")) {
+foreach ($name in @(
+  "ann_launcher.ps1", "create_shortcut.ps1", "uninstall_ann.ps1", "verify_install.ps1",
+  "validate_clean_machine.ps1", "README_INSTALLER.md", "README_OFFLINE_RELEASE.md"
+)) {
   Copy-Item -LiteralPath (Join-Path $PSScriptRoot $name) -Destination (Join-Path $InstallRoot "installer\$name") -Force
 }
 
@@ -321,6 +368,7 @@ $manifest = [ordered]@{
   shortcut_location = $ShortcutLocation
   preserved_by_default = @("projects", "models", "outputs", "data", "logs")
   excluded_source_areas = $ExcludedNames
+  release_payload_verification = $payloadVerification
 }
 Write-JsonUtf8NoBom $manifest (Join-Path $InstallRoot "install_manifest.json")
 Write-InstallLog "Install complete. Embedded runtime and native desktop validated."

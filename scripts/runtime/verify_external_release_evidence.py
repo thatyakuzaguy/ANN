@@ -33,6 +33,8 @@ _RELEASE_COMMAND_CONTRACT_HASH_KEYS = (
     "external_release_evidence_command",
     "final_verifier_command",
     "repo_root_final_verifier_command",
+    "windows_sandbox_prepare_command",
+    "windows_sandbox_launch_command",
 )
 
 
@@ -796,7 +798,7 @@ def _bundle_release_command_contract_detail(bundle: dict[str, Any]) -> str:
     if not contract:
         return "release_command_contract_missing"
     failures: list[str] = []
-    if contract.get("version") != "18.9.17":
+    if contract.get("version") != "18.9.18":
         failures.append("version")
     expected_flags = {
         "commands_are_templates": True,

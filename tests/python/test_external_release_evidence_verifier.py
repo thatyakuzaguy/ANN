@@ -71,7 +71,7 @@ def _certificate_preflight() -> dict[str, object]:
 
 def _release_command_contract() -> dict[str, object]:
     return {
-        "version": "18.9.17",
+        "version": "18.9.18",
         "commands_are_templates": True,
         "placeholder_must_be_replaced": True,
         "thumbprint_placeholder": "<CERT_THUMBPRINT>",
@@ -85,6 +85,8 @@ def _release_command_contract() -> dict[str, object]:
             "external_release_evidence_command": "5" * 64,
             "final_verifier_command": "6" * 64,
             "repo_root_final_verifier_command": "7" * 64,
+            "windows_sandbox_prepare_command": "8" * 64,
+            "windows_sandbox_launch_command": "9" * 64,
         },
     }
 
@@ -243,7 +245,7 @@ def test_external_release_evidence_ready_when_all_external_checks_pass(monkeypat
     assert report["exit_code"] == 0
     assert report["blockers"] == []
     assert report["release_command_contract_ready"] is True
-    assert report["release_command_contract"]["version"] == "18.9.17"
+    assert report["release_command_contract"]["version"] == "18.9.18"
 
 
 def test_external_release_evidence_blocks_missing_release_command_contract(monkeypatch) -> None:

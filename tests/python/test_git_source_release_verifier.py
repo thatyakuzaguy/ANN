@@ -124,6 +124,67 @@ def test_git_source_release_blocks_missing_release_command_contract(monkeypatch,
     assert report["release_command_contract_ready"] is False
 
 
+def test_git_source_release_uses_verified_handoff_when_outputs_are_not_shipped(monkeypatch, tmp_path: Path) -> None:
+    _patch_ready(monkeypatch)
+    monkeypatch.setattr(
+        verify_git_source_release,
+        "build_installer_rc_readiness",
+        lambda: {"status": "RC_READY_FOR_MANUAL_PACKAGING"},
+    )
+    monkeypatch.setattr(
+        verify_git_source_release,
+        "build_autonomous_complex_capability_gate",
+        lambda: {"status": "AUTONOMOUS_COMPLEX_CAPABILITY_BLOCKED"},
+    )
+    bundle_root = tmp_path / "handoff"
+    verification = bundle_root / "verification"
+    verification.mkdir(parents=True)
+    (verification / "362_final_release_verification.json").write_text(
+        json.dumps(
+            {
+                "installer_rc": "RC_READY",
+                "autonomous_complex_capability": "AUTONOMOUS_COMPLEX_CAPABILITY_PASSED",
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    report = verify_git_source_release.build_git_source_release_report(
+        repo_root=_source_root(tmp_path / "source"),
+        bundle_root=bundle_root,
+    )
+
+    assert report["status"] == "GIT_SOURCE_RELEASE_READY"
+    assert report["installer_rc_evidence_source"] == "verified_release_handoff"
+    assert report["autonomous_complex_capability_evidence_source"] == "verified_release_handoff"
+    assert report["installer_rc_local_status"] == "RC_READY_FOR_MANUAL_PACKAGING"
+    assert report["autonomous_complex_capability_local_status"] == "AUTONOMOUS_COMPLEX_CAPABILITY_BLOCKED"
+
+
+def test_git_source_release_rejects_missing_transferred_gate_evidence(monkeypatch, tmp_path: Path) -> None:
+    _patch_ready(monkeypatch)
+    monkeypatch.setattr(
+        verify_git_source_release,
+        "build_installer_rc_readiness",
+        lambda: {"status": "RC_READY_FOR_MANUAL_PACKAGING"},
+    )
+    monkeypatch.setattr(
+        verify_git_source_release,
+        "build_autonomous_complex_capability_gate",
+        lambda: {"status": "AUTONOMOUS_COMPLEX_CAPABILITY_BLOCKED"},
+    )
+
+    report = verify_git_source_release.build_git_source_release_report(
+        repo_root=_source_root(tmp_path / "source"),
+        bundle_root=tmp_path / "missing-handoff-evidence",
+    )
+
+    assert report["status"] == "GIT_SOURCE_RELEASE_BLOCKED"
+    blocker_ids = {blocker["id"] for blocker in report["blockers"]}
+    assert "installer_rc" in blocker_ids
+    assert "autonomous_complex_capability" in blocker_ids
+
+
 def test_git_source_release_writes_artifacts(monkeypatch, tmp_path: Path) -> None:
     _patch_ready(monkeypatch)
     report = verify_git_source_release.build_git_source_release_report(repo_root=_source_root(tmp_path))

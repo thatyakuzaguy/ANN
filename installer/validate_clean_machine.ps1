@@ -28,6 +28,22 @@ function Test-PathCheck {
   }
 }
 
+function Test-NoModelAssetsInApplicationPackage {
+  param([string]$ApplicationRoot)
+  if (-not (Test-Path -LiteralPath $ApplicationRoot -PathType Container)) {
+    return $true
+  }
+  $modelAssetExtensions = @(".gguf", ".safetensors", ".onnx", ".pt", ".pth")
+  $modelAssetNames = @("pytorch_model.bin", "adapter_model.bin", "adapter_model.safetensors")
+  $asset = Get-ChildItem -LiteralPath $ApplicationRoot -Recurse -File -ErrorAction SilentlyContinue |
+    Where-Object {
+      ($modelAssetExtensions -contains $_.Extension.ToLowerInvariant()) -or
+      ($modelAssetNames -contains $_.Name.ToLowerInvariant())
+    } |
+    Select-Object -First 1
+  return ($null -eq $asset)
+}
+
 function Get-SignatureCheck {
   param([string]$PathValue)
   if (-not (Test-Path -LiteralPath $PathValue -PathType Leaf)) {
@@ -126,8 +142,8 @@ if (-not $InstallerRoot) {
 $checks = @(
   (Test-PathCheck "install_root_not_c" ($root -notmatch '^[Cc]:\\') $root),
   (Test-PathCheck "install_manifest" (Test-Path (Join-Path $root "install_manifest.json") -PathType Leaf) (Join-Path $root "install_manifest.json")),
-  (Test-PathCheck "app_package" (Test-Path (Join-Path $root "app\agentic_network") -PathType Container) (Join-Path $root "app\agentic_network")),
-  (Test-PathCheck "desktop_entrypoint" (Test-Path (Join-Path $root "app\agentic_network\desktop_app\run.py") -PathType Leaf) "desktop_app.run"),
+  (Test-PathCheck "app_package" (Test-Path (Join-Path $root "agentic_network") -PathType Container) (Join-Path $root "agentic_network")),
+  (Test-PathCheck "desktop_entrypoint" (Test-Path (Join-Path $root "agentic_network\desktop_app\run.py") -PathType Leaf) "desktop_app.run"),
   (Test-PathCheck "runtime_python" (Test-Path (Join-Path $root "runtime\python\python.exe") -PathType Leaf) (Join-Path $root "runtime\python\python.exe")),
   (Test-PathCheck "runtime_wheelhouse" ((Test-Path (Join-Path $root "runtime\wheels") -PathType Container) -and @((Get-ChildItem (Join-Path $root "runtime\wheels") -Filter "*.whl" -File -ErrorAction SilentlyContinue)).Count -gt 0) (Join-Path $root "runtime\wheels")),
   (Test-PathCheck "runtime_config" (Test-Path (Join-Path $root "config\ann_runtime_engine.json") -PathType Leaf) "ann_runtime_engine.json"),
@@ -136,10 +152,10 @@ $checks = @(
   (Test-PathCheck "models_root" (Test-Path (Join-Path $root "models") -PathType Container) (Join-Path $root "models")),
   (Test-PathCheck "outputs_root" (Test-Path (Join-Path $root "outputs") -PathType Container) (Join-Path $root "outputs")),
   (Test-PathCheck "data_root" (Test-Path (Join-Path $root "data") -PathType Container) (Join-Path $root "data")),
-  (Test-PathCheck "protected_training_not_copied" (-not (Test-Path (Join-Path $root "app\training"))) "training excluded"),
-  (Test-PathCheck "protected_models_not_copied_to_app" (-not (Test-Path (Join-Path $root "app\models"))) "models excluded"),
-  (Test-PathCheck "protected_memory_not_copied" (-not (Test-Path (Join-Path $root "app\memory"))) "memory excluded"),
-  (Test-PathCheck "protected_knowledge_not_copied" (-not (Test-Path (Join-Path $root "app\knowledge"))) "knowledge excluded")
+  (Test-PathCheck "protected_training_not_copied" (-not (Test-Path (Join-Path $root "training"))) "training excluded"),
+  (Test-PathCheck "protected_models_not_copied_to_app" (Test-NoModelAssetsInApplicationPackage (Join-Path $root "agentic_network")) "model weights and adapters excluded from application package"),
+  (Test-PathCheck "protected_memory_not_copied" (-not (Test-Path (Join-Path $root "memory"))) "memory excluded"),
+  (Test-PathCheck "protected_knowledge_not_copied" (-not (Test-Path (Join-Path $root "knowledge"))) "knowledge excluded")
 )
 
 $setupPath = Join-Path $InstallerRoot "ANN_Setup.exe"
@@ -190,7 +206,7 @@ if ($RequireSignedInstaller) {
 $failed = @($checks | Where-Object { -not $_.passed })
 $status = if ($failed.Count -eq 0) { "PASSED" } else { "FAILED" }
 $payload = [pscustomobject]@{
-  version = "18.9.8"
+  version = "18.9.21"
   generated_at = (Get-Date).ToUniversalTime().ToString("o")
   status = $status
   environment_type = $EnvironmentType

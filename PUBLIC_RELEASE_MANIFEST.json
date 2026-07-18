@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-07-18T12:36:45.1117792Z",
+  "generated_at_utc": "2026-07-18T16:42:27.8515826Z",
   "release_stage": "release-candidate",
   "source_revision": "cbb9c3b9adc5a16c7f487702a8870877c11a3a79",
-  "file_count": 787,
-  "total_bytes": 5652658,
+  "file_count": 798,
+  "total_bytes": 5759116,
   "maximum_file_size_mb": 25,
   "files": [
     {
@@ -1124,8 +1124,8 @@
     },
     {
       "path": "agentic_network/runtime_engine/local_model_activation.py",
-      "bytes": 566954,
-      "sha256": "24a2acbe689b7ab7b1395c749f174de333d576fdc404c47c17de555b80c9d121"
+      "bytes": 574468,
+      "sha256": "dcd057a32cf96ef2f6fdbe84a3e0de94088a72c47024da0f070fcb6fb253a3be"
     },
     {
       "path": "agentic_network/runtime_engine/model_inventory.py",
@@ -1495,7 +1495,7 @@
     {
       "path": "apps/desktop/package.json",
       "bytes": 1097,
-      "sha256": "c95f650e5da454b1b545941280d7d6b3114809717c5e3ddd183f02587de63afe"
+      "sha256": "4677dc5d6b7c7eb99d91253c72279e0fffa89b2f60a6deb10ca1d5e851fe228f"
     },
     {
       "path": "apps/desktop/src/main.js",
@@ -1515,7 +1515,7 @@
     {
       "path": "apps/web/package.json",
       "bytes": 962,
-      "sha256": "7cb50eea91ab0e6d661adeb19aa24e9feac74ebe7ca484458c2f6e8000ae37fa"
+      "sha256": "bdff22a7832da045b3cd6e6ecf5e60616642df12b2900aea056b960638e47f2a"
     },
     {
       "path": "apps/web/playwright.config.ts",
@@ -1669,8 +1669,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "bytes": 7747,
-      "sha256": "a16828f92889e3fb2122bcb2f5b1ebf85044f62e3d71cb90e7fe9dff535ef3c1"
+      "bytes": 8932,
+      "sha256": "33fac4b3bc8f743cb4bafdeb359355374731ba49316cc2cae39100697363784d"
     },
     {
       "path": "CICD_SETUP.md",
@@ -1719,13 +1719,13 @@
     },
     {
       "path": "config/ann_runtime_lock.example.json",
-      "bytes": 19885,
-      "sha256": "90e27f9ee2a402c7fdc8cc93f980a9184147cf23dcee873b48a7db4daa06384c"
+      "bytes": 35069,
+      "sha256": "da9eb31b0cc66cbfacfb540158c6c34697ec65b2b2bc4a9531e8bc060ae3f276"
     },
     {
       "path": "config/ann_runtime_requirements.windows-cp311.txt",
-      "bytes": 511,
-      "sha256": "22d18ae6da4d06ef1b94b329fdc8a3922d2eb47990fb070046873ef04d958afa"
+      "bytes": 962,
+      "sha256": "892d1cc352c44ed4b406ca36aff09e44d27dcfbbb50bc389edffcf6a301c2197"
     },
     {
       "path": "config/ann_skill_permissions.json",
@@ -1959,8 +1959,8 @@
     },
     {
       "path": "docs/PUBLIC_RELEASE.md",
-      "bytes": 3492,
-      "sha256": "3f28e6de2ee15651d2e03e62106ff17cf92974ae712941e2c77ed7b0a5417d26"
+      "bytes": 3590,
+      "sha256": "0068e75f2c3518def6a9a3e4aaa43e72efa71bd166eeb2e53822f72b084d4513"
     },
     {
       "path": "docs/SECURITY_REVIEW.md",
@@ -2008,19 +2008,29 @@
       "sha256": "5f99220581cebf5f8875ee6ba768a1adbcf375a2ae8856c9f8eb77d4c69aafe6"
     },
     {
+      "path": "installer/assemble_release.ps1",
+      "bytes": 3398,
+      "sha256": "eb9c7c78507445b948c4bc6c91cc32f5c5e3861c99c022c1c58e157d1e032069"
+    },
+    {
       "path": "installer/create_shortcut.ps1",
       "bytes": 1101,
       "sha256": "35342bd90af551c919650c56d95b9a8839fdeaadb3e18558d3ef676a434425b4"
     },
     {
       "path": "installer/install_ann.ps1",
-      "bytes": 15189,
-      "sha256": "e1d70d480aec84c9eaa2847a4131752d9aaec1a0ac4a8cb0220cf80cab527ae6"
+      "bytes": 17542,
+      "sha256": "42a31502385865673e3369c605e2a7caff1cd626c792f24dbe0e36863d65f420"
     },
     {
       "path": "installer/README_INSTALLER.md",
-      "bytes": 9101,
-      "sha256": "99ec84d3aa4e1b5ce3057d8aac2786fae122b6ae99329ca56b3e2b216036b9b0"
+      "bytes": 11186,
+      "sha256": "9b071fcc350d923f12308eb93a5b51044ba62d4cd4f3902eedb73dacf0b554c3"
+    },
+    {
+      "path": "installer/README_OFFLINE_RELEASE.md",
+      "bytes": 1027,
+      "sha256": "bf93806290deba683e34adf889909f13090134e147d780d88c534830b75328e8"
     },
     {
       "path": "installer/sign_release.ps1",
@@ -2034,8 +2044,8 @@
     },
     {
       "path": "installer/validate_clean_machine.ps1",
-      "bytes": 11211,
-      "sha256": "ef84991b6736768c943175437f8f4532a59b3e86424483163924c4296c742172"
+      "bytes": 11937,
+      "sha256": "23194e5ef7a66afe474cf228d4b7271de0998d806568c0ab80f9d8a4872149d3"
     },
     {
       "path": "installer/verify_install.ps1",
@@ -2060,12 +2070,12 @@
     {
       "path": "package.json",
       "bytes": 499,
-      "sha256": "815f29901ede53ec2a4023880afe81198c2ffecfeb35ce68e1cd91e5d2759a23"
+      "sha256": "5d7d75f43d09e0e3a633c566369b52e130019e92b1c0b094b964ab31d8dde97f"
     },
     {
       "path": "package-lock.json",
       "bytes": 278417,
-      "sha256": "f21414326b54f531246375ca6ced727b9782c1dedcd59cce8bd60b8f26876feb"
+      "sha256": "03f907f28e2eb9fc33d4b7d54fb4e299148dbe7315c2a7dab617062a60773118"
     },
     {
       "path": "packages/agents/agentic_engineering_network/agents/definitions.py",
@@ -2300,7 +2310,7 @@
     {
       "path": "pyproject.toml",
       "bytes": 1507,
-      "sha256": "ba6797783dd3701d906f3f6c7eaabe57ffe3a89283f60e69d0bcbd7981e8694b"
+      "sha256": "ddd8a059362956fcb48b40b77a10eb04a3cc3bbadc8875a8ad1bad93c746a898"
     },
     {
       "path": "README.md",
@@ -2363,14 +2373,34 @@
       "sha256": "5f9f5b371f3bc3943312432b78a91988b13e925078ce161aa348042a0d608a13"
     },
     {
+      "path": "scripts/release/build_offline_release_bundle.py",
+      "bytes": 13284,
+      "sha256": "a52f314bdd0eda7d27c4a236096aedd2da121cae6ef3619de275c7fb9f987cf5"
+    },
+    {
       "path": "scripts/release/build-public-repository.ps1",
       "bytes": 11224,
       "sha256": "932905088ea3d2a02834c2cb382f1974ecda086e9b4dfbae77c6a8e2030ea27f"
     },
     {
+      "path": "scripts/release/invoke-windows-sandbox-validation.ps1",
+      "bytes": 9851,
+      "sha256": "e3fa6256c104a8dff0f8155059240846772ca6e304c6ce91d1a0752453c294e4"
+    },
+    {
+      "path": "scripts/release/run-windows-sandbox-validation.ps1",
+      "bytes": 3994,
+      "sha256": "7f39a9371dce2e400d9ce50bcf2806da916198c2e355b8d1a658e8dd63cd2c1f"
+    },
+    {
       "path": "scripts/release/verify_markdown_links.py",
       "bytes": 2479,
       "sha256": "6af4b91208538cee45868d6c860c8a53ad8ed40e27f16b49d2e62d6107572a59"
+    },
+    {
+      "path": "scripts/release/verify_offline_release_bundle.py",
+      "bytes": 4817,
+      "sha256": "d76a57801bc88123646cec9c55aea91a996fad1caa47e574ff1d40fa59a22a6f"
     },
     {
       "path": "scripts/release/verify-public-repository.ps1",
@@ -2381,6 +2411,16 @@
       "path": "scripts/run_agentic_pipeline.py",
       "bytes": 3851,
       "sha256": "efac645664781e933a4f6e78179d53b98c7e4c5e9af62ccd85eae8fdac7342e1"
+    },
+    {
+      "path": "scripts/runtime/build_clean_embedded_runtime.ps1",
+      "bytes": 1098,
+      "sha256": "2fb4ca3eabab4174203ec6349e107bc1d78a49ef3c4c2f15762204ec69525863"
+    },
+    {
+      "path": "scripts/runtime/build_clean_embedded_runtime.py",
+      "bytes": 19797,
+      "sha256": "7de0cee0f660e1af2ff921adacb17e4e9fdde7b9d4fc6a789a34a494647be554"
     },
     {
       "path": "scripts/runtime/check_ann_runtime_backend.py",
@@ -2429,8 +2469,8 @@
     },
     {
       "path": "scripts/runtime/verify_external_release_evidence.py",
-      "bytes": 41816,
-      "sha256": "d8b56c7f49884bd3160744f95a6c9fa097b55b20c035eb85941e062f54dd9782"
+      "bytes": 41893,
+      "sha256": "d5465a11f13fbb8a4bf6e993cb5b859f95222c3504713d862fce737440689378"
     },
     {
       "path": "scripts/runtime/verify_final_release.py",
@@ -2439,13 +2479,13 @@
     },
     {
       "path": "scripts/runtime/verify_git_source_release.py",
-      "bytes": 10721,
-      "sha256": "4f5e20060ac250f731fd413943d2930ee5f67b3261478676d9fc4ad82d68f4f4"
+      "bytes": 12619,
+      "sha256": "643d06dffd8243e27c637bc54a7e0d36bd799231a1c1098da2152983cacc56c0"
     },
     {
       "path": "scripts/runtime/verify_release_candidate_bundle.py",
-      "bytes": 40663,
-      "sha256": "7d44f678bb05ece2cc7681a627524bbfbe26514f3d4548ea55232b89977117d9"
+      "bytes": 42092,
+      "sha256": "7ae3d226c2a03e6ee67baf16d2ced7b38a17ba8eba6486fb25b5e6c1a36f8047"
     },
     {
       "path": "scripts/runtime/verify_release_operator_environment.py",
@@ -2643,6 +2683,11 @@
       "sha256": "4c3ceb154d91ff148cdda040d708dd1a643dbcc7a7c3bb6112755e84fb560889"
     },
     {
+      "path": "tests/python/test_clean_embedded_runtime_builder.py",
+      "bytes": 3054,
+      "sha256": "cf509b07ff66d4b870b17dc66a1049358f1f7f2180a8b7d30502d797f416bc9c"
+    },
+    {
       "path": "tests/python/test_clean_machine_emulator.py",
       "bytes": 1153,
       "sha256": "408d080af8ab9cd4173de8e87830e241183abf4518abb6c41ca8d7aa660358e0"
@@ -2659,8 +2704,8 @@
     },
     {
       "path": "tests/python/test_clean_machine_validation_script.py",
-      "bytes": 6365,
-      "sha256": "eb0cef07b830c176756e31b32b92689805cdeaa070ffe10ea21750614b704cfb"
+      "bytes": 6861,
+      "sha256": "85fcd770bf843df6134a57f7e0dd7a91bba8f6ff051e9157a78b0d64baed0d97"
     },
     {
       "path": "tests/python/test_cleanup_dry_run.py",
@@ -2884,8 +2929,8 @@
     },
     {
       "path": "tests/python/test_embedded_runtime_package_audit.py",
-      "bytes": 3952,
-      "sha256": "ed7b69d222c8f6a82afdcce4123e91d6fd30a9decf33e3b5e6a9498ecdb8ef97"
+      "bytes": 3874,
+      "sha256": "08b91a89e4a81e434fb1adaa0e2c87ba6c1db6aed15402f1f351068f3ed7cede"
     },
     {
       "path": "tests/python/test_embedded_runtime_verification.py",
@@ -2909,8 +2954,8 @@
     },
     {
       "path": "tests/python/test_external_release_evidence_verifier.py",
-      "bytes": 60776,
-      "sha256": "16ae8c84371dc8c43d916ee01f522061988831c90a84cb2373c74ca41e0bb285"
+      "bytes": 60889,
+      "sha256": "75e623e15b420f346d30bfbc6bdfce245a2dd39b808f891e308049d95a5f1a53"
     },
     {
       "path": "tests/python/test_external_runtime_does_not_mark_final_ready.py",
@@ -3034,8 +3079,8 @@
     },
     {
       "path": "tests/python/test_git_source_release_verifier.py",
-      "bytes": 5704,
-      "sha256": "5c1b613fa980033531dd375ce52bc582d03bc18ab7512516f92f56c96f8defec"
+      "bytes": 8129,
+      "sha256": "f7aac7257519e49a9ecb7a0f857c52d25a95c1ee3ca547af7534026ee5843542"
     },
     {
       "path": "tests/python/test_github_pattern_extraction_runtime.py",
@@ -3159,8 +3204,8 @@
     },
     {
       "path": "tests/python/test_model_pack_installer_contract.py",
-      "bytes": 1791,
-      "sha256": "36751766d623677782a83abe97b177c53dd868b7de364d6e03849097e617bc50"
+      "bytes": 2798,
+      "sha256": "862214342260ece722334e3110760f9450ed7c4ce38c5eb8989148be95b33a1e"
     },
     {
       "path": "tests/python/test_model_routing_runtime.py",
@@ -3173,14 +3218,19 @@
       "sha256": "0139bcbe2737ccbc2692c7520a5257e4f09c48ccdaeeb639b51439629352479b"
     },
     {
+      "path": "tests/python/test_offline_release_bundle.py",
+      "bytes": 4080,
+      "sha256": "b7d2fc2654d63d5072f46bf75fa7b8aa8c5a88706a79c3f799572a9c8c97cf09"
+    },
+    {
       "path": "tests/python/test_offline_runtime_desktop_status.py",
       "bytes": 1222,
       "sha256": "fcf83941e1f62116953eae255d9fd531547e20ab8c52aab918604cc933b5b9d7"
     },
     {
       "path": "tests/python/test_offline_runtime_lockfile.py",
-      "bytes": 1418,
-      "sha256": "fea917d8fdfc099356515ab89504b4fe0bc60a893e3739f709d5b46ff3ff0fd6"
+      "bytes": 1583,
+      "sha256": "f2213c1af914c274bb1762289e8429b9ff0bbce13d4303350a7037307136263a"
     },
     {
       "path": "tests/python/test_offline_wheelhouse_command_plan.py",
@@ -3429,8 +3479,8 @@
     },
     {
       "path": "tests/python/test_release_candidate_handoff.py",
-      "bytes": 9144,
-      "sha256": "2117e396e57d6ed9223ea6419a77dfa7e9f8d1b732353d510e89749029b0cf1a"
+      "bytes": 9727,
+      "sha256": "eb4a2a6315a109275781804df938e7d2a820563739fc4a7c1daab82a5c9be0e6"
     },
     {
       "path": "tests/python/test_release_model_evidence_runtime.py",
@@ -3704,8 +3754,8 @@
     },
     {
       "path": "tests/python/test_wheelhouse_integrity_validator.py",
-      "bytes": 2232,
-      "sha256": "44a0f040184d0e6027613a7d4089f5d29716710df39dda8c8c3c3cdce057849f"
+      "bytes": 2233,
+      "sha256": "ef584a8cbb3709c13c11d44962c93ab7207851d7f26657455b10afab8fef9102"
     },
     {
       "path": "tests/python/test_wheelhouse_materialization_plan.py",
@@ -3721,6 +3771,11 @@
       "path": "tests/python/test_windows_runtime_dlls.py",
       "bytes": 2050,
       "sha256": "43b4980e9931a7cecc153099c136c934c1bc1243a4dff9bfd49c2090e3b5573e"
+    },
+    {
+      "path": "tests/python/test_windows_sandbox_release_validation.py",
+      "bytes": 4346,
+      "sha256": "e10b2cfa7c8ab5e7d8331a63fe368982d1b64532a2754a36fdc497e46c5b6dc1"
     },
     {
       "path": "tests/python/test_wsl_external_runtime_bridge.py",

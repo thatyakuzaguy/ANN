@@ -22,6 +22,8 @@ def test_release_candidate_handoff_manifest_declares_safe_minimal_bundle() -> No
     assert "scripts/runtime/run_autonomous_capability_scenarios.py" in relatives
     assert "scripts/runtime/verify_external_release_evidence.py" in relatives
     assert "scripts/runtime/verify_release_operator_environment.py" in relatives
+    assert "scripts/release/invoke-windows-sandbox-validation.ps1" in relatives
+    assert "scripts/release/run-windows-sandbox-validation.ps1" in relatives
     assert manifest["model_files_included"] is False
     assert manifest["training_files_included"] is False
     assert manifest["dataset_files_included"] is False
@@ -49,6 +51,9 @@ def test_release_candidate_handoff_manifest_declares_safe_minimal_bundle() -> No
     assert "-TimestampUrl http://timestamp.digicert.com" in manifest["sign_command"]
     assert "-SigningEvidencePath installer\\release_signing_evidence.json" in manifest["clean_machine_command"]
     assert "-ReleaseTransferManifestPath RELEASE_TRANSFER_MANIFEST.json" in manifest["clean_machine_command"]
+    assert "invoke-windows-sandbox-validation.ps1" in manifest["windows_sandbox_prepare_command"]
+    assert "-Launch" not in manifest["windows_sandbox_prepare_command"]
+    assert "-Launch" in manifest["windows_sandbox_launch_command"]
     assert manifest["release_commands_are_templates"] is True
     assert manifest["release_command_placeholders_must_be_replaced"] is True
     assert manifest["release_command_thumbprint_placeholder"] == "<CERT_THUMBPRINT>"
@@ -72,6 +77,8 @@ def test_release_candidate_handoff_materializes_only_declared_files(tmp_path: Pa
     assert (bundle / "RELEASE_TRANSFER_MANIFEST.file.sha256").is_file()
     assert (bundle / "installer" / "ANN_Setup.exe").is_file()
     assert (bundle / "scripts" / "runtime" / "verify_release_operator_environment.py").is_file()
+    assert (bundle / "scripts" / "release" / "invoke-windows-sandbox-validation.ps1").is_file()
+    assert (bundle / "scripts" / "release" / "run-windows-sandbox-validation.ps1").is_file()
     assert not (bundle / "models").exists()
     assert not (bundle / "training").exists()
     assert not (bundle / "outputs").exists()
@@ -102,7 +109,7 @@ def test_release_candidate_handoff_materializes_only_declared_files(tmp_path: Pa
     transfer = json.loads((bundle / "RELEASE_TRANSFER_MANIFEST.json").read_text(encoding="utf-8"))
     assert transfer["status"] == "TRANSFER_MANIFEST_READY"
     assert "release_command_contract" in transfer
-    assert transfer["release_command_contract"]["version"] == "18.9.17"
+    assert transfer["release_command_contract"]["version"] == "18.9.18"
     assert transfer["release_command_contract"]["repo_root_final_verifier_required"] is True
     assert "repo_root_final_verifier_command" in transfer["release_command_contract"]["command_sha256"]
     assert len(transfer["release_command_contract"]["command_sha256"]["repo_root_final_verifier_command"]) == 64
@@ -127,7 +134,7 @@ def test_release_candidate_handoff_artifacts(tmp_path: Path) -> None:
         "365_release_candidate_handoff_manifest.md",
     }
     payload = json.loads((tmp_path / "364_release_candidate_handoff_manifest.json").read_text(encoding="utf-8"))
-    assert payload["version"] == "18.9.16"
+    assert payload["version"] == "18.9.18"
 
 
 def test_prepare_release_candidate_bundle_check_only_does_not_copy(tmp_path: Path) -> None:

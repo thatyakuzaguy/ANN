@@ -30,6 +30,23 @@ def test_installer_requires_verified_manifest_for_complete_model_install() -> No
     assert "Write-JsonUtf8NoBom" in source
 
 
+def test_packaged_installer_verifies_release_payload_and_sanitizes_missing_models() -> None:
+    source = (ROOT / "installer" / "install_ann.ps1").read_text(encoding="utf-8")
+
+    assert "Test-ReleasePayloadManifest" in source
+    assert "Packaged ANN payload requires RELEASE_PAYLOAD_MANIFEST.json." in source
+    assert "Release payload SHA256 mismatch" in source
+    assert "Release payload size mismatch" in source
+    assert '$model.status = if ($installed) { "detected" } else { "missing" }' in source
+    assert "$model.enabled = [bool]$installed" in source
+    assert "$conversation.allow_real_inference" in source
+    assert '$conversation.python_executable_wsl = ""' in source
+    assert '$conversation.model_path_wsl = ""' in source
+    assert "$policy.allow_real_model_load = [bool]$EnableRealModels" in source
+    assert "$runtime.backend_policy.allow_real_model_load = [bool]$EnableRealModels" in source
+    assert 'Copy-Tree $RuntimeSource (Join-Path $InstallRoot "runtime") @()' in source
+
+
 def test_installer_does_not_exclude_python_model_memory_or_knowledge_modules() -> None:
     source = (ROOT / "installer" / "install_ann.ps1").read_text(encoding="utf-8")
 

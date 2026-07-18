@@ -14,12 +14,14 @@ def test_offline_runtime_lockfile_example_exists_and_is_declarative() -> None:
     lockfile = build_offline_runtime_lockfile()
 
     assert path.is_file()
-    assert lockfile["version"] == "18.9.5"
+    assert lockfile["version"] == "18.9.19"
     assert lockfile["verification_status"] == "hash_verified"
     assert lockfile["expected_runtime_path"] == "D:\\ANN\\runtime"
     assert lockfile["safety"]["dependency_install"] is False
     assert lockfile["safety"]["downloads"] is False
     assert any(package["name"] == "llama-cpp-python" for package in lockfile["packages"])
+    assert any(package["name"] == "stripe" for package in lockfile["packages"])
+    assert not any(package["name"] == "torch" for package in lockfile["packages"])
     assert all(wheel["status"] == "hash_verified" for wheel in lockfile["wheels"])
     assert all(wheel["sha256"] for wheel in lockfile["wheels"])
 
@@ -30,4 +32,4 @@ def test_offline_runtime_lockfile_artifacts(tmp_path: Path) -> None:
 
     assert names == {"146_offline_runtime_lockfile.json", "147_offline_runtime_lockfile.md"}
     payload = json.loads((tmp_path / "146_offline_runtime_lockfile.json").read_text(encoding="utf-8"))
-    assert payload["version"] == "18.9.5"
+    assert payload["version"] == "18.9.19"

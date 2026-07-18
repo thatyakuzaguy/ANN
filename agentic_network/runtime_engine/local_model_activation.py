@@ -15,10 +15,12 @@ import hashlib
 import json
 import os
 import platform
+import re
 import shlex
 import shutil
 import subprocess
 import sys
+import zipfile
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 from time import perf_counter
@@ -81,6 +83,30 @@ _READINESS_CACHE: dict[str, dict[str, Any]] = {}
 _EMBEDDED_RUNTIME_PACKAGE_AUDIT_CACHE: dict[str, dict[str, Any]] = {}
 _CODE_SIGNING_READINESS_CACHE: dict[str, dict[str, Any]] = {}
 _SHA256_CACHE: dict[tuple[str, int, int], str] = {}
+EMBEDDED_RELEASE_IMPORTS = (
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "sqlalchemy",
+    "psycopg",
+    "dotenv",
+    "stripe",
+    "PySide6",
+    "llama_cpp",
+    "numpy",
+    "psutil",
+    "yaml",
+)
+EMBEDDED_RELEASE_FORBIDDEN_DISTRIBUTIONS = {
+    "azure-core",
+    "jupyter",
+    "jupyterlab",
+    "langgraph",
+    "opencv-python",
+    "open-webui",
+    "unsloth",
+}
+EMBEDDED_RELEASE_APPLICATION_DISTRIBUTIONS = {"agentic-engineering-network"}
 
 
 def build_model_identity_correction() -> dict[str, Any]:
@@ -1792,7 +1818,7 @@ def validate_wheelhouse_integrity(
     """Validate wheelhouse files against an offline lockfile without installing wheels."""
 
     wheelhouse = _resolve_runtime_filesystem_path(wheelhouse_path or f"{DEFAULT_RUNTIME_ROOT_TEXT}/wheels")
-    lockfile = Path(lockfile_path or REPO_ROOT / "config" / "ann_runtime_lock.example.json")
+    lockfile = _runtime_lockfile_for_wheelhouse(wheelhouse, lockfile_path)
     if not wheelhouse.is_dir():
         return _wheelhouse_result("WHEELHOUSE_MISSING", wheelhouse, lockfile, [], ["wheelhouse_directory_missing"])
     wheels = sorted(wheelhouse.glob("*.whl"), key=lambda item: item.name.lower())
@@ -1974,10 +2000,15 @@ def build_embedded_runtime_package_audit(
 
     root_info = _runtime_path_info(runtime_root)
     root = root_info["path"]
-    package_names = ("PySide6", "torch", "llama_cpp", "transformers")
+    package_names = EMBEDDED_RELEASE_IMPORTS
     python_exe = root / "python" / "python.exe"
     static_presence = _embedded_runtime_package_presence(root, package_names)
-    cache_key = f"{root}|{execute_imports}|{timeout_seconds}"
+    requirements = _embedded_release_requirement_versions()
+    wheel_distributions = _wheelhouse_distribution_versions(root / "wheels")
+    cache_key = (
+        f"{root}|{execute_imports}|{timeout_seconds}|"
+        f"{_path_cache_fingerprint(python_exe)}|{_path_cache_fingerprint(root / 'wheels')}"
+    )
     if execute_imports and cache_key in _EMBEDDED_RUNTIME_PACKAGE_AUDIT_CACHE:
         cached = json.loads(json.dumps(_EMBEDDED_RUNTIME_PACKAGE_AUDIT_CACHE[cache_key]))
         cached["generated_at"] = _now()
@@ -1993,6 +2024,8 @@ def build_embedded_runtime_package_audit(
     }
     probe_status = "SKIPPED"
     probe_error = ""
+    installed_distributions: dict[str, str] = {}
+    gpu_offload_supported = False
     if not python_exe.is_file():
         probe_status = "BLOCKED"
         probe_error = f"missing embedded python: {python_exe}"
@@ -2003,22 +2036,55 @@ def build_embedded_runtime_package_audit(
         for name, result in (probe.get("packages") or {}).items():
             if name in import_results and isinstance(result, dict):
                 import_results[name].update(result)
+        installed_distributions = {
+            _canonical_distribution_name(name): str(version)
+            for name, version in (probe.get("distributions") or {}).items()
+        }
+        gpu_offload_supported = probe.get("llama_cpp_gpu_offload") is True
     else:
         probe_status = "STATIC_ONLY"
         for name in package_names:
             import_results[name]["importable"] = static_presence[name]
             import_results[name]["error"] = "" if static_presence[name] else "not_found_static"
     missing = [name for name, result in import_results.items() if not result["importable"]]
+    missing_distributions = sorted(set(requirements) - set(installed_distributions))
+    version_mismatches = [
+        {
+            "name": name,
+            "expected": expected,
+            "actual": installed_distributions.get(name, "missing"),
+        }
+        for name, expected in sorted(requirements.items())
+        if installed_distributions.get(name) != expected
+    ]
+    allowed_distributions = set(wheel_distributions) | EMBEDDED_RELEASE_APPLICATION_DISTRIBUTIONS
+    unexpected_distributions = sorted(
+        name
+        for name in installed_distributions
+        if wheel_distributions and name not in allowed_distributions
+    )
+    forbidden_distributions = sorted(
+        name
+        for name in installed_distributions
+        if name in EMBEDDED_RELEASE_FORBIDDEN_DISTRIBUTIONS
+    )
     if not python_exe.is_file():
         status = "PACKAGE_AUDIT_BLOCKED"
-    elif missing:
+    elif (
+        missing
+        or missing_distributions
+        or version_mismatches
+        or unexpected_distributions
+        or forbidden_distributions
+        or not gpu_offload_supported
+    ):
         status = "PACKAGE_AUDIT_INCOMPLETE"
     elif probe_status == "FAILED":
         status = "PACKAGE_AUDIT_FAILED"
     else:
         status = "PACKAGE_AUDIT_READY"
     payload = {
-        "version": "18.9.2",
+        "version": "18.9.19",
         "generated_at": _now(),
         "status": status,
         **_runtime_report(root_info),
@@ -2030,6 +2096,15 @@ def build_embedded_runtime_package_audit(
         "packages": import_results,
         "missing_packages": missing,
         "required_packages": list(package_names),
+        "required_distribution_versions": requirements,
+        "installed_distributions": installed_distributions,
+        "wheelhouse_distributions": wheel_distributions,
+        "missing_distributions": missing_distributions,
+        "version_mismatches": version_mismatches,
+        "unexpected_distributions": unexpected_distributions,
+        "forbidden_distributions": forbidden_distributions,
+        "llama_cpp_gpu_offload": gpu_offload_supported,
+        "runtime_is_minimal": not unexpected_distributions and not forbidden_distributions,
         "ready_for_installer_rc": status == "PACKAGE_AUDIT_READY",
         "model_load_attempted": False,
         "real_inference_attempted": False,
@@ -2497,6 +2572,8 @@ def build_release_candidate_handoff_manifest(
         REPO_ROOT / "scripts" / "runtime" / "verify_release_candidate_bundle.py",
         REPO_ROOT / "scripts" / "runtime" / "verify_external_release_evidence.py",
         REPO_ROOT / "scripts" / "runtime" / "verify_release_operator_environment.py",
+        REPO_ROOT / "scripts" / "release" / "invoke-windows-sandbox-validation.ps1",
+        REPO_ROOT / "scripts" / "release" / "run-windows-sandbox-validation.ps1",
         REPO_ROOT / "config" / "ann_runtime_lock.example.json",
         REPO_ROOT / "config" / "ann_runtime_engine.json",
         REPO_ROOT / "config" / "ann_model_policy.json",
@@ -2516,7 +2593,7 @@ def build_release_candidate_handoff_manifest(
             copied.append(str(destination))
     status = "HANDOFF_READY" if not missing else "HANDOFF_INCOMPLETE"
     manifest = {
-        "version": "18.9.16",
+        "version": "18.9.18",
         "generated_at": _now(),
         "status": status,
         "bundle_root": str(target),
@@ -2587,6 +2664,18 @@ def build_release_candidate_handoff_manifest(
             "-InstallRoot D:\\ANN -EnvironmentType clean_machine -RequireSignedInstaller "
             "-SigningEvidencePath installer\\release_signing_evidence.json "
             "-ReleaseTransferManifestPath RELEASE_TRANSFER_MANIFEST.json"
+        ),
+        "windows_sandbox_prepare_command": (
+            "powershell -NoProfile -ExecutionPolicy Bypass "
+            "-File scripts\\release\\invoke-windows-sandbox-validation.ps1 "
+            '-SourceRoot "<ANN_RELEASE_SOURCE>" -RuntimeSource "<ANN_RUNTIME_SOURCE>" '
+            '-DesktopSource "<ANN_DESKTOP_SOURCE>"'
+        ),
+        "windows_sandbox_launch_command": (
+            "powershell -NoProfile -ExecutionPolicy Bypass "
+            "-File scripts\\release\\invoke-windows-sandbox-validation.ps1 "
+            '-SourceRoot "<ANN_RELEASE_SOURCE>" -RuntimeSource "<ANN_RUNTIME_SOURCE>" '
+            '-DesktopSource "<ANN_DESKTOP_SOURCE>" -Launch'
         ),
         "release_commands_are_templates": True,
         "release_command_placeholders_must_be_replaced": True,
@@ -3075,7 +3164,8 @@ def build_wheelhouse_materialization_plan(
     requirements_lock = root / "requirements-lock"
     checks = root / "checks"
     audit = root / "audit"
-    lock = build_offline_runtime_lockfile(lockfile_path)
+    lockfile = _runtime_lockfile_for_wheelhouse(wheelhouse, lockfile_path)
+    lock = build_offline_runtime_lockfile(lockfile)
     declared_wheels = _declared_wheels(lock)
     expected_names = {item["filename"] for item in declared_wheels}
     discovered = sorted((path.name for path in wheelhouse.glob("*.whl")), key=str.lower) if wheelhouse.is_dir() else []
@@ -3103,7 +3193,7 @@ def build_wheelhouse_materialization_plan(
         "requirements_lock_path": str(requirements_lock),
         "checks_path": str(checks),
         "audit_path": str(audit),
-        "lockfile_path": str(Path(lockfile_path or REPO_ROOT / "config" / "ann_runtime_lock.example.json")),
+        "lockfile_path": str(lockfile),
         "expected_wheels": declared_wheels,
         "package_roles": package_roles,
         "discovered_wheels": discovered,
@@ -3435,7 +3525,8 @@ def build_wheelhouse_integrity_registry(
     """Register expected wheel integrity state without installing or downloading wheels."""
 
     wheelhouse = _resolve_runtime_filesystem_path(wheelhouse_path or f"{DEFAULT_RUNTIME_ROOT_TEXT}/wheels")
-    lock = build_offline_runtime_lockfile(lockfile_path)
+    lockfile = _runtime_lockfile_for_wheelhouse(wheelhouse, lockfile_path)
+    lock = build_offline_runtime_lockfile(lockfile)
     discovered = {
         path.name: path
         for path in sorted(wheelhouse.glob("*.whl"), key=lambda item: item.name.lower())
@@ -3460,7 +3551,7 @@ def build_wheelhouse_integrity_registry(
         "generated_at": _now(),
         "status": status,
         "wheelhouse_path": str(wheelhouse),
-        "lockfile_path": str(Path(lockfile_path or REPO_ROOT / "config" / "ann_runtime_lock.example.json")),
+        "lockfile_path": str(lockfile),
         "wheels": wheels,
         "expected_count": len(wheels),
         "missing_count": len([item for item in wheels if item["status"] == "MISSING"]),
@@ -4109,7 +4200,8 @@ def build_runtime_integrity_verification(runtime_root: str | Path | None = None)
 
     root_info = _runtime_path_info(runtime_root)
     root = root_info["path"]
-    wheelhouse = build_wheelhouse_external_validation(root / "wheels")
+    lockfile = _runtime_lockfile_for_wheelhouse(root / "wheels")
+    wheelhouse = build_wheelhouse_external_validation(root / "wheels", lockfile)
     checks = [
         _integrity_check("embedded_python_present", (root / "python" / "python.exe").is_file(), str(root / "python" / "python.exe")),
         _integrity_check("python_folder", (root / "python").is_dir(), str(root / "python")),
@@ -4118,7 +4210,7 @@ def build_runtime_integrity_verification(runtime_root: str | Path | None = None)
         _integrity_check("requirements_lock_folder", (root / "requirements-lock").is_dir(), str(root / "requirements-lock")),
         _integrity_check("audit_folder", (root / "audit").is_dir(), str(root / "audit")),
         _integrity_check("checks_folder", (root / "checks").is_dir(), str(root / "checks")),
-        _integrity_check("lockfile", (REPO_ROOT / "config" / "ann_runtime_lock.example.json").is_file(), "config/ann_runtime_lock.example.json"),
+        _integrity_check("lockfile", lockfile.is_file(), str(lockfile)),
         _integrity_check("wheelhouse_hashes", wheelhouse["status"] == "VERIFIED", wheelhouse["status"]),
     ]
     blockers = [check for check in checks if check["status"] == "BLOCKED"]
@@ -4165,7 +4257,8 @@ def build_wheelhouse_external_validation(
     """Validate externally copied wheels against the lockfile without installing them."""
 
     wheelhouse = _resolve_runtime_filesystem_path(wheelhouse_path or f"{DEFAULT_RUNTIME_ROOT_TEXT}/wheels")
-    lock = build_offline_runtime_lockfile(lockfile_path)
+    lockfile = _runtime_lockfile_for_wheelhouse(wheelhouse, lockfile_path)
+    lock = build_offline_runtime_lockfile(lockfile)
     discovered = {path.name: path for path in sorted(wheelhouse.glob("*.whl"), key=lambda item: item.name.lower())} if wheelhouse.is_dir() else {}
     wheels = [_external_wheel_validation_entry(item, discovered.get(item["filename"])) for item in _declared_wheels(lock)]
     missing = [item for item in wheels if item["missing"]]
@@ -4182,7 +4275,7 @@ def build_wheelhouse_external_validation(
         "generated_at": _now(),
         "status": status,
         "wheelhouse_path": str(wheelhouse),
-        "lockfile_path": str(Path(lockfile_path or REPO_ROOT / "config" / "ann_runtime_lock.example.json")),
+        "lockfile_path": str(lockfile),
         "wheels": wheels,
         "missing": [item["wheel"] for item in missing],
         "mismatch": [item["wheel"] for item in mismatch],
@@ -11009,7 +11102,7 @@ def _handoff_transfer_manifest(manifest: dict[str, Any]) -> dict[str, Any]:
         json.dumps(canonical_payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
     ).hexdigest()
     return {
-        "version": "18.9.17",
+        "version": "18.9.18",
         "generated_at": _now(),
         "status": "TRANSFER_MANIFEST_READY",
         "bundle_kind": "ANN_RELEASE_CANDIDATE_HANDOFF",
@@ -11051,13 +11144,15 @@ def _release_command_contract(manifest: dict[str, Any]) -> dict[str, Any]:
         "external_release_evidence_command",
         "final_verifier_command",
         "repo_root_final_verifier_command",
+        "windows_sandbox_prepare_command",
+        "windows_sandbox_launch_command",
     ]
     hashes = {
         key: hashlib.sha256(str(manifest.get(key) or "").encode("utf-8")).hexdigest()
         for key in command_keys
     }
     return {
-        "version": "18.9.17",
+        "version": "18.9.18",
         "commands_are_templates": bool(manifest.get("release_commands_are_templates")),
         "placeholder_must_be_replaced": bool(
             manifest.get("release_command_placeholders_must_be_replaced")
@@ -11130,6 +11225,8 @@ def _handoff_readme(manifest: dict[str, Any]) -> str:
         f"Release operator environment: `{manifest.get('release_operator_environment_command')}`",
         f"Sign: `{manifest.get('sign_command')}`",
         f"Clean machine: `{manifest.get('clean_machine_command')}`",
+        f"Windows Sandbox prepare: `{manifest.get('windows_sandbox_prepare_command')}`",
+        f"Windows Sandbox launch: `{manifest.get('windows_sandbox_launch_command')}`",
         f"External release evidence: `{manifest.get('external_release_evidence_command')}`",
         f"Final verifier: `{manifest.get('final_verifier_command')}`",
         f"Repo-root final verifier: `{manifest.get('repo_root_final_verifier_command')}`",
@@ -11260,6 +11357,12 @@ def _final_release_external_steps(manifest: dict[str, Any]) -> str:
             "4. Preserve D:\\ANN\\clean_machine_external_validation.json.",
             "5. Verify the external evidence bundle before running the final release verifier.",
             f"   `{manifest.get('external_release_evidence_command')}`",
+            "",
+            "## Windows Sandbox Alternative",
+            "",
+            "Windows Sandbox can provide a fresh Windows instance on the release host. It executes ANN_Setup.exe against read-only release inputs and validates the newly installed D:\\ANN tree; it does not validate a preinstalled host tree.",
+            f"Prepare and inspect: `{manifest.get('windows_sandbox_prepare_command')}`",
+            f"Launch only after signing: `{manifest.get('windows_sandbox_launch_command')}`",
             "",
             "## Final Verification",
             "",
@@ -12762,9 +12865,10 @@ def _run_embedded_runtime_import_probe(
     timeout_seconds: int,
 ) -> dict[str, Any]:
     script = (
-        "import importlib, importlib.metadata, json\n"
+        "import importlib, importlib.metadata, json, re\n"
         f"packages = {json.dumps(list(package_names))}\n"
         "results = {}\n"
+        "gpu_offload = False\n"
         "for name in packages:\n"
         "    try:\n"
         "        if name == 'llama_cpp':\n"
@@ -12776,9 +12880,18 @@ def _run_embedded_runtime_import_probe(
         "        except Exception:\n"
         "            version = getattr(module, '__version__', '') or 'unknown'\n"
         "        results[name] = {'importable': True, 'version': str(version), 'error': ''}\n"
+        "        if name == 'llama_cpp':\n"
+        "            from agentic_network.models.gpu_policy import llama_cpp_supports_gpu_offload\n"
+        "            gpu_offload = llama_cpp_supports_gpu_offload(module) is True\n"
         "    except Exception as exc:\n"
         "        results[name] = {'importable': False, 'version': '', 'error': f'{type(exc).__name__}: {exc}'}\n"
-        "print(json.dumps({'packages': results}, sort_keys=True))\n"
+        "normalize = lambda value: re.sub(r'[-_.]+', '-', value).lower()\n"
+        "distributions = {normalize(dist.metadata['Name']): dist.version for dist in importlib.metadata.distributions() if dist.metadata.get('Name')}\n"
+        "print(json.dumps({'packages': results, 'distributions': distributions, 'llama_cpp_gpu_offload': gpu_offload}, sort_keys=True))\n"
+    )
+    env = dict(os.environ)
+    env["PYTHONPATH"] = os.pathsep.join(
+        part for part in (str(REPO_ROOT), env.get("PYTHONPATH", "")) if part
     )
     try:
         completed = subprocess.run(
@@ -12787,6 +12900,7 @@ def _run_embedded_runtime_import_probe(
             text=True,
             timeout=timeout_seconds,
             check=False,
+            env=env,
         )
     except (OSError, subprocess.TimeoutExpired) as exc:
         return {"status": "FAILED", "packages": {}, "error": f"{type(exc).__name__}: {exc}"}
@@ -12802,8 +12916,80 @@ def _run_embedded_runtime_import_probe(
     return {
         "status": "PASSED" if isinstance(packages, dict) else "FAILED",
         "packages": packages if isinstance(packages, dict) else {},
+        "distributions": parsed.get("distributions", {}) if isinstance(parsed, dict) else {},
+        "llama_cpp_gpu_offload": (
+            parsed.get("llama_cpp_gpu_offload") is True if isinstance(parsed, dict) else False
+        ),
         "error": stderr if completed.returncode != 0 else "",
     }
+
+
+def _embedded_release_requirement_versions() -> dict[str, str]:
+    path = REPO_ROOT / "config" / "ann_runtime_requirements.windows-cp311.txt"
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return {}
+    requirements: dict[str, str] = {}
+    for line in lines:
+        value = line.strip()
+        if not value or value.startswith("#") or "==" not in value:
+            continue
+        name, version = value.split("==", 1)
+        name = name.split("[", 1)[0].strip()
+        requirements[_canonical_distribution_name(name)] = version.strip()
+    return requirements
+
+
+def _wheelhouse_distribution_versions(wheelhouse: Path) -> dict[str, str]:
+    distributions: dict[str, str] = {}
+    if not wheelhouse.is_dir():
+        return distributions
+    for wheel in sorted(wheelhouse.glob("*.whl"), key=lambda item: item.name.lower()):
+        try:
+            with zipfile.ZipFile(wheel) as archive:
+                metadata_name = next(
+                    name for name in archive.namelist() if name.endswith(".dist-info/METADATA")
+                )
+                metadata_text = archive.read(metadata_name).decode("utf-8", errors="replace")
+        except (OSError, zipfile.BadZipFile, StopIteration):
+            continue
+        name = ""
+        version = ""
+        for line in metadata_text.splitlines():
+            if line.startswith("Name: "):
+                name = line[6:].strip()
+            elif line.startswith("Version: "):
+                version = line[9:].strip()
+            if name and version:
+                break
+        if name:
+            distributions[_canonical_distribution_name(name)] = version
+    return distributions
+
+
+def _canonical_distribution_name(value: str) -> str:
+    return re.sub(r"[-_.]+", "-", str(value)).lower()
+
+
+def _runtime_lockfile_for_wheelhouse(
+    wheelhouse: Path,
+    explicit: str | Path | None = None,
+) -> Path:
+    if explicit is not None:
+        return Path(explicit)
+    candidate = wheelhouse.parent / "checks" / "ann_runtime_lock.json"
+    if candidate.is_file():
+        return candidate
+    return REPO_ROOT / "config" / "ann_runtime_lock.example.json"
+
+
+def _path_cache_fingerprint(path: Path) -> str:
+    try:
+        stat = path.stat()
+    except OSError:
+        return "missing"
+    return f"{stat.st_size}:{stat.st_mtime_ns}"
 
 
 def _authenticode_signature_status(

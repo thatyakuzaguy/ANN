@@ -47,6 +47,8 @@ REQUIRED_HANDOFF_FILES = {
     "scripts/runtime/verify_final_release.py",
     "scripts/runtime/verify_release_candidate_bundle.py",
     "scripts/runtime/verify_release_operator_environment.py",
+    "scripts/release/invoke-windows-sandbox-validation.ps1",
+    "scripts/release/run-windows-sandbox-validation.ps1",
 }
 REQUIRED_AUXILIARY_FILES = {
     "FINAL_RELEASE_EXTERNAL_STEPS.md",
@@ -651,9 +653,11 @@ def _release_command_contract_from_manifest(manifest: dict[str, Any]) -> dict[st
         "external_release_evidence_command",
         "final_verifier_command",
         "repo_root_final_verifier_command",
+        "windows_sandbox_prepare_command",
+        "windows_sandbox_launch_command",
     ]
     return {
-        "version": "18.9.17",
+        "version": "18.9.18",
         "commands_are_templates": bool(manifest.get("release_commands_are_templates")),
         "placeholder_must_be_replaced": bool(
             manifest.get("release_command_placeholders_must_be_replaced")
@@ -723,6 +727,8 @@ def _verify_handoff_command_policy(manifest: dict[str, Any]) -> list[dict[str, A
     operator_command = str(manifest.get("release_operator_environment_command") or "")
     bundle_verifier_command = str(manifest.get("bundle_verifier_command") or "")
     repo_root_final_verifier_command = str(manifest.get("repo_root_final_verifier_command") or "")
+    sandbox_prepare_command = str(manifest.get("windows_sandbox_prepare_command") or "")
+    sandbox_launch_command = str(manifest.get("windows_sandbox_launch_command") or "")
     commands = {
         "sign_command": sign_command,
         "clean_machine_command": clean_machine_command,
@@ -731,6 +737,8 @@ def _verify_handoff_command_policy(manifest: dict[str, Any]) -> list[dict[str, A
         "release_operator_environment_command": operator_command,
         "bundle_verifier_command": bundle_verifier_command,
         "repo_root_final_verifier_command": repo_root_final_verifier_command,
+        "windows_sandbox_prepare_command": sandbox_prepare_command,
+        "windows_sandbox_launch_command": sandbox_launch_command,
     }
     checks = [
         _check(
@@ -858,6 +866,22 @@ def _verify_handoff_command_policy(manifest: dict[str, Any]) -> list[dict[str, A
             '--certificate-thumbprint "<CERT_THUMBPRINT>"' in repo_root_final_verifier_command,
             repo_root_final_verifier_command or "missing",
         ),
+        _check(
+            "windows_sandbox_prepare_command_targets_harness",
+            "scripts\\release\\invoke-windows-sandbox-validation.ps1" in sandbox_prepare_command,
+            sandbox_prepare_command or "missing",
+        ),
+        _check(
+            "windows_sandbox_prepare_command_does_not_launch",
+            "-Launch" not in sandbox_prepare_command,
+            sandbox_prepare_command or "missing",
+        ),
+        _check(
+            "windows_sandbox_launch_command_requires_explicit_launch",
+            "scripts\\release\\invoke-windows-sandbox-validation.ps1" in sandbox_launch_command
+            and "-Launch" in sandbox_launch_command,
+            sandbox_launch_command or "missing",
+        ),
     ]
     checks.extend(
         _check(
@@ -873,7 +897,14 @@ def _verify_handoff_command_policy(manifest: dict[str, Any]) -> list[dict[str, A
 def _command_string_safety_detail(command: str) -> str:
     if not command.strip():
         return "command_missing"
-    normalized = command.replace("<CERT_THUMBPRINT>", "CERT_THUMBPRINT")
+    normalized = command
+    for placeholder in (
+        "<CERT_THUMBPRINT>",
+        "<ANN_RELEASE_SOURCE>",
+        "<ANN_RUNTIME_SOURCE>",
+        "<ANN_DESKTOP_SOURCE>",
+    ):
+        normalized = normalized.replace(placeholder, placeholder.strip("<>"))
     lowered = normalized.lower()
     forbidden = {
         "&&": "command_chaining_blocked",

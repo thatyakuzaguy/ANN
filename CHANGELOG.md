@@ -1,5 +1,26 @@
 # Changelog
 
+## Unreleased
+
+## 0.1.4-rc.3 - 2026-07-18
+
+- Added a preparation-first Windows Sandbox harness for isolated final-release
+  validation. It runs the signed setup launcher against read-only release
+  inputs, validates a fresh sandbox installation, disables networking, and
+  strictly reuses the existing signed clean-machine evidence gate.
+- Replaced the contaminated embedded environment with a minimal, exact,
+  46-wheel Python 3.11 CUDA runtime and verified llama.cpp GPU offload.
+- Added strict embedded-package, wheel-closure, unexpected-distribution, and
+  runtime-integrity gates.
+- Added a reproducible split offline Windows bundle with per-part and aggregate
+  SHA-256 verification for GitHub-compatible release assets.
+- Added installer-side payload verification, portable model-path rewriting,
+  and fail-closed inference policy when no verified model pack is supplied.
+- Reconstructed and installed the release from its split assets, verified all
+  16,850 payload files, and passed installed API and native Desktop smokes.
+- Fixed clean-machine validation to match the installed application layout and
+  distinguish Python model modules from forbidden binary model weights.
+
 ## 0.1.4-rc.2 - 2026-07-18
 
 - Added deterministic discovery of the newest x64 Windows SDK SignTool when it

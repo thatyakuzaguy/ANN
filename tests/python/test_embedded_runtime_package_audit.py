@@ -27,13 +27,14 @@ def test_embedded_runtime_package_audit_uses_subprocess_without_shell(monkeypatc
 
     def fake_run(*args, **kwargs):
         calls.append({"args": args, "kwargs": kwargs})
+        packages = {
+            name: {"importable": name != "llama_cpp", "version": "test", "error": ""}
+            for name in activation.EMBEDDED_RELEASE_IMPORTS
+        }
         payload = {
-            "packages": {
-                "PySide6": {"importable": True, "version": "6.0", "error": ""},
-                "torch": {"importable": True, "version": "2.0", "error": ""},
-                "llama_cpp": {"importable": False, "version": "", "error": "missing"},
-                "transformers": {"importable": True, "version": "4.0", "error": ""},
-            }
+            "packages": packages,
+            "distributions": activation._embedded_release_requirement_versions(),
+            "llama_cpp_gpu_offload": True,
         }
         return subprocess.CompletedProcess(args=args[0], returncode=0, stdout=json.dumps(payload), stderr="")
 
@@ -68,13 +69,14 @@ def test_embedded_runtime_package_audit_does_not_cache_failed_probe(monkeypatch,
     def pass_run(*args, **_kwargs):
         nonlocal calls
         calls += 1
+        packages = {
+            name: {"importable": True, "version": "test", "error": ""}
+            for name in activation.EMBEDDED_RELEASE_IMPORTS
+        }
         payload = {
-            "packages": {
-                "PySide6": {"importable": True, "version": "6.0", "error": ""},
-                "torch": {"importable": True, "version": "2.0", "error": ""},
-                "llama_cpp": {"importable": True, "version": "0.3", "error": ""},
-                "transformers": {"importable": True, "version": "4.0", "error": ""},
-            }
+            "packages": packages,
+            "distributions": activation._embedded_release_requirement_versions(),
+            "llama_cpp_gpu_offload": True,
         }
         return subprocess.CompletedProcess(args=args[0], returncode=0, stdout=json.dumps(payload), stderr="")
 

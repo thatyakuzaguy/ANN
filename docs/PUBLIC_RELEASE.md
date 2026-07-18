@@ -51,7 +51,7 @@ manifest.
 ## Dependency Audit
 
 The release gate fails on high or critical production dependency findings.
-As of `0.1.4-rc.2`, npm reports two moderate findings in the PostCSS copy nested
+As of `0.1.4-rc.3`, npm reports two moderate findings in the PostCSS copy nested
 inside Next.js. npm's proposed fix incorrectly downgrades Next to 9.3.3 and is
 not applied. The application pins the newest compatible Next release available
 during validation, uses no dynamic user-authored CSS serialization, and enables
@@ -59,10 +59,12 @@ Dependabot so the nested fix can be adopted when upstream publishes it.
 
 ## Release Candidate Status
 
-The `v0.1.4-rc.2` source candidate has passed the exported-tree and fresh-clone
-Python, Ruff, frontend, Docker Compose, dependency-audit, manifest, Markdown,
-and secret-scanning gates. It is intentionally a prerelease. ANN must not be
-declared `FINAL_RELEASE_READY` until both of these external gates have real,
+The `v0.1.4-rc.3` source candidate has passed the development-tree Python,
+Ruff, frontend, Docker Compose, embedded runtime, split-bundle, installed API,
+and native Desktop gates. Exported-tree and fresh-clone validation must be
+repeated after the RC3 source export. The candidate remains intentionally a
+prerelease. ANN must not be declared `FINAL_RELEASE_READY` until both of these
+external gates have real,
 matching evidence:
 
 - timestamped Authenticode signatures from a trusted code-signing certificate;

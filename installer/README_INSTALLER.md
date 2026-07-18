@@ -9,7 +9,11 @@ Default install root:
 
 ```text
 D:\ANN
-  app
+  agentic_network
+  apps
+  packages
+  scripts
+  desktop
   data
   projects
   outputs
@@ -19,6 +23,15 @@ D:\ANN
   config
   runtime
 ```
+
+## Split GitHub Release
+
+The embedded CUDA runtime makes the offline archive larger than GitHub's
+per-asset limit. Download every `.partNNN` asset plus
+`ANN_RELEASE_PARTS.json`, `ANN_RELEASE_PARTS.sha256`, and
+`assemble_release.ps1`, then follow `README_OFFLINE_RELEASE.md`. The assembler
+verifies each part and the reconstructed archive. `ANN_Setup.exe` independently
+verifies every payload file before installation.
 
 ## Install
 
@@ -70,7 +83,7 @@ installer\ANN_Setup.exe -InstallRoot D:\ANN -SkipShortcut
 The installer creates a desktop shortcut that runs:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File D:\ANN\runtime\ann_launcher.ps1
+powershell -ExecutionPolicy Bypass -File D:\ANN\installer\ann_launcher.ps1
 ```
 
 The launcher opens the packaged native Desktop executable. If that executable
@@ -200,6 +213,42 @@ To sign on the release machine after reviewing the dry-run command plan:
 ```powershell
 powershell -ExecutionPolicy Bypass -File installer\sign_release.ps1 -CertificateThumbprint "<CERT_THUMBPRINT>" -TimestampUrl http://timestamp.digicert.com -OutputPath installer\release_signing_evidence.json -Execute
 ```
+
+### Isolated Windows Sandbox validation
+
+ANN includes a preparation-first Windows Sandbox harness for the final clean
+Windows 11 evidence step. It maps the release source, embedded runtime, Desktop
+payload, signed installer, and handoff bundle read-only; executes
+`ANN_Setup.exe` inside the clean sandbox; then validates the fresh `D:\ANN`
+installation. Networking, vGPU, clipboard, audio, video, and printer
+redirection are disabled, and only the evidence directory is writable from the
+sandbox. It reuses `validate_clean_machine.ps1` and cannot replace the trusted
+certificate gate.
+
+Prepare the `.wsb` file and inspect blockers without launching anything:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\release\invoke-windows-sandbox-validation.ps1 `
+  -SourceRoot D:\AgenticEngineeringNetwork `
+  -RuntimeSource D:\ANN\runtime `
+  -DesktopSource "D:\AgenticEngineeringNetwork\apps\desktop\dist\Agentic Engineering Network-win32-x64"
+```
+
+After both installers are valid and timestamped, signing evidence exists, the
+handoff manifest is verified, and Windows Sandbox is enabled, launch the clean
+validation explicitly:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\release\invoke-windows-sandbox-validation.ps1 `
+  -SourceRoot D:\AgenticEngineeringNetwork `
+  -RuntimeSource D:\ANN\runtime `
+  -DesktopSource "D:\AgenticEngineeringNetwork\apps\desktop\dist\Agentic Engineering Network-win32-x64" `
+  -Launch
+```
+
+The harness never downloads dependencies, loads a model, or performs
+inference. Windows Sandbox must be enabled by an administrator before `-Launch`
+can proceed.
 
 The script requires `signtool.exe` from the Windows SDK and refuses to create or use fake release certificates. Final release verification requires trusted Authenticode signatures with a timestamp authority on both `ANN_Setup.exe` and `ANN_Uninstall.exe`.
 

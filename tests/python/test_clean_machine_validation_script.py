@@ -20,6 +20,13 @@ def test_clean_machine_validation_script_exists_and_is_non_executing() -> None:
     assert 'ValidateSet("local_smoke", "clean_machine")' in source
     assert "Test-BlockedRoot" in source
     assert "C:\\ install roots are blocked by default." in source
+    assert 'Join-Path $root "agentic_network"' in source
+    assert 'Join-Path $root "agentic_network\\desktop_app\\run.py"' in source
+    assert 'Join-Path $root "app\\agentic_network"' not in source
+    assert "Test-NoModelAssetsInApplicationPackage" in source
+    assert 'Join-Path $root "agentic_network\\models"' not in source
+    assert '".gguf", ".safetensors", ".onnx", ".pt", ".pth"' in source
+    assert '"pytorch_model.bin", "adapter_model.bin", "adapter_model.safetensors"' in source
     forbidden = ("pip install", "npm install", "Invoke-WebRequest", "curl ", "Start-BitsTransfer")
     assert not any(token in source for token in forbidden)
 

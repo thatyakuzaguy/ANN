@@ -61,6 +61,17 @@ def build_git_source_release_report(
     installer_rc = build_installer_rc_readiness()
     autonomous = build_autonomous_complex_capability_gate()
     bundle = verify_bundle(bundle_root)
+    transferred_evidence = _verified_handoff_release_evidence(bundle_root, bundle)
+    installer_rc_status, installer_rc_source = _resolved_gate_status(
+        local_status=str(installer_rc.get("status", "UNKNOWN")),
+        expected_status="RC_READY",
+        transferred_status=str(transferred_evidence.get("installer_rc", "UNKNOWN")),
+    )
+    autonomous_status, autonomous_source = _resolved_gate_status(
+        local_status=str(autonomous.get("status", "UNKNOWN")),
+        expected_status="AUTONOMOUS_COMPLEX_CAPABILITY_PASSED",
+        transferred_status=str(transferred_evidence.get("autonomous_complex_capability", "UNKNOWN")),
+    )
     checks = [
         _check("source_tree_present", root.is_dir(), str(root)),
         *(_source_path_checks(root)),
@@ -71,11 +82,11 @@ def build_git_source_release_report(
             package_audit.get("status") == "PACKAGE_AUDIT_READY",
             str(package_audit.get("status")),
         ),
-        _check("installer_rc", installer_rc.get("status") == "RC_READY", str(installer_rc.get("status"))),
+        _check("installer_rc", installer_rc_status == "RC_READY", f"{installer_rc_status}:{installer_rc_source}"),
         _check(
             "autonomous_complex_capability",
-            autonomous.get("status") == "AUTONOMOUS_COMPLEX_CAPABILITY_PASSED",
-            str(autonomous.get("status")),
+            autonomous_status == "AUTONOMOUS_COMPLEX_CAPABILITY_PASSED",
+            f"{autonomous_status}:{autonomous_source}",
         ),
         _check("release_candidate_handoff", bundle.get("status") == "HANDOFF_VERIFIED", str(bundle.get("status"))),
         _check(
@@ -105,8 +116,12 @@ def build_git_source_release_report(
         "runtime_materialization": runtime.get("status"),
         "wheelhouse_integrity": wheelhouse.get("status"),
         "embedded_package_audit": package_audit.get("status"),
-        "installer_rc": installer_rc.get("status"),
-        "autonomous_complex_capability": autonomous.get("status"),
+        "installer_rc": installer_rc_status,
+        "installer_rc_evidence_source": installer_rc_source,
+        "installer_rc_local_status": installer_rc.get("status"),
+        "autonomous_complex_capability": autonomous_status,
+        "autonomous_complex_capability_evidence_source": autonomous_source,
+        "autonomous_complex_capability_local_status": autonomous.get("status"),
         "release_candidate_handoff": bundle.get("status"),
         "release_command_contract_ready": _release_command_contract_ready(bundle),
         "no_authenticode_required": True,
@@ -117,6 +132,37 @@ def build_git_source_release_report(
         "no_inference": True,
         "next_step": _next_step(blockers),
     }
+
+
+def _verified_handoff_release_evidence(
+    bundle_root: str | Path,
+    bundle: dict[str, Any],
+) -> dict[str, Any]:
+    """Read transferred gate evidence only after the handoff hashes verify."""
+
+    if bundle.get("status") != "HANDOFF_VERIFIED":
+        return {}
+    evidence_path = Path(bundle_root) / "verification" / "362_final_release_verification.json"
+    try:
+        payload = json.loads(evidence_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    if not isinstance(payload, dict):
+        return {}
+    return payload
+
+
+def _resolved_gate_status(
+    *,
+    local_status: str,
+    expected_status: str,
+    transferred_status: str,
+) -> tuple[str, str]:
+    if local_status == expected_status:
+        return local_status, "local_runtime_evidence"
+    if transferred_status == expected_status:
+        return transferred_status, "verified_release_handoff"
+    return local_status, "local_runtime_evidence"
 
 
 def write_git_source_release_artifacts(report: dict[str, Any], output_dir: str | Path) -> list[str]:

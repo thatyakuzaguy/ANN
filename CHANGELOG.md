@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.4-rc.2 - 2026-07-18
+
+- Added deterministic discovery of the newest x64 Windows SDK SignTool when it
+  is installed but absent from `PATH`, with an explicit signing-path override.
+- Rebuilt and hash-verified the release-candidate handoff after the signing
+  toolchain correction.
+- Confirmed that the remaining final-release gates are trusted Authenticode
+  signing and transferred validation on a separate clean Windows 11 machine.
+
 ## 0.1.4-rc.1 - 2026-07-18
 
 - Added an embedded Windows CUDA DLL bootstrap and verified llama.cpp GPU

@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-07-18T07:52:44.0008780Z",
+  "generated_at_utc": "2026-07-18T12:36:45.1117792Z",
   "release_stage": "release-candidate",
   "source_revision": "cbb9c3b9adc5a16c7f487702a8870877c11a3a79",
   "file_count": 787,
-  "total_bytes": 5646639,
+  "total_bytes": 5652658,
   "maximum_file_size_mb": 25,
   "files": [
     {
@@ -1124,8 +1124,8 @@
     },
     {
       "path": "agentic_network/runtime_engine/local_model_activation.py",
-      "bytes": 564853,
-      "sha256": "f2f9b4ee8366832437e3849c25f0dbda8bc7c48a40d8aeb3589b6b9d3fbb2dd8"
+      "bytes": 566954,
+      "sha256": "24a2acbe689b7ab7b1395c749f174de333d576fdc404c47c17de555b80c9d121"
     },
     {
       "path": "agentic_network/runtime_engine/model_inventory.py",
@@ -1495,7 +1495,7 @@
     {
       "path": "apps/desktop/package.json",
       "bytes": 1097,
-      "sha256": "70323f08e3b4098f090c66fde59d959234fae64f2527041e5a0b8901a500b1ca"
+      "sha256": "c95f650e5da454b1b545941280d7d6b3114809717c5e3ddd183f02587de63afe"
     },
     {
       "path": "apps/desktop/src/main.js",
@@ -1515,7 +1515,7 @@
     {
       "path": "apps/web/package.json",
       "bytes": 962,
-      "sha256": "f66cbfaa9313bf74bbacb16352c2ac3fb83e9a49f6557c8cc29aacd7c351d2f7"
+      "sha256": "7cb50eea91ab0e6d661adeb19aa24e9feac74ebe7ca484458c2f6e8000ae37fa"
     },
     {
       "path": "apps/web/playwright.config.ts",
@@ -1669,8 +1669,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "bytes": 7307,
-      "sha256": "84bc274edf848b40cf1cbbfd26942cc66f8924ded2e36ca02562163d7c82748a"
+      "bytes": 7747,
+      "sha256": "a16828f92889e3fb2122bcb2f5b1ebf85044f62e3d71cb90e7fe9dff535ef3c1"
     },
     {
       "path": "CICD_SETUP.md",
@@ -1680,7 +1680,7 @@
     {
       "path": "CITATION.cff",
       "bytes": 440,
-      "sha256": "5f243e3ffe4f70ea7984ea5a63591d4d837d71e13926d2c1058da681de62f944"
+      "sha256": "87a3930574f1e0f8ef04fccb2ff59c6ce77125237907f0729babfd14e5342947"
     },
     {
       "path": "CODE_OF_CONDUCT.md",
@@ -1960,7 +1960,7 @@
     {
       "path": "docs/PUBLIC_RELEASE.md",
       "bytes": 3492,
-      "sha256": "db2680b75a495205913ab882c5fdb75adf7778c7449ec2f6dc197195ebe7a9b5"
+      "sha256": "3f28e6de2ee15651d2e03e62106ff17cf92974ae712941e2c77ed7b0a5417d26"
     },
     {
       "path": "docs/SECURITY_REVIEW.md",
@@ -2019,13 +2019,13 @@
     },
     {
       "path": "installer/README_INSTALLER.md",
-      "bytes": 8504,
-      "sha256": "391b3cb5a36580c449fb810719de962df1e1c2cffbe4d14e71daf4eda7c435fd"
+      "bytes": 9101,
+      "sha256": "99ec84d3aa4e1b5ce3057d8aac2786fae122b6ae99329ca56b3e2b216036b9b0"
     },
     {
       "path": "installer/sign_release.ps1",
-      "bytes": 10577,
-      "sha256": "8c77a8643a2a2dfc85ca6b15b2171afbe7cee580b2ebf02ae2f6f447a2125e0d"
+      "bytes": 11689,
+      "sha256": "26fb8a8dc0052eecbcf4d138fa813636402147e4add1071e49b70f6f7a57ab24"
     },
     {
       "path": "installer/uninstall_ann.ps1",
@@ -2060,12 +2060,12 @@
     {
       "path": "package.json",
       "bytes": 499,
-      "sha256": "718f8c52180bc0e1508058e3833fd5051f9fec9811ec723190324aa22f09ce3f"
+      "sha256": "815f29901ede53ec2a4023880afe81198c2ffecfeb35ce68e1cd91e5d2759a23"
     },
     {
       "path": "package-lock.json",
       "bytes": 278417,
-      "sha256": "e86185bb1c42b35376fc32133dd970761712f97e29bb85ec3432814f8b4a56f1"
+      "sha256": "f21414326b54f531246375ca6ced727b9782c1dedcd59cce8bd60b8f26876feb"
     },
     {
       "path": "packages/agents/agentic_engineering_network/agents/definitions.py",
@@ -2300,7 +2300,7 @@
     {
       "path": "pyproject.toml",
       "bytes": 1507,
-      "sha256": "431842587ce85d135f080270e2d8526a3aaf7e1077964d27e80b90aca4986512"
+      "sha256": "ba6797783dd3701d906f3f6c7eaabe57ffe3a89283f60e69d0bcbd7981e8694b"
     },
     {
       "path": "README.md",
@@ -2674,8 +2674,8 @@
     },
     {
       "path": "tests/python/test_code_signing_readiness.py",
-      "bytes": 6905,
-      "sha256": "1c35ea5222619571c779558eb9889b84c019ea1f3661c55ea933d8694de29ccd"
+      "bytes": 8299,
+      "sha256": "e307f88180f26ee267f651e06b154d0299a2afcd873e9b7ac6529382ea962375"
     },
     {
       "path": "tests/python/test_consensus_agent_runtime.py",
@@ -3439,8 +3439,8 @@
     },
     {
       "path": "tests/python/test_release_operator_environment.py",
-      "bytes": 17159,
-      "sha256": "ce66bd77b62fcc8c291d0d8b59d45f7a149c99c2e7e049f452649ca438c0ba69"
+      "bytes": 17534,
+      "sha256": "65d4d338f3b872b35d7ea3107ed6da6356ca032b0cec1d1c1ce337d1f661844d"
     },
     {
       "path": "tests/python/test_release_packaging_dry_run.py",

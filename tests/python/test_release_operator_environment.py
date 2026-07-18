@@ -78,6 +78,15 @@ def test_release_operator_environment_blocks_without_certificate_thumbprint(monk
     assert report["no_shell"] is True
 
 
+def test_release_signing_script_discovers_windows_sdk_signtool() -> None:
+    source = Path("D:/AgenticEngineeringNetwork/installer/sign_release.ps1").read_text(encoding="utf-8")
+
+    assert "Find-WindowsSdkSignTool" in source
+    assert 'Windows Kits\\10\\bin' in source
+    assert '*\\x64\\signtool.exe' in source
+    assert "[version]$_.Directory.Parent.Name" in source
+
+
 def test_release_operator_environment_ready_with_trusted_certificate(monkeypatch, tmp_path: Path) -> None:
     _patch_release_operator_dependencies(monkeypatch, tmp_path, ready=True)
     monkeypatch.setattr(verifier.shutil, "which", lambda _name: "powershell.exe")

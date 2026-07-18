@@ -9,6 +9,38 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+function Find-WindowsSdkSignTool {
+  $command = Get-Command "signtool.exe" -ErrorAction SilentlyContinue
+  if ($command) { return [string]$command.Source }
+
+  $roots = @($env:ProgramFiles, ${env:ProgramFiles(x86)}) |
+    Where-Object { -not [string]::IsNullOrWhiteSpace($_) } |
+    Select-Object -Unique
+  $versioned = @()
+  foreach ($programFilesRoot in $roots) {
+    $sdkBin = Join-Path $programFilesRoot "Windows Kits\10\bin"
+    if (Test-Path -LiteralPath $sdkBin -PathType Container) {
+      $versioned += @(Get-ChildItem -Path (Join-Path $sdkBin "*\x64\signtool.exe") -File -ErrorAction SilentlyContinue)
+    }
+  }
+  $selected = $versioned | Sort-Object -Property @(
+    @{
+      Expression = {
+        try { [version]$_.Directory.Parent.Name } catch { [version]"0.0" }
+      }
+      Descending = $true
+    },
+    @{ Expression = { $_.FullName }; Descending = $true }
+  ) | Select-Object -First 1
+  if ($selected) { return [string]$selected.FullName }
+
+  foreach ($programFilesRoot in $roots) {
+    $fallback = Join-Path $programFilesRoot "Windows Kits\10\App Certification Kit\signtool.exe"
+    if (Test-Path -LiteralPath $fallback -PathType Leaf) { return $fallback }
+  }
+  return ""
+}
+
 if (-not $InstallerRoot) {
   $InstallerRoot = $PSScriptRoot
 }
@@ -40,12 +72,11 @@ if (-not $TimestampUrl) {
   throw "TimestampUrl is required. Use a trusted RFC3161 timestamp authority for final release builds."
 }
 if (-not $SigntoolPath) {
-  $signtoolCommand = Get-Command "signtool.exe" -ErrorAction SilentlyContinue
-  if (-not $signtoolCommand) {
+  $SigntoolPath = Find-WindowsSdkSignTool
+  if (-not $SigntoolPath) {
     $SigntoolPath = "signtool.exe"
     $signtoolMissing = $true
   } else {
-    $SigntoolPath = $signtoolCommand.Source
     $signtoolMissing = $false
   }
 } else {

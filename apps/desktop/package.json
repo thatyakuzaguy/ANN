@@ -1,7 +1,7 @@
 {
   "name": "@aen/desktop",
   "private": true,
-  "version": "0.1.4-rc.1",
+  "version": "0.1.4-rc.2",
   "description": "Desktop shell for Agentic Engineering Network",
   "main": "src/main.js",
   "author": "Agentic Engineering Network",

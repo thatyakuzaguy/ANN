@@ -172,6 +172,11 @@ All commands that show `<CERT_THUMBPRINT>` are templates. Replace it with the re
 
 Before signing, verify the release operator environment can see `signtool.exe` and the trusted Authenticode certificate:
 
+ANN checks `PATH` first and then discovers the newest x64 SignTool under the
+installed Windows SDK. The signing script also accepts an explicit
+`-SigntoolPath` override. Installing the Windows SDK Signing Tools is therefore
+required only when neither location contains `signtool.exe`.
+
 ```powershell
 $env:PYTHONPATH="."
 python scripts\runtime\verify_release_operator_environment.py --installer-root installer --certificate-thumbprint "<CERT_THUMBPRINT>" --output-dir outputs\runtime_finalization_20260707
@@ -179,6 +184,15 @@ python scripts\runtime\verify_release_operator_environment.py --installer-root i
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File installer\sign_release.ps1 -CertificateThumbprint "<CERT_THUMBPRINT>" -TimestampUrl http://timestamp.digicert.com
+```
+
+Explicit Windows SDK path example:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File installer\sign_release.ps1 `
+  -SigntoolPath "C:\Program Files (x86)\Windows Kits\10\bin\10.0.28000.0\x64\signtool.exe" `
+  -CertificateThumbprint "<CERT_THUMBPRINT>" `
+  -TimestampUrl http://timestamp.digicert.com
 ```
 
 To sign on the release machine after reviewing the dry-run command plan:

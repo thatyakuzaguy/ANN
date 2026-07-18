@@ -2054,6 +2054,61 @@ def write_embedded_runtime_package_audit_artifacts(output_dir: str | Path | None
     )
 
 
+def _discover_windows_sdk_signtool(search_roots: list[Path] | None = None) -> str | None:
+    """Locate the newest x64 Windows SDK SignTool when it is not on PATH."""
+
+    roots = search_roots
+    if roots is None:
+        roots = []
+        for variable in ("ProgramFiles(x86)", "ProgramFiles"):
+            value = os.environ.get(variable)
+            if value:
+                roots.append(Path(value))
+        for fallback in (Path("C:/Program Files (x86)"), Path("C:/Program Files")):
+            if fallback.exists():
+                roots.append(fallback)
+
+    candidates: list[Path] = []
+    for root in _dedupe_paths(roots):
+        sdk_root = root / "Windows Kits" / "10"
+        bin_root = sdk_root / "bin"
+        if bin_root.is_dir():
+            candidates.extend(path for path in bin_root.glob("*/x64/signtool.exe") if path.is_file())
+            candidates.extend(path for path in bin_root.glob("x64/signtool.exe") if path.is_file())
+        app_certification = sdk_root / "App Certification Kit" / "signtool.exe"
+        if app_certification.is_file():
+            candidates.append(app_certification)
+    if not candidates:
+        return None
+    selected = max(candidates, key=_signtool_candidate_key)
+    return str(selected.resolve())
+
+
+def _dedupe_paths(paths: list[Path]) -> list[Path]:
+    unique: list[Path] = []
+    seen: set[str] = set()
+    for path in paths:
+        key = os.path.normcase(str(path.resolve()))
+        if key not in seen:
+            seen.add(key)
+            unique.append(path)
+    return unique
+
+
+def _signtool_candidate_key(path: Path) -> tuple[int, tuple[int, ...], str]:
+    version: tuple[int, ...] = ()
+    for part in reversed(path.parts):
+        if part.lower() == "x64":
+            continue
+        try:
+            version = tuple(int(value) for value in part.split("."))
+        except ValueError:
+            continue
+        break
+    is_versioned_x64 = int(path.parent.name.lower() == "x64" and bool(version))
+    return is_versioned_x64, version, str(path).lower()
+
+
 def build_code_signing_readiness(
     installer_root: str | Path | None = None,
     *,
@@ -2067,7 +2122,11 @@ def build_code_signing_readiness(
     uninstall_exe = root / "ANN_Uninstall.exe"
     setup_bat = root / "ANN_Setup.bat"
     uninstall_bat = root / "ANN_Uninstall.bat"
-    signtool = shutil.which("signtool.exe") or shutil.which("signtool")
+    signtool = (
+        shutil.which("signtool.exe")
+        or shutil.which("signtool")
+        or _discover_windows_sdk_signtool()
+    )
     powershell = shutil.which("powershell.exe") or shutil.which("powershell") or shutil.which("pwsh")
     required_binaries = {"ANN_Setup.exe": setup_exe, "ANN_Uninstall.exe": uninstall_exe}
     binary_presence = {name: path.is_file() for name, path in required_binaries.items()}

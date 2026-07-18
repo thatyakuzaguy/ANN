@@ -30,6 +30,39 @@ def test_code_signing_readiness_detects_real_launcher_binaries() -> None:
     assert readiness["no_signing_performed"] is True
 
 
+def test_windows_sdk_signtool_discovery_prefers_newest_x64_version(tmp_path: Path) -> None:
+    older = tmp_path / "Windows Kits" / "10" / "bin" / "10.0.26100.0" / "x64" / "signtool.exe"
+    newer = tmp_path / "Windows Kits" / "10" / "bin" / "10.0.28000.0" / "x64" / "signtool.exe"
+    older.parent.mkdir(parents=True)
+    newer.parent.mkdir(parents=True)
+    older.write_bytes(b"older")
+    newer.write_bytes(b"newer")
+
+    detected = activation._discover_windows_sdk_signtool([tmp_path])
+
+    assert detected == str(newer.resolve())
+
+
+def test_code_signing_readiness_uses_sdk_signtool_outside_path(monkeypatch, tmp_path: Path) -> None:
+    for name in ("ANN_Setup.exe", "ANN_Uninstall.exe"):
+        (tmp_path / name).write_bytes(b"placeholder")
+    sdk_signtool = tmp_path / "sdk" / "signtool.exe"
+    sdk_signtool.parent.mkdir()
+    sdk_signtool.write_bytes(b"tool")
+    monkeypatch.setattr(
+        activation.shutil,
+        "which",
+        lambda name: "powershell.exe" if name.startswith("powershell") else None,
+    )
+    monkeypatch.setattr(activation, "_discover_windows_sdk_signtool", lambda: str(sdk_signtool))
+
+    readiness = activation.build_code_signing_readiness(tmp_path, execute_signature_check=False)
+
+    assert readiness["signtool_detected"] is True
+    assert readiness["signtool_path"] == str(sdk_signtool)
+    assert "signtool_missing" not in readiness["blockers"]
+
+
 def test_installer_launchers_are_auditable_and_do_not_use_shell_execute() -> None:
     installer_root = Path("D:/AgenticEngineeringNetwork/installer")
     common_source = (installer_root / "AnnPowerShellLauncher.cs").read_text(encoding="utf-8")

@@ -51,7 +51,7 @@ manifest.
 ## Dependency Audit
 
 The release gate fails on high or critical production dependency findings.
-As of `0.1.2`, npm reports two moderate findings in the PostCSS copy nested
+As of `0.1.3`, npm reports two moderate findings in the PostCSS copy nested
 inside Next.js. npm's proposed fix incorrectly downgrades Next to 9.3.3 and is
 not applied. The application pins the newest compatible Next release available
 during validation, uses no dynamic user-authored CSS serialization, and enables

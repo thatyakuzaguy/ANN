@@ -203,6 +203,45 @@ def test_subprocess_runner_receives_shell_false(tmp_path: Path, monkeypatch) -> 
     assert seen["shell"] is False
 
 
+def test_maps_tools_to_current_python_instead_of_user_executable(tmp_path: Path, monkeypatch) -> None:
+    root = _project(tmp_path, monkeypatch)
+    seen = {}
+
+    def fake_run(*args, **kwargs):
+        seen["command"] = args[0]
+        return subprocess.CompletedProcess(args=args[0], returncode=0, stdout="ok", stderr="")
+
+    result = run_terminal_command(
+        ["pytest", "tests/test_sample.py", "-q"],
+        ".",
+        subprocess_runner=fake_run,
+        project_root=root,
+    )
+
+    assert result.status == "PASSED"
+    assert seen["command"][1:3] == ["-m", "pytest"]
+    assert Path(seen["command"][0]).resolve() == Path(__import__("sys").executable).resolve()
+
+
+def test_blocks_write_capable_or_plugin_terminal_arguments(tmp_path: Path, monkeypatch) -> None:
+    root = _project(tmp_path, monkeypatch)
+
+    ruff = run_terminal_command(["ruff", "check", "--fix", "."], ".", project_root=root)
+    pytest = run_terminal_command(["pytest", "-p", "malicious_plugin"], ".", project_root=root)
+    module = run_terminal_command(
+        ["python", "-m", "agentic_network.untrusted"],
+        ".",
+        project_root=root,
+    )
+
+    assert ruff.status == "BLOCKED"
+    assert "ruff_argument_not_allowlisted" in ruff.validation_errors
+    assert pytest.status == "BLOCKED"
+    assert "pytest_argument_not_allowlisted" in pytest.validation_errors
+    assert module.status == "BLOCKED"
+    assert "python_command_not_allowlisted" in module.validation_errors
+
+
 def test_ui_endpoint_requires_confirm_execute(tmp_path: Path, monkeypatch) -> None:
     root = _project(tmp_path, monkeypatch)
     runs_root = root / "outputs" / "runs"

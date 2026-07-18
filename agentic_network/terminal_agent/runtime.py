@@ -42,6 +42,24 @@ PROTECTED_TEXT_PATTERN = re.compile(
     r"unsloth_compiled_cache\b)"
 )
 SECRET_PATTERN = re.compile(r"(?i)(token|secret|password|api[_-]?key)\s*=\s*([^\s]+)")
+PYTEST_FLAGS = {
+    "-q",
+    "--quiet",
+    "-v",
+    "--verbose",
+    "-x",
+    "--exitfirst",
+    "--disable-warnings",
+    "--strict-markers",
+    "--strict-config",
+    "--collect-only",
+    "--co",
+    "--lf",
+    "--ff",
+}
+RUFF_FLAGS = {"--no-cache", "--quiet", "--statistics"}
+PYTEST_VALUE_FLAG = re.compile(r"^(?:--maxfail=[1-9][0-9]{0,2}|--tb=(?:auto|long|short|line|native|no))$")
+PACKAGE_NAME_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,99}$")
 
 SubprocessRunner = Callable[..., subprocess.CompletedProcess[str]]
 
@@ -251,15 +269,20 @@ def _validate_command_shape(command: list[str]) -> list[str]:
 
 
 def _validate_ruff(command: list[str]) -> list[str]:
-    if len(command) >= 2 and command[1] == "check":
+    if len(command) < 2 or command[1] != "check":
+        return ["ruff_command_not_allowlisted"]
+    if all(arg in RUFF_FLAGS or _safe_relative_arg(arg) for arg in command[2:]):
         return []
-    return ["ruff_command_not_allowlisted"]
+    return ["ruff_argument_not_allowlisted"]
 
 
 def _validate_pytest(command: list[str]) -> list[str]:
-    if any(arg.startswith("-") or _safe_relative_arg(arg) for arg in command[1:]):
+    if all(
+        arg in PYTEST_FLAGS or PYTEST_VALUE_FLAG.fullmatch(arg) or _safe_pytest_target(arg)
+        for arg in command[1:]
+    ):
         return []
-    return []
+    return ["pytest_argument_not_allowlisted"]
 
 
 def _validate_python(command: list[str]) -> list[str]:
@@ -268,17 +291,36 @@ def _validate_python(command: list[str]) -> list[str]:
     if len(command) >= 3 and command[1] == "-m":
         module = command[2]
         if module == "pytest":
-            return []
-        if module.startswith("agentic_network."):
-            return []
-        if module == "pip" and len(command) >= 4 and command[3] == "show":
+            return _validate_pytest(["pytest", *command[3:]])
+        if module == "ruff":
+            return _validate_ruff(["ruff", *command[3:]])
+        if (
+            module == "pip"
+            and len(command) >= 5
+            and command[3] == "show"
+            and all(PACKAGE_NAME_PATTERN.fullmatch(arg) for arg in command[4:])
+        ):
             return []
     return ["python_command_not_allowlisted"]
 
 
 def _safe_relative_arg(arg: str) -> bool:
     text = arg.replace("\\", "/")
-    return not (text.startswith("/") or ":" in text or ".." in text.split("/"))
+    return bool(text) and not (
+        text.startswith(("/", "-")) or ":" in text or ".." in text.split("/")
+    )
+
+
+def _safe_pytest_target(arg: str) -> bool:
+    path, separator, selector = arg.partition("::")
+    if not _safe_relative_arg(path):
+        return False
+    if not separator:
+        return True
+    return bool(selector) and all(
+        re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*(?:\[[A-Za-z0-9_.-]+\])?", part)
+        for part in selector.split("::")
+    )
 
 
 def _artifact_path(
@@ -300,9 +342,14 @@ def _artifact_path(
 
 
 def _execution_command(command: list[str]) -> list[str]:
-    if command and _exe(command[0]) == "python":
+    executable = _exe(command[0]) if command else ""
+    if executable == "pytest":
+        return [sys.executable, "-m", "pytest", *command[1:]]
+    if executable == "ruff":
+        return [sys.executable, "-m", "ruff", *command[1:]]
+    if executable == "python":
         return [sys.executable, *command[1:]]
-    return command
+    raise ValueError("Validated terminal command has no execution mapping.")
 
 
 def _write_artifact(path: Path, result: TerminalResult) -> None:

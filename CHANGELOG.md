@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.1.3 - 2026-07-18
+
+### Security
+
+- Restricted the safe terminal to fixed executable mappings and read-only
+  allowlisted pytest, Ruff, and package-inspection arguments.
+- Replaced path and comment classification regular expressions flagged for
+  denial-of-service or ambiguous tag filtering with bounded string parsing.
+- Added a release gate that fails CI while the current revision has open high
+  or critical CodeQL alerts.
+
+### Changed
+
+- Added regression coverage for blocked pytest plugin loading, arbitrary Python
+  modules, and write-capable Ruff arguments.
+
 ## 0.1.2 - 2026-07-18
 
 ### Changed

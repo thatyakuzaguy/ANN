@@ -2,7 +2,7 @@ $ErrorActionPreference = "Stop"
 $Root = "D:\AgenticEngineeringNetwork"
 Set-Location $Root
 
-$Version = "0.1.2"
+$Version = "0.1.3"
 $ReleaseRoot = Join-Path $Root "releases"
 $PackageName = "AgenticEngineeringNetwork-$Version"
 $Stage = Join-Path $ReleaseRoot $PackageName

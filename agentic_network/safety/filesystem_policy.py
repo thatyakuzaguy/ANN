@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import os
-import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
@@ -21,10 +20,6 @@ DEFAULT_PROTECTED_PATHS = (
     "/mnt/e/Models",
 )
 MODEL_EXTENSIONS = {".safetensors", ".gguf", ".bin", ".pt", ".pth", ".onnx"}
-WINDOWS_DRIVE_PATH = re.compile(r"^(?P<drive>[A-Za-z]):[\\/]*(?P<rest>.*)$")
-WSL_DRIVE_PATH = re.compile(r"^/mnt/(?P<drive>[a-zA-Z])(?:/(?P<rest>.*))?$")
-
-
 @dataclass(frozen=True)
 class FilesystemPolicy:
     """Resolved filesystem policy used by path-sensitive ANN stages."""
@@ -43,13 +38,11 @@ class FilesystemPolicy:
         text = str(path).strip().strip('"').strip("'")
         if not text:
             return self.project_root
-        windows_match = WINDOWS_DRIVE_PATH.match(text)
-        if windows_match:
-            drive = windows_match.group("drive").lower()
-            rest = windows_match.group("rest").replace("\\", "/").strip("/")
+        windows_path = _split_windows_drive_path(text)
+        if windows_path:
+            drive, rest = windows_path
             return Path(f"{drive.upper()}:/{rest}").resolve()
-        wsl_match = WSL_DRIVE_PATH.match(text.replace("\\", "/"))
-        if wsl_match:
+        if _split_wsl_drive_path(text):
             return Path(text)
         candidate = Path(text)
         if text.startswith("/"):
@@ -253,13 +246,11 @@ def _configured_values(
 
 def _normalize_config_path(path: str | Path, *, project_root: Path | None = None) -> Path:
     text = str(path).strip().strip('"').strip("'")
-    windows_match = WINDOWS_DRIVE_PATH.match(text)
-    if windows_match:
-        drive = windows_match.group("drive").lower()
-        rest = windows_match.group("rest").replace("\\", "/").strip("/")
+    windows_path = _split_windows_drive_path(text)
+    if windows_path:
+        drive, rest = windows_path
         return Path(f"{drive.upper()}:/{rest}").resolve()
-    wsl_match = WSL_DRIVE_PATH.match(text.replace("\\", "/"))
-    if wsl_match:
+    if _split_wsl_drive_path(text):
         return Path(text)
     candidate = Path(text)
     if text.startswith("/"):
@@ -294,32 +285,47 @@ def _is_c_path(path: str | Path) -> bool:
 
 def _canonical_path_key(path: str | Path) -> str:
     text = str(path).strip().strip('"').strip("'").replace("\\", "/")
-    windows_match = WINDOWS_DRIVE_PATH.match(text)
-    if windows_match:
-        drive = windows_match.group("drive").lower()
-        rest = windows_match.group("rest").strip("/")
+    windows_path = _split_windows_drive_path(text)
+    if windows_path:
+        drive, rest = windows_path
         return f"/mnt/{drive}/{rest}".rstrip("/").lower()
-    wsl_match = WSL_DRIVE_PATH.match(text)
-    if wsl_match:
-        drive = wsl_match.group("drive").lower()
-        rest = (wsl_match.group("rest") or "").strip("/")
+    wsl_path = _split_wsl_drive_path(text)
+    if wsl_path:
+        drive, rest = wsl_path
         return f"/mnt/{drive}/{rest}".rstrip("/").lower()
     try:
         resolved = Path(text).resolve()
     except OSError:
         resolved = Path(text)
     normalized = str(resolved).replace("\\", "/")
-    windows_match = WINDOWS_DRIVE_PATH.match(normalized)
-    if windows_match:
-        drive = windows_match.group("drive").lower()
-        rest = windows_match.group("rest").strip("/")
+    windows_path = _split_windows_drive_path(normalized)
+    if windows_path:
+        drive, rest = windows_path
         return f"/mnt/{drive}/{rest}".rstrip("/").lower()
     return normalized.rstrip("/").lower()
 
 
 def _is_wsl_like_path(path: str | Path) -> bool:
     text = str(path).strip().strip('"').strip("'").replace("\\", "/")
-    return bool(WSL_DRIVE_PATH.match(text))
+    return _split_wsl_drive_path(text) is not None
+
+
+def _split_windows_drive_path(text: str) -> tuple[str, str] | None:
+    value = text.strip()
+    if len(value) < 2 or not value[0].isalpha() or value[1] != ":":
+        return None
+    rest = value[2:].replace("\\", "/").strip("/")
+    return value[0].lower(), rest
+
+
+def _split_wsl_drive_path(text: str) -> tuple[str, str] | None:
+    value = text.strip().replace("\\", "/")
+    if not value.startswith("/mnt/") or len(value) < 6 or not value[5].isalpha():
+        return None
+    if len(value) > 6 and value[6] != "/":
+        return None
+    rest = value[7:].strip("/") if len(value) > 6 else ""
+    return value[5].lower(), rest
 
 
 def _dedupe(values: list[str]) -> list[str]:

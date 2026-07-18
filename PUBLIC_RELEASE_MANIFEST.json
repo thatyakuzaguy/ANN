@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-07-18T02:44:49.2628960Z",
+  "generated_at_utc": "2026-07-18T03:05:25.6423029Z",
   "release_stage": "public-alpha",
   "source_revision": "cbb9c3b9adc5a16c7f487702a8870877c11a3a79",
   "file_count": 780,
-  "total_bytes": 5563442,
+  "total_bytes": 5568177,
   "maximum_file_size_mb": 25,
   "files": [
     {
@@ -49,8 +49,8 @@
     },
     {
       "path": ".github/workflows/codeql.yml",
-      "bytes": 643,
-      "sha256": "016f2143dba99524255f9187614f00442d28545cf67c223f7c8310811b52f028"
+      "bytes": 1756,
+      "sha256": "d98b90ba2394430b709603e7c4f71eaa5c136506bf1d6a6b2ffa335773957d69"
     },
     {
       "path": ".github/workflows/deploy-template.yml",
@@ -779,8 +779,8 @@
     },
     {
       "path": "agentic_network/patch_quality_agent/runtime.py",
-      "bytes": 34406,
-      "sha256": "52e99519230c85d387bbc6fbc8e94fb052e5f906c4065fb5227eed8260c0aa96"
+      "bytes": 34478,
+      "sha256": "2a42562a2f37fc88728fef1a3d9c26669ab6cb38344ddf3d9ee50ab7f50e36ce"
     },
     {
       "path": "agentic_network/pipeline/__init__.py",
@@ -1164,8 +1164,8 @@
     },
     {
       "path": "agentic_network/safety/filesystem_policy.py",
-      "bytes": 12938,
-      "sha256": "052697450cdced06e52638c84133e010b3a0a98af2fb983f8f309291d088ffb4"
+      "bytes": 12911,
+      "sha256": "619cf4620ac61c039ca5766ead821640e2a32afb9f7fdccf4d9ec8d3d30aad8a"
     },
     {
       "path": "agentic_network/security_agent/__init__.py",
@@ -1324,8 +1324,8 @@
     },
     {
       "path": "agentic_network/terminal_agent/runtime.py",
-      "bytes": 13619,
-      "sha256": "a6c6880d3f87ee95d11871be30eff678dfe8fe9fc838f5db667a824bccee9562"
+      "bytes": 15155,
+      "sha256": "f65701313d951f329eaad7beb0b51c7cfb83f430417a037630e3eab41539d9fb"
     },
     {
       "path": "agentic_network/test_engineer/__init__.py",
@@ -1490,7 +1490,7 @@
     {
       "path": "apps/desktop/package.json",
       "bytes": 1092,
-      "sha256": "b68d85786d4350f32646dabd06489142abda5d3759c0cfb9de6b18fbd9331268"
+      "sha256": "30963220eab594f1f5b8c0d2fff7f305cc65e613ed52a901de17ed44ca085a61"
     },
     {
       "path": "apps/desktop/src/main.js",
@@ -1510,7 +1510,7 @@
     {
       "path": "apps/web/package.json",
       "bytes": 957,
-      "sha256": "0b4fb0ad315f02b9d9ccdffb14bde8bc50bce523f3728b4aa58322c168c56f21"
+      "sha256": "0bb8c86cc20a680b39cd2f1a7770d92795260a7b6383771f0c79351741a74c39"
     },
     {
       "path": "apps/web/playwright.config.ts",
@@ -1664,8 +1664,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "bytes": 5734,
-      "sha256": "cc2bf8e9d3b1621228b563ffa954dd8e9f0981926558303c44ce5f270061d676"
+      "bytes": 6305,
+      "sha256": "c685aa54ae653ea453e8508660e30defa64cf63aa6ed4807cc162b9992fe529f"
     },
     {
       "path": "CICD_SETUP.md",
@@ -1675,7 +1675,7 @@
     {
       "path": "CITATION.cff",
       "bytes": 435,
-      "sha256": "d4bd992a9c9a140df8a0533e7201d96651aa281922ff419eccef33130f262f3e"
+      "sha256": "dd8607615585672cc3f953ffc4c9d7759ac1d9351b16df48364960fa381725f5"
     },
     {
       "path": "CODE_OF_CONDUCT.md",
@@ -1955,7 +1955,7 @@
     {
       "path": "docs/PUBLIC_RELEASE.md",
       "bytes": 2822,
-      "sha256": "fe188a18b6e0f548e9b4ed40d58f396ec3a737b1bd5925c725491f1c0fe55b52"
+      "sha256": "dd6ce1646891ab41261f4735fce615830e5b29939d2461f05bfaf6c5c466522e"
     },
     {
       "path": "docs/SECURITY_REVIEW.md",
@@ -2055,12 +2055,12 @@
     {
       "path": "package.json",
       "bytes": 589,
-      "sha256": "47395143f05b6538105664ec4ec01c8702186964695f79c1e9c7ab804479ab0a"
+      "sha256": "8e2ba846eb1b38198c01eac9ac3ccdfebb9bd9b79a5ba8da9d300ffb055d3d95"
     },
     {
       "path": "package-lock.json",
       "bytes": 278397,
-      "sha256": "d217411bd96532cbfed65b23255ef006580d6952e57d741dd876935fd1a776aa"
+      "sha256": "05627e7d0812a4df1105a135d62eee759c2e5c40ef315bfcf02a2fdf74282c89"
     },
     {
       "path": "packages/agents/agentic_engineering_network/agents/definitions.py",
@@ -2295,7 +2295,7 @@
     {
       "path": "pyproject.toml",
       "bytes": 1504,
-      "sha256": "875a2b13ec834c12e38be8406a5abfd0d29e21bc2f1ea666dd026076aa1b30f2"
+      "sha256": "2969d5ed2f5378b5bc8487d742820e3809a7b2f07bcb528e430d9b3e94c886b4"
     },
     {
       "path": "README.md",
@@ -2315,7 +2315,7 @@
     {
       "path": "scripts/deployment/package-release.ps1",
       "bytes": 4506,
-      "sha256": "bb33dd49340a706828be405a6e60ed0e4dc2445d423c9275ec5e403c208f3fc5"
+      "sha256": "2b2ca26098aca575f1ad7d64fc49fc867858d1f254e3596d046569a851269634"
     },
     {
       "path": "scripts/maintenance/backup-postgres.ps1",
@@ -3624,8 +3624,8 @@
     },
     {
       "path": "tests/python/test_terminal_agent_runtime.py",
-      "bytes": 7571,
-      "sha256": "cd0e4e825d17b3b196c40adc699ca0d9f85d087ea3ce36e822c990f90867dff5"
+      "bytes": 9041,
+      "sha256": "51a0dcfa6d12ffb9558f214fe4680b8ade1567640adf957a6f85b79ceb2c6c15"
     },
     {
       "path": "tests/python/test_test_engineer_runtime.py",

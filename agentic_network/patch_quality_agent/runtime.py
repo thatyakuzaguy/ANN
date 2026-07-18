@@ -43,9 +43,8 @@ DANGEROUS_TEXT_PATTERN = re.compile(
     r"eval\s*\(|exec\s*\(|shell\s*=\s*True)"
 )
 WINDOWS_C_PATH_PATTERN = re.compile(r"(?i)(?:^|[\s:+-])(?:/mnt/c\b|[A-Z]:\\)")
-COMMENT_ONLY_PATTERN = re.compile(
-    r"^\s*(?:#|//|/\*|\*|<!--|-->|pass\b|TODO\b|todo\b|Future implementation\b|ANN patch proposal\b)"
-)
+COMMENT_PREFIXES = ("#", "//", "/*", "*", "<!--", "-->")
+NON_IMPLEMENTATION_PREFIXES = ("pass", "todo", "future implementation", "ann patch proposal")
 PLACEHOLDER_PATTERN = re.compile(
     r"(?im)(ANN patch proposal|TODO|Future implementation|placeholder|NotImplementedError)"
 )
@@ -734,7 +733,7 @@ def _is_functional_line(line: str) -> bool:
     stripped = line.strip()
     if not stripped:
         return False
-    if COMMENT_ONLY_PATTERN.search(stripped):
+    if stripped.startswith(COMMENT_PREFIXES) or stripped.lower().startswith(NON_IMPLEMENTATION_PREFIXES):
         return False
     return True
 

@@ -31,3 +31,30 @@ jobs:
       - uses: github/codeql-action/analyze@v4
         with:
           category: /language:${{ matrix.language }}
+
+  security-gate:
+    needs: analyze
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: read
+    steps:
+      - name: Reject open high or critical CodeQL alerts for this ref
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          CURRENT_REF: ${{ github.ref }}
+        run: |
+          for attempt in 1 2 3 4 5; do
+            count=$(gh api --paginate \
+              "repos/$REPOSITORY/code-scanning/alerts?state=open&per_page=100" \
+              --jq "[.[] | select(.most_recent_instance.ref == env.CURRENT_REF) | select(.rule.security_severity_level == \"high\" or .rule.security_severity_level == \"critical\")] | length")
+            if [ "$count" -eq 0 ]; then
+              echo "No open high or critical CodeQL alerts for $CURRENT_REF."
+              exit 0
+            fi
+            echo "CodeQL reports $count blocking alert(s); waiting for final processing ($attempt/5)."
+            sleep 10
+          done
+          echo "Blocking release because CodeQL has open high or critical alerts."
+          exit 1

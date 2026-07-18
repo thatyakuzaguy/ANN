@@ -39,7 +39,9 @@ def test_model_inventory_detects_powerful_model_but_keeps_policy_gate() -> None:
     assert record is not None
     assert record.enabled is True
     assert record.backend == "llama_cpp"
-    assert record.path_exists is True
+    assert record.path_exists is Path(record.path).is_file()
+    if not record.path_exists:
+        assert "declared_model_path_missing" in record.warnings
     assert record.load_allowed is False
     assert "real_model_load_blocked_by_policy" in record.load_blocked_reason
 

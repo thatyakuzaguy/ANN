@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-07-18T07:35:54.6280400Z",
+  "generated_at_utc": "2026-07-18T07:52:44.0008780Z",
   "release_stage": "release-candidate",
   "source_revision": "cbb9c3b9adc5a16c7f487702a8870877c11a3a79",
   "file_count": 787,
-  "total_bytes": 5646521,
+  "total_bytes": 5646639,
   "maximum_file_size_mb": 25,
   "files": [
     {
@@ -2849,8 +2849,8 @@
     },
     {
       "path": "tests/python/test_embedded_model_runtime.py",
-      "bytes": 12153,
-      "sha256": "70623a075ca9dfe9644967536f75276bf1d01f6dfcd19687f7bf006f5973729f"
+      "bytes": 12271,
+      "sha256": "cd655642426ee107b4b3190cb22d5b1f4967051ba69977b5ea9aa08646a83cc0"
     },
     {
       "path": "tests/python/test_embedded_python_evidence.py",

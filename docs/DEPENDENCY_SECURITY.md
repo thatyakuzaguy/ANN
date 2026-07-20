@@ -27,10 +27,15 @@ The GitHub security workflow ignores only `PYSEC-2026-2447` for the optional
 requirements file; any additional advisory still fails the job. Review date:
 2026-08-17.
 
-## JavaScript Findings
+## JavaScript Override
 
-`npm audit` currently reports two moderate findings in a PostCSS version nested
-inside Next.js. There are no high or critical production findings. npm proposes
-a breaking downgrade to Next 9.3.3, so ANN keeps the current Next 16.2 release,
-does not accept untrusted dynamic CSS serialization, and relies on Dependabot
-to adopt the upstream correction when a compatible release becomes available.
+Next.js 16.2.10 declares `postcss 8.4.31`, which is affected by
+`GHSA-qx2v-qp2m-jg93`. npm's automatic remediation proposes an unsafe downgrade
+to Next 9.3.3 because no patched stable Next release is currently available.
+
+ANN pins and overrides PostCSS to `8.5.20`, removes the vulnerable nested copy
+from the lockfile, and verifies both the lockfile and installed dependency tree
+with `scripts/security/verify-postcss-resolution.mjs`. `npm audit` reports zero
+findings and CI blocks at moderate severity. The verifier intentionally fails
+when Next changes its internal pin so the override can be reassessed and
+removed as soon as a stable upstream release carries the fix.

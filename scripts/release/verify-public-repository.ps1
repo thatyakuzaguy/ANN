@@ -21,6 +21,17 @@ $declaredPaths = [Collections.Generic.HashSet[string]]::new(
 $failures = [Collections.Generic.List[string]]::new()
 $contentDrift = [Collections.Generic.List[string]]::new()
 $actualBytes = [int64]0
+$inventoryExcludedSegments = @(
+    ".git", ".next", ".pytest_cache", ".ruff_cache", ".mypy_cache",
+    ".tmp", ".venv", ".venv-qlora", "__pycache__", "node_modules",
+    "dist", "build", "playwright-report", "test-results"
+)
+$inventoryExcludedExtensions = @(
+    ".7z", ".bin", ".dll", ".exe", ".gguf", ".gz", ".log", ".onnx",
+    ".p12", ".pfx", ".pt", ".pth", ".pyc", ".pyd", ".safetensors",
+    ".tar", ".tmp", ".tsbuildinfo", ".zip"
+)
+$inventoryExcludedNames = @(".env", ".DS_Store", "Thumbs.db")
 
 foreach ($entry in $manifest.files) {
     $relativePath = ([string]$entry.path).Replace('/', [IO.Path]::DirectorySeparatorChar)
@@ -76,9 +87,22 @@ if ($useGitInventory) {
 else {
     $tracked = @(
         Get-ChildItem -LiteralPath $RepositoryRoot -Recurse -File -Force |
-            Where-Object { $_.FullName -notmatch '[\\/]\.git[\\/]' } |
             ForEach-Object {
-                [IO.Path]::GetRelativePath($RepositoryRoot, $_.FullName).Replace('\', '/')
+                $relativePath = [IO.Path]::GetRelativePath(
+                    $RepositoryRoot,
+                    $_.FullName
+                ).Replace('\', '/')
+                $segments = $relativePath -split '/'
+                $excluded = @(
+                    $segments | Where-Object { $inventoryExcludedSegments -contains $_ }
+                ).Count -gt 0
+                $excluded = $excluded -or (
+                    $inventoryExcludedExtensions -contains $_.Extension.ToLowerInvariant()
+                )
+                $excluded = $excluded -or ($inventoryExcludedNames -contains $_.Name)
+                if (-not $excluded) {
+                    $relativePath
+                }
             }
     )
 }

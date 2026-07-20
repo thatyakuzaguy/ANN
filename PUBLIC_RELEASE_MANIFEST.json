@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-07-19T02:25:46.0415415Z",
+  "generated_at_utc": "2026-07-20T02:35:30.7465202Z",
   "release_stage": "release-candidate",
   "source_revision": "cbb9c3b9adc5a16c7f487702a8870877c11a3a79",
-  "file_count": 798,
-  "total_bytes": 5761376,
+  "file_count": 799,
+  "total_bytes": 5765589,
   "maximum_file_size_mb": 25,
   "files": [
     {
@@ -69,13 +69,13 @@
     },
     {
       "path": ".github/workflows/security-scan.yml",
-      "bytes": 903,
-      "sha256": "d2ff78c7559901a3fffaa8be1a6d296c0cc518cdab401bc662e2eb1664901468"
+      "bytes": 907,
+      "sha256": "e98e3a8cb9d0f59deed78336c0fa19f620c60b3030c037fa183b5e814f4d965f"
     },
     {
       "path": ".github/workflows/test.yml",
-      "bytes": 1263,
-      "sha256": "73e1aafe6e018c5cce061497ba7302f4a7b8a92d43554a12d472f579069bd91d"
+      "bytes": 1356,
+      "sha256": "ed8e36155e7f0672f26c2b2abc97d3f348ab28b2247702455c70edfcaa4a0101"
     },
     {
       "path": ".gitignore",
@@ -1514,8 +1514,8 @@
     },
     {
       "path": "apps/web/package.json",
-      "bytes": 962,
-      "sha256": "bdff22a7832da045b3cd6e6ecf5e60616642df12b2900aea056b960638e47f2a"
+      "bytes": 961,
+      "sha256": "cc49b3e0f567adebc63698615f7bb12f6461f6db2571c8bddcabc900660378c6"
     },
     {
       "path": "apps/web/playwright.config.ts",
@@ -1934,8 +1934,8 @@
     },
     {
       "path": "docs/DEPENDENCY_SECURITY.md",
-      "bytes": 1766,
-      "sha256": "b00af87a1f904b997db345c9416e4b989fda6055f129af118e533c832ba3b43c"
+      "bytes": 2044,
+      "sha256": "9a963577d1b9f38c65109f54a58518b334c934674c0b1a9c7eb4ba9cdd2a25a6"
     },
     {
       "path": "docs/DEPLOYMENT.md",
@@ -1959,8 +1959,8 @@
     },
     {
       "path": "docs/PUBLIC_RELEASE.md",
-      "bytes": 4612,
-      "sha256": "15331a4f29457efca3f7e71b6559fee0edcb98bff9a518b315f43b974481b8e1"
+      "bytes": 4574,
+      "sha256": "6e7c6c49be38c7c2419ebe11abe6f17c4ae8e9da8bf03f5926c8e9235bbf4294"
     },
     {
       "path": "docs/SECURITY_REVIEW.md",
@@ -2069,13 +2069,13 @@
     },
     {
       "path": "package-lock.json",
-      "bytes": 278417,
-      "sha256": "03f907f28e2eb9fc33d4b7d54fb4e299148dbe7315c2a7dab617062a60773118"
+      "bytes": 278408,
+      "sha256": "79f39dcb5cda9c729a1eb0c4382226f37f8af3016d609ae1ee16fe212aeacedd"
     },
     {
       "path": "package.json",
-      "bytes": 499,
-      "sha256": "5d7d75f43d09e0e3a633c566369b52e130019e92b1c0b094b964ab31d8dde97f"
+      "bytes": 545,
+      "sha256": "4110ddaa50fc5b93c25c99f54acbfefeecf6fb9ab83663e665059244fa87e6e3"
     },
     {
       "path": "packages/agents/agentic_engineering_network/agents/definitions.py",
@@ -2404,8 +2404,8 @@
     },
     {
       "path": "scripts/release/verify-public-repository.ps1",
-      "bytes": 4211,
-      "sha256": "be2ac0210c3e5e0a2ba7b9ce8182cab1ae8e5180b44c4c7a00690bdebc42a09d"
+      "bytes": 5248,
+      "sha256": "b5efb07c9934973a6387101420a6d7cd705b947afa4c22cbece5e6873a96c0eb"
     },
     {
       "path": "scripts/run_agentic_pipeline.py",
@@ -2491,6 +2491,11 @@
       "path": "scripts/runtime/verify_release_operator_environment.py",
       "bytes": 21697,
       "sha256": "ff5aa22fda06e187a8c5430bb9c9f41a613fa6cb4c0d627ad0d261fb10f3dcb5"
+    },
+    {
+      "path": "scripts/security/verify-postcss-resolution.mjs",
+      "bytes": 2803,
+      "sha256": "2246e18634097a6f2c294067d3940e76ef13395ed380a7adf190f9a8fdfc402d"
     },
     {
       "path": "scripts/setup/link-qwen-gguf-from-ollama.ps1",

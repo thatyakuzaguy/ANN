@@ -2085,7 +2085,7 @@ def build_embedded_runtime_package_audit(
     else:
         status = "PACKAGE_AUDIT_READY"
     payload = {
-        "version": "18.9.19",
+        "version": "18.9.20",
         "generated_at": _now(),
         "status": status,
         **_runtime_report(root_info),

@@ -64,4 +64,4 @@ def test_wheelhouse_integrity_artifacts(tmp_path: Path) -> None:
 
     assert names == {"148_wheelhouse_integrity.json", "149_wheelhouse_integrity.md"}
     payload = json.loads((tmp_path / "148_wheelhouse_integrity.json").read_text(encoding="utf-8"))
-    assert payload["version"] == "18.9.19"
+    assert payload["version"] == "18.9.20"

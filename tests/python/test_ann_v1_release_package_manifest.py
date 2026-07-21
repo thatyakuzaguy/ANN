@@ -50,3 +50,17 @@ def test_github_tests_use_ann_safe_drive_for_temporary_projects() -> None:
     assert "--basetemp 'D:\\ANN-CI-Tmp\\pytest'" in workflow
     assert "npm audit --audit-level=moderate" in workflow
     assert "npm audit --omit=dev" not in workflow
+
+
+def test_windows_service_scripts_are_root_portable() -> None:
+    project_root = Path(__file__).resolve().parents[2]
+
+    start = (project_root / "start.ps1").read_text(encoding="utf-8")
+    stop = (project_root / "stop.ps1").read_text(encoding="utf-8")
+
+    for script in (start, stop):
+        assert "$Root = [System.IO.Path]::GetFullPath($PSScriptRoot)" in script
+        assert '$Root = "D:\\AgenticEngineeringNetwork"' not in script
+    assert "Launch desktop\\ANN.exe instead." in start
+    assert "docker compose -f $composeFile up" in start
+    assert "docker compose -f $composeFile down" in stop

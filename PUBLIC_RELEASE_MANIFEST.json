@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-07-21T21:09:01.9886167Z",
+  "generated_at_utc": "2026-07-21T21:28:40.3613969Z",
   "release_stage": "stable",
   "source_revision": "cbb9c3b9adc5a16c7f487702a8870877c11a3a79",
   "file_count": 811,
-  "total_bytes": 5940774,
+  "total_bytes": 5940891,
   "maximum_file_size_mb": 25,
   "files": [
     {
@@ -2334,8 +2334,8 @@
     },
     {
       "path": "pyproject.toml",
-      "bytes": 1345,
-      "sha256": "bac662c0c2f704a17938d10c2a0fd161169190c252760af13c1f02894b6aa212"
+      "bytes": 1373,
+      "sha256": "e6263e0b236b4f46f5e7cd9e6a5dd83e8e5ad43d7ce93fde9c46dc471101acfd"
     },
     {
       "path": "README.md",
@@ -2634,8 +2634,8 @@
     },
     {
       "path": "tests/python/test_ann_v1_release_package_manifest.py",
-      "bytes": 1976,
-      "sha256": "496ccdde66b10c04230bd314c6b0b17276ae3203cc19b89f988d4374ef1a5a24"
+      "bytes": 2065,
+      "sha256": "afa1d8db9c033a3f28361dc3e1b1ade2f9ec4b230fd5438f9d7e802e3acfa012"
     },
     {
       "path": "tests/python/test_approval_effects.py",

@@ -28,6 +28,7 @@ def test_python_distribution_uses_explicit_monorepo_package_discovery() -> None:
     config = tomllib.loads((project_root / "pyproject.toml").read_text(encoding="utf-8"))
 
     setuptools_config = config["tool"]["setuptools"]
+    assert "email-validator>=2.2.0" in config["project"]["optional-dependencies"]["dev"]
     assert setuptools_config["packages"]["find"]["include"] == ["agentic_network*"]
     assert set(setuptools_config["package-data"]["*"]) >= {
         "*.md",

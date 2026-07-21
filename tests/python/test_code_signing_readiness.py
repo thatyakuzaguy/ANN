@@ -89,7 +89,7 @@ def test_code_signing_readiness_checks_authenticode_without_shell(monkeypatch, t
     monkeypatch.setattr(activation.shutil, "which", lambda name: "powershell.exe" if name.startswith("powershell") else "signtool.exe")
     monkeypatch.setattr(activation.subprocess, "run", fake_run)
 
-    readiness = activation.build_code_signing_readiness(tmp_path)
+    readiness = activation.build_code_signing_readiness(tmp_path, execute_signature_check=True)
 
     assert readiness["status"] == "SIGNING_READY"
     assert readiness["signed_installer"] is True
@@ -109,12 +109,28 @@ def test_code_signing_readiness_blocks_valid_signature_without_timestamp(monkeyp
     monkeypatch.setattr(activation.shutil, "which", lambda name: "powershell.exe" if name.startswith("powershell") else "signtool.exe")
     monkeypatch.setattr(activation.subprocess, "run", fake_run)
 
-    readiness = activation.build_code_signing_readiness(tmp_path)
+    readiness = activation.build_code_signing_readiness(tmp_path, execute_signature_check=True)
 
     assert readiness["status"] == "SIGNING_BLOCKED_MISSING_TIMESTAMP"
     assert readiness["signed_installer"] is False
     assert "authenticode_timestamp_missing" in readiness["blockers"]
     assert readiness["untimestamped_binaries"] == ["ANN_Setup.exe", "ANN_Uninstall.exe"]
+
+
+def test_code_signing_readiness_can_disable_host_signature_probe(monkeypatch, tmp_path: Path) -> None:
+    for name in ("ANN_Setup.exe", "ANN_Uninstall.exe"):
+        (tmp_path / name).write_bytes(b"placeholder")
+    monkeypatch.setenv("ANN_EXECUTE_SIGNATURE_CHECKS", "0")
+    monkeypatch.setattr(
+        activation.subprocess,
+        "run",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(AssertionError("signature probe executed")),
+    )
+
+    readiness = activation.build_code_signing_readiness(tmp_path)
+
+    assert readiness["status"] == "SIGNING_BLOCKED_UNSIGNED"
+    assert readiness["signed_installer"] is False
 
 
 def test_code_signing_readiness_artifacts(monkeypatch, tmp_path: Path) -> None:

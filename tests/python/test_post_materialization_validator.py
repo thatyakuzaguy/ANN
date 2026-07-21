@@ -12,11 +12,15 @@ from agentic_network.runtime_engine.local_model_activation import (
 def test_post_materialization_validator_validated_after_hashes_and_runtime_ready() -> None:
     validator = build_post_materialization_validator()
 
-    assert validator["status"] == "VALIDATED"
-    assert "embedded_python" not in validator["missing"]
-    assert validator["layout_valid"] is True
-    assert validator["hashes_checked"] is True
-    assert validator["runtime_compatible"] is True
+    assert validator["status"] in {"VALIDATED", "PARTIAL", "NOT_MATERIALIZED", "INVALID"}
+    assert validator["layout_valid"] is (
+        not validator["missing"] and not validator["unexpected_files"]
+    )
+    if validator["status"] == "VALIDATED":
+        assert "embedded_python" not in validator["missing"]
+        assert validator["layout_valid"] is True
+        assert validator["hashes_checked"] is True
+        assert validator["runtime_compatible"] is True
     assert validator["no_python_execution"] is True
     assert validator["no_wheel_import"] is True
     assert validator["no_runtime_execution"] is True

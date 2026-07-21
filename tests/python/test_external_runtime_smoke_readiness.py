@@ -108,3 +108,18 @@ def test_external_runtime_bridge_artifacts(monkeypatch, tmp_path: Path) -> None:
     payload = json.loads((tmp_path / "252_external_runtime_smoke_readiness.json").read_text(encoding="utf-8"))
     assert payload["status"] == "READY_FOR_CONTROLLED_SMOKE_EXTERNAL"
 
+
+def test_external_runtime_smoke_can_disable_automatic_wsl_probe(monkeypatch) -> None:
+    captured: dict[str, bool] = {}
+
+    def bridge(*, allow_wsl_probe: bool = True) -> dict[str, object]:
+        captured["allow_wsl_probe"] = allow_wsl_probe
+        return _ready_external_bridge()
+
+    monkeypatch.setenv("ANN_ENABLE_WSL_RUNTIME_PROBE", "0")
+    monkeypatch.setattr(activation, "build_best_external_verified_runtime_bridge", bridge)
+
+    readiness = activation.build_external_runtime_smoke_readiness()
+
+    assert readiness["status"] == "READY_FOR_CONTROLLED_SMOKE_EXTERNAL"
+    assert captured["allow_wsl_probe"] is False

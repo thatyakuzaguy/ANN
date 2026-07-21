@@ -63,7 +63,8 @@ def test_build_install_plan_excludes_historical_outputs(tmp_path: Path) -> None:
     plan = build_install_plan(source, "D:/ANN")
 
     assert any(path.endswith("outputs") for path in plan.excluded_paths)
-    assert not any("/outputs/" in _slash(path) for path in plan.files_to_copy)
+    copied_relative = [Path(path).relative_to(Path(plan.source_root)) for path in plan.files_to_copy]
+    assert not any("outputs" in {part.lower() for part in path.parts} for path in copied_relative)
 
 
 def test_install_dirs_are_planned(tmp_path: Path) -> None:

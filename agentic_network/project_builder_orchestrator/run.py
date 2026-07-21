@@ -41,6 +41,7 @@ def main(argv: list[str] | None = None) -> int:
     non_fatal_statuses = {
         "COMPLETED_VERIFIED",
         "COMPLETED_UNVERIFIED",
+        "PARTIALLY_VERIFIED",
         "NEEDS_TESTS",
         "NEEDS_REVIEW",
     }

@@ -12,11 +12,12 @@ from agentic_network.runtime_engine.local_model_activation import (
 def test_smoke_button_disabled_on_backend_after_runtime_ready() -> None:
     gate = build_qwen25_smoke_button_gate()
     blockers = {item["id"] for item in gate["blockers"]}
+    checks = {item["id"]: item for item in gate["checks"]}
 
     assert gate["status"] in {"BUTTON_DISABLED", "EXTERNAL_RUNTIME_SMOKE_READY"}
     assert gate["button_enabled"] == (gate["status"] == "EXTERNAL_RUNTIME_SMOKE_READY")
-    assert "runtime_materialized" not in blockers
-    assert "wheelhouse_verified" not in blockers
+    for check_id in {"runtime_materialized", "wheelhouse_verified"}:
+        assert (check_id in blockers) is (checks[check_id]["status"] == "BLOCKED")
     assert blockers.intersection({"llama_cpp_ready", "qwen25_backend_ready"})
     assert gate["qwen3_blocked"] is True
     assert gate["deepseek_blocked"] is True

@@ -170,6 +170,18 @@ def test_final_release_verification_artifacts(monkeypatch, tmp_path: Path) -> No
 def test_verify_final_release_cli_returns_report_exit_code(monkeypatch, capsys) -> None:
     monkeypatch.setattr(
         verify_final_release,
+        "build_final_release_verification_report",
+        lambda _root=None: {
+            "status": "FINAL_RELEASE_BLOCKED",
+            "exit_code": 2,
+            "blockers": [{"id": "signed_installer"}],
+            "signed_installer": False,
+            "external_clean_machine_passed": False,
+            "next_step": "sign installer",
+        },
+    )
+    monkeypatch.setattr(
+        verify_final_release,
         "build_external_release_evidence_report",
         lambda **_kwargs: {
             "status": "EXTERNAL_RELEASE_EVIDENCE_BLOCKED",

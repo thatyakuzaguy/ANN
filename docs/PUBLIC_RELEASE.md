@@ -72,27 +72,33 @@ copy remains. `npm audit --omit=dev --audit-level=moderate` reports zero
 findings. The override is temporary and must be removed when a stable Next.js
 release includes a patched PostCSS version.
 
-## Release Candidate Status
+## Stable Source Release Status
 
-The [`v0.1.4-rc.3`](https://github.com/thatyakuzaguy/ANN/releases/tag/v0.1.4-rc.3)
-source candidate is published from commit
-`aca2c5ad10443df5073fd919d79e878c8f5e55bd`. It passed the development-tree
-Python suite, Ruff, frontend checks, Docker Compose, embedded runtime,
-split-bundle, installed API, and native Desktop gates. The exact public export
-then passed 1,533 tests with 54 explicitly skipped private-evidence tests, and
-all seven GitHub workflows completed successfully. Its nine release assets
-(4,396,352,636 bytes) were compared with the local files by size and GitHub's
-SHA-256 digest.
+ANN `v0.1.4` is the stable source and unsigned portable release. The release
+gate passed the hermetic development suite (1,621 passed, one skipped), Ruff,
+frontend tests and TypeScript, Next.js production build, Playwright, Electron
+packaging, clean Docker image builds, and a live PostgreSQL/API/web Compose
+smoke. The release bundle is split into GitHub-compatible parts and protected
+by an aggregate manifest and per-file SHA-256 hashes.
 
-The candidate remains intentionally a prerelease. ANN must not be declared
-`FINAL_RELEASE_READY` until both of these external gates have real, matching
-evidence:
+The final Windows offline archive is 4,396,125,162 bytes with aggregate
+SHA-256 `f334176cf3b0dd21c1a8526bd30de0feacb401dc76fcdb814d15574e9249f42b`.
+It is distributed as three parts no larger than 1.9 GB.
+
+Model weights are not Git-tracked or bundled. Users provide models separately,
+and the optional model-pack manifest records hashes without granting
+redistribution rights.
+
+The source and unsigned portable channels are stable, but ANN must not label
+the Windows installer as a trusted-publisher release until both external gates
+have real, matching evidence:
 
 - timestamped Authenticode signatures from a trusted code-signing certificate;
 - transferred validation evidence from a separate clean Windows 11 machine.
 
-Unsigned source and Desktop artifacts may be evaluated with the limitations
-clearly disclosed. They are not the trusted Windows installer channel.
+Windows may show a SmartScreen warning for the unsigned portable build. The
+user can review the published source, release hashes, and local build evidence
+before explicitly allowing it. This is not equivalent to Authenticode trust.
 
 ## Binary Release
 

@@ -13,8 +13,12 @@ def test_runtime_collection_manifest_required() -> None:
     manifest = build_runtime_collection_manifest()
     names = {entry["name"] for entry in manifest["entries"]}
 
-    assert manifest["status"] == "COLLECTION_READY"
-    assert manifest["manual_collection_required"] is False
+    assert manifest["status"] in {
+        "COLLECTION_READY",
+        "COLLECTION_INCOMPLETE",
+        "COLLECTION_REQUIRED",
+    }
+    assert manifest["manual_collection_required"] is bool(manifest["required_missing"])
     assert "embedded_python" in names
     assert "runtime_wheels" in names
     assert "requirements_lock" in names

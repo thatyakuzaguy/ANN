@@ -22,6 +22,24 @@ function resolveAppRoot() {
 }
 
 const APP_ROOT = resolveAppRoot();
+
+function configureLocalDesktopStorage() {
+  const dataRoot = path.resolve(process.env.AEN_DESKTOP_DATA_ROOT || path.join(APP_ROOT, "data", "desktop"));
+  const paths = {
+    userData: path.join(dataRoot, "profile"),
+    sessionData: path.join(dataRoot, "session"),
+    logs: path.join(APP_ROOT, "logs", "electron"),
+    crashDumps: path.join(dataRoot, "crash-dumps"),
+    temp: path.join(dataRoot, "temp")
+  };
+  Object.values(paths).forEach((target) => fs.mkdirSync(target, { recursive: true }));
+  Object.entries(paths).forEach(([name, target]) => app.setPath(name, target));
+  process.env.TEMP = paths.temp;
+  process.env.TMP = paths.temp;
+  return paths;
+}
+
+const DESKTOP_STORAGE = configureLocalDesktopStorage();
 const WEB_URL = process.env.AEN_WEB_URL || "http://localhost:3000";
 const DESKTOP_WEB_URL = process.env.AEN_DESKTOP_WEB_URL || "http://127.0.0.1:3001";
 const HEALTH_URL = process.env.AEN_HEALTH_URL || "http://localhost:8000/api/health";

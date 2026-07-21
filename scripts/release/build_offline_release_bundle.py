@@ -155,6 +155,9 @@ def collect_release_items(
 
 def _detect_desktop_root(repo_root: Path) -> Path:
     dist = repo_root / "apps" / "desktop" / "dist"
+    canonical = dist / "ANN-win32-x64"
+    if canonical.is_dir() and (canonical / "ANN.exe").is_file():
+        return canonical
     candidates = sorted(
         path
         for path in dist.iterdir()

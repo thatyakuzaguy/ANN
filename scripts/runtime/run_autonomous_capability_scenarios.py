@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any
 
 from agentic_network.project_builder_orchestrator.runtime import run_end_to_end_project
+from agentic_network.project_builder_orchestrator.capability_evidence import evaluate_project_capability
 from agentic_network.runtime_engine.local_model_activation import build_autonomous_capability_evidence_plan
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -107,12 +108,7 @@ def _summary_from_result(scenario: dict[str, Any], result: Any) -> dict[str, Any
     commands_executed = verification.get("commands_executed")
     if not isinstance(commands_executed, list):
         commands_executed = []
-    security_review = (
-        "PASSED"
-        if payload.get("status") == "COMPLETED_VERIFIED" and not payload.get("validation_errors")
-        else "REVIEW_REQUIRED"
-    )
-    return {
+    summary = {
         "scenario_id": scenario["id"],
         "prompt": scenario["prompt"],
         "status": payload.get("status"),
@@ -120,8 +116,8 @@ def _summary_from_result(scenario: dict[str, Any], result: Any) -> dict[str, Any
         "project_root": payload.get("project_root"),
         "verification_evidence": verification,
         "commands_executed": commands_executed,
-        "security_review": security_review,
-        "security_review_basis": "project-builder verification status and validation errors",
+        "security_review": "REVIEW_REQUIRED",
+        "security_review_basis": "independent security evidence required",
         "protected_paths_modified": False,
         "validation_errors": payload.get("validation_errors", []),
         "artifacts": payload.get("artifacts", []),
@@ -129,6 +125,16 @@ def _summary_from_result(scenario: dict[str, Any], result: Any) -> dict[str, Any
         "next_action": payload.get("next_action"),
         "no_fake_success": True,
     }
+    capability = evaluate_project_capability(scenario["id"], summary)
+    summary["capability_assessment"] = capability
+    if capability.get("security_status") == "PASSED":
+        summary["security_review"] = "PASSED"
+        summary["security_review_basis"] = "independent security_review.json"
+    if not capability["passed"] and summary["status"] == "COMPLETED_VERIFIED":
+        summary["status"] = "CAPABILITY_EVIDENCE_BLOCKED"
+        summary["completion_quality"] = "REVIEW_REQUIRED"
+        summary["next_action"] = "complete_independent_capability_evidence"
+    return summary
 
 
 def _summary_markdown(summary: dict[str, Any]) -> str:

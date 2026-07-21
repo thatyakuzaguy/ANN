@@ -10,7 +10,9 @@ from __future__ import annotations
 import json
 import os
 import re
+import shutil
 import subprocess
+import sys
 import time
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
@@ -71,12 +73,9 @@ def detect_project_test_commands(project_root: str | Path) -> tuple[list[list[st
         commands.append(["python", "-m", "pytest", "-q"])
     elif _has_python_tests(root / "tests") and (root / "apps" / "api").is_dir():
         commands.append(["python", "-m", "pytest", "tests", "-q"])
-    package_json = root / "package.json"
-    if package_json.is_file() or (root / "apps" / "web" / "package.json").is_file():
-        if not (root / "node_modules").is_dir():
-            warnings.append("npm test skipped because node_modules is missing.")
-        else:
-            warnings.append("npm test detected but skipped in v8.6 unless explicitly enabled later.")
+    elif _has_python_tests(root / "apps" / "api" / "tests"):
+        commands.append(["python", "-m", "pytest", "apps/api/tests", "-q"])
+    _detect_node_commands(root, commands, warnings)
     if _has_ruff_config(root):
         commands.append(["python", "-m", "ruff", "check", "."])
     return commands, warnings
@@ -167,13 +166,14 @@ def run_project_verification(
         stderr_path = resolved_run_dir / f"49_project_test_stderr_{index}.log"
         try:
             completed = subprocess.run(  # noqa: S603 - command is allowlisted and shell=False.
-                command,
+                _execution_command(command),
                 cwd=root,
                 capture_output=True,
                 text=True,
                 timeout=timeout_seconds,
                 shell=False,
                 check=False,
+                env=_command_environment(root, command),
             )
             exit_codes.append(completed.returncode)
             stdout_path.write_text(completed.stdout, encoding="utf-8", errors="replace")
@@ -185,6 +185,11 @@ def run_project_verification(
             exit_codes.append(None)
             stdout_path.write_text(exc.stdout or "", encoding="utf-8", errors="replace")
             stderr_path.write_text(exc.stderr or "Command timed out.", encoding="utf-8", errors="replace")
+            failed_commands.append(command)
+        except OSError as exc:
+            exit_codes.append(None)
+            stdout_path.write_text("", encoding="utf-8")
+            stderr_path.write_text(str(exc), encoding="utf-8", errors="replace")
             failed_commands.append(command)
         stdout_artifacts.append(str(stdout_path))
         stderr_artifacts.append(str(stderr_path))
@@ -299,9 +304,83 @@ def _command_allowed(command: list[str]) -> bool:
         ("python", "-m", "pytest", "tests/python", "-q"),
         ("python", "-m", "pytest", "-q"),
         ("python", "-m", "pytest", "tests", "-q"),
+        ("python", "-m", "pytest", "apps/api/tests", "-q"),
         ("python", "-m", "ruff", "check", "."),
+        ("npm", "test"),
+        ("npm", "run", "build"),
+        ("npm", "run", "e2e"),
+        ("npm", "--prefix", "apps/web", "test"),
+        ("npm", "--prefix", "apps/web", "run", "build"),
+        ("npm", "--prefix", "apps/web", "run", "e2e"),
     }
     return tuple(command) in allowed
+
+
+def _detect_node_commands(root: Path, commands: list[list[str]], warnings: list[str]) -> None:
+    candidates = ((root / "package.json", root / "node_modules", []),)
+    web = root / "apps" / "web"
+    candidates = (*candidates, (web / "package.json", web / "node_modules", ["--prefix", "apps/web"]))
+    for manifest_path, modules_path, prefix in candidates:
+        if not manifest_path.is_file():
+            continue
+        try:
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            warnings.append(f"npm scripts skipped because {manifest_path.relative_to(root)} is invalid.")
+            continue
+        scripts = manifest.get("scripts") if isinstance(manifest, dict) else None
+        if not isinstance(scripts, dict):
+            warnings.append(f"npm scripts skipped because {manifest_path.relative_to(root)} has no scripts object.")
+            continue
+        if not modules_path.is_dir():
+            warnings.append(
+                f"npm test skipped because node_modules is missing for {manifest_path.parent.relative_to(root) or Path('.')} ."
+            )
+            continue
+        for script_name in ("test", "build", "e2e"):
+            script = scripts.get(script_name)
+            if not isinstance(script, str) or not script.strip():
+                continue
+            if not _safe_node_script(script_name, script):
+                warnings.append(f"npm {script_name} skipped because its package script is outside the allowlist.")
+                continue
+            suffix = [script_name] if script_name == "test" else ["run", script_name]
+            commands.append(["npm", *prefix, *suffix])
+
+
+def _safe_node_script(script_name: str, script: str) -> bool:
+    normalized = " ".join(script.strip().lower().split())
+    if any(token in normalized for token in ("&&", "||", ";", "|", ">", "<", "`", "$(`")):
+        return False
+    allowed_prefixes = {
+        "test": ("vitest", "jest", "node --test"),
+        "build": ("next build", "vite build", "tsc", "react-scripts build"),
+        "e2e": ("playwright test",),
+    }
+    return normalized.startswith(allowed_prefixes[script_name])
+
+
+def _execution_command(command: list[str]) -> list[str]:
+    if command[0] == "python":
+        return [sys.executable, *command[1:]]
+    if command[0] == "npm":
+        executable = shutil.which("npm.cmd" if os.name == "nt" else "npm") or command[0]
+        return [executable, *command[1:]]
+    return command
+
+
+def _command_environment(root: Path, command: list[str]) -> dict[str, str]:
+    environment = dict(os.environ)
+    if "apps/api/tests" in command:
+        api_root = str((root / "apps" / "api").resolve())
+        current = environment.get("PYTHONPATH", "")
+        environment["PYTHONPATH"] = os.pathsep.join(item for item in (api_root, current) if item)
+        database_path = (root / ".ann-test.db").resolve().as_posix()
+        environment["DATABASE_URL"] = f"sqlite:///{database_path}"
+        environment["JWT_SECRET"] = "ann-project-verification-only-secret-not-for-production"
+        environment["APP_ENV"] = "test"
+    environment.setdefault("NEXT_TELEMETRY_DISABLED", "1")
+    return environment
 
 
 def _has_pytest_config(root: Path) -> bool:

@@ -14,10 +14,12 @@ def test_beta_runtime_payload_readiness_blocked_until_backend_and_first_inferenc
     before = get_loaded_models()
     payload = build_beta_runtime_payload_readiness()
     blocker_ids = {item["id"] for item in payload["blockers"]}
+    checks = {item["id"]: item for item in payload["checks"]}
 
     assert payload["status"] == "PAYLOAD_BLOCKED"
     assert payload["can_beta_payload_be_built"] is False
-    assert not blocker_ids.intersection({"embedded_runtime_ready", "runtime_verified", "wheelhouse_ready"})
+    for check_id in {"embedded_runtime_ready", "runtime_verified", "wheelhouse_ready"}:
+        assert (check_id in blocker_ids) is (checks[check_id]["status"] == "BLOCKED")
     assert "qwen25_backend_ready" in blocker_ids
     assert "first_inference_executed" in blocker_ids
     assert get_loaded_models() == before == []

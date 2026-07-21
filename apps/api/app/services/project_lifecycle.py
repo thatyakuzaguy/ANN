@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
+import hashlib
 from http.client import HTTPException as HttpClientException
 import json
 import os
@@ -14,6 +15,10 @@ from urllib.error import URLError
 import zipfile
 
 from agentic_engineering_network.logs.audit import AuditLogger
+from agentic_network.project_builder_orchestrator.lifecycle_evidence import (
+    REQUIRED_ALGORITHM_VERIFICATION_STEPS,
+    REQUIRED_LIVE_VERIFICATION_STEPS,
+)
 from agentic_engineering_network.security.approvals import ApprovalRequest
 from agentic_engineering_network.security.review import SecurityReviewer
 from agentic_engineering_network.shared.config import Settings, to_host_path
@@ -33,6 +38,7 @@ class LifecycleResult:
     project_root: str
     display_root: str
     sandbox_id: str
+    profile: str
     release_package: str
     attempts: int
     status: str
@@ -69,13 +75,14 @@ class ProjectLifecycleRunner:
                 {"run_id": run_id, "project_root": str(project_root), "sandbox_id": sandbox_id},
             )
             steps = self._validate(project_root, run_id)
-            if all(step.status == "passed" for step in steps):
+            validation_status = self._lifecycle_status(steps)
+            if validation_status in {"passed", "partial"}:
                 retry_history.append(
                     {
                         "attempt": attempt,
-                        "status": "passed",
+                        "status": validation_status,
                         "failed_checks": [],
-                        "next_action": "completed",
+                        "next_action": "completed" if validation_status == "passed" else "complete_live_verification",
                     }
                 )
                 break
@@ -149,6 +156,7 @@ class ProjectLifecycleRunner:
             project_root=str(project_root),
             display_root=display_root,
             sandbox_id=sandbox_id,
+            profile=self._project_profile(project_root),
             release_package=display_release_package,
             attempts=attempt,
             status=status,
@@ -163,6 +171,16 @@ class ProjectLifecycleRunner:
         return result.to_dict()
 
     def _validate(self, project_root: Path, run_id: str) -> list[LifecycleStep]:
+        if self._project_profile(project_root) == "algorithm_service":
+            steps = [
+                self._validate_algorithm_required_files(project_root),
+                self._validate_algorithm_python_syntax(project_root),
+                self._validate_algorithm_compose(project_root),
+                self._validate_algorithm_metadata(project_root),
+            ]
+            if all(step.status == "passed" for step in steps):
+                steps.extend(self._run_algorithm_live_sandbox(project_root, run_id))
+            return steps
         steps = [
             self._validate_required_files(project_root),
             self._validate_python_syntax(project_root),
@@ -175,6 +193,72 @@ class ProjectLifecycleRunner:
             steps.extend(self._run_live_sandbox(project_root, run_id))
         return steps
 
+    @staticmethod
+    def _project_profile(project_root: Path) -> str:
+        if (project_root / "app" / "algorithm.py").is_file() and (project_root / "pyproject.toml").is_file():
+            return "algorithm_service"
+        return "full_stack"
+
+    def _validate_algorithm_required_files(self, project_root: Path) -> LifecycleStep:
+        required = [
+            "README.md",
+            ".env.example",
+            "Dockerfile",
+            "docker-compose.yml",
+            "pyproject.toml",
+            "app/algorithm.py",
+            "app/main.py",
+            "app/schemas.py",
+            "app/validation.py",
+            "benchmark.py",
+            "tests/test_algorithm.py",
+            "tests/test_edge_cases.py",
+            "tests/test_integration.py",
+        ]
+        missing = [item for item in required if not (project_root / item).is_file()]
+        return LifecycleStep(
+            "required_files",
+            "failed" if missing else "passed",
+            f"Missing: {', '.join(missing)}" if missing else "All algorithm service files exist.",
+        )
+
+    def _validate_algorithm_python_syntax(self, project_root: Path) -> LifecycleStep:
+        files = sorted((project_root / "app").glob("*.py")) + [project_root / "benchmark.py"]
+        command = [sys.executable, "-m", "py_compile", *[str(file) for file in files]]
+        completed = subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=60,
+        )
+        detail = completed.stderr.strip() or completed.stdout.strip() or f"Compiled {len(files)} Python files."
+        return LifecycleStep("python_syntax", "passed" if completed.returncode == 0 else "failed", detail, command)
+
+    def _validate_algorithm_compose(self, project_root: Path) -> LifecycleStep:
+        compose = project_root / "docker-compose.yml"
+        if not compose.is_file():
+            return LifecycleStep("compose_static", "failed", "docker-compose.yml is missing.")
+        text = compose.read_text(encoding="utf-8")
+        required = ["api:", "healthcheck:", "read_only: true", "no-new-privileges:true"]
+        missing = [token for token in required if token not in text]
+        return LifecycleStep(
+            "compose_static",
+            "failed" if missing else "passed",
+            f"Missing compose tokens: {', '.join(missing)}" if missing else "Algorithm sandbox controls are present.",
+        )
+
+    def _validate_algorithm_metadata(self, project_root: Path) -> LifecycleStep:
+        text = (project_root / "pyproject.toml").read_text(encoding="utf-8")
+        required = ["fastapi", "pytest", "httpx", "pip-audit"]
+        missing = [token for token in required if token not in text]
+        return LifecycleStep(
+            "algorithm_static",
+            "failed" if missing else "passed",
+            f"Missing project metadata: {', '.join(missing)}" if missing else "Algorithm runtime and test metadata are present.",
+        )
+
     def _validate_required_files(self, project_root: Path) -> LifecycleStep:
         required = [
             "README.md",
@@ -183,7 +267,10 @@ class ProjectLifecycleRunner:
             "apps/api/app/main.py",
             "apps/api/alembic.ini",
             "apps/api/migrations/env.py",
+            "apps/web/Dockerfile.e2e",
+            "apps/web/playwright.config.ts",
             "apps/web/src/app/page.tsx",
+            "apps/web/vitest.config.ts",
             "apps/desktop/package.json",
             "database/schema.sql",
         ]
@@ -200,7 +287,14 @@ class ProjectLifecycleRunner:
         if not files:
             return LifecycleStep("python_syntax", "failed", "No Python files found.")
         command = [sys.executable, "-m", "py_compile", *[str(file) for file in files]]
-        completed = subprocess.run(command, capture_output=True, text=True, timeout=60)
+        completed = subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=60,
+        )
         detail = completed.stderr.strip() or completed.stdout.strip() or f"Compiled {len(files)} Python files."
         return LifecycleStep(
             "python_syntax",
@@ -230,8 +324,8 @@ class ProjectLifecycleRunner:
         data = json.loads(package.read_text(encoding="utf-8"))
         scripts = data.get("scripts", {})
         deps = {**data.get("dependencies", {}), **data.get("devDependencies", {})}
-        missing = [name for name in ["build", "e2e"] if name not in scripts]
-        missing += [name for name in ["next", "react", "typescript"] if name not in deps]
+        missing = [name for name in ["build", "e2e", "test"] if name not in scripts]
+        missing += [name for name in ["@playwright/test", "next", "react", "typescript", "vitest"] if name not in deps]
         return LifecycleStep(
             "web_static",
             "failed" if missing else "passed",
@@ -271,7 +365,27 @@ class ProjectLifecycleRunner:
         passthrough_env = {
             key: value
             for key, value in os.environ.items()
-            if key in {"PATH", "HOME", "USER", "TMPDIR", "TEMP", "TMP", "DOCKER_HOST"}
+            if key
+            in {
+                "APPDATA",
+                "COMSPEC",
+                "DOCKER_CONFIG",
+                "DOCKER_HOST",
+                "HOME",
+                "LOCALAPPDATA",
+                "PATH",
+                "PATHEXT",
+                "PROGRAMDATA",
+                "PROGRAMFILES",
+                "SYSTEMDRIVE",
+                "SYSTEMROOT",
+                "TEMP",
+                "TMP",
+                "TMPDIR",
+                "USER",
+                "USERPROFILE",
+                "WINDIR",
+            }
         }
         env = {
             **passthrough_env,
@@ -280,12 +394,13 @@ class ProjectLifecycleRunner:
             "POSTGRES_PASSWORD": "change-me",
             "POSTGRES_DB": "crm",
             "DATABASE_URL": "postgresql+psycopg://crm:change-me@postgres:5432/crm",
-            "JWT_SECRET": "local-sandbox-secret",
+            "JWT_SECRET": "ann-local-sandbox-verification-secret-32-bytes-minimum",
             "POSTGRES_PORT": str(ports["postgres"]),
             "API_PORT": str(ports["api"]),
             "WEB_PORT": str(ports["web"]),
             "CORS_ORIGINS": f"http://localhost:{ports['web']}",
             "NEXT_PUBLIC_API_URL": f"http://localhost:{ports['api']}",
+            "NEXT_TELEMETRY_DISABLED": "1",
         }
         compose_command = self._compose_command(project_root, env)
         if compose_command is None:
@@ -297,7 +412,15 @@ class ProjectLifecycleRunner:
             steps.append(LifecycleStep("docker_compose_config", "passed", f"Compose configuration validated with {' '.join(base)}.", [*base, "config"]))
             if steps[-1].status != "passed":
                 return steps
-            steps.append(self._run_command("docker_compose_build", [*base, "build"], project_root, env, timeout=420))
+            steps.append(
+                self._run_command(
+                    "docker_compose_build",
+                    [*base, "--profile", "test", "build"],
+                    project_root,
+                    env,
+                    timeout=600,
+                )
+            )
             if steps[-1].status != "passed":
                 if self._is_infrastructure_failure(steps[-1]):
                     failed_build = steps.pop()
@@ -319,14 +442,57 @@ class ProjectLifecycleRunner:
             if steps[-1].status != "passed":
                 steps.extend(self._collect_compose_logs(base, project_root, env))
                 return steps
-            steps.append(self._wait_for_http("api_health_live", f"http://host.docker.internal:{ports['api']}/health", timeout=90))
-            steps.append(self._wait_for_http("web_health_live", f"http://host.docker.internal:{ports['web']}", timeout=90))
+            steps.append(self._wait_for_http("api_health_live", f"http://127.0.0.1:{ports['api']}/health", timeout=90))
+            steps.append(self._wait_for_http("web_health_live", f"http://127.0.0.1:{ports['web']}", timeout=90))
             steps.append(self._run_command("api_pytest_live", [*base, "run", "--rm", "api", "pytest", "-q"], project_root, env, timeout=180))
+            steps.append(
+                self._run_command(
+                    "api_dependency_integrity_live",
+                    [*base, "run", "--rm", "api", "pip", "check"],
+                    project_root,
+                    env,
+                    timeout=180,
+                )
+            )
+            steps.append(
+                self._run_command(
+                    "api_dependency_audit_live",
+                    [*base, "run", "--rm", "api", "pip-audit", "--local", "--progress-spinner", "off"],
+                    project_root,
+                    env,
+                    timeout=240,
+                )
+            )
+            steps.append(self._run_command("web_unit_live", [*base, "run", "--rm", "web", "npm", "test"], project_root, env, timeout=180))
             steps.append(self._run_command("web_build_live", [*base, "run", "--rm", "web", "npm", "run", "build"], project_root, env, timeout=240))
+            steps.append(
+                self._run_command(
+                    "web_dependency_audit_live",
+                    [*base, "run", "--rm", "web", "npm", "audit", "--audit-level=moderate"],
+                    project_root,
+                    env,
+                    timeout=180,
+                )
+            )
+            steps.append(
+                self._run_command(
+                    "web_e2e_live",
+                    [*base, "--profile", "test", "run", "--rm", "e2e"],
+                    project_root,
+                    env,
+                    timeout=300,
+                )
+            )
             if any(step.status == "failed" for step in steps):
                 steps.extend(self._collect_compose_logs(base, project_root, env))
         finally:
-            down = self._run_command("docker_compose_down", [*base, "down", "-v"], project_root, env, timeout=120)
+            down = self._run_command(
+                "docker_compose_down",
+                [*base, "--profile", "test", "down", "-v"],
+                project_root,
+                env,
+                timeout=120,
+            )
             steps.append(down)
             if self.settings.remove_sandbox_images_after_run:
                 steps.append(
@@ -340,6 +506,124 @@ class ProjectLifecycleRunner:
                         command=[*base, "down", "--rmi", "local"],
                     )
                 )
+        return steps
+
+    def _run_algorithm_live_sandbox(self, project_root: Path, run_id: str) -> list[LifecycleStep]:
+        if os.environ.get("AEN_ENABLE_LIVE_SANDBOX", "1") != "1":
+            return [LifecycleStep("live_sandbox", "skipped", "Live sandbox execution is disabled.")]
+        ports = self._ports_for_run(run_id)
+        passthrough_names = {
+            "APPDATA",
+            "COMSPEC",
+            "DOCKER_CONFIG",
+            "DOCKER_HOST",
+            "HOME",
+            "LOCALAPPDATA",
+            "PATH",
+            "PATHEXT",
+            "PROGRAMDATA",
+            "PROGRAMFILES",
+            "SYSTEMDRIVE",
+            "SYSTEMROOT",
+            "TEMP",
+            "TMP",
+            "TMPDIR",
+            "USER",
+            "USERPROFILE",
+            "WINDIR",
+        }
+        env = {
+            **{key: value for key, value in os.environ.items() if key in passthrough_names},
+            "API_PORT": str(ports["api"]),
+            "COMPOSE_PROJECT_NAME": f"aen-{run_id[:8]}".lower(),
+            "PYTHONDONTWRITEBYTECODE": "1",
+        }
+        compose_command = self._compose_command(project_root, env)
+        if compose_command is None:
+            return [LifecycleStep("live_sandbox", "skipped", "Docker Compose is unavailable.")]
+        base = compose_command
+        steps: list[LifecycleStep] = [
+            LifecycleStep(
+                "docker_compose_config",
+                "passed",
+                f"Compose configuration validated with {' '.join(base)}.",
+                [*base, "config"],
+            )
+        ]
+        try:
+            steps.append(self._run_command("docker_compose_build", [*base, "build"], project_root, env, timeout=600))
+            if steps[-1].status != "passed":
+                return steps
+            steps.append(self._run_command("docker_compose_up", [*base, "up", "-d", "api"], project_root, env, timeout=180))
+            if steps[-1].status != "passed":
+                steps.append(self._run_command("api_logs", [*base, "logs", "--no-color", "--tail=120", "api"], project_root, env, 60))
+                return steps
+            steps.append(self._wait_for_http("api_health_live", f"http://127.0.0.1:{ports['api']}/health", timeout=90))
+            steps.append(
+                self._run_command(
+                    "api_pytest_live",
+                    [*base, "run", "--rm", "api", "python", "-m", "pytest", "-q", "-p", "no:cacheprovider"],
+                    project_root,
+                    env,
+                    timeout=180,
+                )
+            )
+            steps.append(
+                self._run_command(
+                    "algorithm_integration_live",
+                    [
+                        *base,
+                        "run",
+                        "--rm",
+                        "api",
+                        "python",
+                        "-m",
+                        "pytest",
+                        "tests/test_integration.py",
+                        "-q",
+                        "-p",
+                        "no:cacheprovider",
+                    ],
+                    project_root,
+                    env,
+                    timeout=180,
+                )
+            )
+            steps.append(
+                self._run_command(
+                    "algorithm_benchmark_live",
+                    [*base, "run", "--rm", "api", "python", "benchmark.py"],
+                    project_root,
+                    env,
+                    timeout=180,
+                )
+            )
+            steps.append(
+                self._run_command(
+                    "api_dependency_integrity_live",
+                    [*base, "run", "--rm", "api", "pip", "check"],
+                    project_root,
+                    env,
+                    timeout=180,
+                )
+            )
+            steps.append(
+                self._run_command(
+                    "api_dependency_audit_live",
+                    [*base, "run", "--rm", "api", "pip-audit", "--local", "--progress-spinner", "off"],
+                    project_root,
+                    env,
+                    timeout=240,
+                )
+            )
+            if any(step.status == "failed" for step in steps):
+                steps.append(
+                    self._run_command("api_logs", [*base, "logs", "--no-color", "--tail=120", "api"], project_root, env, 60)
+                )
+        finally:
+            steps.append(
+                self._run_command("docker_compose_down", [*base, "down", "-v"], project_root, env, timeout=120)
+            )
         return steps
 
     def _run_local_validation_fallback(self, project_root: Path) -> list[LifecycleStep]:
@@ -407,6 +691,8 @@ class ProjectLifecycleRunner:
                 env=env,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 timeout=timeout,
             )
         except subprocess.TimeoutExpired as exc:
@@ -464,6 +750,25 @@ class ProjectLifecycleRunner:
 
     @classmethod
     def _lifecycle_status(cls, steps: list[LifecycleStep]) -> str:
+        if any(step.status == "failed" for step in steps):
+            if cls._is_infrastructure_blocked(steps):
+                return "blocked"
+            return "failed"
+        by_name = {step.name: step for step in steps}
+        live_sandbox = by_name.get("live_sandbox")
+        if live_sandbox is not None and live_sandbox.status == "skipped":
+            return "partial"
+        required_live_steps = (
+            REQUIRED_ALGORITHM_VERIFICATION_STEPS if "algorithm_static" in by_name else REQUIRED_LIVE_VERIFICATION_STEPS
+        )
+        attempted_live_steps = required_live_steps.intersection(by_name)
+        if attempted_live_steps and (
+            attempted_live_steps != required_live_steps
+            or any(by_name[name].status != "passed" for name in attempted_live_steps)
+        ):
+            return "partial"
+        if "web_build_local_fallback" in by_name:
+            return "partial"
         if all(step.status in {"passed", "skipped"} for step in steps):
             return "passed"
         if cls._is_infrastructure_blocked(steps):
@@ -486,7 +791,14 @@ class ProjectLifecycleRunner:
 
     def _docker_available(self) -> bool:
         try:
-            completed = subprocess.run(["docker", "info"], capture_output=True, text=True, timeout=20)
+            completed = subprocess.run(
+                ["docker", "info"],
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                timeout=20,
+            )
         except (FileNotFoundError, subprocess.TimeoutExpired):
             return False
         return completed.returncode == 0
@@ -504,6 +816,8 @@ class ProjectLifecycleRunner:
                     env=env,
                     capture_output=True,
                     text=True,
+                    encoding="utf-8",
+                    errors="replace",
                     timeout=20,
                 )
             except (FileNotFoundError, subprocess.TimeoutExpired):
@@ -520,7 +834,11 @@ class ProjectLifecycleRunner:
 
     @staticmethod
     def _ports_for_run(run_id: str) -> dict[str, int]:
-        seed = int(run_id.replace("-", "")[:6], 16) % 1000
+        compact = run_id.replace("-", "")[:6]
+        try:
+            seed = int(compact, 16) % 1000
+        except ValueError:
+            seed = int(hashlib.sha256(run_id.encode("utf-8")).hexdigest()[:6], 16) % 1000
         return {
             "postgres": 15432 + seed,
             "api": 18000 + seed,
@@ -599,21 +917,22 @@ class ProjectLifecycleRunner:
                 f"Provider diff failed validation. Diff: {diff_path}\n{check.detail}",
                 command=check.command,
             )
-        applied = self._run_git_apply(project_root, diff, check_only=False)
-        if applied.status != "passed":
-            return LifecycleStep(
-                "qwen_patch",
-                "failed",
-                f"Provider diff validation passed but apply failed. Diff: {diff_path}\n{applied.detail}",
-                command=applied.command,
-            )
         self.audit.record(
-            "qwen_patch.applied",
+            "qwen_patch.proposed",
             "ProjectLifecycleRunner",
-            "Applied provider-generated repair diff.",
+            "Stored a validated provider repair diff for explicit human and patch approval.",
             {"run_id": run_id, "provider": response.provider, "model": response.model, "diff": str(diff_path)},
         )
-        return LifecycleStep("qwen_patch", "passed", f"Applied provider repair diff from {response.provider}:{response.model}.")
+        return LifecycleStep(
+            "qwen_patch",
+            "blocked",
+            (
+                f"Validated provider repair diff from {response.provider}:{response.model} and stored it at {diff_path}. "
+                "The lifecycle runner did not modify project files. Explicit Patch Approval and a valid approval token "
+                "are required before Patch Apply may execute it."
+            ),
+            command=check.command,
+        )
 
     def _run_git_apply(self, project_root: Path, diff: str, check_only: bool) -> LifecycleStep:
         command = ["git", "apply", "--whitespace=fix"]
@@ -627,6 +946,8 @@ class ProjectLifecycleRunner:
             input=diff,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=60,
         )
         detail = (completed.stdout or "") + ("\n" + completed.stderr if completed.stderr else "")

@@ -34,6 +34,11 @@ def test_electron_launcher_has_direct_web_fallback() -> None:
     assert "resolveAppRoot" in launcher
     assert "startServices" in launcher
     assert "desktop-launcher.log" in launcher
+    assert "configureLocalDesktopStorage" in launcher
+    assert 'path.join(APP_ROOT, "data", "desktop")' in launcher
+    assert 'app.setPath(name, target)' in launcher
+    assert 'process.env.TEMP = paths.temp' in launcher
+    assert 'process.env.TMP = paths.temp' in launcher
     assert "Confirm Docker Desktop is running" not in launcher
 
 

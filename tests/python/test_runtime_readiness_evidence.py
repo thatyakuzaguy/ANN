@@ -12,12 +12,12 @@ from agentic_network.runtime_engine.local_model_activation import (
 def test_runtime_readiness_evidence_blocked() -> None:
     evidence = build_runtime_readiness_evidence()
     blockers = {item["id"] for item in evidence["blockers"]}
+    checks = {item["id"]: item for item in evidence["checks"]}
 
     assert evidence["status"] in {"NOT_READY", "PARTIAL"}
-    assert "runtime_ready" not in blockers
-    assert "wheelhouse_verified" not in blockers
+    for check_id in {"runtime_ready", "wheelhouse_verified", "embedded_python_detected"}:
+        assert (check_id in blockers) is (checks[check_id]["status"] == "BLOCKED")
     assert "launch_guard_ready" in blockers
-    assert "embedded_python_detected" not in blockers
     assert evidence["safe_rollback_ready"] is True
     assert evidence["warnings"]
     assert evidence["next_manual_step"]

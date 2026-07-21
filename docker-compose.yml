@@ -28,14 +28,14 @@ services:
   api:
     build:
       context: .
-      dockerfile: ${API_DOCKERFILE:-docker/api.gpu.Dockerfile}
+      dockerfile: ${API_DOCKERFILE:-docker/api.Dockerfile}
     environment:
       AEN_ROOT: /workspace
       AEN_HOST_ROOT: ${AEN_HOST_ROOT:-D:\AgenticEngineeringNetwork}
       AEN_HOST_WORKSPACE_DRIVE: ${AEN_HOST_WORKSPACE_DRIVE:-D:}
       AEN_WORKSPACE_DRIVE_MOUNT: /host-d
       APP_ENV: local
-      AI_PROVIDER: ${AI_PROVIDER:-llama_cpp}
+      AI_PROVIDER: ${AEN_CONTAINER_AI_PROVIDER:-deterministic-local}
       OLLAMA_BASE_URL: http://ollama:11434
       OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.1}
       LOCAL_MODEL_PATH: ${LOCAL_MODEL_PATH:-/workspace/models/qwen2.5-coder-7b-q4_k_m.gguf}
@@ -67,7 +67,6 @@ services:
       - ./:/workspace
       - "D:/:/host-d"
       - /var/run/docker.sock:/var/run/docker.sock
-    gpus: all
     ports:
       - "8000:8000"
     depends_on:

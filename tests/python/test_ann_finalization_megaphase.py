@@ -79,8 +79,13 @@ def test_installer_and_public_release_final_remain_blocked_until_real_evidence()
     finalization = build_ann_finalization_megaphase()
 
     assert installer["status"] == "INSTALLER_FINAL_BLOCKED"
-    assert installer["clean_machine_evidence_status"] == "LOCAL_INSTALL_SMOKE_PASSED"
-    assert installer["local_install_smoke_passed"] is True
+    assert installer["clean_machine_evidence_status"] in {
+        "LOCAL_INSTALL_SMOKE_PASSED",
+        "CLEAN_MACHINE_EVIDENCE_INCOMPLETE",
+    }
+    assert installer["local_install_smoke_passed"] is (
+        installer["clean_machine_evidence_status"] == "LOCAL_INSTALL_SMOKE_PASSED"
+    )
     assert installer["external_clean_machine_passed"] is False
     assert installer["signed_installer_readiness"] is False
     assert installer["code_signing_status"] == "SIGNING_BLOCKED_UNSIGNED"

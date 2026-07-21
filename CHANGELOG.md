@@ -2,10 +2,24 @@
 
 ## Unreleased
 
+## 0.1.4 - 2026-07-21
+
 - Renamed the public product and repository to ANN (Agentic Neural Network),
   while retaining compatibility identifiers used by existing installations.
 - Renamed the packaged Windows desktop executable to `ANN.exe` and updated
   installer, validation, and release tooling to the new product identity.
+- Validated the complete hermetic Python suite with 1,621 passing tests and
+  one intentional skip, plus a clean full Ruff run.
+- Validated the production web application with 22 component tests, TypeScript,
+  a Next.js standalone build, Playwright, and a packaged Windows Electron app.
+- Rebuilt the official API and web containers from a clean Docker cache and
+  passed live PostgreSQL, API health/readiness, web, Docker socket, and Compose
+  integration smokes.
+- Added a reproducible offline release bundle, isolated installer validation,
+  embedded runtime integrity checks, and a hash-verified optional model pack.
+- Promoted the source and unsigned portable distribution to stable. A trusted
+  Windows publisher experience still requires an externally issued
+  Authenticode certificate and independent clean-machine signing evidence.
 
 ## 0.1.4-rc.3 - 2026-07-18
 

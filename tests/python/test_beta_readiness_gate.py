@@ -14,10 +14,15 @@ from agentic_network.runtime_engine.local_model_activation import (
 def test_beta_readiness_gate_blocks_on_backend_and_first_inference_after_wheelhouse_ready() -> None:
     gate = build_beta_readiness_gate()
     blockers = {item["id"] for item in gate["blockers"]}
+    checks = {item["id"]: item for item in gate["checks"]}
 
     assert gate["status"] == "BETA_BLOCKED"
-    assert "wheelhouse_integrity" not in blockers
-    assert "installer_rc_status" not in blockers
+    assert ("wheelhouse_integrity" in blockers) is (
+        checks["wheelhouse_integrity"]["status"] == "BLOCKED"
+    )
+    assert ("installer_rc_status" in blockers) is (
+        checks["installer_rc_status"]["status"] == "BLOCKED"
+    )
     assert {"qwen25_backend_readiness", "first_real_inference_status"}.issubset(blockers)
     assert gate["qwen2_5_backend_blocked"] is True
     assert gate["qwen3_blocked"] is True

@@ -66,7 +66,7 @@ EXPECTED_MODELS = (
     "qwen3_8b_product_v9_repaired_v2_bullets",
     "deepseek_r1_distill_qwen_14b",
 )
-DEFAULT_RUNTIME_ROOT_TEXT = "D:/ANN/runtime"
+DEFAULT_RUNTIME_ROOT_TEXT = os.getenv("ANN_RUNTIME_ROOT", "D:/ANN/runtime")
 DEFAULT_WSL_MOUNT_ROOT = "/mnt"
 LLAMA_READINESS_STATES = {
     "READY",
@@ -1858,7 +1858,8 @@ def validate_wheelhouse_integrity(
     else:
         overall = "INCOMPLETE"
     return {
-        "version": str(lock.get("version") or "14.5"),
+        "version": "18.9.20",
+        "lockfile_version": str(lock.get("version") or "14.5"),
         "generated_at": _now(),
         "status": overall,
         "wheelhouse_path": str(wheelhouse),
@@ -2188,11 +2189,17 @@ def _signtool_candidate_key(path: Path) -> tuple[int, tuple[int, ...], str]:
 def build_code_signing_readiness(
     installer_root: str | Path | None = None,
     *,
-    execute_signature_check: bool = True,
+    execute_signature_check: bool | None = None,
     timeout_seconds: int = 30,
 ) -> dict[str, Any]:
     """Evaluate final installer signing readiness without signing anything."""
 
+    if execute_signature_check is None:
+        configured_signature_check = os.getenv("ANN_EXECUTE_SIGNATURE_CHECKS")
+        execute_signature_check = not (
+            configured_signature_check is not None
+            and configured_signature_check.strip().lower() in {"0", "false", "no", "off"}
+        )
     root = Path(installer_root or REPO_ROOT / "installer")
     setup_exe = root / "ANN_Setup.exe"
     uninstall_exe = root / "ANN_Uninstall.exe"
@@ -5997,11 +6004,13 @@ def build_runtime_wheelhouse_readiness(runtime_root: str | Path | None = None) -
 def build_external_runtime_smoke_readiness(*, allow_wsl_probe: bool | None = None) -> dict[str, Any]:
     """Evaluate Qwen2.5 controlled smoke readiness using the verified external runtime."""
 
-    use_wsl_probe = (
-        platform.system().lower() == "windows" or os.getenv("ANN_ENABLE_WSL_RUNTIME_PROBE") == "1"
-        if allow_wsl_probe is None
-        else allow_wsl_probe
-    )
+    configured_wsl_probe = os.getenv("ANN_ENABLE_WSL_RUNTIME_PROBE")
+    if allow_wsl_probe is not None:
+        use_wsl_probe = allow_wsl_probe
+    elif configured_wsl_probe is not None:
+        use_wsl_probe = configured_wsl_probe.strip().lower() in {"1", "true", "yes", "on"}
+    else:
+        use_wsl_probe = platform.system().lower() == "windows"
     external = build_best_external_verified_runtime_bridge(allow_wsl_probe=use_wsl_probe)
     policy = load_model_policy()
     metrics = get_runtime_metrics()
@@ -6480,6 +6489,8 @@ def write_final_release_closure_pack_artifacts(output_dir: str | Path | None = N
 def build_autonomous_complex_capability_gate(evidence_root: str | Path | None = None) -> dict[str, Any]:
     """Evaluate whether ANN has proved complex autonomous project delivery."""
 
+    from agentic_network.project_builder_orchestrator.capability_evidence import evaluate_project_capability
+
     root = Path(evidence_root or REPO_ROOT / "outputs" / "autonomous_capability").resolve()
     scenarios = _autonomous_capability_scenarios()
     scenario_results = []
@@ -6493,6 +6504,7 @@ def build_autonomous_complex_capability_gate(evidence_root: str | Path | None = 
         evidence_level = ""
         if isinstance(verification, dict):
             evidence_level = str(verification.get("evidence_level", ""))
+        capability = evaluate_project_capability(scenario["id"], payload)
         passed = (
             payload.get("status") == "COMPLETED_VERIFIED"
             and payload.get("completion_quality") == "VERIFIED"
@@ -6500,6 +6512,7 @@ def build_autonomous_complex_capability_gate(evidence_root: str | Path | None = 
             and bool(commands_executed)
             and payload.get("security_review") == "PASSED"
             and payload.get("protected_paths_modified") is False
+            and capability["passed"]
         )
         scenario_results.append(
             {
@@ -6512,13 +6525,14 @@ def build_autonomous_complex_capability_gate(evidence_root: str | Path | None = 
                 "commands_executed": len(commands_executed),
                 "security_review": payload.get("security_review", "MISSING"),
                 "protected_paths_modified": payload.get("protected_paths_modified", "MISSING"),
+                "capability_assessment": capability,
                 "passed": passed,
             }
         )
     blockers = [item for item in scenario_results if not item["passed"]]
     passed = not blockers
     return {
-        "version": "18.9.13",
+        "version": "18.9.21",
         "generated_at": _now(),
         "status": "AUTONOMOUS_COMPLEX_CAPABILITY_PASSED" if passed else "AUTONOMOUS_COMPLEX_CAPABILITY_BLOCKED",
         "passed": passed,
@@ -6528,8 +6542,8 @@ def build_autonomous_complex_capability_gate(evidence_root: str | Path | None = 
         "scenarios": scenario_results,
         "blockers": blockers,
         "acceptance_rule": (
-            "Every scenario must be COMPLETED_VERIFIED with VERIFIED quality, STRONG verification evidence, "
-            "executed tests, PASSED security review, and protected_paths_modified=false."
+            "Every scenario must pass independent source, domain, command, functional-smoke, visual, and "
+            "security evidence checks in addition to its orchestration summary."
         ),
         "no_model_load": True,
         "no_inference": True,
@@ -6572,6 +6586,9 @@ def build_autonomous_capability_evidence_plan(evidence_root: str | Path | None =
             missing_requirements.append("security_review=PASSED")
         if scenario["protected_paths_modified"] is not False:
             missing_requirements.append("protected_paths_modified=false")
+        capability = scenario.get("capability_assessment", {})
+        for blocker in capability.get("blockers", []):
+            missing_requirements.append(f"capability:{blocker}")
         scenario_plans.append(
             {
                 "id": scenario["id"],
@@ -6606,7 +6623,7 @@ def build_autonomous_capability_evidence_plan(evidence_root: str | Path | None =
             }
         )
     return {
-        "version": "18.9.14",
+        "version": "18.9.22",
         "generated_at": _now(),
         "status": "EVIDENCE_COMPLETE" if gate["passed"] else "EVIDENCE_REQUIRED",
         "gate_status": gate["status"],
@@ -10080,7 +10097,8 @@ def _wheelhouse_result(
     errors: list[str],
 ) -> dict[str, Any]:
     return {
-        "version": "14.5",
+        "version": "18.9.20",
+        "lockfile_version": None,
         "generated_at": _now(),
         "status": status,
         "wheelhouse_path": str(wheelhouse),

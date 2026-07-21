@@ -280,6 +280,11 @@ def _resolve_inventory_path(raw_path: str, inventory_path: Path) -> str:
         return raw_path
     if PureWindowsPath(raw_path).drive:
         return raw_path
+    if PurePosixPath(normalized).is_absolute():
+        # Preserve foreign absolute paths so policy validation can reject them.
+        # Rebasing `/tmp/model.gguf` against a Windows inventory root would turn
+        # an unauthorized declaration into an apparently allowed D: path.
+        return normalized
     install_root = inventory_path.resolve().parent.parent
     return str((install_root / Path(normalized)).resolve())
 

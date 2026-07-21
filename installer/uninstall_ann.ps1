@@ -15,9 +15,14 @@ $remove = @(
   "runtime", "adapters", "pyproject.toml", "README.md", "start.ps1", "stop.ps1",
   "install_manifest.json", "install_log.txt"
 )
-if ($RemoveProjects) { $remove += "projects" }
+if ($RemoveProjects) { $remove += @("projects", "generated-projects") }
 if ($RemoveModels) { $remove += "models" }
-if ($RemoveOutputs) { $remove += @("outputs", "data", "logs") }
+if ($RemoveOutputs) {
+  $remove += @(
+    "outputs", "data", "logs",
+    "local_smoke_validation.json", "clean_machine_external_validation.json"
+  )
+}
 
 foreach ($name in $remove) {
   $target = Join-Path $root $name

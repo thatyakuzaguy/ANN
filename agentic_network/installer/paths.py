@@ -61,9 +61,21 @@ def is_excluded_path(path: Path, source_root: Path) -> bool:
     """Return True when a source-relative path must not be copied."""
 
     try:
-        relative = path.resolve().relative_to(source_root.resolve())
+        # Installer inventory walks already-normalized descendants of source_root.
+        # Keep that hot path lexical: resolving every file performs an expensive
+        # Windows handle lookup and made a single read-only release gate take tens
+        # of seconds on larger repositories.
+        relative = path.relative_to(source_root)
     except ValueError:
-        return True
+        try:
+            relative = path.resolve().relative_to(source_root.resolve())
+        except ValueError:
+            return True
+    if path.is_symlink():
+        try:
+            path.resolve(strict=True).relative_to(source_root.resolve(strict=True))
+        except (FileNotFoundError, OSError, ValueError):
+            return True
     return any(part.lower() in BLOCKED_PARTS for part in relative.parts)
 
 
@@ -75,4 +87,3 @@ def is_relative_to(path: Path, parent: Path) -> bool:
         return True
     except ValueError:
         return False
-

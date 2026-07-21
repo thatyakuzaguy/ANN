@@ -168,6 +168,74 @@ def test_npm_test_skipped_if_node_modules_missing(tmp_path: Path, monkeypatch: p
     assert any("node_modules is missing" in warning for warning in result.validation_warnings)
 
 
+def test_safe_node_test_build_and_e2e_commands_detected(tmp_path: Path) -> None:
+    root = _project_root(tmp_path, with_tests=False)
+    web = root / "apps" / "web"
+    (web / "node_modules").mkdir(parents=True)
+    (web / "package.json").write_text(
+        json.dumps(
+            {
+                "scripts": {
+                    "test": "vitest run",
+                    "build": "next build",
+                    "e2e": "playwright test",
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    commands, warnings = detect_project_test_commands(root)
+
+    assert ["npm", "--prefix", "apps/web", "test"] in commands
+    assert ["npm", "--prefix", "apps/web", "run", "build"] in commands
+    assert ["npm", "--prefix", "apps/web", "run", "e2e"] in commands
+    assert warnings == []
+
+
+def test_unsafe_node_script_is_not_selected(tmp_path: Path) -> None:
+    root = _project_root(tmp_path, with_tests=False)
+    (root / "node_modules").mkdir()
+    (root / "package.json").write_text(
+        '{"scripts":{"test":"vitest run && powershell.exe payload.ps1"}}',
+        encoding="utf-8",
+    )
+
+    commands, warnings = detect_project_test_commands(root)
+
+    assert commands == []
+    assert any("outside the allowlist" in warning for warning in warnings)
+
+
+def test_api_tests_use_isolated_project_database(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    root = _project_root(tmp_path)
+    monkeypatch.setenv("DATABASE_URL", "postgresql://production.example/unsafe")
+    monkeypatch.setenv("JWT_SECRET", "host-secret-must-not-leak")
+
+    environment = test_runner_runtime._command_environment(
+        root,
+        ["python", "-m", "pytest", "apps/api/tests", "-q"],
+    )
+
+    expected_database = (root / ".ann-test.db").resolve().as_posix()
+    assert environment["DATABASE_URL"] == f"sqlite:///{expected_database}"
+    assert environment["JWT_SECRET"] == "ann-project-verification-only-secret-not-for-production"
+    assert environment["APP_ENV"] == "test"
+    assert str((root / "apps" / "api").resolve()) in environment["PYTHONPATH"]
+
+
+def test_apps_api_tests_are_detected(tmp_path: Path) -> None:
+    root = _project_root(tmp_path, with_tests=False)
+    tests = root / "apps" / "api" / "tests"
+    tests.mkdir(parents=True)
+    (tests / "test_health.py").write_text("def test_ok():\n    assert True\n", encoding="utf-8")
+
+    commands, warnings = detect_project_test_commands(root)
+
+    assert ["python", "-m", "pytest", "apps/api/tests", "-q"] in commands
+    assert warnings == []
+
+
 def test_does_not_use_shell_true(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     _allow_temp(monkeypatch)
     root = _project_root(tmp_path)

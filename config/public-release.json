@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "repository_name": "ANN",
-  "release_stage": "release-candidate",
+  "release_stage": "stable",
   "maximum_file_size_mb": 25,
   "source_directories": [
     ".github",

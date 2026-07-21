@@ -221,7 +221,7 @@ def test_integrates_with_e2e_when_enabled(tmp_path: Path, monkeypatch: pytest.Mo
     assert result.skill_evidence_used is True
     assert result.skill_evidence_status == "VALID"
     assert result.skill_evidence_artifacts
-    assert "consult_skill_evidence" in result.recommended_next_action
+    assert result.recommended_next_action == "install_project_dependencies_in_approved_sandbox"
 
 
 def test_e2e_without_skill_evidence_unchanged(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -241,7 +241,7 @@ def test_e2e_without_skill_evidence_unchanged(tmp_path: Path, monkeypatch: pytes
 
     assert result.skill_evidence_used is False
     assert result.skill_evidence_status == "SKIPPED"
-    assert result.recommended_next_action == "add_project_tests"
+    assert result.recommended_next_action == "install_project_dependencies_in_approved_sandbox"
 
 
 def test_desktop_skill_evidence_view_loads(tmp_path: Path) -> None:

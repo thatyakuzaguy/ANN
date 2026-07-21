@@ -277,7 +277,7 @@ class RunStore:
             current = self._records[run_id]
             if lifecycle_status == "passed":
                 current.status = "completed"
-            elif lifecycle_status == "blocked":
+            elif lifecycle_status in {"blocked", "partial"}:
                 current.status = "blocked"
             else:
                 current.status = "failed"
@@ -287,6 +287,8 @@ class RunStore:
                     current.result["error"] = None
                 elif lifecycle_status == "blocked":
                     current.result["error"] = "Generated project lifecycle blocked by local infrastructure."
+                elif lifecycle_status == "partial":
+                    current.result["error"] = "Generated project lifecycle requires complete live sandbox verification."
                 else:
                     current.result["error"] = "Generated project lifecycle failed."
                 current.result["pending_approvals"] = 0
@@ -495,7 +497,7 @@ class RunStore:
             return
 
         status = "complete" if lifecycle_status == "passed" else "failed"
-        if lifecycle_status == "blocked" or (
+        if lifecycle_status in {"blocked", "partial"} or (
             lifecycle_status != "passed" and RunStore._has_infrastructure_blocker(result)
         ):
             status = "blocked"

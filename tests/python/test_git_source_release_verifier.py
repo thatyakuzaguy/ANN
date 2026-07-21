@@ -1,9 +1,14 @@
 from __future__ import annotations
 
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 from scripts.runtime import verify_git_source_release
+
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
 def _ready_bundle() -> dict[str, object]:
@@ -212,3 +217,38 @@ def test_git_source_release_cli_returns_exit_code(monkeypatch, tmp_path: Path, c
     assert exit_code == 0
     assert "GIT_SOURCE_RELEASE_READY" in output
     assert "Trusted Windows Installer: NOT_CLAIMED" in output
+
+
+def test_public_repository_verifier_supports_windows_powershell_51() -> None:
+    source = (REPO_ROOT / "scripts" / "release" / "verify-public-repository.ps1").read_text(
+        encoding="utf-8"
+    )
+
+    assert "Get-AnnRelativePath" in source
+    assert "[IO.Path]::GetRelativePath" not in source
+
+
+def test_git_source_release_script_bootstraps_monorepo_packages() -> None:
+    command = [
+        sys.executable,
+        "-c",
+        (
+            "import runpy; "
+            "module = runpy.run_path('scripts/runtime/verify_git_source_release.py', "
+            "run_name='ann_release_probe'); "
+            "from agentic_engineering_network.orchestration.artifact_router "
+            "import build_project_artifacts; "
+            "print(callable(build_project_artifacts), callable(module['build_git_source_release_report']))"
+        ),
+    ]
+
+    result = subprocess.run(
+        command,
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.strip() == "True True"

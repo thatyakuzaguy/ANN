@@ -21,12 +21,19 @@ def build_game_project_artifacts(idea: str, run_id: str) -> dict[str, str]:
         f"{base}/apps/api/migrations/versions/0001_initial.py": _alembic_initial_revision(),
         f"{base}/apps/api/tests/test_health.py": _api_test_health(),
         f"{base}/apps/web/Dockerfile": _web_dockerfile(),
+        f"{base}/apps/web/Dockerfile.e2e": _web_e2e_dockerfile(),
         f"{base}/apps/web/package.json": _web_package(),
         f"{base}/apps/web/next.config.ts": _web_next_config(),
+        f"{base}/apps/web/playwright.config.ts": _playwright_config(),
+        f"{base}/apps/web/vitest.config.ts": _vitest_config(),
         f"{base}/apps/web/tsconfig.json": _web_tsconfig(),
         f"{base}/apps/web/src/app/layout.tsx": _web_layout(title),
         f"{base}/apps/web/src/app/page.tsx": _web_page(),
         f"{base}/apps/web/src/app/globals.css": _web_globals(),
+        f"{base}/apps/web/src/game/controls.ts": _game_controls(),
+        f"{base}/apps/web/src/game/physics.ts": _game_physics(),
+        f"{base}/apps/web/src/game/physics.test.ts": _game_physics_test(),
+        f"{base}/apps/web/src/game/scene.ts": _game_scene(),
         f"{base}/apps/web/tests/workbench.spec.ts": _web_e2e(),
         f"{base}/apps/desktop/package.json": _desktop_package(title),
         f"{base}/apps/desktop/src/main.js": _desktop_main(title),
@@ -119,11 +126,24 @@ def _compose() -> str:
       context: ./apps/web
     environment:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:18000}
+      NEXT_TELEMETRY_DISABLED: "1"
     ports:
       - "${WEB_PORT:-13000}:3000"
     depends_on:
       api:
         condition: service_healthy
+
+  e2e:
+    profiles: ["test"]
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile.e2e
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:18000}
+      NEXT_TELEMETRY_DISABLED: "1"
+    volumes:
+      - ./apps/web/test-results:/app/test-results
+      - ./apps/web/playwright-report:/app/playwright-report
 """
 
 
@@ -132,7 +152,8 @@ def _api_dockerfile() -> str:
 WORKDIR /app
 ENV PYTHONPATH=/app
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN python -m pip install --no-cache-dir --upgrade "pip>=26.1.2" \
+    && python -m pip install --no-cache-dir -r requirements.txt
 COPY app ./app
 COPY alembic.ini ./alembic.ini
 COPY migrations ./migrations
@@ -147,6 +168,7 @@ def _api_requirements() -> str:
 uvicorn[standard]>=0.30.0
 pytest>=8.0.0
 httpx>=0.27.0
+pip-audit>=2.9.0
 """
 
 
@@ -248,6 +270,18 @@ CMD ["npm", "run", "dev"]
 """
 
 
+def _web_e2e_dockerfile() -> str:
+    return """FROM mcr.microsoft.com/playwright:v1.57.0-noble
+WORKDIR /app
+COPY package.json package-lock.json* ./
+RUN npm install
+COPY . .
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+ENV NEXT_TELEMETRY_DISABLED=1
+CMD ["npm", "run", "e2e"]
+"""
+
+
 def _web_package() -> str:
     return """{
   "name": "generated-3d-pong-web",
@@ -257,19 +291,26 @@ def _web_package() -> str:
     "dev": "next dev -H 0.0.0.0",
     "build": "next build",
     "start": "next start -H 0.0.0.0",
+    "test": "vitest run",
     "e2e": "playwright test"
   },
   "dependencies": {
-    "@playwright/test": "^1.57.0",
     "next": "^16.2.0",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "three": "^0.180.0"
   },
   "devDependencies": {
+    "@playwright/test": "1.57.0",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "typescript": "^5.9.0"
+    "@types/three": "^0.180.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0"
+  },
+  "overrides": {
+    "postcss": "8.5.20"
   }
 }
 """
@@ -278,9 +319,21 @@ def _web_package() -> str:
 def _web_next_config() -> str:
     return """import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {};
+const nextConfig: NextConfig = { allowedDevOrigins: ["127.0.0.1"] };
 export default nextConfig;
 """
+
+
+def _vitest_config() -> str:
+    return '''import { defineConfig } from "vitest/config";
+
+export default defineConfig({
+  test: {
+    include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
+    exclude: ["tests/**", "node_modules/**", ".next/**"],
+  },
+});
+'''
 
 
 def _web_tsconfig() -> str:
@@ -325,7 +378,7 @@ export default function RootLayout({{ children }}: {{ children: React.ReactNode 
 """
 
 
-def _web_page() -> str:
+def _legacy_web_page() -> str:
     return r'''"use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -559,6 +612,372 @@ export default function Home() {
 '''
 
 
+def _web_page() -> str:
+    return '''"use client";
+
+import { useEffect, useRef, useState } from "react";
+
+import { createControls } from "../game/controls";
+import { createInitialState, stepGame, type GameState } from "../game/physics";
+import { createGameScene } from "../game/scene";
+
+const EMPTY_HUD = createInitialState();
+
+export default function Home() {
+  const arenaRef = useRef<HTMLDivElement | null>(null);
+  const stateRef = useRef<GameState>(EMPTY_HUD);
+  const [snapshot, setSnapshot] = useState(EMPTY_HUD);
+
+  useEffect(() => {
+    const container = arenaRef.current;
+    if (!container) return;
+    const scene = createGameScene(container);
+    const controls = createControls(container);
+    let previous = performance.now();
+    let lastHudUpdate = 0;
+    let frame = 0;
+
+    function animate(now: number) {
+      const delta = Math.min((now - previous) / 1000, 0.05);
+      previous = now;
+      stateRef.current = stepGame(stateRef.current, controls.axis(), delta);
+      scene.render(stateRef.current);
+      if (now - lastHudUpdate > 50) {
+        setSnapshot(stateRef.current);
+        lastHudUpdate = now;
+      }
+      frame = requestAnimationFrame(animate);
+    }
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === " ") {
+        event.preventDefault();
+        stateRef.current = { ...stateRef.current, paused: !stateRef.current.paused };
+      }
+      if (event.key.toLowerCase() === "r") stateRef.current = createInitialState();
+    }
+
+    window.addEventListener("keydown", onKeyDown);
+    frame = requestAnimationFrame(animate);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("keydown", onKeyDown);
+      controls.dispose();
+      scene.dispose();
+    };
+  }, []);
+
+  const winnerText = snapshot.winner === "player"
+    ? "PLAYER WINS"
+    : snapshot.winner === "ai"
+      ? "AI WINS"
+      : snapshot.paused
+        ? "PAUSED"
+        : "FIRST TO 7";
+
+  function togglePause() {
+    stateRef.current = { ...stateRef.current, paused: !stateRef.current.paused };
+  }
+
+  function restart() {
+    stateRef.current = createInitialState();
+    setSnapshot(stateRef.current);
+  }
+
+  return (
+    <main className="game-shell">
+      <section className="hud">
+        <div><p>NEON CIRCUIT</p><h1>3D PONG ARENA</h1></div>
+        <div className="score"><strong>{snapshot.playerScore}</strong><span>{winnerText}</span><strong>{snapshot.aiScore}</strong></div>
+        <div className="actions">
+          <button type="button" onClick={togglePause}>{snapshot.paused ? "Resume" : "Pause"}</button>
+          <button type="button" onClick={restart}>Restart</button>
+        </div>
+      </section>
+      <div
+        aria-label="Playable Three.js WebGL canvas for 3D Pong"
+        className="arena"
+        data-renderer="three-webgl-canvas"
+        ref={arenaRef}
+      />
+      <section className="controls">
+        <span>W/S or Arrow keys</span><span>Mouse/touch moves paddle</span><span>Space pause</span><span>R restart</span>
+      </section>
+    </main>
+  );
+}
+'''
+
+
+def _playwright_config() -> str:
+    return '''import { defineConfig } from "@playwright/test";
+
+export default defineConfig({
+  testDir: "./tests",
+  outputDir: "./test-results",
+  reporter: [["line"], ["html", { outputFolder: "playwright-report", open: "never" }]],
+  use: { baseURL: "http://127.0.0.1:3000", headless: true, screenshot: "on", trace: "retain-on-failure" },
+  webServer: {
+    command: "npm run dev",
+    url: "http://127.0.0.1:3000",
+    reuseExistingServer: true,
+    timeout: 120_000
+  }
+});
+'''
+
+
+def _game_controls() -> str:
+    return '''export type Controls = {
+  axis: () => number;
+  dispose: () => void;
+};
+
+export function createControls(target: HTMLElement): Controls {
+  const keys = new Set<string>();
+  let pointerAxis = 0;
+  let pointerActive = false;
+
+  const keyDown = (event: KeyboardEvent) => keys.add(event.key.toLowerCase());
+  const keyUp = (event: KeyboardEvent) => keys.delete(event.key.toLowerCase());
+  const pointerMove = (event: PointerEvent) => {
+    const bounds = target.getBoundingClientRect();
+    pointerAxis = Math.max(-1, Math.min(1, ((event.clientY - bounds.top) / bounds.height) * 2 - 1));
+    pointerActive = true;
+  };
+  const pointerLeave = () => { pointerActive = false; };
+
+  window.addEventListener("keydown", keyDown);
+  window.addEventListener("keyup", keyUp);
+  target.addEventListener("pointermove", pointerMove);
+  target.addEventListener("pointerleave", pointerLeave);
+
+  return {
+    axis: () => {
+      if (pointerActive) return pointerAxis;
+      const up = keys.has("w") || keys.has("arrowup") ? -1 : 0;
+      const down = keys.has("s") || keys.has("arrowdown") ? 1 : 0;
+      return up + down;
+    },
+    dispose: () => {
+      window.removeEventListener("keydown", keyDown);
+      window.removeEventListener("keyup", keyUp);
+      target.removeEventListener("pointermove", pointerMove);
+      target.removeEventListener("pointerleave", pointerLeave);
+    }
+  };
+}
+'''
+
+
+def _game_physics() -> str:
+    return '''export type Winner = "player" | "ai" | null;
+
+export type GameState = {
+  playerY: number;
+  aiY: number;
+  ball: { x: number; y: number; z: number };
+  velocity: { x: number; y: number; z: number };
+  playerScore: number;
+  aiScore: number;
+  paused: boolean;
+  winner: Winner;
+  rally: number;
+};
+
+const LIMIT_Y = 3.2;
+const LIMIT_X = 4.6;
+const PADDLE_Z = 5.2;
+const GOAL_Z = 6.1;
+const PADDLE_HALF_HEIGHT = 1.35;
+
+export function createInitialState(direction = -1): GameState {
+  return {
+    playerY: 0,
+    aiY: 0,
+    ball: { x: 0, y: 0, z: 0 },
+    velocity: { x: 2.2, y: 1.7, z: 5.5 * direction },
+    playerScore: 0,
+    aiScore: 0,
+    paused: false,
+    winner: null,
+    rally: 0
+  };
+}
+
+function clamp(value: number, minimum: number, maximum: number): number {
+  return Math.max(minimum, Math.min(maximum, value));
+}
+
+function serve(state: GameState, direction: number): GameState {
+  return {
+    ...state,
+    ball: { x: 0, y: 0, z: 0 },
+    velocity: { x: direction * 1.7, y: direction * -1.25, z: direction * 5.5 },
+    rally: 0
+  };
+}
+
+export function stepGame(current: GameState, inputAxis: number, deltaSeconds: number): GameState {
+  if (current.paused || current.winner || deltaSeconds <= 0) return current;
+  const delta = Math.min(deltaSeconds, 0.05);
+  let state: GameState = {
+    ...current,
+    playerY: clamp(current.playerY + clamp(inputAxis, -1, 1) * 7.5 * delta, -LIMIT_Y, LIMIT_Y),
+    aiY: clamp(current.aiY + clamp(current.ball.y - current.aiY, -1, 1) * 4.7 * delta, -LIMIT_Y, LIMIT_Y),
+    ball: {
+      x: current.ball.x + current.velocity.x * delta,
+      y: current.ball.y + current.velocity.y * delta,
+      z: current.ball.z + current.velocity.z * delta
+    },
+    velocity: { ...current.velocity }
+  };
+
+  if (Math.abs(state.ball.x) >= LIMIT_X) {
+    state.ball.x = clamp(state.ball.x, -LIMIT_X, LIMIT_X);
+    state.velocity.x *= -1;
+  }
+  if (Math.abs(state.ball.y) >= LIMIT_Y) {
+    state.ball.y = clamp(state.ball.y, -LIMIT_Y, LIMIT_Y);
+    state.velocity.y *= -1;
+  }
+  const atPlayer = state.ball.z <= -PADDLE_Z && state.velocity.z < 0;
+  const atAi = state.ball.z >= PADDLE_Z && state.velocity.z > 0;
+  if (atPlayer && Math.abs(state.ball.y - state.playerY) <= PADDLE_HALF_HEIGHT) {
+    state.ball.z = -PADDLE_Z;
+    state.velocity.z = Math.abs(state.velocity.z) * 1.035;
+    state.velocity.y += (state.ball.y - state.playerY) * 1.15;
+    state.rally += 1;
+  }
+  if (atAi && Math.abs(state.ball.y - state.aiY) <= PADDLE_HALF_HEIGHT) {
+    state.ball.z = PADDLE_Z;
+    state.velocity.z = -Math.abs(state.velocity.z) * 1.03;
+    state.velocity.y += (state.ball.y - state.aiY) * 0.9;
+    state.rally += 1;
+  }
+  if (state.ball.z < -GOAL_Z) {
+    state = serve({ ...state, aiScore: state.aiScore + 1 }, 1);
+  } else if (state.ball.z > GOAL_Z) {
+    state = serve({ ...state, playerScore: state.playerScore + 1 }, -1);
+  }
+  if (state.playerScore >= 7) state.winner = "player";
+  if (state.aiScore >= 7) state.winner = "ai";
+  return state;
+}
+'''
+
+
+def _game_physics_test() -> str:
+    return '''import { describe, expect, it } from "vitest";
+
+import { createInitialState, stepGame } from "./physics";
+
+describe("3D Pong physics", () => {
+  it("moves the player within arena bounds", () => {
+    let state = createInitialState();
+    for (let index = 0; index < 100; index += 1) state = stepGame(state, 1, 0.05);
+    expect(state.playerY).toBe(3.2);
+  });
+
+  it("reflects a ball that intersects the player paddle", () => {
+    const state = { ...createInitialState(), ball: { x: 0, y: 0, z: -5.15 }, velocity: { x: 0, y: 0, z: -5 } };
+    expect(stepGame(state, 0, 0.02).velocity.z).toBeGreaterThan(0);
+  });
+
+  it("awards the AI when the player misses", () => {
+    const state = { ...createInitialState(), playerY: 3, ball: { x: 0, y: -3, z: -6 }, velocity: { x: 0, y: 0, z: -5 } };
+    expect(stepGame(state, 0, 0.05).aiScore).toBe(1);
+  });
+});
+'''
+
+
+def _game_scene() -> str:
+    return '''import * as THREE from "three";
+
+import type { GameState } from "./physics";
+
+export type GameScene = {
+  render: (state: GameState) => void;
+  dispose: () => void;
+};
+
+export function createGameScene(container: HTMLElement): GameScene {
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x02050b);
+  scene.fog = new THREE.Fog(0x02050b, 10, 28);
+  const camera = new THREE.PerspectiveCamera(54, 1, 0.1, 100);
+  camera.position.set(8.5, 7.2, 12.5);
+  camera.lookAt(0, 0, 0);
+  const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.domElement.setAttribute("aria-label", "Playable 3D Pong arena");
+  container.appendChild(renderer.domElement);
+
+  scene.add(new THREE.HemisphereLight(0x8de8ff, 0x10152a, 2.4));
+  const keyLight = new THREE.PointLight(0xff4d8d, 65, 28);
+  keyLight.position.set(0, 5, 4);
+  scene.add(keyLight);
+
+  const courtGeometry = new THREE.BoxGeometry(10, 7, 12);
+  const court = new THREE.LineSegments(
+    new THREE.EdgesGeometry(courtGeometry),
+    new THREE.LineBasicMaterial({ color: 0x29d7f2, transparent: true, opacity: 0.45 })
+  );
+  scene.add(court);
+  const centerLine = new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-5, 0, 0), new THREE.Vector3(5, 0, 0)]),
+    new THREE.LineDashedMaterial({ color: 0xffffff, dashSize: 0.3, gapSize: 0.25, transparent: true, opacity: 0.35 })
+  );
+  centerLine.computeLineDistances();
+  scene.add(centerLine);
+
+  const paddleGeometry = new THREE.BoxGeometry(2.4, 2.5, 0.35);
+  const player = new THREE.Mesh(paddleGeometry, new THREE.MeshStandardMaterial({ color: 0x62f2ff, emissive: 0x075b6e }));
+  const ai = new THREE.Mesh(paddleGeometry, new THREE.MeshStandardMaterial({ color: 0xff4d8d, emissive: 0x6b0d34 }));
+  player.position.z = -5.2;
+  ai.position.z = 5.2;
+  scene.add(player, ai);
+
+  const ball = new THREE.Mesh(
+    new THREE.SphereGeometry(0.34, 24, 16),
+    new THREE.MeshStandardMaterial({ color: 0xffe57a, emissive: 0x7a4f00, roughness: 0.22 })
+  );
+  scene.add(ball);
+
+  const resize = () => {
+    const width = Math.max(container.clientWidth, 1);
+    const height = Math.max(container.clientHeight, 1);
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+    renderer.setSize(width, height, false);
+  };
+  const observer = new ResizeObserver(resize);
+  observer.observe(container);
+  resize();
+
+  return {
+    render: (state) => {
+      player.position.y = -state.playerY;
+      ai.position.y = -state.aiY;
+      ball.position.set(state.ball.x, -state.ball.y, state.ball.z);
+      ball.rotation.x += 0.025;
+      ball.rotation.y += 0.035;
+      renderer.render(scene, camera);
+    },
+    dispose: () => {
+      observer.disconnect();
+      courtGeometry.dispose();
+      paddleGeometry.dispose();
+      renderer.dispose();
+      renderer.domElement.remove();
+    }
+  };
+}
+'''
+
+
 def _web_globals() -> str:
     return """* { box-sizing: border-box; }
 html, body { margin: 0; min-height: 100%; background: #050713; color: #f8fbff; font-family: Arial, Helvetica, sans-serif; overflow: hidden; }
@@ -568,9 +987,16 @@ button, input { font: inherit; }
 .hud p { margin: 0; color: #62f2ff; font-size: 12px; letter-spacing: .14em; }
 .hud h1 { margin: 4px 0 0; font-size: clamp(34px, 6vw, 72px); line-height: 1; }
 .status { border: 1px solid rgba(98,242,255,.45); border-radius: 8px; padding: 10px 14px; color: #f8d14a; background: rgba(5,7,19,.65); }
-.game-canvas { width: 100%; height: 100%; min-height: 0; border: 1px solid rgba(98,242,255,.3); border-radius: 10px; background: #050713; box-shadow: 0 20px 80px rgba(0,0,0,.4); touch-action: none; }
+.arena { width: 100%; height: 100%; min-height: 360px; border: 1px solid rgba(98,242,255,.3); border-radius: 8px; background: #050713; box-shadow: 0 20px 80px rgba(0,0,0,.4); touch-action: none; overflow: hidden; }
+.arena canvas { display: block; width: 100%; height: 100%; }
+.score { display: grid; grid-template-columns: 64px minmax(120px, 1fr) 64px; align-items: center; gap: 10px; text-align: center; }
+.score strong { font-size: 32px; color: #62f2ff; }
+.score span { color: #f8d14a; font-size: 12px; }
+.actions { display: flex; gap: 8px; }
+.actions button { border: 1px solid #62f2ff; border-radius: 6px; padding: 8px 12px; background: #07111e; color: #f8fbff; cursor: pointer; }
 .controls { display: flex; flex-wrap: wrap; gap: 10px; color: #9fb6d6; font-size: 13px; }
 .controls span { border: 1px solid rgba(255,255,255,.14); border-radius: 999px; padding: 8px 10px; background: rgba(255,255,255,.04); }
+@media (max-width: 760px) { .hud { align-items: flex-start; flex-wrap: wrap; } .arena { min-height: 55vh; } }
 """
 
 
@@ -580,7 +1006,9 @@ def _web_e2e() -> str:
 test("loads playable pong arena", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByText("3D PONG ARENA")).toBeVisible();
-  await expect(page.locator("canvas[aria-label='Playable 3D Pong arena']")).toBeVisible();
+  const canvas = page.locator("canvas[aria-label='Playable 3D Pong arena']");
+  await expect(canvas).toBeVisible();
+  await expect(page.getByRole("button", { name: "Pause" })).toBeVisible();
 });
 """
 

@@ -1,8 +1,71 @@
 # Test Results
 
-Date: 2026-06-05
+Date: 2026-07-21
 
-## Passed
+## Stable 0.1.4 Validation
+
+```text
+python -m pytest tests/python -q
+1621 passed, 1 skipped in 976.32s
+```
+
+```text
+python -m ruff check agentic_network apps packages tests scripts
+All checks passed!
+```
+
+```text
+npm --workspace apps/web run test
+5 test files passed, 22 tests passed
+
+npm --workspace apps/web run lint
+TypeScript passed
+
+npm --workspace apps/web run build
+Next.js 16.2.10 production build passed
+
+npm --workspace apps/web run e2e
+1 passed
+```
+
+```text
+npm --workspace apps/desktop run package
+Wrote new app to apps/desktop/dist/ANN-win32-x64
+```
+
+```text
+docker compose build api web
+API and web images built from a clean Docker cache
+
+docker compose up -d postgres api web
+PostgreSQL healthy; API health/readiness 200; web 200
+API container Docker daemon access: 29.5.2
+API container Docker Compose: 5.1.4
+```
+
+```text
+Release/installer/runtime/Docker focused suite
+271 passed in 208.22s
+```
+
+```text
+Final offline bundle
+16,840 files
+4,396,125,162 bytes
+SHA-256 f334176cf3b0dd21c1a8526bd30de0feacb401dc76fcdb814d15574e9249f42b
+
+Bundled install: PASSED
+Embedded runtime and CUDA llama.cpp: PASSED
+Installed API health: PASSED
+Installed native Desktop: PASSED
+Bundled uninstall with zero residual files: PASSED
+```
+
+The stable source and unsigned portable distribution passed these local gates.
+Trusted-publisher Windows distribution still requires a real Authenticode
+certificate and validation on an independent clean Windows machine.
+
+## Historical Development Evidence
 
 ```text
 python -m pytest tests/python -q

@@ -513,6 +513,35 @@ def test_run_store_marks_docker_daemon_unavailable_as_blocked() -> None:
     assert statuses["release_package"] == "blocked"
 
 
+def test_run_store_marks_partial_live_verification_as_blocked_not_failed() -> None:
+    result = {
+        "tasks": [
+            {"task_id": "implementation_plan", "status": "pending"},
+            {"task_id": "qa_verification", "status": "running"},
+            {"task_id": "code_review", "status": "pending"},
+            {"task_id": "meta_review", "status": "pending"},
+            {"task_id": "release_package", "status": "pending"},
+        ],
+        "agent_results": [{"agent": "Planner Agent", "outputs": ["plan.json"]}],
+        "execution_results": {
+            "status": "partial",
+            "steps": [
+                {"name": "api_pytest_local_fallback", "status": "passed", "detail": "4 passed"},
+                {"name": "web_build_local_fallback", "status": "skipped", "detail": "not executed"},
+            ],
+        },
+    }
+
+    RunStore._sync_task_statuses(result, lifecycle_status="partial")  # noqa: SLF001
+
+    statuses = {task["task_id"]: task["status"] for task in result["tasks"]}
+    assert statuses["implementation_plan"] == "complete"
+    assert statuses["qa_verification"] == "blocked"
+    assert statuses["code_review"] == "blocked"
+    assert statuses["meta_review"] == "blocked"
+    assert statuses["release_package"] == "blocked"
+
+
 def test_run_store_lists_persisted_runs_with_limit() -> None:
     scratch = Path(r"D:\AgenticEngineeringNetwork\tests\.tmp\run-store-list") / uuid4().hex
     settings = Settings(

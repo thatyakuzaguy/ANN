@@ -52,7 +52,11 @@ def test_generates_patches(tmp_path: Path) -> None:
 
     assert result.patches_generated
     assert all(Path(path).name.startswith("patch_") for path in result.patches_generated)
-    assert "diff --git" in Path(result.patches_generated[0]).read_text(encoding="utf-8")
+    patch = Path(result.patches_generated[0]).read_text(encoding="utf-8")
+    assert "diff --git" in patch
+    assert "apps/api/app/main.py" in patch
+    assert "apps/web/src/app/page.tsx" in patch
+    assert "Starter feature spec" not in patch
 
 
 def test_consensus_generated(tmp_path: Path) -> None:

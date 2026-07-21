@@ -1,12 +1,11 @@
 FROM docker:29.5.2-cli AS docker-cli
 
-FROM nvidia/cuda:12.6.3-devel-ubuntu24.04
+FROM nvidia/cuda:12.6.3-devel-ubuntu24.04 AS model-runtime-builder
 
 WORKDIR /workspace
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-ENV PYTHONPATH=/workspace/packages/agents:/workspace/packages/orchestration:/workspace/packages/sandbox:/workspace/packages/git:/workspace/packages/logs:/workspace/packages/shared:/workspace/packages/database:/workspace/packages/security:/workspace/apps/api
 ENV CUDA_STUBS_PATH=/usr/local/cuda/lib64/stubs
 ENV LIBRARY_PATH=/usr/local/cuda/lib64/stubs
 ENV CMAKE_ARGS="-DGGML_CUDA=on -DCMAKE_CUDA_ARCHITECTURES=86 -DCMAKE_LIBRARY_PATH=/usr/local/cuda/lib64/stubs -DCMAKE_EXE_LINKER_FLAGS=-Wl,-rpath-link,/usr/local/cuda/lib64/stubs"
@@ -36,6 +35,30 @@ RUN python3 -m pip install --break-system-packages --no-cache-dir -r /tmp/requir
     && python3 -m pip install --break-system-packages --no-cache-dir --no-deps \
         -r /tmp/requirements-llama-cpp.txt \
     && python3 -c "import importlib.metadata as m; assert all((d.metadata.get('Name') or '').lower() != 'diskcache' for d in m.distributions())"
+
+FROM nvidia/cuda:12.6.3-runtime-ubuntu24.04 AS api-runtime
+
+WORKDIR /workspace
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/workspace/packages/agents:/workspace/packages/orchestration:/workspace/packages/sandbox:/workspace/packages/git:/workspace/packages/logs:/workspace/packages/shared:/workspace/packages/database:/workspace/packages/security:/workspace/apps/api
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        ca-certificates \
+        git \
+        libgomp1 \
+        python3 \
+        python3-pip \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=docker-cli /usr/local/bin/docker /usr/local/bin/docker
+COPY --from=docker-cli /usr/local/libexec/docker/cli-plugins/docker-compose /usr/local/libexec/docker/cli-plugins/docker-compose
+COPY --from=model-runtime-builder /usr/local/bin/ /usr/local/bin/
+COPY --from=model-runtime-builder /usr/local/lib/python3.12/dist-packages/ /usr/local/lib/python3.12/dist-packages/
+
+RUN python3 -c "import importlib.metadata as m; assert m.version('llama-cpp-python') == '0.3.32'; assert all((d.metadata.get('Name') or '').lower() != 'diskcache' for d in m.distributions())"
 
 COPY . /workspace
 

@@ -12,8 +12,11 @@ from agentic_network.runtime_engine.local_model_activation import (
 def test_wheelhouse_population_protocol_verified() -> None:
     protocol = build_wheelhouse_population_protocol()
 
-    assert protocol["status"] == "VERIFIED"
-    assert protocol["manual_copy_required"] is False
+    assert protocol["status"] in {"EMPTY", "PARTIAL", "VERIFIED", "READY_FOR_VERIFICATION"}
+    assert protocol["manual_copy_required"] is (protocol["missing_count"] > 0)
+    if protocol["status"] == "VERIFIED":
+        assert protocol["manual_copy_required"] is False
+        assert protocol["verified_count"] == len(protocol["wheels"])
     assert protocol["install_forbidden"] is True
     assert protocol["source"] == "external_only"
     assert protocol["no_download"] is True

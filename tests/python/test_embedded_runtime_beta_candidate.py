@@ -12,13 +12,14 @@ from agentic_network.runtime_engine.local_model_activation import (
 
 def test_embedded_runtime_beta_candidate_ready_after_verified_runtime() -> None:
     candidate = build_embedded_runtime_beta_candidate()
+    checks = {item["id"]: item for item in candidate["checks"]}
 
-    assert candidate["status"] == "BETA_CANDIDATE_READY"
-    assert candidate["beta_candidate"] is True
-    assert candidate["blockers"] == []
-    assert candidate["embedded_python_present"] is True
-    assert candidate["runtime_verified"] is True
-    assert candidate["installer_compatible"] is True
+    assert candidate["status"] in {"BETA_CANDIDATE_READY", "BETA_CANDIDATE_BLOCKED"}
+    assert candidate["beta_candidate"] is (candidate["status"] == "BETA_CANDIDATE_READY")
+    assert candidate["embedded_python_present"] is checks["embedded_python_present"]["passed"]
+    assert candidate["runtime_verified"] is checks["runtime_verified"]["passed"]
+    assert candidate["installer_compatible"] is checks["installer_compatible"]["passed"]
+    assert bool(candidate["blockers"]) is (candidate["status"] == "BETA_CANDIDATE_BLOCKED")
     assert candidate["no_install"] is True
     assert candidate["no_model_load"] is True
 

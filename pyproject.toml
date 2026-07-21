@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agentic-engineering-network"
-version = "0.1.4rc3"
+version = "0.1.4"
 description = "A local multi-agent software engineering network for planning, generating, testing, reviewing, and packaging full-stack systems."
 readme = "README.md"
 license = "MIT"
@@ -48,29 +48,6 @@ pythonpath = [
   "packages/database",
   "packages/security",
   "apps/api",
-]
-
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["agentic_network*"]
-exclude = [
-  "apps*",
-  "data*",
-  "dataset_curation*",
-  "dataset_generation*",
-  "installer*",
-  "knowledge*",
-  "logs*",
-  "memory*",
-  "models*",
-  "outputs*",
-  "packages*",
-  "project_runs*",
-  "releases*",
-  "results*",
-  "tests*",
-  "training*",
-  "work*",
 ]
 
 [tool.ruff]

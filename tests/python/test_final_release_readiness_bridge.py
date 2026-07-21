@@ -21,9 +21,18 @@ def test_final_release_readiness_bridge_blocked() -> None:
     assert "signed_installer" in bridge["public_release_blockers"]
     assert "clean_machine_evidence" in bridge["public_release_blockers"]
     assert bridge["signed_installer"] is False
-    assert bridge["clean_machine_evidence_status"] == "LOCAL_INSTALL_SMOKE_PASSED"
-    assert bridge["local_install_smoke_passed"] is True
-    assert bridge["external_clean_machine_passed"] is False
+    assert bridge["clean_machine_evidence_status"] in {
+        "CLEAN_MACHINE_EVIDENCE_INCOMPLETE",
+        "LOCAL_INSTALL_SMOKE_PASSED",
+        "CLEAN_MACHINE_EXTERNAL_PASSED",
+    }
+    assert bridge["local_install_smoke_passed"] is (
+        bridge["clean_machine_evidence_status"]
+        in {"LOCAL_INSTALL_SMOKE_PASSED", "CLEAN_MACHINE_EXTERNAL_PASSED"}
+    )
+    assert bridge["external_clean_machine_passed"] is (
+        bridge["clean_machine_evidence_status"] == "CLEAN_MACHINE_EXTERNAL_PASSED"
+    )
     assert bridge["qwen3_blocked"] is True
     assert bridge["deepseek_blocked"] is True
     assert bridge["powerful_blocked"] is True

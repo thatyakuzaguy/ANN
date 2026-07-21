@@ -471,6 +471,13 @@ def _write_end_to_end_artifacts(summary_dir: Path, result: EndToEndProjectResult
 def _classify_verification(verification: Any, patch_status: str) -> dict[str, Any]:
     evidence = _verification_evidence(verification)
     status = getattr(verification, "status", "SKIPPED")
+    if status == "PASSED" and evidence["commands_executed"] and evidence["required_commands_skipped"]:
+        return _classification(
+            "PARTIALLY_VERIFIED",
+            "PARTIAL",
+            "install_project_dependencies_in_approved_sandbox",
+            evidence,
+        )
     if status == "PASSED" and evidence["commands_executed"]:
         return _classification("COMPLETED_VERIFIED", "VERIFIED", "completed_verified", evidence)
     if status == "SKIPPED" and not evidence["tests_detected"]:
@@ -512,9 +519,17 @@ def _verification_evidence(verification: Any) -> dict[str, Any]:
     commands_selected = list(getattr(verification, "commands_selected", []))
     commands_executed = list(getattr(verification, "commands_executed", []))
     status = str(getattr(verification, "status", "SKIPPED"))
+    warnings = list(getattr(verification, "validation_warnings", []))
+    required_commands_skipped = [
+        warning
+        for warning in warnings
+        if "node_modules is missing" in warning or "outside the allowlist" in warning
+    ]
     tests_detected = bool(commands_selected)
-    if status == "PASSED" and commands_executed:
+    if status == "PASSED" and commands_executed and not required_commands_skipped:
         evidence_level = "STRONG"
+    elif status == "PASSED" and commands_executed:
+        evidence_level = "PARTIAL"
     elif status in {"FAILED", "TIMEOUT"} and commands_executed:
         evidence_level = "MEDIUM"
     elif tests_detected:
@@ -529,6 +544,8 @@ def _verification_evidence(verification: Any) -> dict[str, Any]:
         "stderr_artifacts": list(getattr(verification, "stderr_artifacts", [])),
         "verification_status": status,
         "evidence_level": evidence_level,
+        "validation_warnings": warnings,
+        "required_commands_skipped": required_commands_skipped,
     }
 
 
@@ -541,6 +558,8 @@ def _empty_verification_evidence(status: str) -> dict[str, Any]:
         "stderr_artifacts": [],
         "verification_status": status,
         "evidence_level": "NONE",
+        "validation_warnings": [],
+        "required_commands_skipped": [],
     }
 
 
@@ -548,6 +567,7 @@ def _consensus_decision(status: str) -> str:
     decisions = {
         "COMPLETED_VERIFIED": "PROJECT_COMPLETED_VERIFIED",
         "COMPLETED_UNVERIFIED": "PROJECT_COMPLETED_UNVERIFIED",
+        "PARTIALLY_VERIFIED": "PROJECT_PARTIALLY_VERIFIED",
         "NEEDS_TESTS": "PROJECT_NEEDS_TESTS",
         "NEEDS_REVIEW": "PROJECT_NEEDS_REVIEW",
     }

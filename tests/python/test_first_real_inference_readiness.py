@@ -13,10 +13,13 @@ from agentic_network.runtime_engine.local_model_activation import (
 def test_first_real_inference_readiness_not_ready_and_no_load() -> None:
     before = get_loaded_models()
     readiness = build_first_real_inference_readiness()
+    checks = {item["id"]: item for item in readiness["checks"]}
 
     assert readiness["status"] == "NOT_READY"
     assert set(readiness["blocking"]).intersection({"llama_cpp", "qwen25_backend", "launch_guard"})
-    assert "wheelhouse" not in readiness["blocking"]
+    assert ("wheelhouse" in readiness["blocking"]) is (
+        checks["wheelhouse"]["status"] == "BLOCKED"
+    )
     assert readiness["real_inference_attempted"] is False
     assert readiness["model_load_attempted"] is False
     assert readiness["qwen3_blocked"] is True

@@ -34,6 +34,19 @@ function Write-JsonUtf8NoBom {
   [System.IO.File]::WriteAllText($PathValue, $json, $encoding)
 }
 
+function Get-AnnFileSha256 {
+  param([string]$PathValue)
+  $stream = [System.IO.File]::OpenRead($PathValue)
+  $sha256 = [System.Security.Cryptography.SHA256]::Create()
+  try {
+    $bytes = $sha256.ComputeHash($stream)
+    return [System.BitConverter]::ToString($bytes).Replace("-", "").ToLowerInvariant()
+  } finally {
+    $sha256.Dispose()
+    $stream.Dispose()
+  }
+}
+
 function Test-ReleasePayloadManifest {
   param([string]$Root)
   $payloadRoot = Join-Path $Root "payload"
@@ -67,7 +80,7 @@ function Test-ReleasePayloadManifest {
     if ([int64]$entry.size_bytes -ne [int64]$file.Length) {
       throw "Release payload size mismatch: $relative"
     }
-    $actualHash = (Get-FileHash -LiteralPath $candidate -Algorithm SHA256).Hash.ToLowerInvariant()
+    $actualHash = Get-AnnFileSha256 $candidate
     if ($actualHash -ne ([string]$entry.sha256).ToLowerInvariant()) {
       throw "Release payload SHA256 mismatch: $relative"
     }
@@ -76,7 +89,7 @@ function Test-ReleasePayloadManifest {
   return [pscustomobject]@{
     status = "HASH_VERIFIED"
     path = $manifestPath
-    sha256 = (Get-FileHash -LiteralPath $manifestPath -Algorithm SHA256).Hash.ToLowerInvariant()
+    sha256 = Get-AnnFileSha256 $manifestPath
     files_verified = $verified
   }
 }
@@ -139,7 +152,7 @@ function Install-ModelPayload {
       if ([int64]$entry.size_bytes -ne [int64]$actualFile.Length) {
         throw "Model size mismatch: $relative"
       }
-      $actualHash = (Get-FileHash -LiteralPath $declaredFile -Algorithm SHA256).Hash.ToLowerInvariant()
+      $actualHash = Get-AnnFileSha256 $declaredFile
       if ($actualHash -ne ([string]$entry.sha256).ToLowerInvariant()) {
         throw "Model SHA256 mismatch: $relative"
       }
@@ -169,7 +182,7 @@ function Install-ModelPayload {
     $targetHash = if ($Mode -eq "HardLink" -and $verifiedEntries.ContainsKey($relativeKey)) {
       $verifiedEntries[$relativeKey]
     } else {
-      (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash.ToLowerInvariant()
+      Get-AnnFileSha256 $target
     }
     $installed += [ordered]@{
       relative_path = $relative.Replace('\', '/')
@@ -342,7 +355,7 @@ $env:PYTHONPATH = $InstallRoot
 & $python -c "import fastapi, uvicorn, PySide6, agentic_network; from agentic_network.models.gpu_policy import llama_cpp_supports_gpu_offload; from agentic_network.runtime_engine.backends.llama_cpp_backend import LlamaCppBackend; print('ANN embedded runtime imports: OK')"
 if ($LASTEXITCODE -ne 0) { throw "Embedded runtime import validation failed." }
 if ($RequireModels) {
-  & $python -c "from agentic_network.runtime_engine.windows_dlls import configure_windows_runtime_dll_paths; from agentic_network.models.gpu_policy import llama_cpp_supports_gpu_offload; configure_windows_runtime_dll_paths(); import llama_cpp; raise SystemExit(0 if llama_cpp_supports_gpu_offload(llama_cpp) is True else 1)"
+  & $python -c "from agentic_network.runtime_engine.windows_dlls import configure_windows_runtime_dll_paths; from agentic_network.models.gpu_policy import llama_cpp_supports_gpu_offload; from agentic_network.models.llama_cpp_security import load_secure_llama_cpp; configure_windows_runtime_dll_paths(); llama_cpp = load_secure_llama_cpp(); raise SystemExit(0 if llama_cpp_supports_gpu_offload(llama_cpp) is True else 1)"
   if ($LASTEXITCODE -ne 0) { throw "Embedded llama.cpp runtime does not expose GPU offload support." }
 }
 
@@ -366,7 +379,7 @@ $manifest = [ordered]@{
   installed_models = $installedModels
   shortcut_skipped = [bool]$SkipShortcut
   shortcut_location = $ShortcutLocation
-  preserved_by_default = @("projects", "models", "outputs", "data", "logs")
+  preserved_by_default = @("projects", "generated-projects", "models", "outputs", "data", "logs")
   excluded_source_areas = $ExcludedNames
   release_payload_verification = $payloadVerification
 }

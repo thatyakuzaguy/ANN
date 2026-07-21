@@ -33,6 +33,20 @@ $inventoryExcludedExtensions = @(
 )
 $inventoryExcludedNames = @(".env", ".DS_Store", "Thumbs.db")
 
+function Get-AnnRelativePath {
+    param(
+        [Parameter(Mandatory = $true)][string]$Root,
+        [Parameter(Mandatory = $true)][string]$PathValue
+    )
+    $rootFull = [IO.Path]::GetFullPath($Root).TrimEnd('\', '/')
+    $pathFull = [IO.Path]::GetFullPath($PathValue)
+    $prefix = $rootFull + [IO.Path]::DirectorySeparatorChar
+    if (-not $pathFull.StartsWith($prefix, [StringComparison]::OrdinalIgnoreCase)) {
+        throw "Inventory path escaped public repository: $pathFull"
+    }
+    return $pathFull.Substring($prefix.Length).Replace('\', '/')
+}
+
 foreach ($entry in $manifest.files) {
     $relativePath = ([string]$entry.path).Replace('/', [IO.Path]::DirectorySeparatorChar)
     if ([IO.Path]::IsPathRooted($relativePath) -or $relativePath -split '[\\/]' -contains '..') {
@@ -88,10 +102,7 @@ else {
     $tracked = @(
         Get-ChildItem -LiteralPath $RepositoryRoot -Recurse -File -Force |
             ForEach-Object {
-                $relativePath = [IO.Path]::GetRelativePath(
-                    $RepositoryRoot,
-                    $_.FullName
-                ).Replace('\', '/')
+                $relativePath = Get-AnnRelativePath $RepositoryRoot $_.FullName
                 $segments = $relativePath -split '/'
                 $excluded = @(
                     $segments | Where-Object { $inventoryExcludedSegments -contains $_ }

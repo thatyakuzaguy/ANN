@@ -11,12 +11,14 @@ from agentic_network.runtime_engine.local_model_activation import (
 
 def test_guided_runtime_activation_state_blocked_when_runtime_missing() -> None:
     state = build_guided_runtime_activation_state()
+    completed = [item["id"] for item in state["steps"] if item["status"] == "COMPLETED"]
+    blocked = [item["id"] for item in state["steps"] if item["status"] == "BLOCKED"]
 
-    assert state["status"] == "GUIDED_PARTIAL"
-    assert state["current_step"] == "check_launch_guard"
-    assert "materialize_runtime" in state["completed_steps"]
-    assert {"populate_wheelhouse", "verify_hashes", "validate_runtime"}.issubset(set(state["completed_steps"]))
-    assert "check_launch_guard" in state["blocked_steps"]
+    expected_status = "GUIDED_PARTIAL" if completed else "GUIDED_BLOCKED"
+    assert state["status"] == expected_status
+    assert state["current_step"] == blocked[0]
+    assert state["completed_steps"] == completed
+    assert state["blocked_steps"] == blocked
     assert state["ready_for_smoke_button"] is False
     assert state["safe_mode"] is True
     assert state["qwen3_blocked"] is True

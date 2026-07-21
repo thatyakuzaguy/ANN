@@ -13,14 +13,33 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from agentic_network.runtime_engine.local_model_activation import (
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+PACKAGE_ROOTS = (
+    "agents",
+    "orchestration",
+    "sandbox",
+    "git",
+    "logs",
+    "shared",
+    "database",
+    "security",
+)
+for package_root in reversed(PACKAGE_ROOTS):
+    candidate = str(REPO_ROOT / "packages" / package_root)
+    if candidate not in sys.path:
+        sys.path.insert(0, candidate)
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from agentic_network.runtime_engine.local_model_activation import (  # noqa: E402
     build_autonomous_complex_capability_gate,
     build_embedded_runtime_package_audit,
     build_installer_rc_readiness,
     build_runtime_materialization_watcher,
     validate_wheelhouse_integrity,
 )
-from scripts.runtime.verify_release_candidate_bundle import verify_bundle
+from scripts.runtime.verify_release_candidate_bundle import verify_bundle  # noqa: E402
 
 
 REQUIRED_SOURCE_PATHS = (

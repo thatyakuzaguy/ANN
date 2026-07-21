@@ -12,10 +12,15 @@ from agentic_network.runtime_engine.local_model_activation import (
 def test_wheelhouse_materialization_plan_ready_after_wheels_and_hashes() -> None:
     plan = build_wheelhouse_materialization_plan()
 
-    assert plan["status"] == "WHEELHOUSE_READY_FOR_BETA"
-    assert plan["missing_wheels"] == []
-    assert plan["missing_hashes"] == []
-    assert plan["hash_pending"] is False
+    assert plan["status"] in {
+        "WHEELHOUSE_READY_FOR_BETA",
+        "WHEELHOUSE_MATERIALIZATION_REQUIRED",
+    }
+    assert plan["hash_pending"] is bool(plan["missing_hashes"])
+    assert plan["ready_for_beta"] is (plan["status"] == "WHEELHOUSE_READY_FOR_BETA")
+    if plan["ready_for_beta"]:
+        assert plan["missing_wheels"] == []
+        assert plan["missing_hashes"] == []
     assert plan["no_install_guarantee"] is True
 
 

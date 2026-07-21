@@ -7,6 +7,7 @@ from pathlib import Path
 from scripts.release.build_offline_release_bundle import (
     PAYLOAD_MANIFEST_NAME,
     ReleaseItem,
+    _detect_desktop_root,
     build_release_archive,
     sha256_file,
     split_archive,
@@ -108,3 +109,15 @@ def test_release_scripts_are_offline_and_installer_verifies_payload() -> None:
     assert "Get-FileHash" in (ROOT / "installer/assemble_release.ps1").read_text(encoding="utf-8")
     assert '"README_OFFLINE_RELEASE.md"' in installer
     assert '"validate_clean_machine.ps1"' in installer
+
+
+def test_release_builder_prefers_canonical_ann_desktop(tmp_path: Path) -> None:
+    dist = tmp_path / "apps" / "desktop" / "dist"
+    canonical = dist / "ANN-win32-x64"
+    legacy = dist / "Agentic Engineering Network-win32-x64"
+    canonical.mkdir(parents=True)
+    legacy.mkdir(parents=True)
+    (canonical / "ANN.exe").write_bytes(b"canonical")
+    (legacy / "ANN.exe").write_bytes(b"legacy")
+
+    assert _detect_desktop_root(tmp_path) == canonical

@@ -12,15 +12,61 @@ from scripts.runtime import verify_autonomous_capability
 def _write_passing_summary(root: Path, scenario_id: str) -> None:
     scenario = root / scenario_id
     scenario.mkdir(parents=True)
+    project = scenario / "project"
+    (project / "src").mkdir(parents=True)
+    (project / "tests").mkdir(parents=True)
+    keywords = {
+        "crm_saas_multitenant": "tenant organization account contact deal pipeline role permission jwt auth",
+        "ecommerce_marketplace": "product catalog cart basket order checkout seller vendor payment billing",
+        "booking_platform": "booking appointment availability calendar customer user timezone schedule jwt auth",
+        "lms_platform": "course lesson module enrollment student progress completion role permission",
+        "ai_chatbot_saas": "chat conversation message model provider stream token jwt auth",
+        "complex_algorithm_service": "algorithm complexity benchmark validation edge case api endpoint",
+        "complex_3d_game": "three webgl requestAnimationFrame game loop score keyboard input collision physics",
+    }[scenario_id]
+    for index in range(10):
+        (project / "src" / f"module_{index}.ts").write_text(
+            "\n".join([f"export const feature{index}_{line} = '{keywords}';" for line in range(40)]),
+            encoding="utf-8",
+        )
+    for index in range(4):
+        (project / "tests" / f"feature_{index}.test.ts").write_text("test('works', () => expect(true).toBe(true));\n", encoding="utf-8")
+    log = scenario / "verification.log"
+    log.write_text("all functional commands passed\n", encoding="utf-8")
+    commands = (
+        [["python", "-m", "pytest", "-q"], ["npm", "test"], ["npm", "run", "build"], ["npx", "playwright", "test"]]
+        if scenario_id not in {"complex_algorithm_service", "complex_3d_game"}
+        else (
+            [["python", "-m", "pytest", "-q"], ["python", "-m", "pytest", "tests/integration", "-q"], ["python", "benchmark.py"]]
+            if scenario_id == "complex_algorithm_service"
+            else [["npm", "test"], ["npm", "run", "build"], ["npx", "playwright", "test"]]
+        )
+    )
+    verification = scenario / "47_project_verification.json"
+    verification.write_text(
+        json.dumps({"status": "PASSED", "commands_executed": commands, "exit_codes": [0] * len(commands), "stdout_artifacts": [str(log)]}),
+        encoding="utf-8",
+    )
+    security = scenario / "security_review.json"
+    security.write_text(json.dumps({"status": "PASSED", "scanners": ["dependency", "secrets", "static"], "findings": []}), encoding="utf-8")
+    screenshot = scenario / "smoke.png"
+    screenshot.write_bytes(b"\x89PNG\r\n\x1a\n" + b"0" * 128)
+    functional = scenario / "functional_smoke.json"
+    functional.write_text(
+        json.dumps({"status": "PASSED", "checks": [{"passed": True}] * 3, "screenshots": [str(screenshot)]}),
+        encoding="utf-8",
+    )
     (scenario / "summary.json").write_text(
         json.dumps(
             {
                 "status": "COMPLETED_VERIFIED",
                 "completion_quality": "VERIFIED",
                 "verification_evidence": {"evidence_level": "STRONG"},
-                "commands_executed": [["python", "-m", "pytest", "-q"]],
+                "commands_executed": commands,
                 "security_review": "PASSED",
                 "protected_paths_modified": False,
+                "project_root": str(project),
+                "artifacts": [str(verification), str(security), str(functional), str(screenshot)],
             },
             indent=2,
         ),
@@ -76,7 +122,7 @@ def test_autonomous_complex_capability_artifacts(tmp_path: Path) -> None:
         "367_autonomous_complex_capability_gate.md",
     }
     payload = json.loads((tmp_path / "366_autonomous_complex_capability_gate.json").read_text(encoding="utf-8"))
-    assert payload["version"] == "18.9.13"
+    assert payload["version"] == "18.9.21"
 
 
 def test_autonomous_capability_evidence_plan_lists_missing_proof(tmp_path: Path) -> None:
@@ -97,7 +143,7 @@ def test_autonomous_capability_evidence_plan_artifacts(tmp_path: Path) -> None:
         "369_autonomous_capability_evidence_plan.md",
     }
     payload = json.loads((tmp_path / "368_autonomous_capability_evidence_plan.json").read_text(encoding="utf-8"))
-    assert payload["version"] == "18.9.14"
+    assert payload["version"] == "18.9.22"
 
 
 def test_verify_autonomous_capability_cli_blocks_without_evidence(tmp_path: Path, capsys) -> None:
@@ -177,10 +223,10 @@ def test_run_autonomous_capability_scenarios_writes_verified_evidence(
         ]
     )
 
-    assert exit_code == 0
+    assert exit_code == 2
     payload = json.loads((evidence / "crm_saas_multitenant" / "summary.json").read_text(encoding="utf-8"))
-    assert payload["status"] == "COMPLETED_VERIFIED"
-    assert payload["security_review"] == "PASSED"
+    assert payload["status"] == "CAPABILITY_EVIDENCE_BLOCKED"
+    assert payload["security_review"] == "REVIEW_REQUIRED"
     assert payload["protected_paths_modified"] is False
 
 

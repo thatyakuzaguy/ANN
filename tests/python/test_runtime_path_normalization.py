@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import os
+import subprocess
+import sys
 from pathlib import Path
 
 from agentic_network.runtime_engine import local_model_activation as activation
@@ -67,3 +70,28 @@ def test_watcher_detects_existing_wsl_runtime_from_windows_path(monkeypatch, tmp
     assert watcher["safety"]["inference"] is False
     assert get_loaded_models() == before == []
     assert get_runtime_metrics().get("parallel_llm_loads", 0) == 0
+
+
+def test_runtime_root_can_be_isolated_for_hermetic_validation(tmp_path: Path) -> None:
+    runtime_root = tmp_path / "isolated-runtime"
+    environment = os.environ.copy()
+    environment["ANN_RUNTIME_ROOT"] = str(runtime_root)
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            (
+                "from agentic_network.runtime_engine.local_model_activation "
+                "import DEFAULT_RUNTIME_ROOT_TEXT; print(DEFAULT_RUNTIME_ROOT_TEXT)"
+            ),
+        ],
+        cwd=Path(__file__).resolve().parents[2],
+        env=environment,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.strip() == str(runtime_root)

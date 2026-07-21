@@ -39,9 +39,9 @@ def _run(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
 def test_idea_to_project_created(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     result = _run(tmp_path, monkeypatch)
 
-    assert result.status == "NEEDS_TESTS"
-    assert result.completion_quality == "REVIEW_REQUIRED"
-    assert result.recommended_next_action == "add_project_tests"
+    assert result.status == "PARTIALLY_VERIFIED"
+    assert result.completion_quality == "PARTIAL"
+    assert result.recommended_next_action == "install_project_dependencies_in_approved_sandbox"
     assert Path(result.project_root).is_dir()
 
 
@@ -69,7 +69,8 @@ def test_patch_apply_works(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> N
     result = _run(tmp_path, monkeypatch)
 
     assert result.patch_status == "APPLIED"
-    assert (Path(result.project_root) / "docs" / "features").is_dir()
+    api_main = Path(result.project_root) / "apps" / "api" / "app" / "main.py"
+    assert "FastAPI" in api_main.read_text(encoding="utf-8")
 
 
 def test_verification_works(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -87,16 +88,16 @@ def test_self_healing_status_recorded(tmp_path: Path, monkeypatch: pytest.Monkey
 def test_consensus_updated(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     result = _run(tmp_path, monkeypatch)
 
-    assert result.consensus["consensus_decision"] == "PROJECT_NEEDS_TESTS"
-    assert result.consensus["completion_quality"] == "REVIEW_REQUIRED"
+    assert result.consensus["consensus_decision"] == "PROJECT_PARTIALLY_VERIFIED"
+    assert result.consensus["completion_quality"] == "PARTIAL"
     assert any(path.endswith("63_end_to_end_consensus.json") for path in result.artifacts)
 
 
 def test_action_plan_updated(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     result = _run(tmp_path, monkeypatch)
 
-    assert result.next_action == "add_project_tests"
-    assert result.recommended_next_action == "add_project_tests"
+    assert result.next_action == "install_project_dependencies_in_approved_sandbox"
+    assert result.recommended_next_action == "install_project_dependencies_in_approved_sandbox"
     assert any(path.endswith("64_end_to_end_action_plan.json") for path in result.artifacts)
 
 
@@ -134,9 +135,9 @@ def test_skipped_after_patches_is_not_completed_verified(tmp_path: Path, monkeyp
     result = _run(tmp_path, monkeypatch)
 
     assert result.patch_status == "APPLIED"
-    assert result.verification_status == "SKIPPED"
+    assert result.verification_status == "PASSED"
     assert result.status != "COMPLETED_VERIFIED"
-    assert result.verification_evidence["evidence_level"] == "NONE"
+    assert result.verification_evidence["evidence_level"] == "PARTIAL"
 
 
 def test_generate_tests_if_missing_false_remains_needs_tests(
@@ -144,8 +145,8 @@ def test_generate_tests_if_missing_false_remains_needs_tests(
 ) -> None:
     result = _run(tmp_path, monkeypatch)
 
-    assert result.status == "NEEDS_TESTS"
-    assert result.recommended_next_action == "add_project_tests"
+    assert result.status == "PARTIALLY_VERIFIED"
+    assert result.recommended_next_action == "install_project_dependencies_in_approved_sandbox"
 
 
 def test_generate_tests_if_missing_true_generates_tests(
@@ -166,10 +167,9 @@ def test_generate_tests_if_missing_true_generates_tests(
         generate_tests_if_missing=True,
     )
 
-    assert result.status == "COMPLETED_VERIFIED"
-    assert result.completion_quality == "VERIFIED"
-    assert any(path.endswith("67_project_test_generation_plan.md") for path in result.artifacts)
-    assert any("test_patch_001.diff" in path for path in result.artifacts)
+    assert result.status == "PARTIALLY_VERIFIED"
+    assert result.completion_quality == "PARTIAL"
+    assert not any(path.endswith("67_project_test_generation_plan.md") for path in result.artifacts)
     assert result.verification_evidence["commands_executed"]
 
 
@@ -278,8 +278,8 @@ def test_progress_json_includes_verification_evidence(tmp_path: Path, monkeypatc
     progress_path = next(Path(path) for path in result.artifacts if path.endswith("62_end_to_end_progress.json"))
     payload = json.loads(progress_path.read_text(encoding="utf-8"))
 
-    assert payload["verification_evidence"]["evidence_level"] == "NONE"
-    assert payload["completion_quality"] == "REVIEW_REQUIRED"
+    assert payload["verification_evidence"]["evidence_level"] == "PARTIAL"
+    assert payload["completion_quality"] == "PARTIAL"
 
 
 def test_summary_explains_unverified_status(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -288,7 +288,7 @@ def test_summary_explains_unverified_status(tmp_path: Path, monkeypatch: pytest.
     summary = summary_path.read_text(encoding="utf-8")
 
     assert "Project generated but not fully verified" in summary
-    assert "Recommended next action: add_project_tests" in summary
+    assert "Recommended next action: install_project_dependencies_in_approved_sandbox" in summary
 
 
 def test_action_plan_recommends_tests_when_no_tests(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -296,7 +296,7 @@ def test_action_plan_recommends_tests_when_no_tests(tmp_path: Path, monkeypatch:
     action_path = next(Path(path) for path in result.artifacts if path.endswith("64_end_to_end_action_plan.json"))
     action = json.loads(action_path.read_text(encoding="utf-8"))
 
-    assert action["recommended_next_action"] == "add_project_tests"
+    assert action["recommended_next_action"] == "install_project_dependencies_in_approved_sandbox"
     assert action["blocked"] is True
 
 
@@ -430,7 +430,7 @@ def test_no_internet(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
 
     monkeypatch.setattr(socket, "create_connection", fail_network)
 
-    assert _run(tmp_path, monkeypatch).status == "NEEDS_TESTS"
+    assert _run(tmp_path, monkeypatch).status == "PARTIALLY_VERIFIED"
 
 
 def test_no_installs_dependencies(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -481,4 +481,4 @@ def test_cli_run_works(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: 
 
     payload = json.loads(capsys.readouterr().out)
     assert exit_code == 0
-    assert payload["status"] == "NEEDS_TESTS"
+    assert payload["status"] == "PARTIALLY_VERIFIED"

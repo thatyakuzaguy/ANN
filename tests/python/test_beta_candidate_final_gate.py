@@ -15,11 +15,12 @@ def test_beta_candidate_final_gate_blocked_and_safe() -> None:
     before = get_loaded_models()
     gate = build_beta_candidate_final_gate()
     blockers = {item["id"] for item in gate["blockers"]}
+    checks = {item["id"]: item["status"] for item in gate["checks"]}
 
     assert gate["status"] == "BETA_FINAL_BLOCKED"
     assert "first_inference_ready" in blockers
-    assert "integrity_verified" not in blockers
-    assert "wheelhouse_verified" not in blockers
+    assert ("integrity_verified" in blockers) is (checks["integrity_verified"] == "BLOCKED")
+    assert ("wheelhouse_verified" in blockers) is (checks["wheelhouse_verified"] == "BLOCKED")
     assert gate["safe_mode"] is True
     assert gate["qwen2_5_blocked"] is True
     assert gate["qwen3_blocked"] is True

@@ -1,12 +1,19 @@
 from __future__ import annotations
 
+import json
 import re
+
+from agentic_engineering_network.orchestration.saas_templates import (
+    SaasTemplate,
+    resolve_saas_template,
+)
 
 
 def build_full_stack_project_artifacts(idea: str, run_id: str) -> dict[str, str]:
     slug = _slugify(idea)
     base = f"{slug}-{run_id[:8]}"
-    product_name = _product_name(idea)
+    template = resolve_saas_template(idea)
+    product_name = template.name
     return {
         f"{base}/README.md": _readme(product_name, idea),
         f"{base}/.github/workflows/ci.yml": _github_ci(),
@@ -27,23 +34,36 @@ def build_full_stack_project_artifacts(idea: str, run_id: str) -> dict[str, str]
         f"{base}/apps/api/app/workflows.py": _api_workflows(),
         f"{base}/apps/api/app/integrations.py": _api_integrations(),
         f"{base}/apps/api/app/domain.py": _api_domain_blueprint(product_name),
-        f"{base}/apps/api/app/main.py": _api_main(product_name),
+        f"{base}/apps/api/app/domain_config.py": _api_domain_config(template),
+        f"{base}/apps/api/app/domain_models.py": _api_domain_models(),
+        f"{base}/apps/api/app/domain_schemas.py": _api_domain_schemas(),
+        f"{base}/apps/api/app/domain_router.py": _api_domain_router(template),
+        f"{base}/apps/api/app/domain_seed.py": _api_domain_seed(template),
+        f"{base}/apps/api/app/main.py": _api_main(product_name, template.id),
         f"{base}/apps/api/migrations/env.py": _alembic_env(),
         f"{base}/apps/api/migrations/script.py.mako": _alembic_script(),
         f"{base}/apps/api/migrations/versions/0001_initial.py": _alembic_initial_revision(),
+        f"{base}/apps/api/migrations/versions/0002_domain_records.py": _alembic_domain_revision(),
         f"{base}/apps/api/tests/test_health.py": _api_test_health(),
+        f"{base}/apps/api/tests/test_domain_contract.py": _api_test_domain_contract(template),
+        f"{base}/apps/api/tests/test_domain_api.py": _api_test_domain_api(template),
         f"{base}/apps/desktop/package.json": _desktop_package(product_name),
         f"{base}/apps/desktop/src/main.js": _desktop_main(product_name),
         f"{base}/apps/web/Dockerfile": _web_dockerfile(),
+        f"{base}/apps/web/Dockerfile.e2e": _web_e2e_dockerfile(),
         f"{base}/apps/web/package.json": _web_package(),
         f"{base}/apps/web/next.config.ts": _web_next_config(),
+        f"{base}/apps/web/playwright.config.ts": _web_playwright_config(),
+        f"{base}/apps/web/vitest.config.ts": _web_vitest_config(),
         f"{base}/apps/web/tsconfig.json": _web_tsconfig(),
         f"{base}/apps/web/src/app/globals.css": _web_globals(),
-        f"{base}/apps/web/src/app/layout.tsx": _web_layout(product_name),
-        f"{base}/apps/web/src/app/page.tsx": _web_page(product_name),
+        f"{base}/apps/web/src/app/layout.tsx": _web_layout(product_name, template.description),
+        f"{base}/apps/web/src/app/page.tsx": _web_page(product_name, template),
         f"{base}/apps/web/src/lib/api.ts": _web_api(),
-        f"{base}/apps/web/tests/workbench.spec.ts": _web_e2e(product_name),
-        f"{base}/database/schema.sql": _schema_sql(),
+        f"{base}/apps/web/src/lib/domain.test.ts": _web_domain_test(),
+        f"{base}/apps/web/src/lib/domain.ts": _web_domain_helpers(),
+        f"{base}/apps/web/tests/workbench.spec.ts": _web_e2e(product_name, template),
+        f"{base}/database/schema.sql": _schema_sql() + _domain_schema_sql(),
         f"{base}/docs/SPEC.md": _spec(product_name, idea),
         f"{base}/docs/ARCHITECTURE.md": _architecture(product_name),
         f"{base}/docs/DOMAIN_MODEL.md": _domain_model_doc(product_name),
@@ -60,16 +80,6 @@ def build_full_stack_project_artifacts(idea: str, run_id: str) -> dict[str, str]
 def _slugify(value: str) -> str:
     slug = re.sub(r"[^a-zA-Z0-9]+", "-", value.lower()).strip("-")
     return slug[:60] or "generated-project"
-
-
-def _product_name(idea: str) -> str:
-    if "crm" in idea.lower():
-        return "SaaS CRM"
-    if "ecommerce" in idea.lower() or "commerce" in idea.lower():
-        return "Ecommerce Platform"
-    if "social" in idea.lower():
-        return "Social App"
-    return "Generated SaaS App"
 
 
 def _readme(product_name: str, idea: str) -> str:
@@ -187,10 +197,23 @@ def _compose() -> str:
       context: ./apps/web
     environment:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:18000}
+      NEXT_TELEMETRY_DISABLED: "1"
     ports:
       - "${WEB_PORT:-13000}:3000"
     depends_on:
       - api
+
+  e2e:
+    profiles: ["test"]
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile.e2e
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:18000}
+      NEXT_TELEMETRY_DISABLED: "1"
+    volumes:
+      - ./apps/web/test-results:/app/test-results
+      - ./apps/web/playwright-report:/app/playwright-report
 
 volumes:
   postgres-data:
@@ -206,7 +229,8 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/app
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN python -m pip install --no-cache-dir --upgrade "pip>=26.1.2" \
+    && python -m pip install --no-cache-dir -r requirements.txt
 
 COPY alembic.ini ./alembic.ini
 COPY migrations ./migrations
@@ -230,6 +254,7 @@ PyJWT>=2.8.0
 stripe>=12.0.0
 pytest>=8.0.0
 httpx>=0.27.0
+pip-audit>=2.9.0
 """
 
 
@@ -644,19 +669,26 @@ def _api_rbac() -> str:
     return '''from __future__ import annotations
 
 from collections.abc import Callable
+from dataclasses import dataclass
 from typing import Annotated
 
-from fastapi import Header, HTTPException, status
+from fastapi import Depends, Header, HTTPException, status
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
+from .database import get_db
+from .models import Membership, User
+from .security import decode_token
+from .tenancy import TenantContext, require_tenant
 
-RoleHeader = Annotated[str | None, Header(alias="X-Role")]
+AuthorizationHeader = Annotated[str | None, Header(alias="Authorization")]
 
 ROLE_PERMISSIONS: dict[str, set[str]] = {
     "owner": {"*"},
-    "admin": {"billing:*", "tenant:*", "crm:*", "workflow:*", "integration:*", "dashboard:*"},
-    "manager": {"crm:*", "workflow:read", "dashboard:*"},
-    "contributor": {"crm:write", "crm:read", "dashboard:read"},
-    "viewer": {"crm:read", "dashboard:read"},
+    "admin": {"billing:*", "tenant:*", "crm:*", "domain:*", "workflow:*", "integration:*", "dashboard:*"},
+    "manager": {"crm:*", "domain:*", "workflow:read", "dashboard:*"},
+    "contributor": {"crm:write", "crm:read", "domain:write", "domain:read", "dashboard:read"},
+    "viewer": {"crm:read", "domain:read", "dashboard:read"},
 }
 
 
@@ -666,15 +698,51 @@ def has_permission(role: str, permission: str) -> bool:
     return "*" in grants or permission in grants or f"{namespace}:*" in grants
 
 
-def require_permission(permission: str) -> Callable[[RoleHeader], str]:
-    def dependency(role: RoleHeader = "viewer") -> str:
-        selected_role = role or "viewer"
-        if not has_permission(selected_role, permission):
+@dataclass(frozen=True)
+class Principal:
+    user_id: str
+    tenant_id: str | None
+    role: str | None
+
+
+def _token_subject(authorization: str | None) -> str:
+    if not authorization or not authorization.lower().startswith("bearer "):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Bearer token is required.")
+    try:
+        return decode_token(authorization.split(" ", 1)[1])
+    except (TypeError, ValueError) as exc:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Bearer token is invalid.") from exc
+
+
+def require_authenticated_user(
+    authorization: AuthorizationHeader = None,
+    db: Session = Depends(get_db),
+) -> Principal:
+    user_id = _token_subject(authorization)
+    if db.scalar(select(User.id).where(User.id == user_id)) is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authenticated user no longer exists.")
+    return Principal(user_id=user_id, tenant_id=None, role=None)
+
+
+def require_permission(permission: str) -> Callable[..., Principal]:
+    def dependency(
+        tenant: TenantContext = Depends(require_tenant),
+        authorization: AuthorizationHeader = None,
+        db: Session = Depends(get_db),
+    ) -> Principal:
+        user_id = _token_subject(authorization)
+        membership = db.scalar(
+            select(Membership).where(
+                Membership.user_id == user_id,
+                Membership.tenant_id == tenant.tenant_id,
+            )
+        )
+        if membership is None or not has_permission(membership.role, permission):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Role '{selected_role}' does not have permission '{permission}'.",
+                detail="Tenant permission denied.",
             )
-        return selected_role
+        return Principal(user_id=user_id, tenant_id=tenant.tenant_id, role=membership.role)
 
     return dependency
 '''
@@ -901,7 +969,7 @@ async def signed_webhook(provider: str, request: Request, x_signature: str | Non
 '''
 
 
-def _api_main(product_name: str) -> str:
+def _api_main(product_name: str, domain_id: str) -> str:
     return f'''from __future__ import annotations
 
 import os
@@ -913,9 +981,10 @@ from sqlalchemy.orm import Session
 
 from .database import Base, engine, get_db
 from .billing import router as billing_router
+from .domain_router import router as domain_router
 from .integrations import router as integrations_router
 from .models import Account, Activity, Contact, Deal, Membership, Tenant, User
-from .rbac import require_permission
+from .rbac import Principal, require_authenticated_user, require_permission
 from .security_headers import security_headers_middleware
 from .schemas import AccountCreate, AccountRead, ActivityCreate, ActivityRead, AuthResponse, ContactCreate, ContactRead, DashboardMetrics, DealCreate, DealRead, LoginRequest
 from .security import decode_token, hash_password, issue_token, verify_password
@@ -933,6 +1002,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(billing_router)
+app.include_router(domain_router)
 app.include_router(workflows_router)
 app.include_router(integrations_router)
 
@@ -967,8 +1037,20 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)) -> AuthResponse:
 
 
 @app.get("/tenants", response_model=list[dict[str, str]])
-def list_tenants(db: Session = Depends(get_db), role: str = Depends(require_permission("tenant:read"))) -> list[dict[str, str]]:
-    return [{{"id": tenant.id, "name": tenant.name, "slug": tenant.slug}} for tenant in db.scalars(select(Tenant).order_by(Tenant.created_at.desc())).all()]
+def list_tenants(
+    db: Session = Depends(get_db),
+    principal: Principal = Depends(require_authenticated_user),
+) -> list[dict[str, str]]:
+    query = (
+        select(Tenant)
+        .join(Membership, Membership.tenant_id == Tenant.id)
+        .where(Membership.user_id == principal.user_id)
+        .order_by(Tenant.created_at.desc())
+    )
+    return [
+        {{"id": tenant.id, "name": tenant.name, "slug": tenant.slug}}
+        for tenant in db.scalars(query).all()
+    ]
 
 
 @app.get("/dashboard", response_model=DashboardMetrics)
@@ -1097,7 +1179,7 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 
 from app.database import Base
-from app import models  # noqa: F401
+from app import domain_models, models  # noqa: F401
 
 
 config = context.config
@@ -1437,6 +1519,19 @@ CMD ["npm", "run", "dev"]
 """
 
 
+def _web_e2e_dockerfile() -> str:
+    return """FROM mcr.microsoft.com/playwright:v1.57.0-noble
+
+WORKDIR /app
+COPY package.json package-lock.json* ./
+RUN npm install
+COPY . .
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+ENV NEXT_TELEMETRY_DISABLED=1
+CMD ["npm", "run", "e2e"]
+"""
+
+
 def _web_package() -> str:
     return '''{
   "name": "generated-crm-web",
@@ -1446,20 +1541,25 @@ def _web_package() -> str:
     "dev": "next dev -H 0.0.0.0",
     "build": "next build",
     "start": "next start -H 0.0.0.0",
+    "test": "vitest run",
     "e2e": "playwright test"
   },
   "dependencies": {
-    "@playwright/test": "^1.57.0",
     "lucide-react": "^0.562.0",
     "next": "^16.2.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
   "devDependencies": {
+    "@playwright/test": "1.57.0",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "typescript": "^5.9.0"
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0"
+  },
+  "overrides": {
+    "postcss": "8.5.20"
   }
 }
 '''
@@ -1468,10 +1568,40 @@ def _web_package() -> str:
 def _web_next_config() -> str:
     return """import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {};
+const nextConfig: NextConfig = { allowedDevOrigins: ["127.0.0.1"] };
 
 export default nextConfig;
 """
+
+
+def _web_vitest_config() -> str:
+    return '''import { defineConfig } from "vitest/config";
+
+export default defineConfig({
+  test: {
+    include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
+    exclude: ["tests/**", "node_modules/**", ".next/**"],
+  },
+});
+'''
+
+
+def _web_playwright_config() -> str:
+    return '''import { defineConfig } from "@playwright/test";
+
+export default defineConfig({
+  testDir: "./tests",
+  outputDir: "./test-results",
+  reporter: [["line"], ["html", { outputFolder: "playwright-report", open: "never" }]],
+  use: { baseURL: "http://127.0.0.1:3000", headless: true, screenshot: "on", trace: "retain-on-failure" },
+  webServer: {
+    command: "npm run dev",
+    url: "http://127.0.0.1:3000",
+    reuseExistingServer: true,
+    timeout: 120_000
+  }
+});
+'''
 
 
 def _web_tsconfig() -> str:
@@ -1529,12 +1659,12 @@ button, input { font: inherit; }
 """
 
 
-def _web_layout(product_name: str) -> str:
+def _web_layout(product_name: str, description: str) -> str:
     return f'''import "./globals.css";
 
 export const metadata = {{
   title: "{product_name}",
-  description: "Generated CRM workspace"
+  description: {json.dumps(description)}
 }};
 
 export default function RootLayout({{ children }}: {{ children: React.ReactNode }}) {{
@@ -1547,89 +1677,125 @@ export default function RootLayout({{ children }}: {{ children: React.ReactNode 
 '''
 
 
-def _web_page(product_name: str) -> str:
-    return f'''"use client";
+def _web_page(product_name: str, template: SaasTemplate) -> str:
+    primary_entity = "deal" if template.id == "crm" else template.core_entities[0]
+    source = '''"use client";
 
-import {{ Activity, Building2, CircleDollarSign, Contact, GitBranch, ShieldCheck, Users, Workflow }} from "lucide-react";
+import { useMemo, useState } from "react";
+import { Activity, Building2, CircleDollarSign, Database, GitBranch, Plus, ShieldCheck, Workflow } from "lucide-react";
 
-const metrics = [
-  {{ label: "Accounts", value: "128", icon: Building2 }},
-  {{ label: "Contacts", value: "842", icon: Contact }},
-  {{ label: "Open Deals", value: "37", icon: Users }},
-  {{ label: "MRR", value: "$42.6k", icon: CircleDollarSign }},
-  {{ label: "Workflow Runs", value: "1,284", icon: Workflow }},
-  {{ label: "Compliance Events", value: "9,841", icon: ShieldCheck }}
-];
+const productName = __PRODUCT_NAME__;
+const description = __DESCRIPTION__;
+const domainId = __DOMAIN_ID__;
+const entities: string[] = __ENTITIES__;
+const workflows: string[] = __WORKFLOWS__;
+const integrations: string[] = __INTEGRATIONS__;
+const primaryEntity = __PRIMARY_ENTITY__;
+const primaryActionLabel = __PRIMARY_ACTION_LABEL__;
 
-const stages = [
-  {{ name: "Qualified", deals: ["Acme expansion", "Northwind onboarding"] }},
-  {{ name: "Proposal", deals: ["Globex annual plan", "Initech migration"] }},
-  {{ name: "Negotiation", deals: ["Umbrella enterprise"] }},
-  {{ name: "Won", deals: ["Stark support renewal"] }}
-];
+type DemoRecord = { id: number; entity: string; name: string; status: string };
+
+const initialRecords: DemoRecord[] = entities.map((entity, index) => ({
+  id: index + 1,
+  entity,
+  name: `Demo ${entity.replaceAll("_", " ")}`,
+  status: index % 3 === 0 ? "review" : "active"
+}));
 
 const operatingModules = [
-  {{ title: "Tenant isolation", detail: "Every CRM query is scoped by X-Tenant-ID.", icon: Building2 }},
-  {{ title: "Granular RBAC", detail: "Owner, admin, manager, contributor, and viewer roles.", icon: ShieldCheck }},
-  {{ title: "Stripe billing", detail: "Checkout, portal, and signed webhook endpoints.", icon: CircleDollarSign }},
-  {{ title: "Workflow engine", detail: "Rule/action automations for domain events.", icon: Workflow }},
-  {{ title: "Integrations", detail: "Signed webhooks and provider connection boundaries.", icon: GitBranch }},
-  {{ title: "Audit trail", detail: "Security and business activity are compliance-ready.", icon: Activity }}
+  { title: "Tenant isolation", detail: "Every domain query is scoped by authenticated tenant membership.", icon: Building2 },
+  { title: "Granular RBAC", detail: "Owner, admin, manager, contributor, and viewer permissions.", icon: ShieldCheck },
+  { title: "Subscription billing", detail: "Stripe checkout, portal, and signed webhook boundaries.", icon: CircleDollarSign },
+  { title: "Workflow engine", detail: workflows.join(", "), icon: Workflow },
+  { title: "Integrations", detail: integrations.join(", "), icon: GitBranch },
+  { title: "Audit trail", detail: "Tenant, identity, and business events retain actor context.", icon: Activity }
 ];
 
-export default function Home() {{
+export default function Home() {
+  const [records, setRecords] = useState(initialRecords);
+  const [query, setQuery] = useState("");
+  const filtered = useMemo(
+    () => records.filter((record) => `${record.entity} ${record.name} ${record.status}`.toLowerCase().includes(query.toLowerCase())),
+    [query, records]
+  );
+
+  function addRecord() {
+    setRecords((current) => [
+      ...current,
+      { id: Date.now(), entity: primaryEntity, name: `New ${primaryEntity.replaceAll("_", " ")}`, status: "draft" }
+    ]);
+  }
+
   return (
     <main className="shell">
       <aside className="sidebar">
-        <h1>{product_name}</h1>
-        <p>Premium multi-tenant SaaS operations: CRM, billing, workflows, integrations, RBAC, and compliance.</p>
+        <h1>{productName}</h1>
+        <p>{description}</p>
         <div className="tenant-pill">Tenant: enterprise-demo</div>
+        <p>Domain API: /{domainId}</p>
       </aside>
       <section className="main">
         <div className="toolbar">
-          <input aria-label="Search CRM" placeholder="Search accounts, contacts, deals..." />
-          <button type="button">New workflow</button>
-          <button type="button">New deal</button>
+          <input
+            aria-label={`Search ${productName}`}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder={`Search ${entities.slice(0, 3).join(", ")}...`}
+            value={query}
+          />
+          <button type="button" onClick={addRecord}><Plus size={16} /> {primaryActionLabel}</button>
         </div>
         <div className="grid">
-          {{metrics.map((metric) => {{
-            const Icon = metric.icon;
-            return (
-              <article className="card" key={{metric.label}}>
-                <Icon size={{18}} />
-                <h2>{{metric.value}}</h2>
-                <p>{{metric.label}}</p>
-              </article>
-            );
-          }})}}
+          {entities.slice(0, 6).map((entity) => (
+            <article className="card" key={entity}>
+              <Database size={18} />
+              <h2>{records.filter((record) => record.entity === entity).length}</h2>
+              <p>{entity.replaceAll("_", " ")}</p>
+            </article>
+          ))}
         </div>
         <div className="modules">
-          {{operatingModules.map((module) => {{
+          {operatingModules.map((module) => {
             const Icon = module.icon;
             return (
-              <article className="module" key={{module.title}}>
-                <Icon size={{18}} />
-                <div>
-                  <h2>{{module.title}}</h2>
-                  <p>{{module.detail}}</p>
-                </div>
+              <article className="module" key={module.title}>
+                <Icon size={18} />
+                <div><h2>{module.title}</h2><p>{module.detail}</p></div>
               </article>
             );
-          }})}}
+          })}
         </div>
-        <div className="pipeline">
-          {{stages.map((stage) => (
-            <section className="stage" key={{stage.name}}>
-              <h2>{{stage.name}}</h2>
-              {{stage.deals.map((deal) => <div className="deal" key={{deal}}>{{deal}}</div>)}}
+        <div className="pipeline" aria-label={`${productName} records`}>
+          {entities.slice(0, 4).map((entity) => (
+            <section className="stage" key={entity}>
+              <h2>{entity.replaceAll("_", " ")}</h2>
+              {filtered.filter((record) => record.entity === entity).map((record) => (
+                <button
+                  className="deal"
+                  key={record.id}
+                  onClick={() => setRecords((current) => current.map((item) => item.id === record.id ? { ...item, status: "active" } : item))}
+                  type="button"
+                >
+                  {record.name} · {record.status}
+                </button>
+              ))}
             </section>
-          ))}}
+          ))}
         </div>
       </section>
     </main>
   );
-}}
+}
 '''
+    return (
+        source.replace("__PRODUCT_NAME__", json.dumps(product_name))
+        .replace("__DESCRIPTION__", json.dumps(template.description))
+        .replace("__DOMAIN_ID__", json.dumps(template.id))
+        .replace("__ENTITIES__", json.dumps(template.core_entities))
+        .replace("__WORKFLOWS__", json.dumps(template.workflows))
+        .replace("__INTEGRATIONS__", json.dumps(template.integrations))
+        .replace("__PRIMARY_ENTITY__", json.dumps(primary_entity))
+        .replace("__PRIMARY_ACTION_LABEL__", json.dumps(f"New {primary_entity}"))
+    )
 
 
 def _web_api() -> str:
@@ -1643,13 +1809,56 @@ export async function getDashboard() {
 '''
 
 
-def _web_e2e(product_name: str) -> str:
+def _web_domain_helpers() -> str:
+    return '''export type DomainRecord = { id: number; entity: string; name: string; status: string };
+
+export function normalizeEntityLabel(entity: string): string {
+  return entity.replaceAll("_", " ").replace(/\\b\\w/g, (letter) => letter.toUpperCase());
+}
+
+export function countByEntity(records: DomainRecord[], entity: string): number {
+  return records.filter((record) => record.entity === entity).length;
+}
+
+export function filterRecords(records: DomainRecord[], query: string): DomainRecord[] {
+  const normalized = query.trim().toLowerCase();
+  if (!normalized) return records;
+  return records.filter((record) =>
+    `${record.entity} ${record.name} ${record.status}`.toLowerCase().includes(normalized)
+  );
+}
+'''
+
+
+def _web_domain_test() -> str:
+    return '''import { describe, expect, it } from "vitest";
+
+import { countByEntity, filterRecords, normalizeEntityLabel } from "./domain";
+
+const records = [
+  { id: 1, entity: "account", name: "Acme", status: "active" },
+  { id: 2, entity: "deal", name: "Renewal", status: "review" }
+];
+
+describe("domain helpers", () => {
+  it("normalizes entity labels", () => expect(normalizeEntityLabel("usage_event")).toBe("Usage Event"));
+  it("counts tenant records by entity", () => expect(countByEntity(records, "deal")).toBe(1));
+  it("filters records by business fields", () => expect(filterRecords(records, "renew")).toEqual([records[1]]));
+});
+'''
+
+
+def _web_e2e(product_name: str, template: SaasTemplate) -> str:
+    primary_entity = "deal" if template.id == "crm" else template.core_entities[0]
     return f'''import {{ expect, test }} from "@playwright/test";
 
-test("loads CRM dashboard", async ({{ page }}) => {{
+test("loads domain dashboard and creates a record", async ({{ page }}) => {{
   await page.goto("/");
   await expect(page.getByText("{product_name}")).toBeVisible();
-  await expect(page.getByRole("button", {{ name: "New deal" }})).toBeVisible();
+  const create = page.getByRole("button", {{ name: "New {primary_entity}" }});
+  await expect(create).toBeVisible();
+  await create.click();
+  await expect(page.getByRole("button", {{ name: "New {primary_entity} · draft", exact: true }})).toBeVisible();
 }});
 '''
 
@@ -2021,6 +2230,479 @@ DOMAIN_CAPABILITIES = {{
         "dependency scanning",
     ],
 }}
+'''
+
+
+def _api_domain_config(template: SaasTemplate) -> str:
+    return f'''"""Generated, deterministic product-domain contract."""
+
+DOMAIN_ID = {json.dumps(template.id)}
+DOMAIN_NAME = {json.dumps(template.name)}
+DOMAIN_DESCRIPTION = {json.dumps(template.description)}
+ENTITIES = {json.dumps(template.core_entities, indent=4)}
+WORKFLOWS = {json.dumps(template.workflows, indent=4)}
+INTEGRATIONS = {json.dumps(template.integrations, indent=4)}
+ENTITY_TYPES = frozenset(ENTITIES)
+'''
+
+
+def _api_domain_models() -> str:
+    return '''from __future__ import annotations
+
+from datetime import datetime, timezone
+from typing import Any
+from uuid import uuid4
+
+from sqlalchemy import DateTime, ForeignKey, Index, JSON, String
+from sqlalchemy.orm import Mapped, mapped_column
+
+from .database import Base
+
+
+class DomainRecord(Base):
+    __tablename__ = "domain_records"
+    __table_args__ = (
+        Index("ix_domain_records_tenant_entity", "tenant_id", "entity_type"),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
+    tenant_id: Mapped[str] = mapped_column(
+        ForeignKey("tenants.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    entity_type: Mapped[str] = mapped_column(String(80), index=True, nullable=False)
+    name: Mapped[str] = mapped_column(String(180), nullable=False)
+    status: Mapped[str] = mapped_column(String(80), default="active", nullable=False)
+    payload: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
+    created_by: Mapped[str] = mapped_column(
+        ForeignKey("users.id", ondelete="RESTRICT"), nullable=False
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )
+'''
+
+
+def _api_domain_schemas() -> str:
+    return '''from __future__ import annotations
+
+from datetime import datetime
+from typing import Any
+
+from pydantic import BaseModel, Field
+
+
+class DomainRecordCreate(BaseModel):
+    name: str = Field(min_length=2, max_length=180)
+    status: str = Field(default="active", min_length=2, max_length=80)
+    payload: dict[str, Any] = Field(default_factory=dict)
+
+
+class DomainRecordUpdate(BaseModel):
+    name: str | None = Field(default=None, min_length=2, max_length=180)
+    status: str | None = Field(default=None, min_length=2, max_length=80)
+    payload: dict[str, Any] | None = None
+
+
+class DomainRecordRead(DomainRecordCreate):
+    id: str
+    tenant_id: str
+    entity_type: str
+    created_by: str
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class DomainDashboard(BaseModel):
+    domain: str
+    tenant_id: str
+    counts: dict[str, int]
+    workflows: list[str]
+    integrations: list[str]
+'''
+
+
+def _api_domain_router(template: SaasTemplate) -> str:
+    return f'''"""Tenant-scoped {template.name} API with authenticated RBAC boundaries."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, Header, HTTPException, Response, status
+from sqlalchemy import func, select
+from sqlalchemy.orm import Session
+
+from .database import get_db
+from .domain_config import DOMAIN_ID, ENTITIES, ENTITY_TYPES, INTEGRATIONS, WORKFLOWS
+from .domain_models import DomainRecord
+from .domain_schemas import DomainDashboard, DomainRecordCreate, DomainRecordRead, DomainRecordUpdate
+from .models import Membership
+from .rbac import has_permission
+from .security import decode_token
+from .tenancy import TenantContext, require_tenant
+
+
+router = APIRouter(prefix=f"/{{DOMAIN_ID}}", tags=[DOMAIN_ID])
+AuthorizationHeader = Annotated[str | None, Header(alias="Authorization")]
+
+
+@dataclass(frozen=True)
+class DomainPrincipal:
+    user_id: str
+    tenant_id: str
+    role: str
+
+
+def require_domain_permission(permission: str):
+    def dependency(
+        tenant: TenantContext = Depends(require_tenant),
+        authorization: AuthorizationHeader = None,
+        db: Session = Depends(get_db),
+    ) -> DomainPrincipal:
+        if not authorization or not authorization.lower().startswith("bearer "):
+            raise HTTPException(status_code=401, detail="Bearer token is required.")
+        try:
+            user_id = decode_token(authorization.split(" ", 1)[1])
+        except (TypeError, ValueError) as exc:
+            raise HTTPException(status_code=401, detail="Bearer token is invalid.") from exc
+        membership = db.scalar(
+            select(Membership).where(
+                Membership.user_id == user_id,
+                Membership.tenant_id == tenant.tenant_id,
+            )
+        )
+        if membership is None or not has_permission(membership.role, permission):
+            raise HTTPException(status_code=403, detail="Tenant permission denied.")
+        return DomainPrincipal(user_id=user_id, tenant_id=tenant.tenant_id, role=membership.role)
+
+    return dependency
+
+
+def _validate_entity(entity_type: str) -> str:
+    if entity_type not in ENTITY_TYPES:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Unknown {{DOMAIN_ID}} entity '{{entity_type}}'. Allowed: {{', '.join(ENTITIES)}}",
+        )
+    return entity_type
+
+
+def _record_or_404(db: Session, principal: DomainPrincipal, entity_type: str, record_id: str) -> DomainRecord:
+    record = db.scalar(
+        select(DomainRecord).where(
+            DomainRecord.id == record_id,
+            DomainRecord.tenant_id == principal.tenant_id,
+            DomainRecord.entity_type == entity_type,
+        )
+    )
+    if record is None:
+        raise HTTPException(status_code=404, detail="Domain record not found in tenant.")
+    return record
+
+
+@router.get("/contract")
+def domain_contract() -> dict[str, object]:
+    return {{
+        "domain": DOMAIN_ID,
+        "entities": ENTITIES,
+        "workflows": WORKFLOWS,
+        "integrations": INTEGRATIONS,
+    }}
+
+
+@router.post("/records/{{entity_type}}", response_model=DomainRecordRead, status_code=201)
+def create_record(
+    entity_type: str,
+    payload: DomainRecordCreate,
+    principal: DomainPrincipal = Depends(require_domain_permission("domain:write")),
+    db: Session = Depends(get_db),
+) -> DomainRecord:
+    selected = _validate_entity(entity_type)
+    record = DomainRecord(
+        tenant_id=principal.tenant_id,
+        entity_type=selected,
+        created_by=principal.user_id,
+        **payload.model_dump(),
+    )
+    db.add(record)
+    db.commit()
+    db.refresh(record)
+    return record
+
+
+@router.get("/records/{{entity_type}}", response_model=list[DomainRecordRead])
+def list_records(
+    entity_type: str,
+    principal: DomainPrincipal = Depends(require_domain_permission("domain:read")),
+    db: Session = Depends(get_db),
+) -> list[DomainRecord]:
+    selected = _validate_entity(entity_type)
+    query = (
+        select(DomainRecord)
+        .where(
+            DomainRecord.tenant_id == principal.tenant_id,
+            DomainRecord.entity_type == selected,
+        )
+        .order_by(DomainRecord.updated_at.desc())
+    )
+    return list(db.scalars(query).all())
+
+
+@router.get("/records/{{entity_type}}/{{record_id}}", response_model=DomainRecordRead)
+def get_record(
+    entity_type: str,
+    record_id: str,
+    principal: DomainPrincipal = Depends(require_domain_permission("domain:read")),
+    db: Session = Depends(get_db),
+) -> DomainRecord:
+    return _record_or_404(db, principal, _validate_entity(entity_type), record_id)
+
+
+@router.patch("/records/{{entity_type}}/{{record_id}}", response_model=DomainRecordRead)
+def update_record(
+    entity_type: str,
+    record_id: str,
+    payload: DomainRecordUpdate,
+    principal: DomainPrincipal = Depends(require_domain_permission("domain:write")),
+    db: Session = Depends(get_db),
+) -> DomainRecord:
+    record = _record_or_404(db, principal, _validate_entity(entity_type), record_id)
+    for field, value in payload.model_dump(exclude_unset=True).items():
+        setattr(record, field, value)
+    record.updated_at = datetime.now(timezone.utc)
+    db.commit()
+    db.refresh(record)
+    return record
+
+
+@router.delete("/records/{{entity_type}}/{{record_id}}", status_code=204)
+def delete_record(
+    entity_type: str,
+    record_id: str,
+    principal: DomainPrincipal = Depends(require_domain_permission("domain:write")),
+    db: Session = Depends(get_db),
+) -> Response:
+    record = _record_or_404(db, principal, _validate_entity(entity_type), record_id)
+    db.delete(record)
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.get("/dashboard", response_model=DomainDashboard)
+def domain_dashboard(
+    principal: DomainPrincipal = Depends(require_domain_permission("domain:read")),
+    db: Session = Depends(get_db),
+) -> DomainDashboard:
+    rows = db.execute(
+        select(DomainRecord.entity_type, func.count(DomainRecord.id))
+        .where(DomainRecord.tenant_id == principal.tenant_id)
+        .group_by(DomainRecord.entity_type)
+    ).all()
+    observed = {{entity_type: int(count) for entity_type, count in rows}}
+    return DomainDashboard(
+        domain=DOMAIN_ID,
+        tenant_id=principal.tenant_id,
+        counts={{entity: observed.get(entity, 0) for entity in ENTITIES}},
+        workflows=WORKFLOWS,
+        integrations=INTEGRATIONS,
+    )
+'''
+
+
+def _api_domain_seed(template: SaasTemplate) -> str:
+    seed_rows = [
+        {"entity_type": entity, "name": f"Demo {entity.replace('_', ' ').title()}", "status": "active"}
+        for entity in template.core_entities
+    ]
+    return f'''"""Idempotent seed definitions for local development."""
+
+from typing import Any
+
+SEED_ROWS: list[dict[str, Any]] = {json.dumps(seed_rows, indent=4)}
+
+
+def seed_records() -> list[dict[str, Any]]:
+    return [dict(item) for item in SEED_ROWS]
+'''
+
+
+def _api_test_domain_contract(template: SaasTemplate) -> str:
+    return f'''from app.domain_config import DOMAIN_ID, ENTITIES, INTEGRATIONS, WORKFLOWS
+from app.domain_seed import seed_records
+
+
+def test_domain_contract_is_specific() -> None:
+    assert DOMAIN_ID == {json.dumps(template.id)}
+    assert len(ENTITIES) >= 5
+    assert len(WORKFLOWS) >= 3
+    assert len(INTEGRATIONS) >= 3
+
+
+def test_seed_covers_each_domain_entity() -> None:
+    assert {{item["entity_type"] for item in seed_records()}} == set(ENTITIES)
+'''
+
+
+def _api_test_domain_api(template: SaasTemplate) -> str:
+    entity_type = json.dumps(template.core_entities[0])
+    domain_id = json.dumps(template.id)
+    return f'''from uuid import uuid4
+
+from fastapi.testclient import TestClient
+from sqlalchemy import select
+
+from app.database import Base, SessionLocal, engine
+from app.main import app
+from app.models import Membership, Tenant
+
+
+client = TestClient(app)
+DOMAIN_ID = {domain_id}
+ENTITY_TYPE = {entity_type}
+
+
+def setup_module() -> None:
+    Base.metadata.create_all(bind=engine)
+
+
+def _register_owner() -> tuple[str, str]:
+    unique = uuid4().hex
+    response = client.post(
+        "/auth/register",
+        json={{"email": f"owner-{{unique}}@example.com", "password": "correct-horse-battery-staple"}},
+    )
+    assert response.status_code == 201
+    token = response.json()["access_token"]
+    tenants = client.get("/tenants", headers={{"Authorization": f"Bearer {{token}}"}})
+    assert tenants.status_code == 200
+    assert len(tenants.json()) == 1
+    return token, tenants.json()[0]["id"]
+
+
+def test_authenticated_tenant_scoped_crud_and_rbac() -> None:
+    token, tenant_id = _register_owner()
+    headers = {{"Authorization": f"Bearer {{token}}", "X-Tenant-ID": tenant_id}}
+    collection = f"/{{DOMAIN_ID}}/records/{{ENTITY_TYPE}}"
+
+    assert client.get(collection, headers={{"X-Tenant-ID": tenant_id}}).status_code == 401
+
+    created = client.post(
+        collection,
+        headers=headers,
+        json={{"name": "Verified domain record", "status": "active", "payload": {{"priority": 3}}}},
+    )
+    assert created.status_code == 201
+    record_id = created.json()["id"]
+    assert created.json()["tenant_id"] == tenant_id
+
+    listed = client.get(collection, headers=headers)
+    assert listed.status_code == 200
+    assert [item["id"] for item in listed.json()] == [record_id]
+
+    with SessionLocal() as db:
+        membership = db.scalar(select(Membership).where(Membership.tenant_id == tenant_id))
+        assert membership is not None
+        membership.role = "viewer"
+        outsider = Tenant(name="Isolated Workspace", slug=f"isolated-workspace-{{uuid4().hex}}")
+        db.add(outsider)
+        db.commit()
+        outsider_id = outsider.id
+
+    forbidden_write = client.post(
+        collection,
+        headers=headers,
+        json={{"name": "Must not be written"}},
+    )
+    assert forbidden_write.status_code == 403
+    assert client.get(collection, headers={{**headers, "X-Tenant-ID": outsider_id}}).status_code == 403
+
+    with SessionLocal() as db:
+        membership = db.scalar(select(Membership).where(Membership.tenant_id == tenant_id))
+        assert membership is not None
+        membership.role = "owner"
+        db.commit()
+
+    item_url = f"{{collection}}/{{record_id}}"
+    updated = client.patch(item_url, headers=headers, json={{"status": "approved"}})
+    assert updated.status_code == 200
+    assert updated.json()["status"] == "approved"
+
+    dashboard = client.get(f"/{{DOMAIN_ID}}/dashboard", headers=headers)
+    assert dashboard.status_code == 200
+    assert dashboard.json()["counts"][ENTITY_TYPE] == 1
+
+    deleted = client.delete(item_url, headers=headers)
+    assert deleted.status_code == 204
+    assert client.get(item_url, headers=headers).status_code == 404
+'''
+
+
+def _alembic_domain_revision() -> str:
+    return '''"""add tenant-scoped domain records
+
+Revision ID: 0002_domain_records
+Revises: 0001_initial
+"""
+
+from alembic import op
+import sqlalchemy as sa
+
+revision = "0002_domain_records"
+down_revision = "0001_initial"
+branch_labels = None
+depends_on = None
+
+
+def upgrade() -> None:
+    op.create_table(
+        "domain_records",
+        sa.Column("id", sa.String(length=36), primary_key=True),
+        sa.Column("tenant_id", sa.String(length=36), nullable=False),
+        sa.Column("entity_type", sa.String(length=80), nullable=False),
+        sa.Column("name", sa.String(length=180), nullable=False),
+        sa.Column("status", sa.String(length=80), nullable=False, server_default="active"),
+        sa.Column("payload", sa.JSON(), nullable=False),
+        sa.Column("created_by", sa.String(length=36), nullable=False),
+        sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
+        sa.ForeignKeyConstraint(["tenant_id"], ["tenants.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(["created_by"], ["users.id"], ondelete="RESTRICT"),
+    )
+    op.create_index("ix_domain_records_tenant_entity", "domain_records", ["tenant_id", "entity_type"])
+
+
+def downgrade() -> None:
+    op.drop_index("ix_domain_records_tenant_entity", table_name="domain_records")
+    op.drop_table("domain_records")
+'''
+
+
+def _domain_schema_sql() -> str:
+    return '''
+
+CREATE TABLE IF NOT EXISTS domain_records (
+  id VARCHAR(36) PRIMARY KEY,
+  tenant_id VARCHAR(36) NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+  entity_type VARCHAR(80) NOT NULL,
+  name VARCHAR(180) NOT NULL,
+  status VARCHAR(80) NOT NULL DEFAULT 'active',
+  payload JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_by VARCHAR(36) NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS ix_domain_records_tenant_entity
+  ON domain_records (tenant_id, entity_type);
 '''
 
 

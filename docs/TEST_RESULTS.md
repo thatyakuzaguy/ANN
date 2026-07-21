@@ -49,7 +49,7 @@ Release/installer/runtime/Docker focused suite
 ```
 
 ```text
-Final offline bundle
+Validated release-candidate offline bundle
 16,840 files
 4,396,125,162 bytes
 SHA-256 f334176cf3b0dd21c1a8526bd30de0feacb401dc76fcdb814d15574e9249f42b
@@ -60,6 +60,11 @@ Installed API health: PASSED
 Installed native Desktop: PASSED
 Bundled uninstall with zero residual files: PASSED
 ```
+
+Those values identify the release-candidate bundle used for the recorded
+installer smoke. For every published bundle, the normative current size and
+hashes are in `ANN_RELEASE_PARTS.json`, whose own checksum is published in
+`ANN_RELEASE_PARTS.sha256`.
 
 The stable source and unsigned portable distribution passed these local gates.
 Trusted-publisher Windows distribution still requires a real Authenticode

@@ -81,9 +81,11 @@ packaging, clean Docker image builds, and a live PostgreSQL/API/web Compose
 smoke. The release bundle is split into GitHub-compatible parts and protected
 by an aggregate manifest and per-file SHA-256 hashes.
 
-The final Windows offline archive is 4,396,125,162 bytes with aggregate
-SHA-256 `f334176cf3b0dd21c1a8526bd30de0feacb401dc76fcdb814d15574e9249f42b`.
-It is distributed as three parts no larger than 1.9 GB.
+The final Windows offline archive is distributed in parts no larger than
+1.9 GB. `ANN_RELEASE_PARTS.json` is the normative source for the aggregate
+archive size, archive SHA-256, individual part sizes, and per-part SHA-256
+values. Verify that manifest against `ANN_RELEASE_PARTS.sha256` before
+assembling or installing the release.
 
 Model weights are not Git-tracked or bundled. Users provide models separately,
 and the optional model-pack manifest records hashes without granting

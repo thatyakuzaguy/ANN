@@ -169,6 +169,28 @@ def test_model_registration_requires_license_acknowledgement_and_blocks_c_drive(
         )
 
 
+@pytest.mark.parametrize(
+    "raw_path",
+    [
+        r"\\server\share\model.gguf",
+        r"\\?\D:\models\model.gguf",
+        "//server/share/model.gguf",
+    ],
+)
+def test_model_setup_blocks_unc_network_and_device_paths(raw_path: str) -> None:
+    with pytest.raises(ValueError, match="UNC, network, and Windows device"):
+        model_setup._safe_local_path(raw_path, require_exists=False, directory=False)
+
+
+def test_managed_model_destination_cannot_escape_models_root() -> None:
+    root = _setup_root()
+    models_root = root / "models"
+    models_root.mkdir()
+
+    with pytest.raises(ValueError, match="single local path component"):
+        model_setup._managed_model_destination(models_root, "../outside.gguf")
+
+
 def test_atomic_configuration_write_does_not_leave_temporary_files() -> None:
     root = _setup_root()
     policy_path = root / "config" / "ann_model_policy.json"

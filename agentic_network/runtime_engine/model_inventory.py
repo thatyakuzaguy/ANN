@@ -13,7 +13,7 @@ from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Any
 
 from agentic_network.runtime_engine.backend_registry import list_available_backends
-from agentic_network.runtime_engine.model_policy import load_model_policy, validate_model_load_request
+from agentic_network.runtime_engine.model_policy import ModelPolicy, load_model_policy, validate_model_load_request
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -117,13 +117,15 @@ def load_model_inventory(config_path: str | Path | None = None) -> ModelInventor
     raw_models = payload.get("models")
     if not isinstance(raw_models, list):
         return ModelInventory(version=int(payload.get("version", 1)), models=[], errors=["inventory_models_not_list"], warnings=[])
+    adjacent_policy_path = path.with_name("ann_model_policy.json")
+    policy = load_model_policy(adjacent_policy_path if adjacent_policy_path.is_file() else None)
     records: list[ModelRecord] = []
     for item in raw_models:
         if not isinstance(item, dict):
             warnings.append("inventory_model_entry_not_object")
             continue
         record = _record_from_payload(item, inventory_path=path)
-        validation = validate_model_path(record)
+        validation = validate_model_path(record, policy=policy)
         records.append(
             ModelRecord(
                 model_name=record.model_name,
@@ -178,7 +180,7 @@ def resolve_model_record(model_name: str, config_path: str | Path | None = None)
     return None
 
 
-def validate_model_path(model_record: ModelRecord) -> ValidationResult:
+def validate_model_path(model_record: ModelRecord, *, policy: ModelPolicy | None = None) -> ValidationResult:
     """Validate one declared model path without opening model files."""
 
     errors: list[str] = []
@@ -214,8 +216,13 @@ def validate_model_path(model_record: ModelRecord) -> ValidationResult:
     exists = False if errors else Path(model_record.path).exists()
     adapter_exists = bool(adapter_path) and not errors and Path(str(adapter_path)).exists()
     backend_available = _backend_available(model_record.backend)
-    policy = load_model_policy()
-    decision = validate_model_load_request(model_record.name, model_record.backend, model_record.mode, policy=policy)
+    loaded_policy = policy or load_model_policy()
+    decision = validate_model_load_request(
+        model_record.name,
+        model_record.backend,
+        model_record.mode,
+        policy=loaded_policy,
+    )
     load_allowed = decision.allowed and exists and backend_available and model_record.enabled
     load_blocked_reason = "allowed_by_policy" if load_allowed else _load_blocked_reason(decision, exists, backend_available)
     if not model_record.enabled:

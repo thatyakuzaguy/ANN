@@ -18,6 +18,11 @@ export type EngineeringRun = {
   updated_at?: string | null;
   error?: string | null;
   pending_approvals: number;
+  recovery?: {
+    can_resume?: boolean;
+    requires_user_action?: boolean;
+    checkpoint?: string | null;
+  };
   execution_results?: Record<string, unknown> | null;
   tasks: Array<{
     title: string;
@@ -190,6 +195,38 @@ export type AgentOfficeState = {
   events: AgentOfficeEvent[];
 };
 
+export type LocalModelRecord = {
+  model_name: string;
+  name: string;
+  family: string;
+  mode: string;
+  backend: string;
+  path: string;
+  quantization: string;
+  size_bytes: number;
+  estimated_vram_mb: number;
+  enabled: boolean;
+  path_exists: boolean;
+  load_allowed: boolean;
+  load_blocked_reason: string;
+  status: string;
+};
+
+export type ModelSetupState = {
+  status: string;
+  root: string;
+  models_root: string;
+  models: LocalModelRecord[];
+  inventory_errors: string[];
+  inventory_warnings: string[];
+  runtime: {
+    backend: string;
+    allow_real_model_load: boolean;
+    vram_policy: string;
+    max_loaded_models: number;
+  };
+};
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const controller = init?.signal ? null : new AbortController();
   const timeout = controller
@@ -254,6 +291,23 @@ export const api = {
       local_model_path: string;
       notes: string[];
     }>("/settings"),
+  models: () => request<ModelSetupState>("/models"),
+  importModel: (input: {
+    source_path: string;
+    model_id: string;
+    family: string;
+    mode: "FAST" | "POWERFUL";
+    install_mode: "copy" | "hardlink";
+    expected_sha256?: string;
+    license_acknowledged: boolean;
+    confirmed: boolean;
+    risk_acknowledged: boolean;
+  }) => request<Record<string, unknown>>("/models/import", { method: "POST", body: JSON.stringify(input) }),
+  setModelRuntimePolicy: (enabled: boolean) =>
+    request<Record<string, unknown>>("/models/runtime-policy", {
+      method: "POST",
+      body: JSON.stringify({ enabled, confirmed: true, risk_acknowledged: true })
+    }),
   updateSettings: (input: { max_repair_attempts: number }) =>
     request<{ max_repair_attempts: number; requires_restart: boolean; message: string }>("/settings", {
       method: "POST",
@@ -297,6 +351,8 @@ export const api = {
   getRun: (runId: string) => request<EngineeringRun>(`/runs/${runId}`),
   createRun: (input: { idea: string; workspace_directory?: string; approval_mode?: "full" | "supervised" }) =>
     request<EngineeringRun>("/runs", { method: "POST", body: JSON.stringify(input) }),
+  resumeRun: (runId: string) =>
+    request<EngineeringRun>(`/runs/${runId}/resume`, { method: "POST" }),
   decideApproval: (approvalId: string, approved: boolean) =>
     request<Approval>(`/approvals/${approvalId}`, {
       method: "POST",

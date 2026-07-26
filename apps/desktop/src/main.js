@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, shell } = require("electron");
+const { app, BrowserWindow, Menu, dialog, ipcMain, shell } = require("electron");
 const { spawn } = require("child_process");
 const fs = require("fs");
 const http = require("http");
@@ -72,7 +72,8 @@ function createWindow() {
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
-      sandbox: true
+      sandbox: true,
+      preload: path.join(__dirname, "preload.js")
     }
   });
 
@@ -103,6 +104,22 @@ function createWindow() {
     mainWindow = null;
   });
 }
+
+ipcMain.handle("ann:select-model-file", async () => {
+  const result = await dialog.showOpenDialog(mainWindow, {
+    title: "Select a local GGUF model",
+    properties: ["openFile"],
+    filters: [{ name: "GGUF models", extensions: ["gguf"] }]
+  });
+  if (result.canceled || result.filePaths.length !== 1) {
+    return null;
+  }
+  const selected = path.resolve(result.filePaths[0]);
+  if (!/^[DE]:\\/i.test(selected) || path.extname(selected).toLowerCase() !== ".gguf") {
+    throw new Error("ANN accepts local GGUF files from D: or E: only.");
+  }
+  return selected;
+});
 
 function setAppMenu() {
   const template = [

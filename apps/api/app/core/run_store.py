@@ -107,6 +107,58 @@ class RunStore:
         records.sort(key=lambda record: record.created_at, reverse=True)
         return [self.serialize(record) for record in records[: max(1, min(limit, 100))]]
 
+    def resume(self, run_id: str) -> dict[str, Any]:
+        """Resume an explicitly recoverable run from its persisted lifecycle checkpoint.
+
+        ANN never resumes host-affecting work merely because the API restarted. The
+        user must request recovery, the generated proposal must already be persisted,
+        and all approval decisions must still be available.
+        """
+
+        record = self._record_for(run_id)
+        if record is None:
+            raise KeyError(run_id)
+        if record.status != "interrupted" or not isinstance(record.result, dict):
+            raise ValueError("Run does not have a recoverable persisted checkpoint.")
+        if self._has_rejection(run_id):
+            self._mark_blocked(run_id)
+            raise ValueError("Run cannot resume because an approval was rejected.")
+
+        pending = self._pending_count(run_id)
+        with self._lock:
+            current = self._records[run_id]
+            if current.status != "interrupted":
+                raise ValueError("Run recovery is already in progress or no longer available.")
+            if pending > 0:
+                current.status = "waiting_for_approval"
+                current.error = None
+                current.result["status"] = "waiting_for_approval"
+                current.result["error"] = None
+                current.result["pending_approvals"] = pending
+                self._persist_locked(current)
+                return self.serialize(current)
+            current.status = "running"
+            current.error = None
+            current.result["status"] = "running"
+            current.result["error"] = None
+            current.result["pending_approvals"] = 0
+            self._persist_locked(current)
+
+        self.network.audit.record(
+            "run.recovery_requested",
+            "user",
+            "User requested recovery from a persisted lifecycle checkpoint.",
+            {"run_id": run_id},
+        )
+        worker = Thread(
+            target=self._complete_after_approvals,
+            args=(run_id, "recovery"),
+            name=f"aen-recovery-{run_id[:8]}",
+            daemon=True,
+        )
+        worker.start()
+        return self.get(run_id) or self.serialize(record)
+
     def handle_approval_resolution(self, item: ApprovalRequest) -> None:
         run_id = item.payload.get("run_id")
         if not isinstance(run_id, str):
@@ -384,23 +436,45 @@ class RunStore:
                 continue
 
     def _reconcile_loaded_record(self, record: RunRecord) -> None:
-        """Convert non-resumable persisted work into an explicit safe state."""
+        """Reconcile persisted work without automatically repeating side effects."""
+        recoverable = False
         if record.status == "running":
-            reason = "Run was interrupted by a previous backend shutdown and cannot be resumed automatically."
+            pending = self._pending_count(record.run_id)
+            if self._has_rejection(record.run_id):
+                reason = "Run cannot recover because one or more persisted approvals were rejected."
+            elif pending > 0 and isinstance(record.result, dict):
+                record.status = "waiting_for_approval"
+                record.error = None
+                record.result["status"] = "waiting_for_approval"
+                record.result["error"] = None
+                record.result["pending_approvals"] = pending
+                return
+            else:
+                recoverable = isinstance(record.result, dict)
+                reason = (
+                    "Run was interrupted by a previous backend shutdown. Review its checkpoint and resume explicitly."
+                    if recoverable
+                    else "Run was interrupted before a durable proposal checkpoint was created; start a new run."
+                )
         elif record.status == "waiting_for_approval":
             pending = self._pending_count(record.run_id)
             if pending > 0:
                 if isinstance(record.result, dict):
                     record.result["pending_approvals"] = pending
                 return
-            reason = "Approval state is no longer available; start a new run."
+            recoverable = isinstance(record.result, dict) and bool(self._approvals_for_run(record.run_id))
+            reason = (
+                "Approval decisions are complete; review the persisted checkpoint and resume explicitly."
+                if recoverable
+                else "Approval state is no longer available; start a new run."
+            )
         else:
             return
 
-        record.status = "blocked"
+        record.status = "interrupted" if recoverable else "blocked"
         record.error = reason
         if isinstance(record.result, dict):
-            record.result["status"] = "blocked"
+            record.result["status"] = record.status
             record.result["error"] = reason
             record.result["pending_approvals"] = 0
             self._sync_task_statuses(record.result, lifecycle_status="blocked")
@@ -563,11 +637,19 @@ class RunStore:
 
     @staticmethod
     def serialize(record: RunRecord) -> dict[str, Any]:
+        recovery = {
+            "can_resume": record.status == "interrupted" and isinstance(record.result, dict),
+            "requires_user_action": record.status == "interrupted",
+            "checkpoint": "post_generation" if isinstance(record.result, dict) else None,
+        }
         if record.result:
             return {
                 **record.result,
+                "status": record.status,
+                "error": record.error if record.error is not None else record.result.get("error"),
                 "created_at": record.created_at,
                 "updated_at": record.updated_at,
+                "recovery": recovery,
             }
         return {
             "run_id": record.run_id,
@@ -579,6 +661,7 @@ class RunStore:
             "updated_at": record.updated_at,
             "error": record.error,
             "pending_approvals": 0,
+            "recovery": recovery,
             "execution_results": None,
             "tasks": [],
             "agent_results": [],

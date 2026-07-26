@@ -111,6 +111,20 @@ def test_release_scripts_are_offline_and_installer_verifies_payload() -> None:
     assert '"validate_clean_machine.ps1"' in installer
 
 
+def test_native_launcher_build_is_source_controlled_and_offline() -> None:
+    checkout_root = Path(__file__).resolve().parents[2]
+    source = (checkout_root / "scripts/release/build-native-launchers.ps1").read_text(encoding="utf-8")
+
+    assert "AnnPowerShellLauncher.cs" in source
+    assert "AnnSetupLauncher.cs" in source
+    assert "AnnUninstallLauncher.cs" in source
+    assert "csc.exe" in source
+    assert "Get-FileHash" in source
+    assert "downloads_performed = $false" in source
+    for forbidden in ("Invoke-WebRequest", "Start-BitsTransfer", "pip install", "npm install"):
+        assert forbidden not in source
+
+
 def test_release_builder_prefers_canonical_ann_desktop(tmp_path: Path) -> None:
     dist = tmp_path / "apps" / "desktop" / "dist"
     canonical = dist / "ANN-win32-x64"

@@ -11,7 +11,7 @@ describe("Enterprise Figma UI integration", () => {
     );
 
     expect(page).toContain("EnterpriseFigmaUI");
-    expect(source).toContain("ANN OS v2.4.1");
+    expect(source).toContain("ANN 1.0.0");
     expect(source).toContain("RuntimePanel");
     expect(source).toContain("PipelinePage");
     expect(source).toContain("pipelineStages");
@@ -117,8 +117,14 @@ describe("Enterprise Figma UI integration", () => {
     expect(source).toContain("setStatusFilter");
     expect(source).toContain("downloadJson(\"ann-selected-stage-artifacts.json\"");
     expect(source).toContain("api.decideApproval");
+    expect(source).toContain("api.resumeRun");
+    expect(source).toContain("Resume checkpoint");
     expect(source).toContain("Approve active run");
     expect(source).toContain("Refresh Inventory");
+    expect(source).toContain("api.importModel");
+    expect(source).toContain("api.setModelRuntimePolicy");
+    expect(source).toContain("Register local GGUF");
+    expect(source).toContain('const installMode: "copy" | "hardlink"');
     expect(source).toContain("setSelectedRunId(runId)");
     expect(source).toContain("onRunSelected");
     expect(source).toContain("setLevelFilter");

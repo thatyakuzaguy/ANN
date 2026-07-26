@@ -8,7 +8,7 @@ consensus, controlled patch application, verification, and release artifacts.
 It runs on the user's machine, exposes its decisions, and keeps humans in
 control of consequential actions.
 
-> **Status: v0.1.5 stable source and unsigned offline release.** The source
+> **Status: v1.0.0 stable source and unsigned Community release.** The source
 > distribution, embedded runtime, GPU model lifecycle, isolated installer, and
 > fresh-clone test matrix have been validated. The trusted-publisher Windows
 > channel still requires a real Authenticode certificate and transferred
@@ -36,6 +36,12 @@ human rather than looping forever.
 - Proposed diffs before writes, patch quality gates, token confirmation, safe
   terminal allowlists, protected paths, and workspace traversal defenses.
 - Sequential local model routing with at most one loaded model at a time.
+- Desktop model registration for user-supplied GGUF files with native file
+  selection, SHA-256 verification, license acknowledgement, D:/E: storage,
+  and GPU-capable `llama_cpp` activation checks.
+- Explicit recovery of interrupted post-generation runs from durable
+  checkpoints; ANN never repeats host-affecting work merely because it
+  restarted.
 - Qwen 3 for conversation/product work, Qwen2.5-Coder for implementation, and
   DeepSeek-R1-Distill-Qwen for powerful review when locally configured.
 - Failure Context Compiler for bounded, targeted repair payloads.
@@ -134,7 +140,7 @@ Windows runtime may also be used. Cloud APIs are optional, not required.
 
 ### Development and validation hardware
 
-ANN `v0.1.5` was primarily developed and validated on this local workstation:
+ANN `v1.0.0` was primarily developed and validated on this local workstation:
 
 - AMD Ryzen 5 2600 processor;
 - NVIDIA GeForce RTX 3060 Ti with 8 GB of VRAM;
@@ -158,10 +164,11 @@ Open the packaged desktop shell when available, or use the local workbench at
 `http://127.0.0.1:3000`. API health is exposed at
 `http://127.0.0.1:8000/api/health`.
 
-The portable runtime example in
-`config/ann_terminal_conversation_runtime.json` disables real inference by
-default. Configure a local Python executable and model paths, then deliberately
-enable inference after validating GPU support.
+The portable runtime starts in safe mode. Open **Models**, choose **Add Model**,
+select a local GGUF on D: or E:, acknowledge its license, and register it. ANN
+verifies the file without loading it. **Enable Real Runtime** is available only
+when the installed `llama_cpp` binding reports GPU offload support; model loads
+remain sequential and require the existing runtime gates.
 
 For the offline Windows installation flow, including an embedded runtime,
 packaged Desktop, optional hash-verified local model pack, and post-install

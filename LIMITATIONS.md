@@ -13,3 +13,6 @@ The platform is much stronger than the first scaffold, but these limits remain h
 - Human escalation is required when the model cannot produce a clean diff or lifecycle checks continue to fail.
 - Senior gates and scorecards improve review quality, but scores are heuristic until connected to richer generated-project telemetry, real coverage reports, staging data, customer evidence, and human review.
 - The compensation system reduces risk with evidence and approvals, but it does not remove the need for qualified human product, architecture, security, legal/compliance, and release owners.
+- Model weights are not redistributed with the Community release. Users must supply licensed local GGUF files; ANN verifies and registers them from the Desktop Model Manager.
+- The Community installer is unsigned and may trigger Windows SmartScreen. A trusted-publisher channel requires an externally issued Authenticode certificate and cannot be manufactured by the project.
+- Post-generation runs can be resumed from a durable checkpoint after restart. A run interrupted before its first durable proposal must be started again to avoid replaying unknown side effects.

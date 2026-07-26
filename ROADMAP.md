@@ -1,44 +1,40 @@
 # Roadmap
 
-## Completed in 0.1.0
+ANN 1.0 is a stable local-first engineering workbench, not a claim of perfect
+or universal autonomous software generation. The following work is deliberately
+outside the 1.0 acceptance boundary.
 
-- Windows-mandated project location.
-- Git repository initialization.
-- FastAPI orchestration API.
-- Next.js Codex-style workbench.
-- 13-agent registry and runtime.
-- Approval center.
-- Diff manager.
-- Audit logging.
-- Secret scanner and security reviewer.
-- Docker Compose environment.
-- PowerShell lifecycle scripts.
-- Python, Vitest, and Playwright test scaffolding.
-- Core documentation.
+## 1.x Reliability
 
-## Near Term
+- Add stage-level checkpoints before proposal generation so even pre-proposal
+  interruptions can be resumed without replay ambiguity.
+- Extend live event streaming beyond Agent Office and retain bounded event
+  history for long-running pipelines.
+- Add migration tooling for persisted run and conversation schema changes.
+- Add fault-injection coverage for power loss, disk exhaustion, Docker daemon
+  loss, corrupt model files, and interrupted release packaging.
 
-- Persist runs, approvals, tasks, and logs into PostgreSQL.
-- Add WebSocket streaming for live agent events.
-- Apply approved file diffs to generated workspaces.
-- Add Docker-only command executor for approved shell tasks.
-- Add real LangGraph state graph with retry and checkpointing.
-- Add generated project templates for SaaS CRM, ecommerce, and social apps.
+## 1.x Capability
 
-## Mid Term
+- Expand artifact families and deterministic analyzers for additional game
+  engines, mobile applications, native applications, data systems, and
+  infrastructure repositories.
+- Add deeper TypeScript/JavaScript AST slicing and language-server evidence to
+  the Failure Context Compiler.
+- Publish reproducible, model-provenance-aware capability benchmarks across
+  fresh prompts and existing repositories.
 
-- Implement authentication templates for generated projects.
-- Add Alembic migrations.
-- Add dependency allowlists and deny lists.
-- Add SBOM generation.
-- Add Playwright visual regression reports.
-- Add release bundle signing.
+## Distribution
 
-## Long Term
+- Produce a trusted-publisher Windows channel after obtaining a real
+  Authenticode certificate and timestamping service.
+- Transfer installer evidence from an independent clean Windows 11 machine.
+- Add a signed update manifest and rollback channel. Until then, updates are
+  manual and hash-verified.
 
-- Multi-workspace project memory.
-- Policy-as-code approval rules.
-- Local vector knowledge base.
-- Plugin system for additional agents and tools.
-- Advanced threat modeling and compliance reports.
+## Ongoing Human Work
 
+- Security assessment, accessibility testing, legal/compliance review, model
+  license review, product discovery, and production operations remain human
+  responsibilities. ANN can produce evidence and checklists but cannot certify
+  those outcomes.

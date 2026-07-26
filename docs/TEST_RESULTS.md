@@ -47,10 +47,14 @@ returned exit code 0 with zero residual files.
 ```text
 Final ANN 1.0.0 offline Community bundle
 16,897 files
-4,400,359,576 bytes
-SHA-256 f79fb1e9493a5629b621c6945385c9eaaecfd6db75109689440d349ad722f766
+4,400,360,157 bytes
+SHA-256 6e49f6f460735dc2a811dda4267ca3a022439a8a3376eb1b6c2eea0f8c54019f
 3 parts, each below GitHub's 2 GiB release-asset limit
 ```
+
+The final `main` revision also passed Test, Lint, Security Scan, Docker Build,
+and CodeQL. CodeQL's reviewed local-GGUF capability findings were triaged
+individually after path hardening; no open high or critical alert remains.
 
 Real local GPU lifecycle smokes passed for Qwen3 4B, Qwen2.5-Coder 7B, Qwen3
 8B, and DeepSeek-R1-Distill-Qwen 14B. Every smoke ended with

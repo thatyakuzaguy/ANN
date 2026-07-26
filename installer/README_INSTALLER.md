@@ -33,6 +33,17 @@ per-asset limit. Download every `.partNNN` asset plus
 verifies each part and the reconstructed archive. `ANN_Setup.exe` independently
 verifies every payload file before installation.
 
+Build the native setup and uninstall launchers directly from their tracked C#
+sources before creating a release bundle:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\release\build-native-launchers.ps1 `
+  -OutputDirectory D:\ANN-Release-Staging\installer
+```
+
+This uses the Windows .NET Framework compiler already present on Windows. It
+performs no download and does not sign the resulting binaries.
+
 ## Install
 
 ### Source and runtime

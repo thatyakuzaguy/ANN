@@ -602,7 +602,7 @@ if PYSIDE6_AVAILABLE:
             terminal.setPlainText(
                 "\n".join(
                     [
-                        "ANN OS v2.4.1 - Agentic Neural Network Operating System",
+                        "ANN 1.0.0 - Agentic Neural Network Operating System",
                         "Session: auth-api-7f3a4b · Project: BackendCore · Agent Pool: 7 active",
                         'ann@os › ann pipeline run --task "Build JWT Auth API" --mode production --agents auto',
                         "→ Initializing pipeline auth-api-7f3a4b",

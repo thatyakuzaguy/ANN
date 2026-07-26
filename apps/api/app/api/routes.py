@@ -43,6 +43,11 @@ from agentic_engineering_network.security.compliance_evidence import collect_com
 from agentic_engineering_network.security.threat_model import build_threat_model
 from agentic_engineering_network.shared.billing import StripeBillingService
 from agentic_engineering_network.shared.integrations import get_integration_statuses
+from agentic_network.runtime_engine.model_setup import (
+    configure_real_model_runtime,
+    get_model_setup_state,
+    register_local_gguf,
+)
 
 from app.core.container import agent_office_service, approval_center, audit_logger, run_store
 from app.core.settings import settings
@@ -53,6 +58,8 @@ from app.schemas.runs import (
     BusinessContextSubmission,
     HumanGateSubmission,
     IdeaSubmission,
+    ModelImportRequest,
+    ModelRuntimePolicyUpdate,
     PlatformSettingsUpdate,
     RequirementRefinementRequest,
     RiskRegisterSubmission,
@@ -433,6 +440,67 @@ def platform_settings() -> dict[str, object]:
     }
 
 
+@router.get("/models")
+def local_models() -> dict[str, object]:
+    return get_model_setup_state(settings.generated_projects_path.parent)
+
+
+@router.post("/models/import")
+def import_local_model(payload: ModelImportRequest) -> dict[str, object]:
+    try:
+        result = register_local_gguf(
+            source_path=payload.source_path,
+            model_id=payload.model_id,
+            family=payload.family,
+            mode=payload.mode,
+            install_mode=payload.install_mode,
+            expected_sha256=payload.expected_sha256,
+            license_acknowledged=payload.license_acknowledged,
+            confirmed=payload.confirmed,
+            risk_acknowledged=payload.risk_acknowledged,
+            root=settings.generated_projects_path.parent,
+        )
+    except (FileNotFoundError, FileExistsError, RuntimeError, ValueError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    audit_logger.record(
+        "model.registered",
+        "user",
+        f"Registered local model {payload.model_id} without loading it.",
+        {
+            "model_id": payload.model_id,
+            "source_path": payload.source_path,
+            "installed_by": result["installed_by"],
+            "sha256": result["model"]["sha256"],
+        },
+    )
+    return result
+
+
+@router.post("/models/runtime-policy")
+def update_model_runtime_policy(payload: ModelRuntimePolicyUpdate) -> dict[str, object]:
+    try:
+        result = configure_real_model_runtime(
+            enabled=payload.enabled,
+            confirmed=payload.confirmed,
+            risk_acknowledged=payload.risk_acknowledged,
+            root=settings.generated_projects_path.parent,
+        )
+    except (FileNotFoundError, RuntimeError, ValueError) as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    audit_logger.record(
+        "model.runtime_policy_changed",
+        "user",
+        f"Real model runtime {'enabled' if payload.enabled else 'disabled'}; no model was loaded.",
+        {
+            "enabled": payload.enabled,
+            "backend": result["backend"],
+            "active_models": result["active_models"],
+            "parallel_llm_loads": result["parallel_llm_loads"],
+        },
+    )
+    return result
+
+
 @router.post("/settings")
 def update_platform_settings(payload: PlatformSettingsUpdate) -> dict[str, object]:
     if payload.max_repair_attempts < 1 or payload.max_repair_attempts > 50:
@@ -463,6 +531,16 @@ def get_run(run_id: str) -> dict[str, object]:
     if run is None:
         raise HTTPException(status_code=404, detail="Run not found")
     return run
+
+
+@router.post("/runs/{run_id}/resume", response_model=RunResponse)
+def resume_run(run_id: str) -> dict[str, object]:
+    try:
+        return run_store.resume(run_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Run not found") from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
 
 
 @router.get("/approvals")

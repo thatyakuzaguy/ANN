@@ -21,6 +21,7 @@ class RunResponse(BaseModel):
     updated_at: str | None = None
     error: str | None = None
     pending_approvals: int = 0
+    recovery: dict[str, Any] = Field(default_factory=dict)
     execution_results: dict[str, Any] | None = None
     tasks: list[dict[str, Any]]
     agent_results: list[dict[str, Any]]
@@ -75,6 +76,24 @@ class RiskRegisterSubmission(BaseModel):
 
 class PlatformSettingsUpdate(BaseModel):
     max_repair_attempts: int = Field(ge=1, le=50)
+
+
+class ModelImportRequest(BaseModel):
+    source_path: str = Field(min_length=4, max_length=600)
+    model_id: str = Field(min_length=3, max_length=100, pattern=r"^[a-z0-9][a-z0-9_.-]+$")
+    family: str = Field(default="local-gguf", min_length=1, max_length=120)
+    mode: str = Field(default="FAST", pattern="^(FAST|POWERFUL)$")
+    install_mode: str = Field(default="hardlink", pattern="^(copy|hardlink)$")
+    expected_sha256: str = Field(default="", max_length=64)
+    license_acknowledged: bool = False
+    confirmed: bool = False
+    risk_acknowledged: bool = False
+
+
+class ModelRuntimePolicyUpdate(BaseModel):
+    enabled: bool
+    confirmed: bool = False
+    risk_acknowledged: bool = False
 
 
 class BillingCheckoutRequest(BaseModel):

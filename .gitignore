@@ -64,6 +64,7 @@ outputs/runs/*
 installer/release_signing_evidence.json
 installer/*.pfx
 installer/*.p12
+installer/*.exe
 
 # Runtime database files
 data/postgres/

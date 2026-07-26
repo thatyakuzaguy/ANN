@@ -193,7 +193,7 @@ def build_repository_intelligence(
         functions=len(functions),
         classes=len(classes),
         routes=len(routes),
-        tests=len(_test_files(files)),
+        tests=len(_test_files(files, root)),
         languages_detected=languages,
         output_files=output_files,
         warnings=_dedupe(warnings),
@@ -522,7 +522,7 @@ def _build_project_summary(
         "number_of_functions": len(functions),
         "number_of_classes": len(classes),
         "number_of_routes": len(routes),
-        "number_of_tests": len(_test_files(files)),
+        "number_of_tests": len(_test_files(files, project_root)),
         "top_modules": [
             {"module": module, "files": count}
             for module, count in sorted(module_counts.items(), key=lambda item: (-item[1], item[0]))[:10]
@@ -771,8 +771,12 @@ def _is_test_path(path_text: str) -> bool:
     )
 
 
-def _test_files(files: list[Path]) -> list[Path]:
-    return [path for path in files if _is_test_path(path.as_posix())]
+def _test_files(files: list[Path], project_root: Path) -> list[Path]:
+    return [
+        path
+        for path in files
+        if _is_test_path(path.relative_to(project_root).as_posix())
+    ]
 
 
 def _normalized_stem(path_text: str) -> str:

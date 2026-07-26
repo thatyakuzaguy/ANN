@@ -10,7 +10,15 @@ import {
   TrendingUp, Package, Terminal, Eye, FlaskConical,
   Server, Network, Hash, Filter, Download, Lock, ChevronLeft
 } from "lucide-react";
-import { api, type AgentOfficeAgent, type AgentOfficeEvent, type AgentOfficeState, type Approval, type EngineeringRun } from "@/lib/api";
+import { api, type AgentOfficeAgent, type AgentOfficeEvent, type AgentOfficeState, type Approval, type EngineeringRun, type ModelSetupState } from "@/lib/api";
+
+declare global {
+  interface Window {
+    annDesktop?: {
+      selectModelFile: () => Promise<string | null>;
+    };
+  }
+}
 
 type PageId = "dashboard" | "projects" | "pipeline" | "models" | "knowledge" | "runtime" | "artifacts" | "approvals" | "logs" | "settings";
 type StageStatus = "complete" | "running" | "pending" | "error" | "blocked" | "skipped";
@@ -169,7 +177,7 @@ const S = {
 };
 
 const TERMINAL_LINES: TerminalLine[] = [
-  { type: "system", text: "ANN OS v2.4.1 — Agentic Neural Network Operating System" },
+  { type: "system", text: "ANN 1.0.0 — Agentic Neural Network Operating System" },
   { type: "system", text: "Session: local desktop runtime · Conversation classifier active" },
   { type: "blank", text: "" },
   { type: "info",   text: "Write naturally to talk with ANN, or type help, status, logs, projects, artifacts, models, runtime, or clear." },
@@ -1251,7 +1259,7 @@ function StatusBar({ runtime, pipelineRunning }: { runtime: RuntimeData; pipelin
           <span className="w-1.5 h-1.5 rounded-full" style={{ background: runtime.status === "unavailable" ? "#ff3757" : "#00c896", boxShadow: `0 0 4px ${runtime.status === "unavailable" ? "#ff3757" : "#00c896"}` }} />
           <span>{runtime.status === "unavailable" ? "Telemetry unavailable" : "Runtime telemetry active"}</span>
         </div>
-        <span>ANN OS v2.4.1</span>
+        <span>ANN 1.0.0</span>
       </div>
     </footer>
   );
@@ -1410,6 +1418,7 @@ function PipelinePage({
   agentEvents,
   loadState,
   onNotice,
+  onRefresh,
 }: {
   stages: Stage[];
   activeRun: EngineeringRun | null;
@@ -1417,8 +1426,10 @@ function PipelinePage({
   agentEvents: AgentOfficeEvent[];
   loadState: UiLoadState;
   onNotice: (notice: AppNotice) => void;
+  onRefresh: () => Promise<void>;
 }) {
   const [selectedId, setSelectedId] = useState<string>("task");
+  const [resuming, setResuming] = useState(false);
   const selected = stages.find(s => s.id === selectedId) ?? stages[0];
   const progress = pipelineProgress(stages);
   const completed = stages.filter(stage => stage.status === "complete").length;
@@ -1443,6 +1454,34 @@ function PipelinePage({
           <p className="text-sm" style={{ color: "#d4dff7" }}>
             {activeRun ? displayRunIdea(activeRun.idea) : (loadState === "loading" ? "Loading pipeline state..." : "Start a run from the workbench to populate the engineering pipeline.")}
           </p>
+          {activeRun?.recovery?.can_resume && (
+            <div className="mt-3 flex items-center justify-between gap-3 rounded-lg border px-3 py-2"
+              style={{ background: "rgba(245,166,35,0.06)", borderColor: "rgba(245,166,35,0.24)" }}>
+              <span className="text-[10px]" style={{ color: "rgba(212,223,247,0.55)" }}>
+                Persisted checkpoint available. Resume only after reviewing the interrupted run.
+              </span>
+              <button
+                type="button"
+                disabled={resuming}
+                onClick={async () => {
+                  if (!activeRun) return;
+                  setResuming(true);
+                  try {
+                    await api.resumeRun(activeRun.run_id);
+                    await onRefresh();
+                    onNotice({ title: "Run resumed", message: `Recovery started for ${activeRun.run_id}.`, tone: "success" });
+                  } catch (error) {
+                    onNotice({ title: "Recovery blocked", message: error instanceof Error ? error.message : "ANN could not resume this run.", tone: "error" });
+                  } finally {
+                    setResuming(false);
+                  }
+                }}
+                className="flex-shrink-0 px-3 py-1.5 rounded-lg border text-[10px] font-bold disabled:opacity-50"
+                style={{ color: "#f5a623", borderColor: "rgba(245,166,35,0.35)", background: "rgba(245,166,35,0.08)" }}>
+                {resuming ? "Resuming..." : "Resume checkpoint"}
+              </button>
+            </div>
+          )}
           <div className="flex items-center gap-3 mt-2.5">
             <span className="text-[10px]" style={{ color: "rgba(212,223,247,0.35)" }}>{completed} / {stages.length || 0} stages complete</span>
             <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
@@ -1580,16 +1619,28 @@ function PipelinePage({
 function ModelsPage({
   runtime,
   uiState,
+  modelSetup,
   onRefresh,
+  onNotice,
 }: {
   runtime: RuntimeData;
   uiState: UiState | null;
-  onRefresh: () => void;
+  modelSetup: ModelSetupState | null;
+  onRefresh: () => Promise<void>;
+  onNotice: (notice: AppNotice) => void;
 }) {
+  const [showImport, setShowImport] = useState(false);
+  const [sourcePath, setSourcePath] = useState("");
+  const [modelId, setModelId] = useState("");
+  const [family, setFamily] = useState("local-gguf");
+  const [mode, setMode] = useState<"FAST" | "POWERFUL">("FAST");
+  const [licenseAcknowledged, setLicenseAcknowledged] = useState(false);
+  const [busy, setBusy] = useState<"import" | "policy" | null>(null);
   const statusStyle: Record<string, { color: string; label: string }> = {
     loaded:   { color: "#00c896", label: "Loaded" },
     idle:     { color: "#f5a623", label: "Idle" },
     unloaded: { color: "#445577", label: "Unloaded" },
+    missing:  { color: "#ff3757", label: "Missing" },
   };
   const liveModels = runtime.loadedModels.map((model, index) => ({
     id: model.id,
@@ -1604,7 +1655,20 @@ function ModelsPage({
     tps: model.tps,
     color: index % 2 === 0 ? "#00d0ff" : "#7c3aed",
   }));
-  const localModels = uiState?.models.slice(0, 6).map((model, index) => ({
+  const configuredModels = modelSetup?.models.map((model, index) => ({
+    id: model.model_name,
+    name: model.name,
+    family: model.family || "Local",
+    params: formatSize(model.size_bytes),
+    quant: model.quantization || "GGUF",
+    vram: 0,
+    total: runtime.vramTotal || 1,
+    status: model.path_exists ? "unloaded" : "missing",
+    role: model.path,
+    tps: 0,
+    color: index % 2 === 0 ? "#00c896" : "#f5a623",
+  })) ?? [];
+  const fallbackModels = uiState?.models.slice(0, 6).map((model, index) => ({
     id: model.path,
     name: model.name,
     family: "Local",
@@ -1617,6 +1681,7 @@ function ModelsPage({
     tps: 0,
     color: index % 2 === 0 ? "#00c896" : "#f5a623",
   })) ?? [];
+  const localModels = configuredModels.length > 0 ? configuredModels : fallbackModels;
   const liveNames = liveModels.map(model => model.name.toLowerCase());
   const declaredOnly = localModels.filter(model => {
     const name = model.name.toLowerCase();
@@ -1624,6 +1689,70 @@ function ModelsPage({
   });
   const models = [...liveModels, ...declaredOnly];
   const allocated = models.reduce((total, model) => total + model.vram, 0);
+
+  const selectModel = async () => {
+    if (!window.annDesktop) {
+      onNotice({ title: "Desktop picker unavailable", message: "Enter the absolute D: or E: GGUF path in the model form.", tone: "info" });
+      return;
+    }
+    try {
+      const selected = await window.annDesktop.selectModelFile();
+      if (!selected) return;
+      setSourcePath(selected);
+      if (!modelId) {
+        const filename = selected.split(/[\\/]/).pop()?.replace(/\.gguf$/i, "") ?? "local-model";
+        setModelId(filename.toLowerCase().replace(/[^a-z0-9_.-]+/g, "_").replace(/^[_\-.]+/, "").slice(0, 100));
+      }
+    } catch (error) {
+      onNotice({ title: "Model selection blocked", message: error instanceof Error ? error.message : "Could not select the model.", tone: "error" });
+    }
+  };
+
+  const importModel = async () => {
+    const sourceDrive = sourcePath.match(/^([a-z]):[\\/]/i)?.[1]?.toLowerCase();
+    const rootDrive = modelSetup?.root.match(/^([a-z]):[\\/]/i)?.[1]?.toLowerCase();
+    const installMode: "copy" | "hardlink" = sourceDrive && rootDrive && sourceDrive === rootDrive ? "hardlink" : "copy";
+    const storageAction = installMode === "hardlink"
+      ? "hard-linked into ANN storage on the same drive"
+      : "copied into ANN storage because the source is on another drive";
+    if (!window.confirm(`Register this local GGUF in ANN? The file will be hash-verified and ${storageAction} without loading it.`)) return;
+    setBusy("import");
+    try {
+      await api.importModel({
+        source_path: sourcePath,
+        model_id: modelId,
+        family,
+        mode,
+        install_mode: installMode,
+        license_acknowledged: licenseAcknowledged,
+        confirmed: true,
+        risk_acknowledged: true,
+      });
+      await onRefresh();
+      setShowImport(false);
+      onNotice({ title: "Model registered", message: `${modelId} was hash-verified without loading it.`, tone: "success" });
+    } catch (error) {
+      onNotice({ title: "Model import failed", message: error instanceof Error ? error.message : "ANN could not register the model.", tone: "error" });
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const changeRuntimePolicy = async () => {
+    const enabling = !modelSetup?.runtime.allow_real_model_load;
+    if (!window.confirm(`${enabling ? "Enable" : "Disable"} real local model execution? ANN will preserve sequential loading and GPU enforcement.`)) return;
+    setBusy("policy");
+    try {
+      await api.setModelRuntimePolicy(enabling);
+      await onRefresh();
+      onNotice({ title: enabling ? "Real runtime enabled" : "Safe mode enabled", message: enabling ? "llama_cpp GPU readiness passed. No model was loaded during setup." : "ANN returned to the mock backend policy.", tone: "success" });
+    } catch (error) {
+      onNotice({ title: "Runtime policy unchanged", message: error instanceof Error ? error.message : "ANN blocked the policy change.", tone: "error" });
+    } finally {
+      setBusy(null);
+    }
+  };
+
   return (
     <div className="p-5">
       <div className="flex items-center justify-between mb-4">
@@ -1631,13 +1760,61 @@ function ModelsPage({
           <h2 className="text-base font-bold" style={{ color: "#d4dff7" }}>Model Manager</h2>
           <p className="text-xs mt-0.5" style={{ color: "rgba(212,223,247,0.4)" }}>{allocated.toFixed(1)}GB / {runtime.vramTotal || 0}GB VRAM allocated · {liveModels.length} models active</p>
         </div>
-        <button
-          onClick={onRefresh}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold"
-          style={{ background: "rgba(0,208,255,0.1)", border: "1px solid rgba(0,208,255,0.25)", color: "#00d0ff" }}>
-          <RefreshCw size={12} /> Refresh Inventory
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            disabled={busy != null}
+            onClick={() => void changeRuntimePolicy()}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-50"
+            style={{ background: modelSetup?.runtime.allow_real_model_load ? "rgba(0,200,150,0.1)" : "rgba(245,166,35,0.08)", border: `1px solid ${modelSetup?.runtime.allow_real_model_load ? "rgba(0,200,150,0.3)" : "rgba(245,166,35,0.28)"}`, color: modelSetup?.runtime.allow_real_model_load ? "#00c896" : "#f5a623" }}>
+            <Zap size={12} /> {modelSetup?.runtime.allow_real_model_load ? "Real Runtime On" : "Enable Real Runtime"}
+          </button>
+          <button
+            onClick={() => setShowImport(value => !value)}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold"
+            style={{ background: "rgba(124,58,237,0.1)", border: "1px solid rgba(124,58,237,0.3)", color: "#9b6dff" }}>
+            <Plus size={12} /> Add Model
+          </button>
+          <button
+            onClick={() => void onRefresh()}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold"
+            style={{ background: "rgba(0,208,255,0.1)", border: "1px solid rgba(0,208,255,0.25)", color: "#00d0ff" }}>
+            <RefreshCw size={12} /> Refresh Inventory
+          </button>
+        </div>
       </div>
+      {showImport && (
+        <div className="rounded-xl border p-4 mb-4 grid grid-cols-[1fr_220px_150px] gap-3"
+          style={{ background: "rgba(12,18,33,0.92)", borderColor: "rgba(124,58,237,0.28)" }}>
+          <div className="col-span-3 flex items-center justify-between">
+            <div>
+              <p className="text-sm font-semibold" style={{ color: "#d4dff7" }}>Register local GGUF</p>
+              <p className="text-[10px] mt-1" style={{ color: "rgba(212,223,247,0.4)" }}>No downloads and no model load. ANN verifies SHA256 and stores the file on D: or E:.</p>
+            </div>
+            <button type="button" onClick={() => void selectModel()} className="px-3 py-1.5 rounded-lg border text-[10px] font-semibold"
+              style={{ color: "#00d0ff", borderColor: "rgba(0,208,255,0.25)" }}>Choose GGUF</button>
+          </div>
+          <input value={sourcePath} onChange={event => setSourcePath(event.target.value)} placeholder="D:\\Models\\model.gguf" aria-label="Local GGUF path"
+            className="col-span-3 rounded-lg border px-3 py-2 text-xs outline-none" style={{ background: "#05080f", borderColor: "rgba(0,208,255,0.16)", color: "#d4dff7", fontFamily: "JetBrains Mono, monospace" }} />
+          <input value={modelId} onChange={event => setModelId(event.target.value.toLowerCase())} placeholder="model_id" aria-label="Model identifier"
+            className="rounded-lg border px-3 py-2 text-xs outline-none" style={{ background: "#05080f", borderColor: "rgba(0,208,255,0.16)", color: "#d4dff7" }} />
+          <input value={family} onChange={event => setFamily(event.target.value)} placeholder="Model family" aria-label="Model family"
+            className="rounded-lg border px-3 py-2 text-xs outline-none" style={{ background: "#05080f", borderColor: "rgba(0,208,255,0.16)", color: "#d4dff7" }} />
+          <select value={mode} onChange={event => setMode(event.target.value as "FAST" | "POWERFUL")} aria-label="Model execution mode"
+            className="rounded-lg border px-3 py-2 text-xs outline-none" style={{ background: "#05080f", borderColor: "rgba(0,208,255,0.16)", color: "#d4dff7" }}>
+            <option value="FAST">FAST</option>
+            <option value="POWERFUL">POWERFUL</option>
+          </select>
+          <label className="col-span-2 flex items-center gap-2 text-[10px]" style={{ color: "rgba(212,223,247,0.55)" }}>
+            <input type="checkbox" checked={licenseAcknowledged} onChange={event => setLicenseAcknowledged(event.target.checked)} />
+            I verified the model license and am authorized to use this local copy.
+          </label>
+          <button type="button" disabled={busy != null || !sourcePath || !modelId || !licenseAcknowledged} onClick={() => void importModel()}
+            className="rounded-lg border px-3 py-2 text-xs font-bold disabled:opacity-40"
+            style={{ color: "#00c896", borderColor: "rgba(0,200,150,0.35)", background: "rgba(0,200,150,0.08)" }}>
+            {busy === "import" ? "Verifying..." : "Register Model"}
+          </button>
+        </div>
+      )}
       <div className="grid grid-cols-2 gap-3">
         {models.length === 0 && (
           <div className="col-span-2 rounded-xl border p-6 text-center text-sm"
@@ -2213,6 +2390,7 @@ export default function App() {
   const [backendLoadState, setBackendLoadState] = useState<UiLoadState>("loading");
   const [approvalLoadState, setApprovalLoadState] = useState<UiLoadState>("loading");
   const [backendSettings, setBackendSettings] = useState<BackendSettings | null>(null);
+  const [modelSetup, setModelSetup] = useState<ModelSetupState | null>(null);
   const [notice, setNotice] = useState<AppNotice | null>(null);
   const [tokenHistory, setTokenHistory] = useState(() =>
     Array.from({ length: 30 }, () => 0)
@@ -2301,13 +2479,14 @@ export default function App() {
     let cancelled = false;
 
     const loadBackendState = async () => {
-      const [officeResult, eventsResult, logsResult, settingsResult, runsResult, approvalsResult] = await Promise.allSettled([
+      const [officeResult, eventsResult, logsResult, settingsResult, runsResult, approvalsResult, modelsResult] = await Promise.allSettled([
         api.agentOfficeState(),
         api.agentOfficeEvents(20),
         api.logs(),
         api.settings(),
         api.runs(25),
         api.approvals(),
+        api.models(),
       ]);
       if (cancelled) return;
       if (officeResult.status === "fulfilled") setAgentOffice(officeResult.value);
@@ -2326,6 +2505,7 @@ export default function App() {
       } else {
         setApprovalLoadState("error");
       }
+      if (modelsResult.status === "fulfilled") setModelSetup(modelsResult.value);
     };
 
     void loadBackendState();
@@ -2360,6 +2540,17 @@ export default function App() {
     }
   };
 
+  const refreshModels = async () => {
+    setUiRefreshToken(token => token + 1);
+    try {
+      const state = await api.models();
+      setModelSetup(state);
+    } catch (error) {
+      showNotice({ title: "Inventory unavailable", message: error instanceof Error ? error.message : "ANN could not refresh model setup state.", tone: "error" });
+      throw error;
+    }
+  };
+
   const activeRun = backendRuns.find(run => run.run_id === selectedRunId) ?? latestRun(backendRuns);
   const stages = pipelineStages(agentOffice, activeRun);
   const pipelineRunning = latestRun(backendRuns)?.status === "running";
@@ -2368,11 +2559,8 @@ export default function App() {
   const renderPage = () => {
     switch (activePage) {
       case "dashboard":  return <DashboardPage runtime={runtime} uiState={uiState} runs={backendRuns} agentOffice={agentOffice} agentEvents={agentEvents} uiLoadState={backendLoadState === "loading" ? "loading" : uiLoadState} onSelectRun={(runId) => { setSelectedRunId(runId); setActivePage("pipeline"); }} />;
-      case "pipeline":   return <PipelinePage stages={stages} activeRun={activeRun} logs={logs} agentEvents={agentEvents} loadState={backendLoadState} onNotice={showNotice} />;
-      case "models":     return <ModelsPage runtime={runtime} uiState={uiState} onRefresh={() => {
-        setUiRefreshToken(token => token + 1);
-        showNotice({ title: "Inventory refreshed", message: "ANN is rescanning declared local models and active model processes.", tone: "info" });
-      }} />;
+      case "pipeline":   return <PipelinePage stages={stages} activeRun={activeRun} logs={logs} agentEvents={agentEvents} loadState={backendLoadState} onNotice={showNotice} onRefresh={refreshApprovalsAndRuns} />;
+      case "models":     return <ModelsPage runtime={runtime} uiState={uiState} modelSetup={modelSetup} onRefresh={refreshModels} onNotice={showNotice} />;
       case "logs":       return <LogsPage logs={logs} />;
       case "projects":   return <WorkspaceListPage title="Projects" icon={FolderOpen} description="Manage your engineering projects, repositories, and team workspaces." entries={uiState?.projects ?? []} loadState={uiLoadState} />;
       case "knowledge":  return <WorkspaceListPage title="Knowledge Base" icon={Database} description="Curated context, documentation, and domain knowledge for agent grounding." entries={uiState?.docs ?? []} loadState={uiLoadState} accent="#7c3aed" />;

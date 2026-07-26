@@ -1,6 +1,64 @@
 # Test Results
 
-Date: 2026-07-22
+Date: 2026-07-26
+
+## Stable 1.0.0 Validation
+
+```text
+python -m pytest tests/python -q --basetemp D:\AgenticEngineeringNetwork\tests\.tmp\pytest-release-1.0.0-final
+1588 passed, 54 skipped in 900.07s (0:15:00)
+
+python -m ruff check agentic_network apps packages tests/python scripts
+All checks passed!
+```
+
+The 54 skips are the explicit public-release allowlist for private model,
+runtime, signing, and historical evidence that is deliberately absent from
+Git. Portable orchestration, safety, API, installer, Desktop, and project
+builder tests execute normally.
+
+```text
+npm audit --audit-level=moderate
+found 0 vulnerabilities
+
+npm --workspace apps/web run lint
+TypeScript passed
+
+npm --workspace apps/web run test -- --run
+5 test files passed, 22 tests passed
+
+npm --workspace apps/web run build
+Next.js 16.2.12 production build passed
+
+npm --workspace apps/web run e2e
+1 passed
+
+npm --workspace apps/desktop run package
+Wrote new app to apps/desktop/dist/ANN-win32-x64
+```
+
+The unsigned Community installer was reconstructed from its split release
+parts, installed into an isolated D: root, and checked with the embedded
+Python 3.11.9 runtime. Installed Desktop startup returned HTTP 200 from both
+the local API and standalone web UI, the model inventory returned `READY`,
+closing Desktop removed its child listeners, and the native uninstaller
+returned exit code 0 with zero residual files.
+
+```text
+Final ANN 1.0.0 offline Community bundle
+16,897 files
+4,400,359,576 bytes
+SHA-256 f79fb1e9493a5629b621c6945385c9eaaecfd6db75109689440d349ad722f766
+3 parts, each below GitHub's 2 GiB release-asset limit
+```
+
+Real local GPU lifecycle smokes passed for Qwen3 4B, Qwen2.5-Coder 7B, Qwen3
+8B, and DeepSeek-R1-Distill-Qwen 14B. Every smoke ended with
+`active_models=0`, `parallel_llm_loads=0`, and safe mode restored. DeepSeek
+used bounded partial GPU offload (`n_gpu_layers=28`) because its quantized
+weights exceed the workstation's 8 GB VRAM. These are load/run/unload and
+rollback checks, not claims that a short diagnostic prompt measures product
+quality.
 
 ## Stable 0.1.5 Validation
 

@@ -52,7 +52,7 @@ Strict mode validates every recorded byte count and SHA-256 hash. It remains a
 release gate and is not replaced by the structural CI check.
 
 The public tree contains `PUBLIC_RELEASE_MANIFEST.json`. When pytest detects
-that manifest it visibly skips an explicit allowlist of 53 tests marked
+that manifest it visibly skips an explicit allowlist of 54 tests marked
 `private_release_evidence`. Those tests require local launcher binaries,
 embedded-runtime payloads, wheelhouse contents, signing evidence, model
 inference evidence, canonical-install release notes, or historical release
@@ -74,11 +74,14 @@ and must be removed when a stable Next.js release declares patched versions.
 
 ## Stable Source Release Status
 
-ANN `v0.1.5` is the stable source and unsigned portable release. The release
-gate passed the public CI suite (1,574 passed, 54 intentionally skipped), Ruff,
-frontend tests and TypeScript, Next.js production build, Playwright, Electron
-packaging, clean Docker image builds, and a live PostgreSQL/API/web Compose
-smoke. The release bundle is split into GitHub-compatible parts and protected
+ANN `v1.0.0` is the stable source and unsigned Community release. Its local
+release gate passed 1,588 Python tests with 54 intentional public-evidence
+skips, Ruff, frontend tests and TypeScript, the Next.js production build,
+Playwright, Electron packaging, split-bundle verification, isolated install,
+Desktop/API/web startup, and zero-residual uninstall. GitHub's Test, Lint,
+Security Scan, Docker Build, and CodeQL workflows remain mandatory for the
+exact published commit; a tag must not be created until those remote gates are
+green. The release bundle is split into GitHub-compatible parts and protected
 by an aggregate manifest and per-file SHA-256 hashes.
 
 The final Windows offline archive is distributed in parts no larger than
@@ -93,7 +96,7 @@ redistribution rights.
 
 ## Development And Validation Hardware
 
-ANN `v0.1.5` was primarily developed and validated on an AMD Ryzen 5 2600,
+ANN `v1.0.0` was primarily developed and validated on an AMD Ryzen 5 2600,
 an NVIDIA GeForce RTX 3060 Ti with 8 GB of VRAM, and 32 GB of DDR4 system
 memory. This is evidence of the tested workstation, not a formal minimum or
 recommended hardware requirement.

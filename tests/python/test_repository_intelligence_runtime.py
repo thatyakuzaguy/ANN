@@ -138,6 +138,15 @@ def test_dependency_graph_and_test_mapping(tmp_path: Path) -> None:
     assert result.tests == 1
 
 
+def test_test_count_ignores_tests_directory_outside_project_root(tmp_path: Path) -> None:
+    project = tmp_path / "tests" / "sample-project"
+    _sample_project(project)
+
+    result = build_repository_intelligence(project, project / "ri")
+
+    assert result.tests == 1
+
+
 def test_project_summary_counts_languages(tmp_path: Path) -> None:
     _sample_project(tmp_path)
 

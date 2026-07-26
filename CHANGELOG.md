@@ -2,6 +2,28 @@
 
 ## Unreleased
 
+## 1.0.0 - 2026-07-26
+
+- Promoted the audited local-first source and unsigned Community distribution
+  to the first stable major release.
+- Added explicit checkpoint recovery for interrupted post-generation runs;
+  recovery never starts automatically and retains approval state.
+- Added local GGUF registration from Desktop with native file selection,
+  license/risk confirmation, SHA-256 verification, D:/E: path policy, and
+  atomic inventory updates.
+- Added a GPU readiness gate before enabling real `llama_cpp` execution while
+  preserving one-model-at-a-time sequential VRAM policy.
+- Added API contracts for model inventory, model registration, runtime policy,
+  and run recovery without adding network downloads or model loading to setup.
+- Hardened resolved-path enforcement so D:/E: junctions cannot redirect model
+  setup onto C:, and made cross-drive Desktop imports choose an explicit copy
+  instead of an invalid hard-link.
+- Added source-built native setup/uninstall launchers and validated the split
+  Community bundle through isolated install, Desktop/API/web startup, and
+  zero-residual uninstall.
+- Replaced the obsolete roadmap with the actual post-1.0 engineering backlog
+  and documented the unsigned Community versus trusted-publisher channels.
+
 ## 0.1.5 - 2026-07-22
 
 - Pinned Sharp 0.35.3 and PostCSS 8.5.20 across the npm workspace and lockfile

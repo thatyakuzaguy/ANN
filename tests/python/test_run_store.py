@@ -7,7 +7,7 @@ from uuid import uuid4
 
 from agentic_engineering_network.logs.audit import AuditLogger
 from agentic_engineering_network.orchestration.engine import AgenticEngineeringNetwork
-from agentic_engineering_network.security.approvals import ApprovalCenter
+from agentic_engineering_network.security.approvals import ApprovalCenter, ApprovalType
 from agentic_engineering_network.shared.config import Settings
 
 from app.core.run_store import RunStore
@@ -139,7 +139,7 @@ def test_run_store_blocks_orphaned_waiting_run_on_load() -> None:
     assert statuses["code_review"] == "blocked"
 
 
-def test_run_store_blocks_interrupted_running_run_on_load() -> None:
+def test_run_store_exposes_recoverable_checkpoint_after_backend_restart() -> None:
     scratch = Path(r"D:\AgenticEngineeringNetwork\tests\.tmp\run-store-interrupted") / uuid4().hex
     run_state_path = scratch / "runs"
     run_state_path.mkdir(parents=True)
@@ -175,10 +175,138 @@ def test_run_store_blocks_interrupted_running_run_on_load() -> None:
     loaded = RunStore(settings, network).get("interrupted")
 
     assert loaded is not None
-    assert loaded["status"] == "blocked"
+    assert loaded["status"] == "interrupted"
     assert loaded["pending_approvals"] == 0
     assert "previous backend shutdown" in loaded["error"]
+    assert loaded["recovery"] == {
+        "can_resume": True,
+        "requires_user_action": True,
+        "checkpoint": "post_generation",
+    }
     assert loaded["tasks"][0]["status"] == "blocked"
+
+
+def test_run_store_resumes_persisted_lifecycle_only_after_explicit_request() -> None:
+    scratch = Path(r"D:\AgenticEngineeringNetwork\tests\.tmp\run-store-resume") / uuid4().hex
+    run_state_path = scratch / "runs"
+    run_state_path.mkdir(parents=True)
+    settings = Settings(
+        ai_provider="deterministic",
+        audit_log_path=scratch / "audit.jsonl",
+        agent_log_path=scratch / "agents.jsonl",
+        run_state_path=run_state_path,
+        generated_projects_path=scratch / "generated-projects",
+    )
+    (run_state_path / "recoverable.json").write_text(
+        json.dumps(
+            {
+                "run_id": "recoverable",
+                "idea": "recover this run",
+                "workspace_directory": str(scratch / "project"),
+                "approval_mode": "full",
+                "status": "running",
+                "result": {
+                    "run_id": "recoverable",
+                    "idea": "recover this run",
+                    "workspace_directory": str(scratch / "project"),
+                    "approval_mode": "full",
+                    "status": "running",
+                    "pending_approvals": 0,
+                    "tasks": [
+                        {"task_id": "qa_verification", "status": "running"},
+                        {"task_id": "code_review", "status": "pending"},
+                    ],
+                    "agent_results": [],
+                    "proposed_files": [],
+                    "security_review": {"passed": False, "findings": [], "notes": []},
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    audit = AuditLogger(settings.audit_log_path)
+    approvals = ApprovalCenter(audit)
+    network = AgenticEngineeringNetwork(settings, audit, approvals)
+    lifecycle_calls: list[str] = []
+
+    def resume_lifecycle(run_id, idea, approvals):  # noqa: ANN001, ARG001
+        lifecycle_calls.append(run_id)
+        return {"status": "passed", "steps": []}
+
+    store = RunStore(settings, network, lifecycle_runner=resume_lifecycle)
+
+    before = store.get("recoverable")
+    assert before is not None
+    assert before["status"] == "interrupted"
+    assert lifecycle_calls == []
+
+    store.resume("recoverable")
+    deadline = time.time() + 5
+    after = before
+    while time.time() < deadline:
+        after = store.get("recoverable") or after
+        if after["status"] == "completed":
+            break
+        time.sleep(0.05)
+
+    assert after["status"] == "completed"
+    assert after["recovery"]["can_resume"] is False
+    assert lifecycle_calls == ["recoverable"]
+
+
+def test_run_store_restores_waiting_approval_state_before_recovery() -> None:
+    scratch = Path(r"D:\AgenticEngineeringNetwork\tests\.tmp\run-store-resume-approval") / uuid4().hex
+    run_state_path = scratch / "runs"
+    run_state_path.mkdir(parents=True)
+    settings = Settings(
+        ai_provider="deterministic",
+        audit_log_path=scratch / "audit.jsonl",
+        agent_log_path=scratch / "agents.jsonl",
+        run_state_path=run_state_path,
+        generated_projects_path=scratch / "generated-projects",
+    )
+    result = {
+        "run_id": "awaiting",
+        "idea": "await approval",
+        "workspace_directory": str(scratch / "project"),
+        "approval_mode": "supervised",
+        "status": "running",
+        "pending_approvals": 0,
+        "tasks": [{"task_id": "qa_verification", "status": "pending"}],
+        "agent_results": [],
+        "proposed_files": [],
+        "security_review": {"passed": False, "findings": [], "notes": []},
+    }
+    (run_state_path / "awaiting.json").write_text(
+        json.dumps(
+            {
+                "run_id": "awaiting",
+                "idea": "await approval",
+                "workspace_directory": str(scratch / "project"),
+                "approval_mode": "supervised",
+                "status": "running",
+                "result": result,
+            }
+        ),
+        encoding="utf-8",
+    )
+    audit = AuditLogger(settings.audit_log_path)
+    approvals = ApprovalCenter(audit)
+    approvals.request(
+        ApprovalType.FILE_CREATE,
+        "Write proposal",
+        "Persist generated file",
+        "Code Agent",
+        {"run_id": "awaiting", "path": str(scratch / "project" / "main.py")},
+    )
+    network = AgenticEngineeringNetwork(settings, audit, approvals)
+
+    loaded = RunStore(settings, network).get("awaiting")
+
+    assert loaded is not None
+    assert loaded["status"] == "waiting_for_approval"
+    assert loaded["pending_approvals"] == 1
+    assert loaded["recovery"]["can_resume"] is False
 
 
 def test_run_store_returns_running_then_completed() -> None:

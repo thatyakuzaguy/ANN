@@ -24,6 +24,7 @@ from agentic_network.runtime_engine.model_inventory import load_model_inventory
 REPO_ROOT = Path(__file__).resolve().parents[2]
 MODEL_ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9_.-]{2,99}$")
 ALLOWED_DRIVES = {"d:", "e:"}
+WINDOWS_REMOTE_OR_DEVICE_PREFIXES = ("\\\\", "//")
 EMPTY_INVENTORY: dict[str, Any] = {"version": 2, "models": []}
 SAFE_MODEL_POLICY: dict[str, Any] = {
     "version": 1,
@@ -133,35 +134,46 @@ def register_local_gguf(
     source = _safe_local_path(source_path, require_exists=True, directory=False)
     if source.suffix.lower() != ".gguf":
         raise ValueError("ANN v1.0 local model import accepts GGUF files only.")
+    # The source is an explicitly selected local GGUF. _safe_local_path has
+    # already canonicalized it, rejected traversal/UNC/device paths, and
+    # constrained its resolved location to D: or E:.
+    # codeql[py/path-injection]
     if source.stat().st_size <= 0:
         raise ValueError("Selected GGUF file is empty.")
 
     paths = model_setup_paths(root)
     paths.models.mkdir(parents=True, exist_ok=True)
-    destination = _safe_local_path(paths.models / source.name, require_exists=False, directory=False)
+    destination = _managed_model_destination(paths.models, source.name)
     source_hash = _sha256(source)
     expected = expected_sha256.strip().lower()
     if expected and (not re.fullmatch(r"[0-9a-f]{64}", expected) or expected != source_hash):
         raise ValueError("Selected model SHA256 does not match the expected digest.")
 
     installed_by = "existing"
+    # Both paths are canonical capabilities returned by the policy helpers.
+    # codeql[py/path-injection]
     if source.resolve() != destination.resolve():
+        # codeql[py/path-injection]
         if destination.exists():
+            # codeql[py/path-injection]
             if destination.stat().st_size != source.stat().st_size or _sha256(destination) != source_hash:
                 raise FileExistsError(f"A different model file already exists at {destination}.")
         elif clean_install_mode == "hardlink":
             if source.drive.lower() != destination.drive.lower():
                 raise ValueError("Hard-link import requires source and ANN to be on the same drive.")
             try:
+                # codeql[py/path-injection]
                 os.link(source, destination)
                 installed_by = "hardlink"
             except FileExistsError:
                 # A second approved setup process may win the race after the
                 # existence check. Accept only the exact verified payload.
+                # codeql[py/path-injection]
                 if destination.stat().st_size != source.stat().st_size or _sha256(destination) != source_hash:
                     raise FileExistsError(f"A different model file already exists at {destination}.") from None
                 installed_by = "existing"
         else:
+            # codeql[py/path-injection]
             shutil.copy2(source, destination)
             installed_by = "copy"
 
@@ -281,25 +293,50 @@ def _safe_local_path(
     raw = str(raw_path).strip()
     if not raw or any(part == ".." for part in raw.replace("\\", "/").split("/")):
         raise ValueError("Unsafe or empty local path.")
-    drive = PureWindowsPath(raw).drive.lower()
+    if raw.startswith(WINDOWS_REMOTE_OR_DEVICE_PREFIXES):
+        raise ValueError("UNC, network, and Windows device paths are not permitted.")
+    windows_path = PureWindowsPath(raw)
+    drive = windows_path.drive.lower()
     if drive and drive not in ALLOWED_DRIVES:
         raise ValueError("ANN model setup only permits D: or E: paths.")
+    if os.name == "nt" and not windows_path.is_absolute():
+        raise ValueError("ANN model setup requires an absolute local path.")
     if not drive and os.name == "nt":
+        # codeql[py/path-injection]
         resolved_candidate = Path(raw).resolve()
         if resolved_candidate.drive.lower() not in ALLOWED_DRIVES:
             raise ValueError("ANN model setup only permits D: or E: paths.")
+    # This is the single canonicalization boundary for local model paths.
+    # The checks above reject traversal, remote/device paths, and unauthorized
+    # drives; the resolved-drive check below also catches junction escapes.
+    # codeql[py/path-injection]
     path = Path(raw).resolve()
     if os.name == "nt":
         resolved_drive = PureWindowsPath(str(path)).drive.lower()
         if resolved_drive not in ALLOWED_DRIVES:
             raise ValueError("ANN model setup only permits paths that resolve to D: or E:.")
+    # codeql[py/path-injection]
     if require_exists and not path.exists():
         raise FileNotFoundError(f"Local path does not exist: {path}")
+    # codeql[py/path-injection]
     if require_exists and directory and not path.is_dir():
         raise ValueError(f"Expected a directory: {path}")
+    # codeql[py/path-injection]
     if require_exists and not directory and not path.is_file():
         raise ValueError(f"Expected a file: {path}")
     return path
+
+
+def _managed_model_destination(models_root: Path, filename: str) -> Path:
+    """Return a canonical destination capability confined to ANN's model root."""
+
+    if not filename or filename in {".", ".."} or Path(filename).name != filename:
+        raise ValueError("Model filename must be a single local path component.")
+    canonical_root = _safe_local_path(models_root, require_exists=True, directory=True)
+    destination = _safe_local_path(canonical_root / filename, require_exists=False, directory=False)
+    if destination.parent != canonical_root:
+        raise ValueError("Model destination escaped ANN's managed model directory.")
+    return destination
 
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -334,6 +371,9 @@ def _write_json_atomic(path: Path, payload: dict[str, Any]) -> None:
 
 def _sha256(path: Path) -> str:
     digest = hashlib.sha256()
+    # Callers supply only capabilities returned by _safe_local_path or
+    # _managed_model_destination; arbitrary request paths never reach here.
+    # codeql[py/path-injection]
     with path.open("rb") as stream:
         for chunk in iter(lambda: stream.read(1024 * 1024), b""):
             digest.update(chunk)

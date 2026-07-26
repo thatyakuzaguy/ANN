@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-07-26T07:16:11.9556089Z",
+  "generated_at_utc": "2026-07-26T07:48:15.0252635Z",
   "release_stage": "stable",
   "release_version": "1.0.0",
-  "source_revision": "62122bbe50d310137684cbf50e18916467e73f88",
+  "source_revision": "b60faf1317b8590147436366b5d49df6f17c96ae",
   "file_count": 817,
-  "total_bytes": 5902212,
+  "total_bytes": 5904977,
   "maximum_file_size_mb": 25,
   "files": [
     {
@@ -1155,8 +1155,8 @@
     },
     {
       "path": "agentic_network/runtime_engine/model_setup.py",
-      "bytes": 14137,
-      "sha256": "a386a19e0049a437ec945dc7fdb4c538c5984e26640204c4b56b86c2b863b3a0"
+      "bytes": 16254,
+      "sha256": "16ad403a38d3686254730dc987efce4a50b4f0b1bc6b147430a70aa44acfe05d"
     },
     {
       "path": "agentic_network/runtime_engine/models.py",
@@ -2015,8 +2015,8 @@
     },
     {
       "path": "docs/TEST_RESULTS.md",
-      "bytes": 10195,
-      "sha256": "2e3308bf8a417eb9f9766fbb4fe5a2af9440851f768c4f5e52e9f0936a548849"
+      "bytes": 10117,
+      "sha256": "018fc415a547da9473d6c02b1a66fa711ad957ed6a099f89832a62871742c275"
     },
     {
       "path": "installer/ann_launcher.ps1",
@@ -3305,8 +3305,8 @@
     },
     {
       "path": "tests/python/test_model_setup.py",
-      "bytes": 8753,
-      "sha256": "35530a78666f12b561163535fdf7f492af347499f0d21c368fd14e84b8a07e67"
+      "bytes": 9479,
+      "sha256": "c5bba0004b11be9bdf48780a5d3e7d2a57bbe335a4c656517aa716d86054691d"
     },
     {
       "path": "tests/python/test_multifile_planner_runtime.py",

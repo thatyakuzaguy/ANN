@@ -5,8 +5,8 @@ Date: 2026-07-26
 ## Stable 1.0.0 Validation
 
 ```text
-python -m pytest tests/python -q --basetemp D:\AgenticEngineeringNetwork\tests\.tmp\pytest-release-1.0.0-final
-1588 passed, 54 skipped in 900.07s (0:15:00)
+python -m pytest tests/python -q
+1592 passed, 54 skipped in 832.67s (0:13:52)
 
 python -m ruff check agentic_network apps packages tests/python scripts
 All checks passed!

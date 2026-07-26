@@ -1,10 +1,11 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-07-26T04:35:52.0102861Z",
+  "generated_at_utc": "2026-07-26T07:16:11.9556089Z",
   "release_stage": "stable",
-  "source_revision": "2444973d70bc981e6328397cd73daf96516b3dfe",
-  "file_count": 811,
-  "total_bytes": 5841743,
+  "release_version": "1.0.0",
+  "source_revision": "62122bbe50d310137684cbf50e18916467e73f88",
+  "file_count": 817,
+  "total_bytes": 5902212,
   "maximum_file_size_mb": 25,
   "files": [
     {
@@ -79,8 +80,8 @@
     },
     {
       "path": ".gitignore",
-      "bytes": 1045,
-      "sha256": "c627bd6645e748b228a065d2eb1ddf34de124620a3919ccf789e06136a841d53"
+      "bytes": 1061,
+      "sha256": "310555cfbcfd2124fd2541a5f9680f8c34aa89e29e0410b95dfcd53a74c0f41b"
     },
     {
       "path": ".gitleaks.toml",
@@ -294,8 +295,8 @@
     },
     {
       "path": "agentic_network/desktop_app/main_window.py",
-      "bytes": 38187,
-      "sha256": "b5ffee0f443a758a77755cf8896ccd0a99327ab53278988aa116d627fcb402de"
+      "bytes": 38183,
+      "sha256": "fa616006c43472135d754ba5367d8d718ac2da4e99332780c9b151573871ea16"
     },
     {
       "path": "agentic_network/desktop_app/navigation.py",
@@ -1014,8 +1015,8 @@
     },
     {
       "path": "agentic_network/repository_intelligence_agent/runtime.py",
-      "bytes": 28878,
-      "sha256": "a06f444e9a69c92ace46cc10ea0bc94a88d2bba5f352655b056d929b80856dcd"
+      "bytes": 28974,
+      "sha256": "9bb14bc5983fe0b27e8af1634142568f6775a093c76997b403e569df51cf1938"
     },
     {
       "path": "agentic_network/reviewer_agent/__init__.py",
@@ -1144,13 +1145,18 @@
     },
     {
       "path": "agentic_network/runtime_engine/model_inventory.py",
-      "bytes": 13499,
-      "sha256": "aa2634726a1cb67bf0a0bafa001e3d531926de44f248632c14c17b0dc877ad5a"
+      "bytes": 13792,
+      "sha256": "358688681f577f655b040ec4cac71da48e073764e32709015ac20f0abfb66693"
     },
     {
       "path": "agentic_network/runtime_engine/model_policy.py",
       "bytes": 4909,
       "sha256": "07b53c7bcf04cfad5ca979a5d07c55da83446a2eb0d21a66ead7a32554f0e461"
+    },
+    {
+      "path": "agentic_network/runtime_engine/model_setup.py",
+      "bytes": 14137,
+      "sha256": "a386a19e0049a437ec945dc7fdb4c538c5984e26640204c4b56b86c2b863b3a0"
     },
     {
       "path": "agentic_network/runtime_engine/models.py",
@@ -1434,8 +1440,8 @@
     },
     {
       "path": "apps/api/app/api/routes.py",
-      "bytes": 18251,
-      "sha256": "edf387075400e5215ff53bd8485640674184df3960be44ec8f6871f8a2e2a9c9"
+      "bytes": 21080,
+      "sha256": "6358af24930a2bdce3958e05edb55db0d759cf26bd604b581c0563be07a50874"
     },
     {
       "path": "apps/api/app/core/container.py",
@@ -1449,8 +1455,8 @@
     },
     {
       "path": "apps/api/app/core/run_store.py",
-      "bytes": 25286,
-      "sha256": "0ca2c1b6f2362403841d2d11878484095b6d6db50df3be4a75cd3b5a694efc19"
+      "bytes": 29197,
+      "sha256": "7799d35b2baaf91479f923608af66ce65a553338261aa354e8451fd5e5ca1b2a"
     },
     {
       "path": "apps/api/app/core/settings.py",
@@ -1460,7 +1466,7 @@
     {
       "path": "apps/api/app/main.py",
       "bytes": 1389,
-      "sha256": "5b01010ea5f31f8e25b87e33a8ad6d03d46d864978c7b8c1d51e51f9ca148790"
+      "sha256": "ea96f34a42ef8fc5f73123eebc7139c11b166a2e6d3d8e405f6bd710e6edfcd4"
     },
     {
       "path": "apps/api/app/models/project.py",
@@ -1469,8 +1475,8 @@
     },
     {
       "path": "apps/api/app/schemas/runs.py",
-      "bytes": 2339,
-      "sha256": "846c69af41b41dae4452a1f608a33a9dec6feec6913b730eb45e9a70c9a12b18"
+      "bytes": 3099,
+      "sha256": "da25626b2039598b63970415c66321b462286ea29d0c429da582a085847e5fcf"
     },
     {
       "path": "apps/api/app/services/.gitkeep",
@@ -1515,12 +1521,22 @@
     {
       "path": "apps/desktop/package.json",
       "bytes": 523,
-      "sha256": "3009efc94b75793d8720e3fd54af1c99c1f1d2fd1b180c63feec7343e9a54396"
+      "sha256": "6bcfee5b04776dbcaa754ab0e52cadd404338d164da0d4aa5ee1b822cb1cd6e3"
     },
     {
       "path": "apps/desktop/src/main.js",
-      "bytes": 12297,
-      "sha256": "d99fda2e4da205e29df7876257135977e18b54dc371bb0d6cde0ca7f76465e86"
+      "bytes": 12938,
+      "sha256": "9805f6bc2015dd65ad4a127df5847b9f0c713423fd1ae23643e97bc01bdc4556"
+    },
+    {
+      "path": "apps/desktop/src/preload.js",
+      "bytes": 182,
+      "sha256": "41613ceec0831f8ecacffa45726b469107d3b1d9483d55a9dc1220df4b52766f"
+    },
+    {
+      "path": "apps/web/e2e/workbench.spec.ts",
+      "bytes": 502,
+      "sha256": "5c53746726b48637a27068c3aecf84f4de0832cd94ee95a8b959e0411ba45f72"
     },
     {
       "path": "apps/web/next-env.d.ts",
@@ -1535,12 +1551,12 @@
     {
       "path": "apps/web/package.json",
       "bytes": 981,
-      "sha256": "ee98e6529801375f499e120df8509129bf4be3ef634ab79dfdb1d73328d74d62"
+      "sha256": "20ac478e471e293fd0684c1eec7af7239431cff3f2b1cff2e8c48634f34c5a39"
     },
     {
       "path": "apps/web/playwright.config.ts",
-      "bytes": 802,
-      "sha256": "6d47ffcd089cda0d53d6ae43a42c0d74c66aee7be354ca83da80bcc0549c30df"
+      "bytes": 792,
+      "sha256": "db6030cac4c0d8c79223ae011be36c9801bfc528c2351117588de94c5ba2ebc5"
     },
     {
       "path": "apps/web/postcss.config.js",
@@ -1614,13 +1630,13 @@
     },
     {
       "path": "apps/web/src/components/enterprise-figma-ui.test.tsx",
-      "bytes": 6328,
-      "sha256": "80d42cd0ed68b17ef0d5bfc41c44bbe6140a162aca93985513bcc1101c3186a8"
+      "bytes": 6655,
+      "sha256": "136b3ef73bc3f2089a135183aafe8573945736658ded7f5363fa97127eeec013"
     },
     {
       "path": "apps/web/src/components/enterprise-figma-ui.tsx",
-      "bytes": 117393,
-      "sha256": "ed5464dfb1f263e393cbfd8b77e4ef714b8a28d9a18d7f4ccede3b01fb7e53b4"
+      "bytes": 127954,
+      "sha256": "6c8c6774a604fee358519a1c489ac34dba0645732f4330d3f45f4b69d9d99dcf"
     },
     {
       "path": "apps/web/src/components/panels.test.tsx",
@@ -1649,8 +1665,8 @@
     },
     {
       "path": "apps/web/src/lib/api.ts",
-      "bytes": 10754,
-      "sha256": "3598d4130f9f6cca00c07192b1914ac2c8f75cc5bd775ec63f0c44869ed8af83"
+      "bytes": 12296,
+      "sha256": "3b48df0dc1206d3922883d242468e48cfaf4d84fd6e91d2faca2b54dbb50c237"
     },
     {
       "path": "apps/web/src/lib/query-provider.tsx",
@@ -1689,8 +1705,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "bytes": 10760,
-      "sha256": "028c95f4c11e5a38bba7a7ef9020c4d0503a6e273025d4aa0d4f688739338a1a"
+      "bytes": 12030,
+      "sha256": "9b730662464f088758fab347a654280aa938721f6dd7e6c45dcd3a35d66d83f9"
     },
     {
       "path": "CICD_SETUP.md",
@@ -1700,7 +1716,7 @@
     {
       "path": "CITATION.cff",
       "bytes": 416,
-      "sha256": "7edf65815d981a3aee8729c360ae9791d618e2eb5af44a2128752ef1d5cc9d9d"
+      "sha256": "95c760312936c476afb66eb8c9165d48161ddc70aaf4ddddd125cf61d974968c"
     },
     {
       "path": "CODE_OF_CONDUCT.md",
@@ -1979,8 +1995,13 @@
     },
     {
       "path": "docs/PUBLIC_RELEASE.md",
-      "bytes": 5372,
-      "sha256": "14fca5c3613c4842dae646b22196bfa9de2608e8bc6d419031bf5a068e2f6d78"
+      "bytes": 5592,
+      "sha256": "518fe82e6897b353184439710b43f17ec286206b7dfc6ab631e13ca7493cbe4f"
+    },
+    {
+      "path": "docs/RELEASE_1.0.md",
+      "bytes": 2404,
+      "sha256": "0748e38a2cb3aea0b561766d39cb7b4255c95cc8cb711782decb49ee64678bd4"
     },
     {
       "path": "docs/SECURITY_REVIEW.md",
@@ -1994,8 +2015,8 @@
     },
     {
       "path": "docs/TEST_RESULTS.md",
-      "bytes": 8153,
-      "sha256": "3fcd3ae47314ff647d2c4379bef98e85b8af4af5e3891d01f759c2ac7a6393cb"
+      "bytes": 10195,
+      "sha256": "2e3308bf8a417eb9f9766fbb4fe5a2af9440851f768c4f5e52e9f0936a548849"
     },
     {
       "path": "installer/ann_launcher.ps1",
@@ -2044,8 +2065,8 @@
     },
     {
       "path": "installer/README_INSTALLER.md",
-      "bytes": 11667,
-      "sha256": "17ed7c7c752707b0db8f47af9e925933b25317059c768e14c389c7bd9bd33e64"
+      "bytes": 12086,
+      "sha256": "f78e77ad9b1eed18cbd1cacbaddf9139a335a760f6df2504f33208ead57652e6"
     },
     {
       "path": "installer/README_OFFLINE_RELEASE.md",
@@ -2084,18 +2105,18 @@
     },
     {
       "path": "LIMITATIONS.md",
-      "bytes": 1823,
-      "sha256": "c8953b558f471b0180030dce4d1f6c88669c6d32c838a80c0de0ddc1839008ea"
+      "bytes": 2393,
+      "sha256": "3fe68563d1e5a94c9db5d324518f6d9a239e8062cbea180952ec50a70264f234"
     },
     {
       "path": "package-lock.json",
       "bytes": 171627,
-      "sha256": "cc6f78be11984e07eeb1cb9269fa4438b22e5cfd71ee4483cb60d4c4ba4d3be3"
+      "sha256": "3f536397ad3d26962bee7d8952a57628cec7b499660b06af79284873b117cc55"
     },
     {
       "path": "package.json",
       "bytes": 667,
-      "sha256": "989a6e382cc6e2decdde81012f2521a0ecb902da10fc1d68d741873ccdefec08"
+      "sha256": "3403540616723e40ac9a4c2ff8520e02d3ab0e8c100092f082f5179847baf9f5"
     },
     {
       "path": "packages/agents/agentic_engineering_network/agents/definitions.py",
@@ -2335,7 +2356,7 @@
     {
       "path": "pyproject.toml",
       "bytes": 1375,
-      "sha256": "1efa9ff89a393a194aad536eb2432b2265946f82eb5873e076e907ace71e4085"
+      "sha256": "eb2747a14556e9d72c0422e68f24e5c2808ee8f2dfe60036dfa14709c96ee4d4"
     },
     {
       "path": "README_LOCAL_MODEL_BACKENDS.md",
@@ -2344,13 +2365,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 9482,
-      "sha256": "b9626425fbbd5848c1bf105f47b956a6a81c98fcdcef46b307473ac6706b403f"
+      "bytes": 9980,
+      "sha256": "aaa37fe0d9b65d29414c9bff4bb9aebe66460179b56d7e259d6ceb9ac967906b"
     },
     {
       "path": "ROADMAP.md",
-      "bytes": 1259,
-      "sha256": "cdf58070a7acc8675134744c4f5df273ff20a1ffad5504631101479da7ec5b3e"
+      "bytes": 1714,
+      "sha256": "ee53da801957822ee500791a353858b79c763790e3cf24ea6b94391db318fae0"
     },
     {
       "path": "scripts/deployment/package-release.ps1",
@@ -2401,6 +2422,11 @@
       "path": "scripts/release/build_offline_release_bundle.py",
       "bytes": 13389,
       "sha256": "3205be5515f1c370c834c8d4243855ec49499b9288234343fad5a5e1e8c599fd"
+    },
+    {
+      "path": "scripts/release/build-native-launchers.ps1",
+      "bytes": 2389,
+      "sha256": "613dd7e8f4379fd9d7679131952b35ddb83369202d5dfdc2475d415368990f73"
     },
     {
       "path": "scripts/release/build-public-repository.ps1",
@@ -3278,14 +3304,19 @@
       "sha256": "669c9692c05e76461aac9a1c7359216bb90d9f2b0b2d7b2a62e4dbfba9933a3c"
     },
     {
+      "path": "tests/python/test_model_setup.py",
+      "bytes": 8753,
+      "sha256": "35530a78666f12b561163535fdf7f492af347499f0d21c368fd14e84b8a07e67"
+    },
+    {
       "path": "tests/python/test_multifile_planner_runtime.py",
       "bytes": 5489,
       "sha256": "0139bcbe2737ccbc2692c7520a5257e4f09c48ccdaeeb639b51439629352479b"
     },
     {
       "path": "tests/python/test_offline_release_bundle.py",
-      "bytes": 4560,
-      "sha256": "51576eb859db302649b93f75f132bbc8a43a9f4a16cf76091542f4d6b3e25930"
+      "bytes": 5190,
+      "sha256": "ba88d72521c3b6e87d538c19fcac019154a3ada82e425dca66353cceef3140e9"
     },
     {
       "path": "tests/python/test_offline_runtime_desktop_status.py",
@@ -3574,8 +3605,8 @@
     },
     {
       "path": "tests/python/test_repository_intelligence_runtime.py",
-      "bytes": 6143,
-      "sha256": "da45fb9ed96c7d286c67d433c126afed12eb15af5328a17d4b2729ef2a08bfea"
+      "bytes": 6415,
+      "sha256": "0049e9cad0474862418839796a3d195efc64ec5128fb09768c97af3117b47d32"
     },
     {
       "path": "tests/python/test_responsibility_compensation.py",
@@ -3604,8 +3635,8 @@
     },
     {
       "path": "tests/python/test_run_store.py",
-      "bytes": 22171,
-      "sha256": "19558333025c519c8d506bacee9e5a69ab70538149e861f1871113be5b5f4314"
+      "bytes": 26935,
+      "sha256": "062dd586885c2002a2a375e9bb5dff93959a49eb9d4f75315393489a44393adf"
     },
     {
       "path": "tests/python/test_runtime_backend_adapters.py",

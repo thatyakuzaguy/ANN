@@ -2,12 +2,13 @@ FROM node:22-alpine AS deps
 WORKDIR /workspace
 COPY package.json package-lock.json* ./
 COPY apps/web/package.json apps/web/package.json
-RUN npm ci
+RUN npm ci --include=dev
 
 FROM node:22-alpine AS builder
 WORKDIR /workspace
 ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /workspace/node_modules ./node_modules
+COPY --from=deps /workspace/apps/web/node_modules ./apps/web/node_modules
 COPY package.json package-lock.json* ./
 COPY apps/web ./apps/web
 WORKDIR /workspace/apps/web

@@ -15,6 +15,7 @@
     "package:desktop": "npm --workspace apps/desktop run package"
   },
   "overrides": {
+    "brace-expansion": "5.0.8",
     "postcss": "8.5.20",
     "sharp": "0.35.3",
     "next": {

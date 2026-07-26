@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-07-22T18:52:37.7560621Z",
+  "generated_at_utc": "2026-07-26T04:26:57.8062765Z",
   "release_stage": "stable",
-  "source_revision": "41b96f63c4864ae598c63b6557b137bfe74ca0d3",
+  "source_revision": "ebf808c5d5438ec0417e72bc68d878d31619ef9f",
   "file_count": 811,
-  "total_bytes": 5965383,
+  "total_bytes": 5841743,
   "maximum_file_size_mb": 25,
   "files": [
     {
@@ -24,8 +24,8 @@
     },
     {
       "path": ".github/dependabot.yml",
-      "bytes": 915,
-      "sha256": "27e7b95eba85873dc49c51fc9eb8579ea02c35147acb87712c58187dfe1085cd"
+      "bytes": 984,
+      "sha256": "96215fc3d7317bb18b965b395ea6ca0564f94410353b47239538f85a121b7d02"
     },
     {
       "path": ".github/ISSUE_TEMPLATE/bug_report.yml",
@@ -64,18 +64,18 @@
     },
     {
       "path": ".github/workflows/lint.yml",
-      "bytes": 584,
-      "sha256": "eb4eb6b86cb60dabdfe75c4cb96840751966dfb3fbafe3158f71bebeba320462"
+      "bytes": 605,
+      "sha256": "1af0250f5a42efa6fe0263d4c09f80f18af783cb6abb38074bb7147a6a8cbc80"
     },
     {
       "path": ".github/workflows/security-scan.yml",
       "bytes": 1193,
-      "sha256": "851d0117dc97f5e7f8774cf65c9a281e4abde704b0d108b2ef7f22e90bd15bac"
+      "sha256": "882234b084178ea815d34119cd925eb615ff3246c15248fc60861c8607dd06fe"
     },
     {
       "path": ".github/workflows/test.yml",
       "bytes": 1611,
-      "sha256": "feaa343182a9f5ab9c9420e757b201b838469666df2bc13c5b9d7dfeafe9e41c"
+      "sha256": "f852a0d8fbcc18cab00c84992c9dc59307c058a8e623508861fea329fa15f248"
     },
     {
       "path": ".gitignore",
@@ -1514,8 +1514,8 @@
     },
     {
       "path": "apps/desktop/package.json",
-      "bytes": 1034,
-      "sha256": "dcdb722fd367ec40b0b7465dbde2a44e21cb04f962b498c6d3dda451fc7f8755"
+      "bytes": 523,
+      "sha256": "3009efc94b75793d8720e3fd54af1c99c1f1d2fd1b180c63feec7343e9a54396"
     },
     {
       "path": "apps/desktop/src/main.js",
@@ -1524,8 +1524,8 @@
     },
     {
       "path": "apps/web/next-env.d.ts",
-      "bytes": 251,
-      "sha256": "7ad303e40d4fddf44f156129e397511953a71481c5cfd86b1862649aaaf240cc"
+      "bytes": 247,
+      "sha256": "7b550dda9686c16f36a17bf9051d5dbf31e98555b30d114ac49fc49a1e712651"
     },
     {
       "path": "apps/web/next.config.ts",
@@ -1534,8 +1534,8 @@
     },
     {
       "path": "apps/web/package.json",
-      "bytes": 979,
-      "sha256": "221a6d40363b1575e72efe9fecf8af55dbb0163e86f63675b55edb44149933cc"
+      "bytes": 981,
+      "sha256": "70789008b28786eecbb2ef533ac669e7b2bd14bde8a4c12cdc5788a074494cc3"
     },
     {
       "path": "apps/web/playwright.config.ts",
@@ -1859,8 +1859,8 @@
     },
     {
       "path": "docker/web.Dockerfile",
-      "bytes": 828,
-      "sha256": "a4709b57ccab7f8ed1e6ff7ddb1fef0b09ca1ab384e0cbb07b9d392f08052246"
+      "bytes": 916,
+      "sha256": "756cd9b6a7c44ba89072973f58174b1ca77e0d3be1b04904cd4fde86dc0ed194"
     },
     {
       "path": "docs/adr/0001-clean-architecture-boundaries.md",
@@ -2089,13 +2089,13 @@
     },
     {
       "path": "package-lock.json",
-      "bytes": 294966,
-      "sha256": "1fd49bc97bb0ecd3aef0095768a4b5c80400fa7a5b3bf5b8a4ddf15257679707"
+      "bytes": 171627,
+      "sha256": "36979f7a131b3fa3a89b1307b78905f40d877ee24de63ce7ca7e6b6f60fe36be"
     },
     {
       "path": "package.json",
-      "bytes": 635,
-      "sha256": "7140918c41b3182bac712e7820265b185516184de4400e2d2bede8952942b6c2"
+      "bytes": 667,
+      "sha256": "989a6e382cc6e2decdde81012f2521a0ecb902da10fc1d68d741873ccdefec08"
     },
     {
       "path": "packages/agents/agentic_engineering_network/agents/definitions.py",
@@ -2334,8 +2334,8 @@
     },
     {
       "path": "pyproject.toml",
-      "bytes": 1373,
-      "sha256": "23bdb82e8606a6e56b8658329201d0ee0f54e88b79e7648c887b18c3eaeff1df"
+      "bytes": 1375,
+      "sha256": "1efa9ff89a393a194aad536eb2432b2265946f82eb5873e076e907ace71e4085"
     },
     {
       "path": "README_LOCAL_MODEL_BACKENDS.md",

@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-07-26T04:26:57.8062765Z",
+  "generated_at_utc": "2026-07-26T04:35:52.0102861Z",
   "release_stage": "stable",
-  "source_revision": "ebf808c5d5438ec0417e72bc68d878d31619ef9f",
+  "source_revision": "2444973d70bc981e6328397cd73daf96516b3dfe",
   "file_count": 811,
   "total_bytes": 5841743,
   "maximum_file_size_mb": 25,
@@ -1535,7 +1535,7 @@
     {
       "path": "apps/web/package.json",
       "bytes": 981,
-      "sha256": "70789008b28786eecbb2ef533ac669e7b2bd14bde8a4c12cdc5788a074494cc3"
+      "sha256": "ee98e6529801375f499e120df8509129bf4be3ef634ab79dfdb1d73328d74d62"
     },
     {
       "path": "apps/web/playwright.config.ts",
@@ -2090,7 +2090,7 @@
     {
       "path": "package-lock.json",
       "bytes": 171627,
-      "sha256": "36979f7a131b3fa3a89b1307b78905f40d877ee24de63ce7ca7e6b6f60fe36be"
+      "sha256": "cc6f78be11984e07eeb1cb9269fa4438b22e5cfd71ee4483cb60d4c4ba4d3be3"
     },
     {
       "path": "package.json",

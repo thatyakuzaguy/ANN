@@ -45,16 +45,17 @@ closing Desktop removed its child listeners, and the native uninstaller
 returned exit code 0 with zero residual files.
 
 ```text
-Final ANN 1.0.0 offline Community bundle
+Final ANN 1.0.1 offline Community bundle
 16,897 files
-4,400,360,157 bytes
-SHA-256 6e49f6f460735dc2a811dda4267ca3a022439a8a3376eb1b6c2eea0f8c54019f
+4,400,360,892 bytes
+SHA-256 49a6d33c847497245c9177ea8e4bcec1c5892d500d7adb85d6adbd3b0b22ece4
 3 parts, each below GitHub's 2 GiB release-asset limit
 ```
 
 The final `main` revision also passed Test, Lint, Security Scan, Docker Build,
-and CodeQL. CodeQL's reviewed local-GGUF capability findings were triaged
-individually after path hardening; no open high or critical alert remains.
+CodeQL, and GitHub's dependency graph update. CodeQL alert 58 was closed by
+the public-diagnostic hardening in 1.0.1. The repository reports zero open
+CodeQL, Dependabot, or secret-scanning alerts.
 
 Real local GPU lifecycle smokes passed for Qwen3 4B, Qwen2.5-Coder 7B, Qwen3
 8B, and DeepSeek-R1-Distill-Qwen 14B. Every smoke ended with

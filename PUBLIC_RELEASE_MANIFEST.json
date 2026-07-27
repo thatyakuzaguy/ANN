@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-07-27T07:33:01.2496692Z",
+  "generated_at_utc": "2026-07-27T08:07:36.8486907Z",
   "release_stage": "stable",
   "release_version": "1.0.1",
-  "source_revision": "35b9d4ddf657d8104589bde39cd69c43a767dde0",
+  "source_revision": "2a75a49320dbb4217dc21152b2965dfe1f918002",
   "file_count": 819,
-  "total_bytes": 5914016,
+  "total_bytes": 5914065,
   "maximum_file_size_mb": 25,
   "files": [
     {
@@ -2015,8 +2015,8 @@
     },
     {
       "path": "docs/TEST_RESULTS.md",
-      "bytes": 10353,
-      "sha256": "5802a97c1b852df9f8d88e365c6003ce9a42782804e25165cac1515c1c793860"
+      "bytes": 10402,
+      "sha256": "2e1379194811163dba356ff3f8b51ef00781fd34d1cdb3ac52a5197083904461"
     },
     {
       "path": "installer/ann_launcher.ps1",

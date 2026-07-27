@@ -477,8 +477,11 @@ def diagnose_llama_cpp_backend(model_path: str | Path | None = None) -> dict[str
             elif gpu_attr is False:
                 cuda_status = "CPU_ONLY"
                 gpu_support = "cpu_only"
-        except Exception as exc:  # pragma: no cover - depends on optional native binding state.
-            import_error = f"{type(exc).__name__}:{exc}"
+        except Exception:  # pragma: no cover - depends on optional native binding state.
+            # Native loader errors can contain absolute paths, driver details,
+            # and other host information. Keep the public diagnostic stable
+            # and non-sensitive; the caller only needs the failure class.
+            import_error = "llama_cpp_native_binding_import_failed"
             cuda_status = "IMPORT_ERROR"
             package_importable = False
     model_exists = candidate_path.is_file()
@@ -825,8 +828,8 @@ def diagnose_llama_cpp_real_status(model_path: str | Path | None = None) -> dict
                 "LLAMA_SUPPORTS_GPU_OFFLOAD": llama_cpp_supports_gpu_offload(llama_module),
                 "LLAMA_DEFAULT_SEED": getattr(llama_module, "LLAMA_DEFAULT_SEED", None),
             }
-        except Exception as exc:  # pragma: no cover - optional native binding.
-            errors.append(f"{type(exc).__name__}:{exc}")
+        except Exception:  # pragma: no cover - optional native binding.
+            errors.append("llama_cpp_native_binding_introspection_failed")
     model_ready = readiness["model_exists"] and readiness["model_readable"]
     if not readiness["binding_importable"]:
         status = "UNAVAILABLE"

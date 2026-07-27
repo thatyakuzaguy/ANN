@@ -2,6 +2,7 @@
   "schema_version": 1,
   "repository_name": "ANN",
   "release_stage": "stable",
+  "release_version": "1.0.1",
   "maximum_file_size_mb": 25,
   "source_directories": [
     ".github",

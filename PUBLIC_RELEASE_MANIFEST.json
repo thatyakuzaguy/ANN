@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-07-26T08:43:37.5801861Z",
+  "generated_at_utc": "2026-07-27T07:33:01.2496692Z",
   "release_stage": "stable",
-  "release_version": "1.0.0",
-  "source_revision": "1bcfee99fa2826fc0579f27cce5ce6c383dc0c5d",
-  "file_count": 817,
-  "total_bytes": 5905206,
+  "release_version": "1.0.1",
+  "source_revision": "35b9d4ddf657d8104589bde39cd69c43a767dde0",
+  "file_count": 819,
+  "total_bytes": 5914016,
   "maximum_file_size_mb": 25,
   "files": [
     {
@@ -296,7 +296,7 @@
     {
       "path": "agentic_network/desktop_app/main_window.py",
       "bytes": 38183,
-      "sha256": "fa616006c43472135d754ba5367d8d718ac2da4e99332780c9b151573871ea16"
+      "sha256": "d79b883577bbd23384d90421a34bcb0812d6bcecf8b8851ecf5aa5fec83e2af0"
     },
     {
       "path": "agentic_network/desktop_app/navigation.py",
@@ -1140,8 +1140,8 @@
     },
     {
       "path": "agentic_network/runtime_engine/local_model_activation.py",
-      "bytes": 575904,
-      "sha256": "d292f32163b49da73feb18255b9f707bf5fe49398e670f923fd2505705df90ba"
+      "bytes": 576148,
+      "sha256": "882370e3a0d48a5dbfff3c950dc789a60b9ae057110103d5cab6aa7920c08f33"
     },
     {
       "path": "agentic_network/runtime_engine/model_inventory.py",
@@ -1440,8 +1440,8 @@
     },
     {
       "path": "apps/api/app/api/routes.py",
-      "bytes": 21080,
-      "sha256": "6358af24930a2bdce3958e05edb55db0d759cf26bd604b581c0563be07a50874"
+      "bytes": 22187,
+      "sha256": "960fed18890e0d5a3b4aa6a9cd5a2f62a2ec73ed65539133c2a199b32ebfa3e8"
     },
     {
       "path": "apps/api/app/core/container.py",
@@ -1466,7 +1466,7 @@
     {
       "path": "apps/api/app/main.py",
       "bytes": 1389,
-      "sha256": "ea96f34a42ef8fc5f73123eebc7139c11b166a2e6d3d8e405f6bd710e6edfcd4"
+      "sha256": "0fad137db8066a195b6e4f3e9ef4ad2d5d0082344cdaabd170f434fb6db994d1"
     },
     {
       "path": "apps/api/app/models/project.py",
@@ -1521,7 +1521,7 @@
     {
       "path": "apps/desktop/package.json",
       "bytes": 523,
-      "sha256": "6bcfee5b04776dbcaa754ab0e52cadd404338d164da0d4aa5ee1b822cb1cd6e3"
+      "sha256": "722f28c9bdc2191339c607f5e705b684a5154fe47efad185a4add33200ed6477"
     },
     {
       "path": "apps/desktop/src/main.js",
@@ -1551,7 +1551,7 @@
     {
       "path": "apps/web/package.json",
       "bytes": 981,
-      "sha256": "20ac478e471e293fd0684c1eec7af7239431cff3f2b1cff2e8c48634f34c5a39"
+      "sha256": "ad70389916e849fbcfe78a662fde0c2d88651b746d3ed6262847e03c278d27a3"
     },
     {
       "path": "apps/web/playwright.config.ts",
@@ -1631,12 +1631,12 @@
     {
       "path": "apps/web/src/components/enterprise-figma-ui.test.tsx",
       "bytes": 6655,
-      "sha256": "136b3ef73bc3f2089a135183aafe8573945736658ded7f5363fa97127eeec013"
+      "sha256": "44aae5224228710711e4eae68c141355e6bdeaf85200cbff6a8cd4f2f2d173aa"
     },
     {
       "path": "apps/web/src/components/enterprise-figma-ui.tsx",
       "bytes": 127954,
-      "sha256": "6c8c6774a604fee358519a1c489ac34dba0645732f4330d3f45f4b69d9d99dcf"
+      "sha256": "5bde64f4430f4cc6da12735ec27981892bda76b8f5fba1685c767df35665aedd"
     },
     {
       "path": "apps/web/src/components/panels.test.tsx",
@@ -1705,8 +1705,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "bytes": 12030,
-      "sha256": "9b730662464f088758fab347a654280aa938721f6dd7e6c45dcd3a35d66d83f9"
+      "bytes": 12564,
+      "sha256": "122f845e66d56cf4cc000605e1ca85102cae37e11a4812a0ebdf01464df82e4d"
     },
     {
       "path": "CICD_SETUP.md",
@@ -1716,7 +1716,7 @@
     {
       "path": "CITATION.cff",
       "bytes": 416,
-      "sha256": "95c760312936c476afb66eb8c9165d48161ddc70aaf4ddddd125cf61d974968c"
+      "sha256": "741aca96b9b28d9e7947ab07e0eb5f9b379b91970aa538ebb3629c35f1796263"
     },
     {
       "path": "CODE_OF_CONDUCT.md",
@@ -1790,8 +1790,8 @@
     },
     {
       "path": "config/public-release.json",
-      "bytes": 1048,
-      "sha256": "1a366ef1980933f91890e65b7340c79110beac0a05296b8d3f60ea68a248eaf7"
+      "bytes": 1078,
+      "sha256": "1fb5b2dde9fe7bba6d382b7ef4eccec8abc89a0e9dc21f8190cb9c8e783c9122"
     },
     {
       "path": "CONTRIBUTING.md",
@@ -1996,7 +1996,7 @@
     {
       "path": "docs/PUBLIC_RELEASE.md",
       "bytes": 5592,
-      "sha256": "518fe82e6897b353184439710b43f17ec286206b7dfc6ab631e13ca7493cbe4f"
+      "sha256": "d204935528d136ffadc567a56133af3bb29d82029410d4df50f47241f1972a88"
     },
     {
       "path": "docs/RELEASE_1.0.md",
@@ -2015,8 +2015,8 @@
     },
     {
       "path": "docs/TEST_RESULTS.md",
-      "bytes": 10346,
-      "sha256": "b065c630ae9ec58292b71e03c82d950b050ee2904108dc4bb3808e9dfe80751a"
+      "bytes": 10353,
+      "sha256": "5802a97c1b852df9f8d88e365c6003ce9a42782804e25165cac1515c1c793860"
     },
     {
       "path": "installer/ann_launcher.ps1",
@@ -2111,12 +2111,12 @@
     {
       "path": "package-lock.json",
       "bytes": 171627,
-      "sha256": "3f536397ad3d26962bee7d8952a57628cec7b499660b06af79284873b117cc55"
+      "sha256": "32268dfc15b11a173f57bc8eac877251f7aab6e34b719733bcce0c59010dfd65"
     },
     {
       "path": "package.json",
       "bytes": 667,
-      "sha256": "3403540616723e40ac9a4c2ff8520e02d3ab0e8c100092f082f5179847baf9f5"
+      "sha256": "79f3232b95b41cdd44a6b4651c9c2ac20415d00ca536cf678cbd2b6de98b3c7a"
     },
     {
       "path": "packages/agents/agentic_engineering_network/agents/definitions.py",
@@ -2356,7 +2356,7 @@
     {
       "path": "pyproject.toml",
       "bytes": 1375,
-      "sha256": "eb2747a14556e9d72c0422e68f24e5c2808ee8f2dfe60036dfa14709c96ee4d4"
+      "sha256": "4fa73c077667577c857e27dd01ad8ae5f7e664936faa812f49b7b255fd5dcf5d"
     },
     {
       "path": "README_LOCAL_MODEL_BACKENDS.md",
@@ -2366,7 +2366,7 @@
     {
       "path": "README.md",
       "bytes": 9980,
-      "sha256": "aaa37fe0d9b65d29414c9bff4bb9aebe66460179b56d7e259d6ceb9ac967906b"
+      "sha256": "da6389f4239d69ebb96ae0ab11075f96dff4e876410681cd19e32df5c84d11af"
     },
     {
       "path": "ROADMAP.md",
@@ -2430,8 +2430,8 @@
     },
     {
       "path": "scripts/release/build-public-repository.ps1",
-      "bytes": 11233,
-      "sha256": "ba02faf3ebd7b8d4b50c4331736c292765c79c8ccb681a8dc1a12f0e06be16aa"
+      "bytes": 11400,
+      "sha256": "741b1d9a9fab900d6e3435fab436df7e0c312e9763360c614c9d745af31844f5"
     },
     {
       "path": "scripts/release/invoke-windows-sandbox-validation.ps1",
@@ -2662,6 +2662,11 @@
       "path": "tests/python/test_ann_v1_release_package_manifest.py",
       "bytes": 3769,
       "sha256": "3df948291f151c62081f3daa815085838cecd8f506a2006488ad63e2c484f40c"
+    },
+    {
+      "path": "tests/python/test_api_error_sanitization.py",
+      "bytes": 4152,
+      "sha256": "0d17d9bb1a9678dc5fb4b8b83560a835d622b2174c8ea3bd9889313cad54701d"
     },
     {
       "path": "tests/python/test_approval_effects.py",
@@ -3250,8 +3255,8 @@
     },
     {
       "path": "tests/python/test_llama_cpp_real_status.py",
-      "bytes": 1615,
-      "sha256": "1bd651049327abe7af62bc2f61c89a7f5163e21d63624a4d130f07322c46dece"
+      "bytes": 3594,
+      "sha256": "2ec51cf2cee6d7d13464b3103809085eb39d8953d62370512972f98ed4cab2d5"
     },
     {
       "path": "tests/python/test_llama_cpp_runtime_hardening.py",
@@ -3452,6 +3457,11 @@
       "path": "tests/python/test_public_alpha_readiness.py",
       "bytes": 1329,
       "sha256": "1597d64d3cbb83c1d520bdab538e451bf3dbe3bedf119c9de77db43c6cde682a"
+    },
+    {
+      "path": "tests/python/test_public_release_manifest_contract.py",
+      "bytes": 590,
+      "sha256": "a72e0e10709830df7406f90362c2aed5d1c29b7a3570b69a8aa03e05a58ad148"
     },
     {
       "path": "tests/python/test_qwen25_activation_gate.py",

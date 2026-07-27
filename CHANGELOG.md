@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+## 1.0.1 - 2026-07-27
+
+- Prevented native `llama_cpp` loader and introspection exceptions from
+  exposing host paths, driver details, or arbitrary diagnostic text.
+- Sanitized Stripe API failures and restricted the runtime-policy response to
+  its stable public fields while preserving local audit event types.
+- Added adversarial regression tests for secret/path disclosure at both the
+  model diagnostic and FastAPI boundaries.
+- Fixed the public repository exporter so generated manifests retain their
+  explicit release version.
+
 ## 1.0.0 - 2026-07-26
 
 - Promoted the audited local-first source and unsigned Community distribution

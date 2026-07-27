@@ -11,7 +11,7 @@ describe("Enterprise Figma UI integration", () => {
     );
 
     expect(page).toContain("EnterpriseFigmaUI");
-    expect(source).toContain("ANN 1.0.0");
+    expect(source).toContain("ANN 1.0.1");
     expect(source).toContain("RuntimePanel");
     expect(source).toContain("PipelinePage");
     expect(source).toContain("pipelineStages");

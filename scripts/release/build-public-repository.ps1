@@ -227,6 +227,7 @@ $manifest = [ordered]@{
     schema_version = 1
     generated_at_utc = [DateTime]::UtcNow.ToString("o")
     release_stage = [string]$config.release_stage
+    release_version = [string]$config.release_version
     source_revision = (git -C $SourceRoot rev-parse HEAD).Trim()
     file_count = $manifestFiles.Count
     total_bytes = [int64](($manifestFiles | Measure-Object Length -Sum).Sum)
@@ -238,6 +239,7 @@ $manifestLines.Add("{")
 $manifestLines.Add("  `"schema_version`": $($manifest.schema_version),")
 $manifestLines.Add("  `"generated_at_utc`": $(ConvertTo-Json -InputObject $manifest.generated_at_utc -Compress),")
 $manifestLines.Add("  `"release_stage`": $(ConvertTo-Json -InputObject $manifest.release_stage -Compress),")
+$manifestLines.Add("  `"release_version`": $(ConvertTo-Json -InputObject $manifest.release_version -Compress),")
 $manifestLines.Add("  `"source_revision`": $(ConvertTo-Json -InputObject $manifest.source_revision -Compress),")
 $manifestLines.Add("  `"file_count`": $($manifest.file_count),")
 $manifestLines.Add("  `"total_bytes`": $($manifest.total_bytes),")

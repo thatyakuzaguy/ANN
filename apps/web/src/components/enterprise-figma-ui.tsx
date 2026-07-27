@@ -177,7 +177,7 @@ const S = {
 };
 
 const TERMINAL_LINES: TerminalLine[] = [
-  { type: "system", text: "ANN 1.0.0 — Agentic Neural Network Operating System" },
+  { type: "system", text: "ANN 1.0.1 — Agentic Neural Network Operating System" },
   { type: "system", text: "Session: local desktop runtime · Conversation classifier active" },
   { type: "blank", text: "" },
   { type: "info",   text: "Write naturally to talk with ANN, or type help, status, logs, projects, artifacts, models, runtime, or clear." },
@@ -1259,7 +1259,7 @@ function StatusBar({ runtime, pipelineRunning }: { runtime: RuntimeData; pipelin
           <span className="w-1.5 h-1.5 rounded-full" style={{ background: runtime.status === "unavailable" ? "#ff3757" : "#00c896", boxShadow: `0 0 4px ${runtime.status === "unavailable" ? "#ff3757" : "#00c896"}` }} />
           <span>{runtime.status === "unavailable" ? "Telemetry unavailable" : "Runtime telemetry active"}</span>
         </div>
-        <span>ANN 1.0.0</span>
+        <span>ANN 1.0.1</span>
       </div>
     </footer>
   );

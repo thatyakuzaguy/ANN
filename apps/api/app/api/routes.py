@@ -78,6 +78,26 @@ def evidence_store() -> EvidenceStore:
     return EvidenceStore(settings)
 
 
+def _record_public_api_failure(event_type: str, actor: str, message: str, exc: Exception) -> None:
+    """Record a useful local failure without echoing provider details to clients."""
+
+    audit_logger.record(event_type, actor, message, {"error_type": type(exc).__name__})
+
+
+def _public_runtime_policy_result(result: dict[str, object]) -> dict[str, object]:
+    """Return only the stable, non-sensitive runtime-policy contract."""
+
+    keys = (
+        "status",
+        "backend",
+        "active_models",
+        "parallel_llm_loads",
+        "vram_policy",
+        "model_load_performed",
+    )
+    return {key: result[key] for key in keys if key in result}
+
+
 @router.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok", "service": "ann-api"}
@@ -153,7 +173,8 @@ def billing_checkout(payload: BillingCheckoutRequest) -> dict[str, object]:
     try:
         return StripeBillingService().create_checkout_session(payload.customer_email, payload.tenant_id)
     except Exception as exc:
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
+        _record_public_api_failure("billing.checkout_failed", "BillingAPI", "Billing checkout failed.", exc)
+        raise HTTPException(status_code=400, detail="Billing checkout could not be created.") from exc
 
 
 @router.post("/billing/portal")
@@ -161,7 +182,8 @@ def billing_portal(payload: BillingPortalRequest) -> dict[str, object]:
     try:
         return StripeBillingService().create_customer_portal(payload.customer_id)
     except Exception as exc:
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
+        _record_public_api_failure("billing.portal_failed", "BillingAPI", "Billing portal request failed.", exc)
+        raise HTTPException(status_code=400, detail="Customer portal could not be opened.") from exc
 
 
 @router.post("/billing/webhook")
@@ -171,7 +193,8 @@ async def billing_webhook(request: Request) -> dict[str, object]:
     try:
         return StripeBillingService().handle_webhook(payload, signature)
     except Exception as exc:
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
+        _record_public_api_failure("billing.webhook_rejected", "BillingAPI", "Billing webhook rejected.", exc)
+        raise HTTPException(status_code=400, detail="Invalid billing webhook.") from exc
 
 
 @router.get("/saas-templates")
@@ -498,7 +521,7 @@ def update_model_runtime_policy(payload: ModelRuntimePolicyUpdate) -> dict[str, 
             "parallel_llm_loads": result["parallel_llm_loads"],
         },
     )
-    return result
+    return _public_runtime_policy_result(result)
 
 
 @router.post("/settings")

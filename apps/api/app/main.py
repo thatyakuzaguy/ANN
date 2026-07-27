@@ -14,7 +14,7 @@ from app.core.settings import settings
 
 app = FastAPI(
     title="ANN (Agentic Neural Network) API",
-    version="1.0.0",
+    version="1.0.1",
     description="Approval-gated autonomous software engineering orchestration API.",
 )
 

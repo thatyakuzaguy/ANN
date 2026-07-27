@@ -74,8 +74,8 @@ and must be removed when a stable Next.js release declares patched versions.
 
 ## Stable Source Release Status
 
-ANN `v1.0.0` is the stable source and unsigned Community release. Its local
-release gate passed 1,588 Python tests with 54 intentional public-evidence
+ANN `v1.0.1` is the stable source and unsigned Community release. Its local
+release gate passed 1,599 Python tests with 54 intentional public-evidence
 skips, Ruff, frontend tests and TypeScript, the Next.js production build,
 Playwright, Electron packaging, split-bundle verification, isolated install,
 Desktop/API/web startup, and zero-residual uninstall. GitHub's Test, Lint,
@@ -96,7 +96,7 @@ redistribution rights.
 
 ## Development And Validation Hardware
 
-ANN `v1.0.0` was primarily developed and validated on an AMD Ryzen 5 2600,
+ANN `v1.0.1` was primarily developed and validated on an AMD Ryzen 5 2600,
 an NVIDIA GeForce RTX 3060 Ti with 8 GB of VRAM, and 32 GB of DDR4 system
 memory. This is evidence of the tested workstation, not a formal minimum or
 recommended hardware requirement.

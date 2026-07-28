@@ -137,6 +137,12 @@ describe("Enterprise Figma UI integration", () => {
     expect(source).toContain('latestRun(backendRuns)?.status === "running"');
     expect(source).toContain('run.status === "running"');
     expect(source).toContain('activeAgentStates.has(agent.status)');
+    expect(source).toContain("Engineering Skills");
+    expect(source).toContain("api.setSkillPermission");
+    expect(source).toContain("api.executeSkill");
+    expect(source).toContain("Continue approved action");
+    expect(source).toContain("ann.pending-engineering-skill");
+    expect(source).toContain("sessionStorage");
   });
 
   it("does not render dependency-blocked pipeline stages as active errors", () => {

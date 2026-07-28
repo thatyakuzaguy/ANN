@@ -259,6 +259,36 @@ export type ModelSetupState = {
   };
 };
 
+export type EngineeringSkillAction = {
+  name: string;
+  description: string;
+  permissions: string[];
+  approval_required: boolean;
+  mutates_project: boolean;
+};
+
+export type EngineeringSkill = {
+  name: string;
+  version: string;
+  description: string;
+  enabled: boolean;
+  permissions: Record<string, string>;
+  stored_permissions: Record<string, string>;
+  actions: EngineeringSkillAction[];
+};
+
+export type SkillExecution = {
+  status: string;
+  skill: string;
+  action: string;
+  approval_id?: string;
+  duration?: number;
+  permission_used?: string[];
+  audit_path?: string;
+  output?: Record<string, unknown>;
+  errors?: string[];
+};
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const controller = init?.signal ? null : new AbortController();
   const timeout = controller
@@ -309,6 +339,30 @@ export const api = {
       execution_policy: "SEQUENTIAL";
       results: SubagentResult[];
     }>(`/subagents/state?limit=${limit}${runId ? `&run_id=${encodeURIComponent(runId)}` : ""}`),
+  skills: () =>
+    request<{
+      skills: EngineeringSkill[];
+      safety: Record<string, boolean>;
+    }>("/skills"),
+  setSkillPermission: (skill: string, permission: string, decision: string) =>
+    request<{ skill: string; permission: string; decision: string }>(
+      `/skills/${encodeURIComponent(skill)}/permissions`,
+      { method: "POST", body: JSON.stringify({ permission, decision }) }
+    ),
+  executeSkill: (
+    skill: string,
+    action: string,
+    payload: Record<string, unknown>,
+    approvalId?: string
+  ) => {
+    const controller = new AbortController();
+    const timeout = globalThis.setTimeout(() => controller.abort(), 10 * 60 * 1000);
+    return request<SkillExecution>(`/skills/${encodeURIComponent(skill)}/execute`, {
+      method: "POST",
+      body: JSON.stringify({ action, payload, approval_id: approvalId }),
+      signal: controller.signal
+    }).finally(() => globalThis.clearTimeout(timeout));
+  },
   agentOfficeState: () => request<AgentOfficeState>("/agent-office/state"),
   agentOfficeEvents: (limit = 50) => request<{ events: AgentOfficeEvent[] }>(`/agent-office/events?limit=${limit}`),
   approvals: () => request<Approval[]>("/approvals"),

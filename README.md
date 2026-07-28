@@ -209,6 +209,7 @@ manifest.
 - [Architecture](ARCHITECTURE.md)
 - [Agent responsibilities](AGENTS.md)
 - [Controlled subagents](docs/CONTROLLED_SUBAGENTS.md)
+- [Engineering skills](docs/ENGINEERING_SKILLS.md)
 - [Security policy](SECURITY.md)
 - [Dependency security](docs/DEPENDENCY_SECURITY.md)
 - [Known limitations](LIMITATIONS.md)

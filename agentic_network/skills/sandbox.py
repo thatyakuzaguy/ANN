@@ -89,6 +89,8 @@ def evaluate_skill_sandbox(
     registry: SkillRegistry | None = None,
     store: SkillPermissionStore | None = None,
     outputs_root: str | Path | None = None,
+    controlled_terminal: bool = False,
+    consume_once: bool = True,
 ) -> SandboxResult:
     """Evaluate whether a skill action may run inside the local sandbox."""
 
@@ -130,14 +132,18 @@ def evaluate_skill_sandbox(
     denied: list[str] = []
     blocked: list[str] = []
     for permission in requested_permissions:
+        declared = skill.permissions.get(permission, PermissionDecision.DENY)
+        if declared == PermissionDecision.DENY:
+            denied.append(permission)
+            continue
         decision = resolved_store.get_permission(safe_name, permission)
         if permission_decision_allows(decision):
             granted.append(permission)
-            if decision == PermissionDecision.ALLOW_ONCE:
+            if decision == PermissionDecision.ALLOW_ONCE and consume_once:
                 resolved_store.set_permission(safe_name, permission, PermissionDecision.ASK_ALWAYS)
         elif decision in {PermissionDecision.DENY, PermissionDecision.DENY_ONCE, PermissionDecision.DENY_ALWAYS}:
             denied.append(permission)
-            if decision == PermissionDecision.DENY_ONCE:
+            if decision == PermissionDecision.DENY_ONCE and consume_once:
                 resolved_store.set_permission(safe_name, permission, PermissionDecision.ASK_ALWAYS)
         else:
             blocked.append(permission)
@@ -145,14 +151,14 @@ def evaluate_skill_sandbox(
     network_allowed = SkillPermission.NETWORK.value in granted
     git_allowed = any(permission in granted for permission in {SkillPermission.GIT_READ.value, SkillPermission.GIT_WRITE.value})
     terminal_allowed = SkillPermission.TERMINAL_EXECUTE.value in granted
-    if terminal_allowed:
+    if terminal_allowed and not controlled_terminal:
         return _blocked(
             safe_name,
             requested_permissions,
             granted,
             allowed_paths,
             blocked_paths,
-            "Terminal execution is not available in v10.2 sandbox.",
+            "Terminal execution requires a registered controlled recipe.",
         )
     if denied:
         return SandboxResult(
@@ -185,8 +191,12 @@ def evaluate_skill_sandbox(
         blocked_paths=blocked_paths,
         network_allowed=network_allowed,
         git_allowed=git_allowed,
-        terminal_allowed=False,
-        reason="Sandbox permissions granted for local permission_test only.",
+        terminal_allowed=terminal_allowed,
+        reason=(
+            "Sandbox permissions granted for a controlled local recipe."
+            if controlled_terminal
+            else "Sandbox permissions granted for local execution."
+        ),
     )
 
 

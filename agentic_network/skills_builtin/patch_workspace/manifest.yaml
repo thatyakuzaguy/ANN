@@ -1,0 +1,13 @@
+name: patch_workspace
+version: 1.0
+description: Diff validation and approval-gated patch application.
+enabled: true
+requires_user_approval: true
+audit_enabled: true
+permissions:
+  network: DENY
+  filesystem_read: ASK_ALWAYS
+  filesystem_write: ASK_ALWAYS
+  git_read: DENY
+  git_write: DENY
+  terminal_execute: DENY

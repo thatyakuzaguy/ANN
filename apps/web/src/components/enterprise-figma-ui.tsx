@@ -10,7 +10,7 @@ import {
   TrendingUp, Package, Terminal, Eye, FlaskConical,
   Server, Network, Hash, Filter, Download, Lock, ChevronLeft
 } from "lucide-react";
-import { api, type AgentOfficeAgent, type AgentOfficeEvent, type AgentOfficeState, type Approval, type EngineeringRun, type ModelSetupState } from "@/lib/api";
+import { api, type AgentOfficeAgent, type AgentOfficeEvent, type AgentOfficeState, type Approval, type EngineeringRun, type ModelSetupState, type SkillExecution } from "@/lib/api";
 
 declare global {
   interface Window {
@@ -86,6 +86,28 @@ type UiBrowseResponse = {
 };
 
 type BackendSettings = Awaited<ReturnType<typeof api.settings>>;
+type BackendSkills = Awaited<ReturnType<typeof api.skills>>;
+
+const PENDING_SKILL_STORAGE_KEY = "ann.pending-engineering-skill";
+
+type PendingSkillExecution = {
+  skill: string;
+  action: string;
+  projectRoot: string;
+  payloadText: string;
+  approvalId: string;
+};
+
+function readPendingSkillExecution(): PendingSkillExecution | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const value = window.sessionStorage.getItem(PENDING_SKILL_STORAGE_KEY);
+    return value ? JSON.parse(value) as PendingSkillExecution : null;
+  } catch {
+    window.sessionStorage.removeItem(PENDING_SKILL_STORAGE_KEY);
+    return null;
+  }
+}
 
 type UiLoadState = "loading" | "ready" | "error";
 
@@ -2078,7 +2100,95 @@ function RuntimeDetailPage({ runtime, tokenHistory }: { runtime: RuntimeData; to
   );
 }
 
-function SettingsPage({ uiState, settings }: { uiState: UiState | null; settings: BackendSettings | null }) {
+function SettingsPage({
+  uiState,
+  settings,
+  skills,
+  onSkillsChanged,
+}: {
+  uiState: UiState | null;
+  settings: BackendSettings | null;
+  skills: BackendSkills | null;
+  onSkillsChanged: () => Promise<void>;
+}) {
+  const engineeringSkills = (skills?.skills ?? []).filter(skill => skill.actions.length > 0);
+  const [restoredPending] = useState(readPendingSkillExecution);
+  const [selectedSkillName, setSelectedSkillName] = useState(restoredPending?.skill ?? "");
+  const [selectedActionName, setSelectedActionName] = useState(restoredPending?.action ?? "");
+  const [projectRoot, setProjectRoot] = useState(restoredPending?.projectRoot ?? uiState?.settings.workspaceRoot ?? "D:\\AgenticEngineeringNetwork");
+  const [payloadText, setPayloadText] = useState(restoredPending?.payloadText ?? "{}");
+  const [skillBusy, setSkillBusy] = useState(false);
+  const [skillResult, setSkillResult] = useState<SkillExecution | null>(null);
+  const [skillError, setSkillError] = useState("");
+  const [pendingApprovalId, setPendingApprovalId] = useState<string | undefined>(restoredPending?.approvalId);
+  const selectedSkill = engineeringSkills.find(skill => skill.name === selectedSkillName) ?? engineeringSkills[0];
+  const selectedAction = selectedSkill?.actions.find(action => action.name === selectedActionName) ?? selectedSkill?.actions[0];
+
+  const clearPendingApproval = () => {
+    setPendingApprovalId(undefined);
+    if (typeof window !== "undefined") window.sessionStorage.removeItem(PENDING_SKILL_STORAGE_KEY);
+  };
+
+  useEffect(() => {
+    if (!selectedSkillName && engineeringSkills[0]) setSelectedSkillName(engineeringSkills[0].name);
+  }, [engineeringSkills, selectedSkillName]);
+
+  useEffect(() => {
+    if (selectedSkill && !selectedSkill.actions.some(action => action.name === selectedActionName)) {
+      setSelectedActionName(selectedSkill.actions[0]?.name ?? "");
+      clearPendingApproval();
+      setSkillResult(null);
+    }
+  }, [selectedSkill, selectedActionName]);
+
+  const setPermission = async (permission: string, decision: string) => {
+    if (!selectedSkill) return;
+    setSkillBusy(true);
+    setSkillError("");
+    try {
+      await api.setSkillPermission(selectedSkill.name, permission, decision);
+      await onSkillsChanged();
+    } catch (error) {
+      setSkillError(error instanceof Error ? error.message : "Permission update failed.");
+    } finally {
+      setSkillBusy(false);
+    }
+  };
+
+  const runSkill = async () => {
+    if (!selectedSkill || !selectedAction) return;
+    setSkillBusy(true);
+    setSkillError("");
+    try {
+      const parsed = JSON.parse(payloadText) as Record<string, unknown>;
+      const result = await api.executeSkill(
+        selectedSkill.name,
+        selectedAction.name,
+        { ...parsed, project_root: projectRoot },
+        pendingApprovalId
+      );
+      setSkillResult(result);
+      if (result.status === "PENDING_APPROVAL" && result.approval_id) {
+        setPendingApprovalId(result.approval_id);
+        window.sessionStorage.setItem(
+          PENDING_SKILL_STORAGE_KEY,
+          JSON.stringify({
+            skill: selectedSkill.name,
+            action: selectedAction.name,
+            projectRoot,
+            payloadText,
+            approvalId: result.approval_id,
+          } satisfies PendingSkillExecution)
+        );
+      } else {
+        clearPendingApproval();
+      }
+    } catch (error) {
+      setSkillError(error instanceof Error ? error.message : "Skill execution failed.");
+    } finally {
+      setSkillBusy(false);
+    }
+  };
   const items = [
     { label: "Approval Mode", value: uiState?.settings.approvalMode ?? "supervised" },
     { label: "Workspace Root", value: uiState?.settings.workspaceRoot ?? "D:\\AgenticEngineeringNetwork" },
@@ -2100,6 +2210,71 @@ function SettingsPage({ uiState, settings }: { uiState: UiState | null; settings
             <p className="text-sm break-all" style={{ color: "#d4dff7", fontFamily: "JetBrains Mono, monospace" }}>{item.value}</p>
           </div>
         ))}
+      </div>
+      <div className="mt-4 rounded-xl border p-4" style={{ background: "rgba(12,18,33,0.8)", borderColor: "rgba(0,208,255,0.1)" }}>
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <div>
+            <p className="text-sm font-semibold" style={{ color: "#d4dff7" }}>Engineering Skills</p>
+            <p className="text-[10px] mt-1" style={{ color: "rgba(212,223,247,0.4)" }}>Closed recipes only. Terminal and mutating actions continue through Approval Center.</p>
+          </div>
+          <span className="text-[10px]" style={{ color: "#00c896" }}>{engineeringSkills.length} available</span>
+        </div>
+        {engineeringSkills.length === 0 ? (
+          <p className="text-xs" style={{ color: "rgba(212,223,247,0.45)" }}>Skills API unavailable.</p>
+        ) : (
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <label className="text-[10px] uppercase tracking-wider" style={{ color: "rgba(212,223,247,0.4)" }}>
+                Skill
+                <select aria-label="Engineering skill" value={selectedSkill?.name ?? ""} onChange={event => { setSelectedSkillName(event.target.value); clearPendingApproval(); }} className="mt-1 w-full rounded border px-2 py-2 text-xs" style={{ background: "#070c16", borderColor: "rgba(0,208,255,0.16)", color: "#d4dff7" }}>
+                  {engineeringSkills.map(skill => <option key={skill.name} value={skill.name}>{skill.name}</option>)}
+                </select>
+              </label>
+              <label className="text-[10px] uppercase tracking-wider" style={{ color: "rgba(212,223,247,0.4)" }}>
+                Action
+                <select aria-label="Skill action" value={selectedAction?.name ?? ""} onChange={event => { setSelectedActionName(event.target.value); clearPendingApproval(); }} className="mt-1 w-full rounded border px-2 py-2 text-xs" style={{ background: "#070c16", borderColor: "rgba(0,208,255,0.16)", color: "#d4dff7" }}>
+                  {(selectedSkill?.actions ?? []).map(action => <option key={action.name} value={action.name}>{action.name}</option>)}
+                </select>
+              </label>
+            </div>
+            <label className="block text-[10px] uppercase tracking-wider" style={{ color: "rgba(212,223,247,0.4)" }}>
+              Project root
+              <input aria-label="Skill project root" value={projectRoot} onChange={event => { setProjectRoot(event.target.value); clearPendingApproval(); }} className="mt-1 w-full rounded border px-2 py-2 text-xs" style={{ background: "#070c16", borderColor: "rgba(0,208,255,0.16)", color: "#d4dff7", fontFamily: "JetBrains Mono, monospace" }} />
+            </label>
+            <label className="block text-[10px] uppercase tracking-wider" style={{ color: "rgba(212,223,247,0.4)" }}>
+              Action payload (JSON)
+              <textarea aria-label="Skill action payload" value={payloadText} onChange={event => { setPayloadText(event.target.value); clearPendingApproval(); }} rows={3} className="mt-1 w-full rounded border px-2 py-2 text-xs" style={{ background: "#070c16", borderColor: "rgba(0,208,255,0.16)", color: "#d4dff7", fontFamily: "JetBrains Mono, monospace" }} />
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {(selectedAction?.permissions ?? []).map(permission => {
+                const decision = selectedSkill?.stored_permissions[permission] ?? "ASK_ALWAYS";
+                return (
+                  <div key={permission} className="flex items-center gap-1 rounded border px-2 py-1" style={{ borderColor: "rgba(0,208,255,0.1)" }}>
+                    <span className="text-[10px]" style={{ color: "rgba(212,223,247,0.5)" }}>{permission}: {decision}</span>
+                    <button type="button" disabled={skillBusy} onClick={() => setPermission(permission, "ALLOW_ONCE")} className="text-[9px] px-1" style={{ color: "#f5a623" }}>Once</button>
+                    <button type="button" disabled={skillBusy} onClick={() => setPermission(permission, "ALLOW_ALWAYS")} className="text-[9px] px-1" style={{ color: "#00c896" }}>Always</button>
+                    <button type="button" disabled={skillBusy} onClick={() => setPermission(permission, "DENY_ALWAYS")} className="text-[9px] px-1" style={{ color: "#ff3757" }}>Deny</button>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="flex items-center gap-3">
+              <button type="button" disabled={skillBusy || !selectedAction} onClick={runSkill} className="rounded border px-3 py-2 text-xs font-semibold" style={{ background: "rgba(0,208,255,0.08)", borderColor: "rgba(0,208,255,0.3)", color: "#00d0ff" }}>
+                {skillBusy ? "Running..." : pendingApprovalId ? "Continue approved action" : "Run skill"}
+              </button>
+              {selectedAction?.approval_required && <span className="text-[10px]" style={{ color: "#f5a623" }}>Approval Center required</span>}
+            </div>
+            {skillError && <p role="alert" className="text-xs" style={{ color: "#ff3757" }}>{skillError}</p>}
+            {skillResult && (
+              <div className="rounded border p-3 text-[10px]" style={{ background: "#05080f", borderColor: "rgba(0,208,255,0.1)", color: "rgba(212,223,247,0.65)", fontFamily: "JetBrains Mono, monospace" }}>
+                <p>Status: <span style={{ color: skillResult.status === "SUCCESS" ? "#00c896" : "#f5a623" }}>{skillResult.status}</span></p>
+                {skillResult.approval_id && <p>Approval: {skillResult.approval_id}</p>}
+                {skillResult.audit_path && <p className="break-all">Audit: {skillResult.audit_path}</p>}
+                {skillResult.errors?.length ? <p className="break-all">Errors: {skillResult.errors.join("; ")}</p> : null}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -2402,6 +2577,7 @@ export default function App() {
   const [backendLoadState, setBackendLoadState] = useState<UiLoadState>("loading");
   const [approvalLoadState, setApprovalLoadState] = useState<UiLoadState>("loading");
   const [backendSettings, setBackendSettings] = useState<BackendSettings | null>(null);
+  const [backendSkills, setBackendSkills] = useState<BackendSkills | null>(null);
   const [modelSetup, setModelSetup] = useState<ModelSetupState | null>(null);
   const [notice, setNotice] = useState<AppNotice | null>(null);
   const [tokenHistory, setTokenHistory] = useState(() =>
@@ -2491,7 +2667,7 @@ export default function App() {
     let cancelled = false;
 
     const loadBackendState = async () => {
-      const [officeResult, eventsResult, logsResult, settingsResult, runsResult, approvalsResult, modelsResult] = await Promise.allSettled([
+      const [officeResult, eventsResult, logsResult, settingsResult, runsResult, approvalsResult, modelsResult, skillsResult] = await Promise.allSettled([
         api.agentOfficeState(),
         api.agentOfficeEvents(20),
         api.logs(),
@@ -2499,6 +2675,7 @@ export default function App() {
         api.runs(25),
         api.approvals(),
         api.models(),
+        api.skills(),
       ]);
       if (cancelled) return;
       if (officeResult.status === "fulfilled") setAgentOffice(officeResult.value);
@@ -2518,6 +2695,7 @@ export default function App() {
         setApprovalLoadState("error");
       }
       if (modelsResult.status === "fulfilled") setModelSetup(modelsResult.value);
+      if (skillsResult.status === "fulfilled") setBackendSkills(skillsResult.value);
     };
 
     void loadBackendState();
@@ -2552,6 +2730,11 @@ export default function App() {
     }
   };
 
+  const refreshSkills = async () => {
+    const result = await api.skills();
+    setBackendSkills(result);
+  };
+
   const refreshModels = async () => {
     setUiRefreshToken(token => token + 1);
     try {
@@ -2579,7 +2762,7 @@ export default function App() {
       case "runtime":    return <RuntimeDetailPage runtime={runtime} tokenHistory={tokenHistory} />;
       case "artifacts":  return <WorkspaceListPage title="Artifacts" icon={Archive} description="Browse and download all generated code, specs, and reports from pipeline runs." entries={uiState?.artifacts ?? []} loadState={uiLoadState} accent="#f5a623" />;
       case "approvals":  return <ApprovalCenterPage approvals={approvals} activeRun={activeRun} loadState={approvalLoadState} onRefresh={refreshApprovalsAndRuns} onNotice={showNotice} />;
-      case "settings":   return <SettingsPage uiState={uiState} settings={backendSettings} />;
+      case "settings":   return <SettingsPage uiState={uiState} settings={backendSettings} skills={backendSkills} onSkillsChanged={refreshSkills} />;
       default:           return null;
     }
   };

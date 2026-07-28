@@ -6,7 +6,7 @@ import time
 from pathlib import Path
 
 from agentic_network.skills.audit import SkillAuditLogger
-from agentic_network.skills.executor import SkillExecutionResult, SkillExecutor
+from agentic_network.skills.executor import ApprovalValidator, SkillExecutionResult, SkillExecutor
 from agentic_network.skills.models import PermissionRequestResult, Skill
 from agentic_network.skills.permissions import PermissionEngine
 from agentic_network.skills.permission_store import SkillPermissionStore
@@ -22,6 +22,7 @@ class SkillsManager:
         permission_engine: PermissionEngine | None = None,
         audit_logger: SkillAuditLogger | None = None,
         permission_store: SkillPermissionStore | None = None,
+        approval_validator: ApprovalValidator | None = None,
     ) -> None:
         self.registry = registry or SkillRegistry()
         self.permission_store = permission_store or SkillPermissionStore()
@@ -34,6 +35,7 @@ class SkillsManager:
             registry=self.registry,
             store=self.permission_store,
             audit_logger=self.audit_logger,
+            approval_validator=approval_validator,
         )
 
     def register_skill(self, manifest_path: str | Path) -> Skill:

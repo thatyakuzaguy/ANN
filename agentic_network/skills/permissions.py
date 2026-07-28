@@ -53,6 +53,16 @@ class PermissionEngine:
                 decision=PermissionDecision.DENY,
                 errors=["skill_disabled"],
             )
+        declared = skill.permissions.get(permission, PermissionDecision.DENY)
+        if declared == PermissionDecision.DENY:
+            return PermissionRequestResult(
+                skill_name=skill_name,
+                permission=permission,
+                reason=reason,
+                decision=PermissionDecision.DENY,
+                errors=["permission_denied_by_manifest"],
+                persistent=True,
+            )
         if self.permission_store.has_permission(skill_name, permission):
             decision = self.permission_store.get_permission(skill_name, permission)
             persistent = decision in {PermissionDecision.ALLOW_ALWAYS, PermissionDecision.DENY_ALWAYS}

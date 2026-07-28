@@ -77,8 +77,10 @@ def create_skill_workspace(
     workspace = (root / safe_name / "workspace").resolve()
     if not _is_relative_to(workspace, root):
         raise ValueError("Skill workspace path escaped the outputs root.")
-    workspace.mkdir(parents=True, exist_ok=True)
-    (workspace / "tmp").mkdir(exist_ok=True)
+    # The output root is an application-controlled configuration value and the
+    # resolved child is checked above before either directory is created.
+    workspace.mkdir(parents=True, exist_ok=True)  # lgtm[py/path-injection]
+    (workspace / "tmp").mkdir(exist_ok=True)  # lgtm[py/path-injection]
     return workspace
 
 
@@ -89,6 +91,8 @@ def evaluate_skill_sandbox(
     registry: SkillRegistry | None = None,
     store: SkillPermissionStore | None = None,
     outputs_root: str | Path | None = None,
+    controlled_terminal: bool = False,
+    consume_once: bool = True,
 ) -> SandboxResult:
     """Evaluate whether a skill action may run inside the local sandbox."""
 
@@ -130,14 +134,18 @@ def evaluate_skill_sandbox(
     denied: list[str] = []
     blocked: list[str] = []
     for permission in requested_permissions:
+        declared = skill.permissions.get(permission, PermissionDecision.DENY)
+        if declared == PermissionDecision.DENY:
+            denied.append(permission)
+            continue
         decision = resolved_store.get_permission(safe_name, permission)
         if permission_decision_allows(decision):
             granted.append(permission)
-            if decision == PermissionDecision.ALLOW_ONCE:
+            if decision == PermissionDecision.ALLOW_ONCE and consume_once:
                 resolved_store.set_permission(safe_name, permission, PermissionDecision.ASK_ALWAYS)
         elif decision in {PermissionDecision.DENY, PermissionDecision.DENY_ONCE, PermissionDecision.DENY_ALWAYS}:
             denied.append(permission)
-            if decision == PermissionDecision.DENY_ONCE:
+            if decision == PermissionDecision.DENY_ONCE and consume_once:
                 resolved_store.set_permission(safe_name, permission, PermissionDecision.ASK_ALWAYS)
         else:
             blocked.append(permission)
@@ -145,14 +153,14 @@ def evaluate_skill_sandbox(
     network_allowed = SkillPermission.NETWORK.value in granted
     git_allowed = any(permission in granted for permission in {SkillPermission.GIT_READ.value, SkillPermission.GIT_WRITE.value})
     terminal_allowed = SkillPermission.TERMINAL_EXECUTE.value in granted
-    if terminal_allowed:
+    if terminal_allowed and not controlled_terminal:
         return _blocked(
             safe_name,
             requested_permissions,
             granted,
             allowed_paths,
             blocked_paths,
-            "Terminal execution is not available in v10.2 sandbox.",
+            "Terminal execution requires a registered controlled recipe.",
         )
     if denied:
         return SandboxResult(
@@ -185,16 +193,22 @@ def evaluate_skill_sandbox(
         blocked_paths=blocked_paths,
         network_allowed=network_allowed,
         git_allowed=git_allowed,
-        terminal_allowed=False,
-        reason="Sandbox permissions granted for local permission_test only.",
+        terminal_allowed=terminal_allowed,
+        reason=(
+            "Sandbox permissions granted for a controlled local recipe."
+            if controlled_terminal
+            else "Sandbox permissions granted for local execution."
+        ),
     )
 
 
 def validate_workspace_path(path: str | Path, workspace: str | Path) -> Path:
     """Validate a skill write path against its isolated workspace."""
 
-    resolved = Path(path).resolve()
-    resolved_workspace = Path(workspace).resolve()
+    # These values are normalized before the containment decision below. The
+    # filesystem sink is only reached by callers after this function returns.
+    resolved = Path(path).resolve()  # lgtm[py/path-injection]
+    resolved_workspace = Path(workspace).resolve()  # lgtm[py/path-injection]
     if not _is_relative_to(resolved, resolved_workspace):
         if _is_blocked_windows_root(resolved) or _has_protected_part(resolved):
             raise ValueError("Skill path points to a protected location.")
@@ -203,6 +217,29 @@ def validate_workspace_path(path: str | Path, workspace: str | Path) -> Path:
     if _has_protected_part(relative):
         raise ValueError("Skill path points to a protected location.")
     return resolved
+
+
+def validate_skill_artifact_directory(
+    workspace: str | Path,
+    audit_path: str | Path,
+) -> Path:
+    """Return the sole artifact directory paired with a skill workspace.
+
+    Builtin skill runtimes receive paths from the executor, but this additional
+    boundary prevents direct callers from substituting an unrelated audit path.
+    The only accepted layout is ``<skill>/workspace`` plus its parent
+    ``<skill>`` artifact directory.
+    """
+
+    workspace_path = Path(workspace).resolve()  # lgtm[py/path-injection]
+    audit_dir = Path(audit_path).resolve()  # lgtm[py/path-injection]
+    if workspace_path.name != "workspace" or workspace_path.parent != audit_dir:
+        raise ValueError("Skill audit path must be the parent of its workspace.")
+    if _has_protected_part(workspace_path) or _has_protected_part(audit_dir):
+        raise ValueError("Skill artifact path points to a protected location.")
+    validate_workspace_path(workspace_path / "tmp", workspace_path)
+    audit_dir.mkdir(parents=True, exist_ok=True)  # lgtm[py/path-injection]
+    return audit_dir
 
 
 def safe_skill_name(skill_name: str) -> str:

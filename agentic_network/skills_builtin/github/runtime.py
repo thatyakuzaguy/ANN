@@ -20,7 +20,7 @@ from urllib.error import URLError
 from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
-from agentic_network.skills.sandbox import validate_workspace_path
+from agentic_network.skills.sandbox import validate_skill_artifact_directory, validate_workspace_path
 from agentic_network.skills_builtin.github.patterns import extract_patterns_from_files
 
 
@@ -28,6 +28,22 @@ DEFAULT_TIMEOUT_SECONDS = 8
 MAX_RESPONSE_BYTES = 750_000
 USER_AGENT = "ANN-GitHubSkill/10.4 local-first"
 DEFAULT_FILE_MAX_BYTES = 120_000
+ALLOWED_ARTIFACT_NAMES = frozenset(
+    {
+        "audit.log",
+        "github_file_content_redacted.txt",
+        "github_file_lookup_request.json",
+        "github_file_lookup_result.json",
+        "github_file_tree.json",
+        "github_lookup_request.json",
+        "github_lookup_result.json",
+        "github_pattern_request.json",
+        "github_pattern_summary.md",
+        "github_patterns.json",
+        "github_repo_metadata.json",
+        "result_summary.md",
+    }
+)
 SECRET_PATTERNS = [
     re.compile(r"(?i)(api[_-]?key|secret|token|password)\s*[:=]\s*['\"]?[A-Za-z0-9_\-./+=]{12,}"),
     re.compile(r"ghp_[A-Za-z0-9]{20,}"),
@@ -333,16 +349,19 @@ def write_github_artifacts(
     """Persist GitHub lookup artifacts inside outputs/skills/github."""
 
     workspace_path = Path(workspace).resolve()
-    audit_dir = Path(audit_path).resolve()
+    audit_dir = validate_skill_artifact_directory(workspace_path, audit_path)
     validate_workspace_path(workspace_path / "github_cache.json", workspace_path)
-    audit_dir.mkdir(parents=True, exist_ok=True)
-    (audit_dir / "github_lookup_request.json").write_text(json.dumps(request_payload, indent=2), encoding="utf-8")
-    (audit_dir / "github_lookup_result.json").write_text(json.dumps(result.to_dict(), indent=2), encoding="utf-8")
-    (audit_dir / "github_repo_metadata.json").write_text(json.dumps(_metadata_summary(metadata), indent=2), encoding="utf-8")
-    (audit_dir / "github_file_tree.json").write_text(json.dumps(file_tree, indent=2), encoding="utf-8")
-    (audit_dir / "result_summary.md").write_text(_summary_markdown(result), encoding="utf-8")
-    with (audit_dir / "audit.log").open("a", encoding="utf-8") as handle:
-        handle.write(json.dumps({"timestamp": _now(), "github_lookup_repo": result.to_dict()}, sort_keys=True) + "\n")
+    _write_artifact(audit_dir, "github_lookup_request.json", json.dumps(request_payload, indent=2))
+    _write_artifact(audit_dir, "github_lookup_result.json", json.dumps(result.to_dict(), indent=2))
+    _write_artifact(audit_dir, "github_repo_metadata.json", json.dumps(_metadata_summary(metadata), indent=2))
+    _write_artifact(audit_dir, "github_file_tree.json", json.dumps(file_tree, indent=2))
+    _write_artifact(audit_dir, "result_summary.md", _summary_markdown(result))
+    _write_artifact(
+        audit_dir,
+        "audit.log",
+        json.dumps({"timestamp": _now(), "github_lookup_repo": result.to_dict()}, sort_keys=True) + "\n",
+        append=True,
+    )
 
 
 def write_file_artifacts(
@@ -355,16 +374,19 @@ def write_file_artifacts(
     """Persist safe file lookup artifacts."""
 
     workspace_path = Path(workspace).resolve()
-    audit_dir = Path(audit_path).resolve()
+    audit_dir = validate_skill_artifact_directory(workspace_path, audit_path)
     validate_workspace_path(workspace_path / "github_file_cache.txt", workspace_path)
-    audit_dir.mkdir(parents=True, exist_ok=True)
     safe_content = content if not result.redacted else result.content_preview
-    (audit_dir / "github_file_lookup_request.json").write_text(json.dumps(request_payload, indent=2), encoding="utf-8")
-    (audit_dir / "github_file_lookup_result.json").write_text(json.dumps(result.to_dict(), indent=2), encoding="utf-8")
-    (audit_dir / "github_file_content_redacted.txt").write_text(safe_content, encoding="utf-8")
-    (audit_dir / "result_summary.md").write_text(_file_summary_markdown(result), encoding="utf-8")
-    with (audit_dir / "audit.log").open("a", encoding="utf-8") as handle:
-        handle.write(json.dumps({"timestamp": _now(), "github_lookup_file": result.to_dict()}, sort_keys=True) + "\n")
+    _write_artifact(audit_dir, "github_file_lookup_request.json", json.dumps(request_payload, indent=2))
+    _write_artifact(audit_dir, "github_file_lookup_result.json", json.dumps(result.to_dict(), indent=2))
+    _write_artifact(audit_dir, "github_file_content_redacted.txt", safe_content)
+    _write_artifact(audit_dir, "result_summary.md", _file_summary_markdown(result))
+    _write_artifact(
+        audit_dir,
+        "audit.log",
+        json.dumps({"timestamp": _now(), "github_lookup_file": result.to_dict()}, sort_keys=True) + "\n",
+        append=True,
+    )
 
 
 def write_pattern_artifacts(
@@ -376,15 +398,19 @@ def write_pattern_artifacts(
     """Persist deterministic pattern extraction artifacts."""
 
     workspace_path = Path(workspace).resolve()
-    audit_dir = Path(audit_path).resolve()
+    audit_dir = validate_skill_artifact_directory(workspace_path, audit_path)
     validate_workspace_path(workspace_path / "github_patterns_cache.json", workspace_path)
-    audit_dir.mkdir(parents=True, exist_ok=True)
-    (audit_dir / "github_pattern_request.json").write_text(json.dumps(request_payload, indent=2), encoding="utf-8")
-    (audit_dir / "github_patterns.json").write_text(json.dumps(result.to_dict(), indent=2), encoding="utf-8")
-    (audit_dir / "github_pattern_summary.md").write_text(_pattern_summary_markdown(result), encoding="utf-8")
-    (audit_dir / "result_summary.md").write_text(_pattern_summary_markdown(result), encoding="utf-8")
-    with (audit_dir / "audit.log").open("a", encoding="utf-8") as handle:
-        handle.write(json.dumps({"timestamp": _now(), "github_extract_patterns": result.to_dict()}, sort_keys=True) + "\n")
+    summary = _pattern_summary_markdown(result)
+    _write_artifact(audit_dir, "github_pattern_request.json", json.dumps(request_payload, indent=2))
+    _write_artifact(audit_dir, "github_patterns.json", json.dumps(result.to_dict(), indent=2))
+    _write_artifact(audit_dir, "github_pattern_summary.md", summary)
+    _write_artifact(audit_dir, "result_summary.md", summary)
+    _write_artifact(
+        audit_dir,
+        "audit.log",
+        json.dumps({"timestamp": _now(), "github_extract_patterns": result.to_dict()}, sort_keys=True) + "\n",
+        append=True,
+    )
 
 
 def _empty_result(repo: str, errors: list[str]) -> GitHubLookupResult:
@@ -430,9 +456,30 @@ def _file_result(
 
 def _clean_repo(value: object) -> str:
     repo = str(value or "").strip()
-    if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repo):
+    if len(repo) > 201 or repo.count("/") != 1:
+        raise ValueError("GitHub lookup requires repo in owner/name format.")
+    owner, name = repo.split("/", 1)
+    if not _valid_repo_segment(owner) or not _valid_repo_segment(name):
         raise ValueError("GitHub lookup requires repo in owner/name format.")
     return repo
+
+
+def _valid_repo_segment(value: str) -> bool:
+    return bool(value) and value not in {".", ".."} and all(char.isalnum() or char in {"_", ".", "-"} for char in value)
+
+
+def _write_artifact(audit_dir: Path, name: str, content: str, *, append: bool = False) -> None:
+    if name not in ALLOWED_ARTIFACT_NAMES:
+        raise ValueError("Unsupported GitHub artifact name.")
+    path = (audit_dir / name).resolve()
+    if path.parent != audit_dir:
+        raise ValueError("GitHub artifact escaped its audit directory.")
+    if append:
+        # The directory and fixed filename are both validated immediately above.
+        with path.open("a", encoding="utf-8") as handle:  # lgtm[py/path-injection]
+            handle.write(content)
+        return
+    path.write_text(content, encoding="utf-8")  # lgtm[py/path-injection]
 
 
 def _clean_domains(value: object) -> list[str]:

@@ -2,6 +2,7 @@
 
 from agentic_network.skills.audit import SkillAuditLogger
 from agentic_network.skills.executor import SkillExecutionResult, SkillExecutor
+from agentic_network.skills.engineering import engineering_skill_catalog, get_engineering_action
 from agentic_network.skills.manager import SkillsManager
 from agentic_network.skills.models import PermissionDecision, Skill, SkillPermission
 from agentic_network.skills.permission_store import SkillPermissionStore
@@ -19,6 +20,8 @@ __all__ = [
     "SkillAuditLogger",
     "SkillExecutionResult",
     "SkillExecutor",
+    "engineering_skill_catalog",
+    "get_engineering_action",
     "SkillPermission",
     "SkillPermissionStore",
     "SkillRegistry",

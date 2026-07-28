@@ -28,16 +28,38 @@ class Settings:
     local_model_temperature: float = float(os.environ.get("LOCAL_MODEL_TEMPERATURE", "0.2"))
     local_model_gpu_layers: int = int(os.environ.get("LOCAL_MODEL_GPU_LAYERS", "-1"))
     local_model_main_gpu: int = int(os.environ.get("LOCAL_MODEL_MAIN_GPU", "0"))
-    max_repair_attempts: int = int(os.environ.get("AEN_MAX_REPAIR_ATTEMPTS", "10"))
-    repair_backoff_base_seconds: float = float(os.environ.get("AEN_REPAIR_BACKOFF_BASE_SECONDS", "1"))
-    repair_backoff_max_seconds: float = float(os.environ.get("AEN_REPAIR_BACKOFF_MAX_SECONDS", "30"))
-    remove_sandbox_images_after_run: bool = os.environ.get("AEN_REMOVE_SANDBOX_IMAGES_AFTER_RUN", "true").lower() in {
+    subagents_enabled: bool = os.environ.get("ANN_SUBAGENTS_ENABLED", "true").lower() in {
         "1",
         "true",
         "yes",
         "on",
     }
-    rate_limit_requests_per_minute: int = int(os.environ.get("AEN_RATE_LIMIT_REQUESTS_PER_MINUTE", "180"))
+    subagent_max_per_agent: int = int(os.environ.get("ANN_SUBAGENT_MAX_PER_AGENT", "1"))
+    subagent_max_per_run: int = int(os.environ.get("ANN_SUBAGENT_MAX_PER_RUN", "20"))
+    subagent_max_depth: int = int(os.environ.get("ANN_SUBAGENT_MAX_DEPTH", "1"))
+    subagent_context_characters: int = int(
+        os.environ.get("ANN_SUBAGENT_CONTEXT_CHARACTERS", "12000")
+    )
+    subagent_token_budget: int = int(os.environ.get("ANN_SUBAGENT_TOKEN_BUDGET", "768"))
+    subagent_timeout_seconds: int = int(os.environ.get("ANN_SUBAGENT_TIMEOUT_SECONDS", "300"))
+    max_repair_attempts: int = int(os.environ.get("AEN_MAX_REPAIR_ATTEMPTS", "10"))
+    repair_backoff_base_seconds: float = float(
+        os.environ.get("AEN_REPAIR_BACKOFF_BASE_SECONDS", "1")
+    )
+    repair_backoff_max_seconds: float = float(
+        os.environ.get("AEN_REPAIR_BACKOFF_MAX_SECONDS", "30")
+    )
+    remove_sandbox_images_after_run: bool = os.environ.get(
+        "AEN_REMOVE_SANDBOX_IMAGES_AFTER_RUN", "true"
+    ).lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+    rate_limit_requests_per_minute: int = int(
+        os.environ.get("AEN_RATE_LIMIT_REQUESTS_PER_MINUTE", "180")
+    )
     api_token: str = os.environ.get("AEN_API_TOKEN", "")
     admin_token: str = os.environ.get("AEN_ADMIN_TOKEN", "")
     sentry_dsn: str = os.environ.get("SENTRY_DSN", "")

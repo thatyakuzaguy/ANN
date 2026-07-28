@@ -6,6 +6,38 @@ export type Agent = {
   goals: string[];
   tools: string[];
   outputs: string[];
+  subagents?: SubagentDefinition[];
+};
+
+export type SubagentDefinition = {
+  id: string;
+  parent_agent: string;
+  name: string;
+  role: string;
+  goals: string[];
+  tools: string[];
+  outputs: string[];
+  triggers: string[];
+};
+
+export type SubagentResult = {
+  work_order_id: string;
+  task_id: string;
+  parent_agent: string;
+  subagent_id: string;
+  subagent_name: string;
+  status: "completed" | "blocked" | "failed";
+  summary: string;
+  evidence: string[];
+  risks: string[];
+  blockers: string[];
+  confidence: number;
+  recommendation: string;
+  requested_context: string[];
+  provider: string;
+  model: string;
+  duration_seconds: number;
+  created_at: string;
 };
 
 export type EngineeringRun = {
@@ -227,6 +259,36 @@ export type ModelSetupState = {
   };
 };
 
+export type EngineeringSkillAction = {
+  name: string;
+  description: string;
+  permissions: string[];
+  approval_required: boolean;
+  mutates_project: boolean;
+};
+
+export type EngineeringSkill = {
+  name: string;
+  version: string;
+  description: string;
+  enabled: boolean;
+  permissions: Record<string, string>;
+  stored_permissions: Record<string, string>;
+  actions: EngineeringSkillAction[];
+};
+
+export type SkillExecution = {
+  status: string;
+  skill: string;
+  action: string;
+  approval_id?: string;
+  duration?: number;
+  permission_used?: string[];
+  audit_path?: string;
+  output?: Record<string, unknown>;
+  errors?: string[];
+};
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const controller = init?.signal ? null : new AbortController();
   const timeout = controller
@@ -260,6 +322,47 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 export const api = {
   agents: () => request<Agent[]>("/agents"),
+  subagentCatalog: (parentAgent?: string) =>
+    request<{
+      count: number;
+      parent_agent: string | null;
+      subagents: SubagentDefinition[];
+      execution_policy: "SEQUENTIAL";
+      active_models_limit: 1;
+      parallel_llm_loads: 0;
+    }>(`/subagents/catalog${parentAgent ? `?parent_agent=${encodeURIComponent(parentAgent)}` : ""}`),
+  subagentState: (runId?: string, limit = 100) =>
+    request<{
+      policy: Record<string, unknown>;
+      active_models_limit: 1;
+      parallel_llm_loads: 0;
+      execution_policy: "SEQUENTIAL";
+      results: SubagentResult[];
+    }>(`/subagents/state?limit=${limit}${runId ? `&run_id=${encodeURIComponent(runId)}` : ""}`),
+  skills: () =>
+    request<{
+      skills: EngineeringSkill[];
+      safety: Record<string, boolean>;
+    }>("/skills"),
+  setSkillPermission: (skill: string, permission: string, decision: string) =>
+    request<{ skill: string; permission: string; decision: string }>(
+      `/skills/${encodeURIComponent(skill)}/permissions`,
+      { method: "POST", body: JSON.stringify({ permission, decision }) }
+    ),
+  executeSkill: (
+    skill: string,
+    action: string,
+    payload: Record<string, unknown>,
+    approvalId?: string
+  ) => {
+    const controller = new AbortController();
+    const timeout = globalThis.setTimeout(() => controller.abort(), 10 * 60 * 1000);
+    return request<SkillExecution>(`/skills/${encodeURIComponent(skill)}/execute`, {
+      method: "POST",
+      body: JSON.stringify({ action, payload, approval_id: approvalId }),
+      signal: controller.signal
+    }).finally(() => globalThis.clearTimeout(timeout));
+  },
   agentOfficeState: () => request<AgentOfficeState>("/agent-office/state"),
   agentOfficeEvents: (limit = 50) => request<{ events: AgentOfficeEvent[] }>(`/agent-office/events?limit=${limit}`),
   approvals: () => request<Approval[]>("/approvals"),

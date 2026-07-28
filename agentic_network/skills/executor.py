@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 import time
+from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 from agentic_network.skills.audit import SkillAuditLogger
+from agentic_network.skills.engineering import get_engineering_action
+from agentic_network.skills.engineering_runtime import execute_engineering_action
 from agentic_network.skills.models import SkillPermission
 from agentic_network.skills.permission_store import SkillPermissionStore
 from agentic_network.skills.registry import SkillRegistry
@@ -29,6 +32,8 @@ REQUIRED_PERMISSION_BY_SKILL = {
     "documentation": SkillPermission.NETWORK.value,
     "package_registry": SkillPermission.NETWORK.value,
 }
+
+ApprovalValidator = Callable[[str, str, dict[str, Any]], tuple[bool, str]]
 
 
 @dataclass(frozen=True)
@@ -57,10 +62,12 @@ class SkillExecutor:
         registry: SkillRegistry | None = None,
         store: SkillPermissionStore | None = None,
         audit_logger: SkillAuditLogger | None = None,
+        approval_validator: ApprovalValidator | None = None,
     ) -> None:
         self.registry = registry or SkillRegistry()
         self.store = store or SkillPermissionStore()
         self.audit_logger = audit_logger or SkillAuditLogger()
+        self.approval_validator = approval_validator
 
     def execute_skill(
         self,
@@ -72,6 +79,16 @@ class SkillExecutor:
 
         started = time.perf_counter()
         payload = payload or {}
+        engineering_action = get_engineering_action(skill_name, action)
+        if engineering_action is not None:
+            return self._execute_engineering_action(
+                skill_name,
+                action,
+                payload,
+                started,
+                engineering_action.permissions,
+                engineering_action.approval_required,
+            )
         requested = [_required_permission(skill_name)]
         workspace = create_skill_workspace(skill_name, outputs_root=self.audit_logger.audit_root)
         if skill_name == "github" and action in GITHUB_ACTIONS:
@@ -130,6 +147,101 @@ class SkillExecutor:
             "payload_keys": sorted(payload),
         }
         result = _result("SUCCESS", skill_name, action, started, sandbox, str(workspace), output, [])
+        self.audit_logger.log_skill_execution(result.to_dict(), sandbox.to_dict())
+        return result
+
+    def _execute_engineering_action(
+        self,
+        skill_name: str,
+        action: str,
+        payload: dict[str, Any],
+        started: float,
+        requested_permissions: tuple[str, ...],
+        approval_required: bool,
+    ) -> SkillExecutionResult:
+        workspace = create_skill_workspace(skill_name, outputs_root=self.audit_logger.audit_root)
+        sandbox = evaluate_skill_sandbox(
+            skill_name,
+            list(requested_permissions),
+            registry=self.registry,
+            store=self.store,
+            outputs_root=self.audit_logger.audit_root,
+            controlled_terminal=SkillPermission.TERMINAL_EXECUTE.value in requested_permissions,
+        )
+        if sandbox.status != SandboxStatus.ALLOWED:
+            result = _result(
+                "BLOCKED" if sandbox.status == SandboxStatus.BLOCKED else "FAILED",
+                skill_name,
+                action,
+                started,
+                sandbox,
+                str(workspace),
+                {
+                    "message": "engineering skill blocked",
+                    "summary": sandbox.reason,
+                    "payload_keys": sorted(payload),
+                    "internet_used": False,
+                    "terminal_used": False,
+                    "dependency_install_used": False,
+                },
+                [sandbox.reason],
+            )
+            self.audit_logger.log_skill_execution(result.to_dict(), sandbox.to_dict())
+            return result
+        if approval_required:
+            allowed, reason = (
+                self.approval_validator(skill_name, action, payload)
+                if self.approval_validator is not None
+                else (False, "approval_center_validation_required")
+            )
+            if not allowed:
+                result = _result(
+                    "BLOCKED",
+                    skill_name,
+                    action,
+                    started,
+                    sandbox,
+                    str(workspace),
+                    {
+                        "message": "approval required",
+                        "summary": reason,
+                        "approval_required": True,
+                        "payload_keys": sorted(payload),
+                        "internet_used": False,
+                        "terminal_used": False,
+                        "dependency_install_used": False,
+                    },
+                    [reason],
+                )
+                self.audit_logger.log_skill_execution(result.to_dict(), sandbox.to_dict())
+                return result
+        try:
+            output = execute_engineering_action(skill_name, action, payload, workspace)
+            status = str(output.get("status", "SUCCESS"))
+            errors = [str(item) for item in output.get("errors", [])]
+        except Exception as exc:
+            # Skill execution is an API boundary: return an audited failure
+            # instead of crashing the desktop process on malformed projects.
+            output = {
+                "message": "engineering skill failed",
+                "summary": str(exc),
+                "payload_keys": sorted(payload),
+                "internet_used": False,
+                "terminal_used": False,
+                "dependency_install_used": False,
+            }
+            status = "FAILED"
+            errors = [str(exc)]
+        result = _result(
+            status,
+            skill_name,
+            action,
+            started,
+            sandbox,
+            str(workspace),
+            output,
+            errors,
+        )
         self.audit_logger.log_skill_execution(result.to_dict(), sandbox.to_dict())
         return result
 

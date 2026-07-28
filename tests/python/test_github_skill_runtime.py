@@ -8,6 +8,7 @@ import pytest
 
 from agentic_network.skills import PermissionDecision, SkillAuditLogger, SkillPermissionStore, SkillRegistry
 from agentic_network.skills.runtime import execute_skill
+from agentic_network.skills_builtin.github.runtime import _clean_repo
 
 
 def _enabled_registry() -> SkillRegistry:
@@ -61,6 +62,12 @@ def _fake_fetch_json(url: str) -> object:
 def _allow_both(store: SkillPermissionStore, decision: PermissionDecision = PermissionDecision.ALLOW_ALWAYS) -> None:
     store.set_permission("github", "network", decision)
     store.set_permission("github", "git_read", decision)
+
+
+@pytest.mark.parametrize("repo", ["owner/" + "-" * 10_000, "../repo", "owner/repo/extra"])
+def test_repo_validation_rejects_pathological_input(repo: str) -> None:
+    with pytest.raises(ValueError, match="owner/name"):
+        _clean_repo(repo)
 
 
 def test_lookup_repo_blocked_without_network(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

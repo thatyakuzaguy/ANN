@@ -103,3 +103,18 @@ class BillingCheckoutRequest(BaseModel):
 
 class BillingPortalRequest(BaseModel):
     customer_id: str = Field(min_length=3, max_length=120)
+
+
+class SkillPermissionUpdate(BaseModel):
+    permission: str = Field(
+        pattern="^(network|filesystem_read|filesystem_write|git_read|git_write|terminal_execute)$"
+    )
+    decision: str = Field(
+        pattern="^(ASK_ALWAYS|ALLOW_ONCE|ALLOW_ALWAYS|DENY_ONCE|DENY_ALWAYS)$"
+    )
+
+
+class SkillExecutionRequest(BaseModel):
+    action: str = Field(min_length=1, max_length=80, pattern=r"^[a-z][a-z0-9_]*$")
+    payload: dict[str, Any] = Field(default_factory=dict)
+    approval_id: str | None = Field(default=None, max_length=80)

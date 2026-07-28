@@ -1,21 +1,31 @@
 from __future__ import annotations
 
 from dataclasses import asdict
+import hashlib
+import json
+from pathlib import Path
 
 from fastapi import APIRouter, HTTPException, Request
 
 from agentic_engineering_network.agents.definitions import get_agent_registry
+from agentic_engineering_network.agents.subagents import get_subagent_registry
 from agentic_engineering_network.orchestration.readiness import get_saas_readiness_checklist
 from agentic_engineering_network.orchestration.requirements_engine import refine_idea
 from agentic_engineering_network.orchestration.saas_templates import get_saas_templates
-from agentic_engineering_network.orchestration.application.sdlc_pipeline import get_senior_sdlc_pipeline
+from agentic_engineering_network.orchestration.application.sdlc_pipeline import (
+    get_senior_sdlc_pipeline,
+)
 from agentic_engineering_network.orchestration.application.senior_review import SeniorReviewService
 from agentic_engineering_network.orchestration.application.testing_strategy import get_test_strategy
 from agentic_engineering_network.orchestration.application.architecture_uncertainty import (
     get_architecture_uncertainty_review,
 )
-from agentic_engineering_network.orchestration.application.business_context import assess_business_context
-from agentic_engineering_network.orchestration.application.confidence import build_confidence_dashboard
+from agentic_engineering_network.orchestration.application.business_context import (
+    assess_business_context,
+)
+from agentic_engineering_network.orchestration.application.confidence import (
+    build_confidence_dashboard,
+)
 from agentic_engineering_network.orchestration.application.human_gates import (
     make_human_gate_decision,
     summarize_human_gates,
@@ -26,8 +36,12 @@ from agentic_engineering_network.orchestration.application.market_validation imp
 from agentic_engineering_network.orchestration.application.release_readiness import (
     evaluate_release_readiness,
 )
-from agentic_engineering_network.orchestration.application.risk_register import unresolved_critical_count
-from agentic_engineering_network.orchestration.application.approval_packets import build_approval_packets
+from agentic_engineering_network.orchestration.application.risk_register import (
+    unresolved_critical_count,
+)
+from agentic_engineering_network.orchestration.application.approval_packets import (
+    build_approval_packets,
+)
 from agentic_engineering_network.orchestration.application.intelligence import (
     ArchitectureIntelligenceEngine,
     ComplianceIntelligenceEngine,
@@ -36,8 +50,14 @@ from agentic_engineering_network.orchestration.application.intelligence import (
     SecurityIntelligenceEngine,
     build_intelligence_suite,
 )
-from agentic_engineering_network.orchestration.application.simulation import run_estimate_simulations
-from agentic_engineering_network.security.approvals import ApprovalRequest
+from agentic_engineering_network.orchestration.application.simulation import (
+    run_estimate_simulations,
+)
+from agentic_engineering_network.security.approvals import (
+    ApprovalRequest,
+    ApprovalStatus,
+    ApprovalType,
+)
 from agentic_engineering_network.security.compliance import get_compliance_checklist
 from agentic_engineering_network.security.compliance_evidence import collect_compliance_evidence
 from agentic_engineering_network.security.threat_model import build_threat_model
@@ -48,8 +68,19 @@ from agentic_network.runtime_engine.model_setup import (
     get_model_setup_state,
     register_local_gguf,
 )
+from agentic_network.skills.engineering import engineering_skill_catalog, get_engineering_action
+from agentic_network.skills.executor import SkillExecutor
+from agentic_network.skills.models import PermissionDecision
+from agentic_network.skills.sandbox import SandboxStatus, evaluate_skill_sandbox
 
-from app.core.container import agent_office_service, approval_center, audit_logger, run_store
+from app.core.container import (
+    agent_office_service,
+    approval_center,
+    audit_logger,
+    network,
+    run_store,
+    skills_manager,
+)
 from app.core.settings import settings
 from app.schemas.runs import (
     ApprovalDecision,
@@ -66,6 +97,8 @@ from app.schemas.runs import (
     RunResponse,
     SeniorAssessmentRequest,
     SimulationRequest,
+    SkillExecutionRequest,
+    SkillPermissionUpdate,
 )
 from app.services.approval_effects import apply_approval_effect
 from app.services.evidence_store import EvidenceStore
@@ -126,7 +159,287 @@ def error_tracking_status() -> dict[str, object]:
 
 @router.get("/agents")
 def agents() -> list[dict[str, object]]:
-    return [asdict(agent) for agent in get_agent_registry()]
+    return [
+        {
+            **asdict(agent),
+            "subagents": [asdict(item) for item in get_subagent_registry(agent.name)],
+        }
+        for agent in get_agent_registry()
+    ]
+
+
+@router.get("/subagents/catalog")
+def subagent_catalog(parent_agent: str | None = None) -> dict[str, object]:
+    registry = get_subagent_registry(parent_agent)
+    return {
+        "count": len(registry),
+        "parent_agent": parent_agent,
+        "subagents": [asdict(item) for item in registry],
+        "execution_policy": "SEQUENTIAL",
+        "active_models_limit": 1,
+        "parallel_llm_loads": 0,
+    }
+
+
+@router.get("/subagents/state")
+def subagent_state(run_id: str | None = None, limit: int = 100) -> dict[str, object]:
+    return network.runtime.subagent_state(run_id=run_id, limit=max(1, min(limit, 500)))
+
+
+@router.get("/skills")
+def skills_catalog() -> dict[str, object]:
+    actions_by_name = {
+        str(item["name"]): item["actions"] for item in engineering_skill_catalog()
+    }
+    return {
+        "skills": [
+            {
+                **skill.to_dict(),
+                "actions": actions_by_name.get(skill.name, []),
+                "stored_permissions": {
+                    permission: (
+                        default_decision
+                        if default_decision == PermissionDecision.DENY
+                        else (
+                            skills_manager.permission_store.get_permission(skill.name, permission)
+                            if skills_manager.permission_store.has_permission(skill.name, permission)
+                            else default_decision
+                        )
+                    ).value
+                    for permission, default_decision in skill.permissions.items()
+                },
+            }
+            for skill in skills_manager.list_skills()
+        ],
+        "safety": {
+            "raw_shell": False,
+            "shell_true": False,
+            "dependency_install": False,
+            "mutations_require_approval_center": True,
+        },
+    }
+
+
+@router.post("/skills/{skill_name}/permissions")
+def set_skill_permission(skill_name: str, payload: SkillPermissionUpdate) -> dict[str, object]:
+    skill = skills_manager.get_skill(skill_name)
+    if skill is None:
+        raise HTTPException(status_code=404, detail="Skill not found.")
+    if payload.permission not in skill.permissions:
+        raise HTTPException(status_code=400, detail="Permission is not declared by this skill.")
+    decision = PermissionDecision(payload.decision)
+    if (
+        skill.permissions[payload.permission] == PermissionDecision.DENY
+        and decision in {PermissionDecision.ALLOW_ONCE, PermissionDecision.ALLOW_ALWAYS}
+    ):
+        raise HTTPException(
+            status_code=403,
+            detail="Permission is denied by the immutable skill manifest.",
+        )
+    skills_manager.set_permission(skill_name, payload.permission, decision.value)
+    audit_logger.record(
+        "skill.permission_updated",
+        "user",
+        f"Skill permission updated for {skill_name}.{payload.permission}.",
+        {"skill": skill_name, "permission": payload.permission, "decision": decision.value},
+    )
+    return {
+        "skill": skill_name,
+        "permission": payload.permission,
+        "decision": decision.value,
+    }
+
+
+@router.post("/skills/{skill_name}/execute")
+def execute_engineering_skill(
+    skill_name: str,
+    request: SkillExecutionRequest,
+) -> dict[str, object]:
+    skill = skills_manager.get_skill(skill_name)
+    action_spec = get_engineering_action(skill_name, request.action)
+    if skill is None or action_spec is None:
+        raise HTTPException(status_code=404, detail="Skill action not found.")
+    sandbox = evaluate_skill_sandbox(
+        skill_name,
+        list(action_spec.permissions),
+        registry=skills_manager.registry,
+        store=skills_manager.permission_store,
+        outputs_root=skills_manager.audit_logger.audit_root,
+        controlled_terminal="terminal_execute" in action_spec.permissions,
+        consume_once=False,
+    )
+    if sandbox.status != SandboxStatus.ALLOWED:
+        raise HTTPException(status_code=403, detail=sandbox.reason)
+
+    execution_payload = dict(request.payload)
+    approval_item: ApprovalRequest | None = None
+    if action_spec.approval_required:
+        approval_item = _approved_skill_action(
+            request.approval_id,
+            skill_name,
+            request.action,
+            execution_payload,
+        )
+        if approval_item is None:
+            requested = approval_center.request(
+                _skill_approval_type(skill_name, request.action),
+                f"Run {skill_name}.{request.action}",
+                "Execute one closed ANN skill recipe after reviewing its target and risk.",
+                f"Skill:{skill_name}",
+                {
+                    "skill": skill_name,
+                    "action": request.action,
+                    "project_root": str(execution_payload.get("project_root", "")),
+                    "request_fingerprint": _skill_request_fingerprint(
+                        skill_name, request.action, execution_payload
+                    ),
+                    "gate": "engineering_skill",
+                },
+            )
+            return {
+                "status": "PENDING_APPROVAL",
+                "skill": skill_name,
+                "action": request.action,
+                "approval_id": requested.approval_id,
+                "approval": asdict(requested),
+            }
+        execution_payload["approval_id"] = approval_item.approval_id
+        _reserve_skill_approval(approval_item)
+
+    executor = SkillExecutor(
+        registry=skills_manager.registry,
+        store=skills_manager.permission_store,
+        audit_logger=skills_manager.audit_logger,
+        approval_validator=lambda name, action, body: _validate_approved_skill_action(
+            approval_item, name, action, body
+        ),
+    )
+    result = executor.execute_skill(skill_name, request.action, execution_payload)
+    if approval_item is not None:
+        _consume_skill_approval(approval_item, result.to_dict())
+    return result.to_dict()
+
+
+def _skill_approval_type(skill_name: str, action: str) -> ApprovalType:
+    if skill_name == "patch_workspace" and action == "apply":
+        return ApprovalType.FILE_MODIFY
+    return ApprovalType.SHELL_EXECUTION
+
+
+def _skill_request_fingerprint(
+    skill_name: str,
+    action: str,
+    payload: dict[str, object],
+) -> str:
+    public_payload = {
+        key: value
+        for key, value in payload.items()
+        if key not in {"approval_id", "approval_token"}
+    }
+    encoded = json.dumps(
+        {"skill": skill_name, "action": action, "payload": public_payload},
+        sort_keys=True,
+        default=str,
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _approved_skill_action(
+    approval_id: str | None,
+    skill_name: str,
+    action: str,
+    payload: dict[str, object],
+) -> ApprovalRequest | None:
+    if not approval_id:
+        return None
+    if not all(character.isalnum() or character in {"-", "_"} for character in approval_id):
+        raise HTTPException(status_code=400, detail="Invalid approval id.")
+    item = next(
+        (candidate for candidate in approval_center.list() if candidate.approval_id == approval_id),
+        None,
+    )
+    if item is None:
+        raise HTTPException(status_code=404, detail="Approval not found.")
+    if item.status != ApprovalStatus.APPROVED:
+        raise HTTPException(status_code=409, detail="Approval is not approved.")
+    expected = {
+        "skill": skill_name,
+        "action": action,
+        "project_root": str(payload.get("project_root", "")),
+        "request_fingerprint": _skill_request_fingerprint(skill_name, action, payload),
+    }
+    if any(str(item.payload.get(key, "")) != value for key, value in expected.items()):
+        raise HTTPException(status_code=409, detail="Approval does not match this skill request.")
+    marker = _skill_approval_marker(skill_name, approval_id)
+    if marker.exists():
+        raise HTTPException(status_code=409, detail="Approval has already been consumed.")
+    return item
+
+
+def _validate_approved_skill_action(
+    item: ApprovalRequest | None,
+    skill_name: str,
+    action: str,
+    payload: dict[str, object],
+) -> tuple[bool, str]:
+    if item is None:
+        return False, "approval_center_validation_required"
+    if item.status != ApprovalStatus.APPROVED:
+        return False, "approval_not_approved"
+    if item.payload.get("skill") != skill_name or item.payload.get("action") != action:
+        return False, "approval_scope_mismatch"
+    if item.payload.get("request_fingerprint") != _skill_request_fingerprint(
+        skill_name, action, payload
+    ):
+        return False, "approval_request_mismatch"
+    return True, "approval_validated"
+
+
+def _skill_approval_marker(skill_name: str, approval_id: str) -> Path:
+    safe_skill = "".join(
+        character for character in skill_name if character.isalnum() or character in {"-", "_"}
+    )
+    return (
+        skills_manager.audit_logger.audit_root
+        / safe_skill
+        / "approvals"
+        / f"{approval_id}.json"
+    )
+
+
+def _reserve_skill_approval(item: ApprovalRequest) -> None:
+    marker = _skill_approval_marker(str(item.payload.get("skill", "skill")), item.approval_id)
+    marker.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        with marker.open("x", encoding="utf-8") as stream:
+            json.dump(
+                {
+                    "approval_id": item.approval_id,
+                    "skill": item.payload.get("skill"),
+                    "action": item.payload.get("action"),
+                    "result_status": "EXECUTING",
+                },
+                stream,
+                indent=2,
+            )
+    except FileExistsError as exc:
+        raise HTTPException(status_code=409, detail="Approval has already been consumed.") from exc
+
+
+def _consume_skill_approval(item: ApprovalRequest, result: dict[str, object]) -> None:
+    marker = _skill_approval_marker(str(item.payload.get("skill", "skill")), item.approval_id)
+    marker.write_text(
+        json.dumps(
+            {
+                "approval_id": item.approval_id,
+                "skill": item.payload.get("skill"),
+                "action": item.payload.get("action"),
+                "result_status": result.get("status"),
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
 
 
 @router.get("/agent-office/state")
@@ -171,10 +484,16 @@ def billing_status() -> dict[str, object]:
 @router.post("/billing/checkout")
 def billing_checkout(payload: BillingCheckoutRequest) -> dict[str, object]:
     try:
-        return StripeBillingService().create_checkout_session(payload.customer_email, payload.tenant_id)
+        return StripeBillingService().create_checkout_session(
+            payload.customer_email, payload.tenant_id
+        )
     except Exception as exc:
-        _record_public_api_failure("billing.checkout_failed", "BillingAPI", "Billing checkout failed.", exc)
-        raise HTTPException(status_code=400, detail="Billing checkout could not be created.") from exc
+        _record_public_api_failure(
+            "billing.checkout_failed", "BillingAPI", "Billing checkout failed.", exc
+        )
+        raise HTTPException(
+            status_code=400, detail="Billing checkout could not be created."
+        ) from exc
 
 
 @router.post("/billing/portal")
@@ -182,7 +501,9 @@ def billing_portal(payload: BillingPortalRequest) -> dict[str, object]:
     try:
         return StripeBillingService().create_customer_portal(payload.customer_id)
     except Exception as exc:
-        _record_public_api_failure("billing.portal_failed", "BillingAPI", "Billing portal request failed.", exc)
+        _record_public_api_failure(
+            "billing.portal_failed", "BillingAPI", "Billing portal request failed.", exc
+        )
         raise HTTPException(status_code=400, detail="Customer portal could not be opened.") from exc
 
 
@@ -193,7 +514,9 @@ async def billing_webhook(request: Request) -> dict[str, object]:
     try:
         return StripeBillingService().handle_webhook(payload, signature)
     except Exception as exc:
-        _record_public_api_failure("billing.webhook_rejected", "BillingAPI", "Billing webhook rejected.", exc)
+        _record_public_api_failure(
+            "billing.webhook_rejected", "BillingAPI", "Billing webhook rejected.", exc
+        )
         raise HTTPException(status_code=400, detail="Invalid billing webhook.") from exc
 
 
@@ -288,7 +611,9 @@ def intelligence_suite(payload: SeniorAssessmentRequest) -> dict[str, object]:
 
 @router.post("/simulations")
 def simulations(payload: SimulationRequest) -> dict[str, object]:
-    return run_estimate_simulations(payload.monthly_visitors, payload.conversion_rate, payload.price)
+    return run_estimate_simulations(
+        payload.monthly_visitors, payload.conversion_rate, payload.price
+    )
 
 
 @router.get("/approval-packets")
@@ -383,7 +708,13 @@ def architecture_uncertainty() -> dict[str, object]:
 def legal_workflow() -> dict[str, object]:
     return {
         "legal_review_required": True,
-        "jurisdiction_selector": ["EU/GDPR", "United States", "United Kingdom", "Canada", "Other/manual review"],
+        "jurisdiction_selector": [
+            "EU/GDPR",
+            "United States",
+            "United Kingdom",
+            "Canada",
+            "Other/manual review",
+        ],
         "privacy_data_processing_questionnaire": [
             "What personal data is collected?",
             "What is the lawful basis or contractual basis?",

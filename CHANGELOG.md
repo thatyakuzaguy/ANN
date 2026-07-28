@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+- Added a controlled hierarchical delegation layer with 45 read-only specialist
+  capabilities across all 15 principal agents.
+- Added typed work orders, deterministic capability selection, bounded context,
+  secret redaction, cycle/depth/tool/path/budget validation, and complete
+  delegation audit events.
+- Serialized specialist evidence into engineering runs and exposed read-only
+  catalog/state APIs while preserving principal-agent authority and all
+  approval, terminal, patch, consensus, and release gates.
+- Enforced one-model-at-a-time execution across concurrent runs and reused the
+  parent's routed provider sequentially for specialist and parent inference.
+- Connected delegated activity to ANN Terminal and Agent Office without
+  changing the existing visual design.
+
 ## 1.0.1 - 2026-07-27
 
 - Prevented native `llama_cpp` loader and introspection exceptions from

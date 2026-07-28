@@ -9,6 +9,11 @@ import pytest
 
 from agentic_network.skills import PermissionDecision, SkillAuditLogger, SkillPermissionStore, SkillRegistry
 from agentic_network.skills.runtime import execute_skill
+from agentic_network.skills_builtin.documentation.runtime import (
+    DocumentationLookupResult,
+    _validated_public_https_url,
+    write_lookup_artifacts,
+)
 
 
 def _enabled_registry() -> SkillRegistry:
@@ -34,7 +39,7 @@ def _payload(url: str = "https://fastapi.tiangolo.com/tutorial/dependencies/") -
     }
 
 
-def _fake_fetch(_url: str) -> str:
+def _fake_fetch(_url: str, _allowed_domains: list[str] | None = None) -> str:
     return """
     <html>
       <head><title>Dependencies - FastAPI</title></head>
@@ -119,7 +124,7 @@ def test_deny_always_blocks(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> 
 
 
 def test_allowed_domains_blocks_unapproved_domain(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    def fail_fetch(_url: str) -> str:
+    def fail_fetch(_url: str, _allowed_domains: list[str] | None = None) -> str:
         raise AssertionError("Blocked domains must not be fetched.")
 
     monkeypatch.setattr("agentic_network.skills_builtin.documentation.runtime.fetch_url", fail_fetch)
@@ -137,6 +142,39 @@ def test_allowed_domains_blocks_unapproved_domain(tmp_path: Path, monkeypatch: p
 
     assert result.status == "FAILED"
     assert "blocked_domain:example.com" in result.errors
+
+
+def test_url_validation_blocks_private_dns(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        socket,
+        "getaddrinfo",
+        lambda *_args, **_kwargs: [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("127.0.0.1", 443))],
+    )
+
+    with pytest.raises(ValueError, match="non-public"):
+        _validated_public_https_url("https://docs.example.com/reference", ("docs.example.com",))
+
+
+def test_url_validation_accepts_allowlisted_public_dns(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        socket,
+        "getaddrinfo",
+        lambda *_args, **_kwargs: [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("93.184.216.34", 443))],
+    )
+
+    assert (
+        _validated_public_https_url("https://docs.example.com/reference", ("docs.example.com",))
+        == "https://docs.example.com/reference"
+    )
+
+
+def test_artifact_writer_rejects_unpaired_audit_path(tmp_path: Path) -> None:
+    workspace = tmp_path / "outputs" / "skills" / "documentation" / "workspace"
+    workspace.mkdir(parents=True)
+    result = DocumentationLookupResult("FAILED", "query", [], "summary", [], [])
+
+    with pytest.raises(ValueError, match="parent of its workspace"):
+        write_lookup_artifacts(result, {}, workspace, tmp_path / "unrelated")
 
 
 def test_result_generates_audit(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

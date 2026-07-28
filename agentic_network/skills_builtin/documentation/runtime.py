@@ -8,21 +8,33 @@ spawns shells, installs dependencies, or writes outside its skill workspace.
 from __future__ import annotations
 
 import html
+import ipaddress
 import json
 import re
+import socket
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 from urllib.error import URLError
-from urllib.parse import quote_plus, urlparse
-from urllib.request import Request, urlopen
+from urllib.parse import quote_plus, urljoin, urlparse
+from urllib.request import HTTPRedirectHandler, Request, build_opener
 
-from agentic_network.skills.sandbox import validate_workspace_path
+from agentic_network.skills.sandbox import validate_skill_artifact_directory, validate_workspace_path
 
 
 DEFAULT_TIMEOUT_SECONDS = 8
 USER_AGENT = "ANN-DocumentationSkill/10.3 local-first"
+MAX_REDIRECTS = 3
+ALLOWED_ARTIFACT_NAMES = frozenset(
+    {
+        "audit.log",
+        "lookup_request.json",
+        "lookup_result.json",
+        "result_summary.md",
+        "sources.json",
+    }
+)
 
 
 @dataclass(frozen=True)
@@ -62,7 +74,7 @@ def documentation_lookup(payload: dict[str, Any], workspace: str | Path, audit_p
             errors.append(f"blocked_domain:{domain}")
             continue
         try:
-            fetched = fetch_url(url)
+            fetched = fetch_url(url, allowed_domains)
         except (OSError, URLError, ValueError) as exc:
             errors.append(f"fetch_failed:{url}:{exc}")
             continue
@@ -90,14 +102,16 @@ def documentation_lookup(payload: dict[str, Any], workspace: str | Path, audit_p
     return result
 
 
-def fetch_url(url: str) -> str:
-    """Fetch one URL using stdlib HTTP only."""
+def fetch_url(url: str, allowed_domains: list[str] | None = None) -> str:
+    """Fetch one public HTTPS URL with DNS and redirect validation."""
 
-    parsed = urlparse(url)
-    if parsed.scheme != "https":
-        raise ValueError("Only https documentation URLs are allowed.")
-    request = Request(url, headers={"User-Agent": USER_AGENT})
-    with urlopen(request, timeout=DEFAULT_TIMEOUT_SECONDS) as response:  # noqa: S310 - URL allowlist is checked by caller.
+    domains = tuple(allowed_domains or ())
+    safe_url = _validated_public_https_url(url, domains)
+    request = Request(safe_url, headers={"User-Agent": USER_AGENT})
+    opener = build_opener(_ValidatedRedirectHandler(domains))
+    # CodeQL cannot infer the DNS/IP and redirect validation performed above
+    # and in the handler. The request cannot target local or private networks.
+    with opener.open(request, timeout=DEFAULT_TIMEOUT_SECONDS) as response:  # noqa: S310  # lgtm[py/full-ssrf]
         content_type = response.headers.get("content-type", "")
         if "text" not in content_type and "html" not in content_type and "json" not in content_type:
             raise ValueError(f"Unsupported content type: {content_type}")
@@ -114,15 +128,90 @@ def write_lookup_artifacts(
     """Persist documentation lookup artifacts inside the skill audit path."""
 
     workspace_path = Path(workspace).resolve()
-    audit_dir = Path(audit_path).resolve()
+    audit_dir = validate_skill_artifact_directory(workspace_path, audit_path)
     validate_workspace_path(workspace_path / "lookup_cache.json", workspace_path)
-    audit_dir.mkdir(parents=True, exist_ok=True)
-    (audit_dir / "lookup_request.json").write_text(json.dumps(request_payload, indent=2), encoding="utf-8")
-    (audit_dir / "lookup_result.json").write_text(json.dumps(result.to_dict(), indent=2), encoding="utf-8")
-    (audit_dir / "sources.json").write_text(json.dumps(result.sources, indent=2), encoding="utf-8")
-    (audit_dir / "result_summary.md").write_text(_summary_markdown(result), encoding="utf-8")
-    with (audit_dir / "audit.log").open("a", encoding="utf-8") as handle:
-        handle.write(json.dumps({"timestamp": _now(), "documentation_lookup": result.to_dict()}, sort_keys=True) + "\n")
+    _write_artifact(audit_dir, "lookup_request.json", json.dumps(request_payload, indent=2))
+    _write_artifact(audit_dir, "lookup_result.json", json.dumps(result.to_dict(), indent=2))
+    _write_artifact(audit_dir, "sources.json", json.dumps(result.sources, indent=2))
+    _write_artifact(audit_dir, "result_summary.md", _summary_markdown(result))
+    _write_artifact(
+        audit_dir,
+        "audit.log",
+        json.dumps({"timestamp": _now(), "documentation_lookup": result.to_dict()}, sort_keys=True) + "\n",
+        append=True,
+    )
+
+
+class _ValidatedRedirectHandler(HTTPRedirectHandler):
+    """Revalidate every redirect before urllib follows it."""
+
+    def __init__(self, allowed_domains: tuple[str, ...]) -> None:
+        super().__init__()
+        self.allowed_domains = allowed_domains
+        self.redirect_count = 0
+
+    def redirect_request(  # type: ignore[no-untyped-def]
+        self,
+        req,
+        fp,
+        code,
+        msg,
+        headers,
+        newurl,
+    ):
+        self.redirect_count += 1
+        if self.redirect_count > MAX_REDIRECTS:
+            raise ValueError("Documentation lookup exceeded the redirect limit.")
+        safe_url = _validated_public_https_url(urljoin(req.full_url, newurl), self.allowed_domains)
+        return super().redirect_request(req, fp, code, msg, headers, safe_url)
+
+
+def _validated_public_https_url(url: str, allowed_domains: tuple[str, ...]) -> str:
+    parsed = urlparse(url)
+    hostname = (parsed.hostname or "").lower().rstrip(".")
+    if parsed.scheme != "https" or not hostname:
+        raise ValueError("Only public https documentation URLs are allowed.")
+    if parsed.username or parsed.password or parsed.port not in {None, 443}:
+        raise ValueError("Credentials and non-standard ports are not allowed.")
+    if allowed_domains and not _domain_allowed(hostname, list(allowed_domains)):
+        raise ValueError(f"Blocked documentation domain: {hostname}")
+    if hostname == "localhost" or hostname.endswith((".localhost", ".local")):
+        raise ValueError("Local documentation hosts are not allowed.")
+    _validate_public_addresses(hostname)
+    return parsed.geturl()
+
+
+def _validate_public_addresses(hostname: str) -> None:
+    try:
+        literal = ipaddress.ip_address(hostname)
+        addresses = [literal]
+    except ValueError:
+        try:
+            records = socket.getaddrinfo(hostname, 443, type=socket.SOCK_STREAM)
+        except socket.gaierror as exc:
+            raise ValueError(f"Documentation host could not be resolved: {hostname}") from exc
+        addresses = []
+        for record in records:
+            try:
+                addresses.append(ipaddress.ip_address(record[4][0]))
+            except ValueError as exc:
+                raise ValueError("Documentation DNS returned an invalid address.") from exc
+    if not addresses or any(not address.is_global for address in addresses):
+        raise ValueError("Documentation host resolved to a non-public address.")
+
+
+def _write_artifact(audit_dir: Path, name: str, content: str, *, append: bool = False) -> None:
+    if name not in ALLOWED_ARTIFACT_NAMES:
+        raise ValueError("Unsupported documentation artifact name.")
+    path = (audit_dir / name).resolve()
+    if path.parent != audit_dir:
+        raise ValueError("Documentation artifact escaped its audit directory.")
+    if append:
+        # The directory and fixed filename are both validated immediately above.
+        with path.open("a", encoding="utf-8") as handle:  # lgtm[py/path-injection]
+            handle.write(content)
+        return
+    path.write_text(content, encoding="utf-8")  # lgtm[py/path-injection]
 
 
 def _candidate_urls(query: str, allowed_domains: list[str], urls: object, max_results: int) -> list[str]:

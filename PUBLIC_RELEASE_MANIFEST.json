@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-07-28T09:30:41.9021106Z",
+  "generated_at_utc": "2026-07-28T12:37:52.8598727Z",
   "release_stage": "stable",
   "release_version": "1.0.1",
-  "source_revision": "9be60dec54d9110685bb2ef229e68582ae5e902a",
+  "source_revision": "580baea13f5472923a8e473d965527171c0e95f5",
   "file_count": 856,
-  "total_bytes": 6111659,
+  "total_bytes": 6119872,
   "maximum_file_size_mb": 25,
   "files": [
     {
@@ -1315,8 +1315,8 @@
     },
     {
       "path": "agentic_network/skills_builtin/documentation/runtime.py",
-      "bytes": 8394,
-      "sha256": "e856d7bf1eb8837c164fc25be1782cf0adbe301cab3d3d98198346683d3c0ca4"
+      "bytes": 12000,
+      "sha256": "43a8a8a8db52fec8c60205cd7ad3ad3823c18b8c796d7a524b7ea73c8f1dfd41"
     },
     {
       "path": "agentic_network/skills_builtin/failure_diagnostics/manifest.yaml",
@@ -1345,8 +1345,8 @@
     },
     {
       "path": "agentic_network/skills_builtin/github/runtime.py",
-      "bytes": 25033,
-      "sha256": "186784458c034bd5a6fb0c0caddfa40dd4ebb1b9e0722efeda3d9461ac5c7197"
+      "bytes": 26300,
+      "sha256": "0c8d146b8afa449ff7284d4231bac17b4f4444c62ba48ec35d1ab17be8f159df"
     },
     {
       "path": "agentic_network/skills_builtin/internet_search/manifest.yaml",
@@ -1495,8 +1495,8 @@
     },
     {
       "path": "agentic_network/skills/sandbox.py",
-      "bytes": 9555,
-      "sha256": "ce26d294b9e07535af641064d127a4dd6b7743148d71f2b71c4a13d01e83d0c9"
+      "bytes": 11057,
+      "sha256": "7a89e237643e272d297193aa4b46fd15a385f1139d5994af1ae0751c3ecb4d7d"
     },
     {
       "path": "agentic_network/terminal_agent/__init__.py",
@@ -3125,8 +3125,8 @@
     },
     {
       "path": "tests/python/test_documentation_skill_runtime.py",
-      "bytes": 9974,
-      "sha256": "a5af0ab9868dcce0287474c732c90e5910881be0ec430bbe132b5d41c0b4e5bd"
+      "bytes": 11495,
+      "sha256": "880a2603c57ecf9a4a598ad3339148b5ed2d62c83ca75a4e06a548a8ab452557"
     },
     {
       "path": "tests/python/test_e2e_patch_apply_pipeline.py",
@@ -3340,8 +3340,8 @@
     },
     {
       "path": "tests/python/test_github_skill_runtime.py",
-      "bytes": 11817,
-      "sha256": "ab37f2ef5eefc57dfc4004e52d68a42335b8ce0abf2e054c90477b2c6e49764a"
+      "bytes": 12134,
+      "sha256": "507009de38459c2c34d80a12445b32aad462604a29c36bea3e2e3dc61effc3c7"
     },
     {
       "path": "tests/python/test_gpu_policy.py",

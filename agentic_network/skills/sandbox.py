@@ -77,8 +77,10 @@ def create_skill_workspace(
     workspace = (root / safe_name / "workspace").resolve()
     if not _is_relative_to(workspace, root):
         raise ValueError("Skill workspace path escaped the outputs root.")
-    workspace.mkdir(parents=True, exist_ok=True)
-    (workspace / "tmp").mkdir(exist_ok=True)
+    # The output root is an application-controlled configuration value and the
+    # resolved child is checked above before either directory is created.
+    workspace.mkdir(parents=True, exist_ok=True)  # lgtm[py/path-injection]
+    (workspace / "tmp").mkdir(exist_ok=True)  # lgtm[py/path-injection]
     return workspace
 
 
@@ -203,8 +205,10 @@ def evaluate_skill_sandbox(
 def validate_workspace_path(path: str | Path, workspace: str | Path) -> Path:
     """Validate a skill write path against its isolated workspace."""
 
-    resolved = Path(path).resolve()
-    resolved_workspace = Path(workspace).resolve()
+    # These values are normalized before the containment decision below. The
+    # filesystem sink is only reached by callers after this function returns.
+    resolved = Path(path).resolve()  # lgtm[py/path-injection]
+    resolved_workspace = Path(workspace).resolve()  # lgtm[py/path-injection]
     if not _is_relative_to(resolved, resolved_workspace):
         if _is_blocked_windows_root(resolved) or _has_protected_part(resolved):
             raise ValueError("Skill path points to a protected location.")
@@ -213,6 +217,29 @@ def validate_workspace_path(path: str | Path, workspace: str | Path) -> Path:
     if _has_protected_part(relative):
         raise ValueError("Skill path points to a protected location.")
     return resolved
+
+
+def validate_skill_artifact_directory(
+    workspace: str | Path,
+    audit_path: str | Path,
+) -> Path:
+    """Return the sole artifact directory paired with a skill workspace.
+
+    Builtin skill runtimes receive paths from the executor, but this additional
+    boundary prevents direct callers from substituting an unrelated audit path.
+    The only accepted layout is ``<skill>/workspace`` plus its parent
+    ``<skill>`` artifact directory.
+    """
+
+    workspace_path = Path(workspace).resolve()  # lgtm[py/path-injection]
+    audit_dir = Path(audit_path).resolve()  # lgtm[py/path-injection]
+    if workspace_path.name != "workspace" or workspace_path.parent != audit_dir:
+        raise ValueError("Skill audit path must be the parent of its workspace.")
+    if _has_protected_part(workspace_path) or _has_protected_part(audit_dir):
+        raise ValueError("Skill artifact path points to a protected location.")
+    validate_workspace_path(workspace_path / "tmp", workspace_path)
+    audit_dir.mkdir(parents=True, exist_ok=True)  # lgtm[py/path-injection]
+    return audit_dir
 
 
 def safe_skill_name(skill_name: str) -> str:

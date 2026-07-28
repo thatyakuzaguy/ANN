@@ -6,13 +6,18 @@ from uuid import uuid4
 
 from agentic_engineering_network.agents.definitions import AgentDefinition, get_agent_registry
 from agentic_engineering_network.agents.runtime import AgentRunResult, AgentRuntime
+from agentic_engineering_network.agents.subagents import DelegationPolicy
 from agentic_engineering_network.logs.audit import AuditLogger
 from agentic_engineering_network.orchestration.artifact_router import build_project_artifacts
 from agentic_engineering_network.orchestration.tasks import EngineeringTask, decompose_idea
 from agentic_engineering_network.orchestration.workspace import ProposedFile, WorkspaceManager
 from agentic_engineering_network.security.approvals import ApprovalCenter, ApprovalType
 from agentic_engineering_network.security.review import SecurityReviewer
-from agentic_engineering_network.shared.config import Settings, resolve_workspace_directory, to_host_path
+from agentic_engineering_network.shared.config import (
+    Settings,
+    resolve_workspace_directory,
+    to_host_path,
+)
 from agentic_engineering_network.shared.providers import (
     DeterministicLocalProvider,
     build_provider,
@@ -45,15 +50,34 @@ class AgenticEngineeringNetwork:
             provider = DeterministicLocalProvider()
         provider_factory = None
         if settings.ai_provider in {"llama_cpp", "local_gguf", "qwen_direct"}:
+
             def routed_provider_factory(agent: AgentDefinition):
                 return build_provider_for_agent(settings, str(agent.name), "FAST")
 
             provider_factory = routed_provider_factory
-        self.runtime = AgentRuntime(provider, audit, provider_factory=provider_factory)
+        self.runtime = AgentRuntime(
+            provider,
+            audit,
+            provider_factory=provider_factory,
+            delegation_policy=DelegationPolicy(
+                enabled=settings.subagents_enabled,
+                max_depth=max(1, min(settings.subagent_max_depth, 2)),
+                max_subagents_per_parent=max(0, min(settings.subagent_max_per_agent, 3)),
+                max_subagents_per_run=max(1, min(settings.subagent_max_per_run, 45)),
+                max_context_characters=max(
+                    1_000,
+                    min(settings.subagent_context_characters, 48_000),
+                ),
+                max_token_budget=max(64, min(settings.subagent_token_budget, 2_048)),
+                max_timeout_seconds=max(30, min(settings.subagent_timeout_seconds, 900)),
+            ),
+        )
         self.workspace = WorkspaceManager(settings.generated_projects_path, approvals)
         self.security = SecurityReviewer()
 
-    def submit(self, idea: str, workspace_directory: str | None = None, run_id: str | None = None) -> EngineeringRun:
+    def submit(
+        self, idea: str, workspace_directory: str | None = None, run_id: str | None = None
+    ) -> EngineeringRun:
         run_id = run_id or str(uuid4())
         workspace_root = resolve_workspace_directory(self.settings, workspace_directory)
         display_workspace = to_host_path(self.settings, workspace_root)
@@ -62,7 +86,11 @@ class AgenticEngineeringNetwork:
             "run.started",
             "user",
             idea,
-            {"run_id": run_id, "workspace_directory": display_workspace, "internal_workspace": str(workspace_root)},
+            {
+                "run_id": run_id,
+                "workspace_directory": display_workspace,
+                "internal_workspace": str(workspace_root),
+            },
         )
         tasks = decompose_idea(idea)
         context: dict[str, Any] = {
@@ -92,21 +120,36 @@ class AgenticEngineeringNetwork:
             "Run generated project tests in Docker sandbox",
             "Execute pytest, vitest, and Playwright inside the generated project's Docker sandbox.",
             "QA Agent",
-            {"run_id": run_id, "gate": "qa", "commands": ["pytest", "npm run test", "npm run e2e"], "sandbox": "docker"},
+            {
+                "run_id": run_id,
+                "gate": "qa",
+                "commands": ["pytest", "npm run test", "npm run e2e"],
+                "sandbox": "docker",
+            },
         )
         self.approvals.request(
             ApprovalType.PACKAGE_INSTALLATION,
             "Install generated project dependencies",
             "Install npm and Python dependencies inside the Docker build context after review.",
             "DevOps Agent",
-            {"run_id": run_id, "gate": "dependencies", "package_managers": ["npm", "pip"], "sandbox": "docker"},
+            {
+                "run_id": run_id,
+                "gate": "dependencies",
+                "package_managers": ["npm", "pip"],
+                "sandbox": "docker",
+            },
         )
         self.approvals.request(
             ApprovalType.DEPLOYMENT,
             "Create deployment package",
             "Package the generated project and deployment manifests after QA and security approval.",
             "Release Agent",
-            {"run_id": run_id, "gate": "release", "target": "local-docker", "requires": ["qa", "security", "code_review"]},
+            {
+                "run_id": run_id,
+                "gate": "release",
+                "target": "local-docker",
+                "requires": ["qa", "security", "code_review"],
+            },
         )
         self.audit.record(
             "run.completed",

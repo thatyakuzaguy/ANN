@@ -8,7 +8,9 @@ ANN (Agentic Neural Network) is a local, Docker-first, approval-gated engineerin
 flowchart TB
   UI["Next.js Workbench"] --> API["FastAPI API"]
   API --> Orchestrator["AgenticEngineeringNetwork"]
-  Orchestrator --> Agents["13 Agent Runtime"]
+  Orchestrator --> Agents["15 Principal Agent Runtime"]
+  Agents --> Scheduler["Controlled Subagent Scheduler"]
+  Scheduler --> Specialists["45 Read-only Specialist Capabilities"]
   Orchestrator --> Approvals["Approval Center"]
   Orchestrator --> Workspace["Workspace Manager"]
   Orchestrator --> Lifecycle["Project Lifecycle Runner"]
@@ -39,6 +41,10 @@ flowchart TB
 
 - FastAPI exposes `/api/health`, `/api/agents`, `/api/runs`, `/api/approvals`, and `/api/logs/audit`.
 - The orchestrator decomposes ideas, runs all registered agents, creates proposed artifacts, scans for secrets, and queues approvals.
+- Each principal agent can delegate a bounded analytical work order to a selected specialist. The
+  scheduler validates parent ownership, paths, tools, context, budgets, lineage, and depth before
+  using the same routed model sequentially. Specialist evidence is injected into the parent prompt;
+  specialists never own writes or approvals.
 - Artifact generation goes through an intent router before template selection. SaaS prompts use the SaaS production artifact family; game prompts use a playable canvas game artifact family; future artifact families should be added behind the router.
 - After approval gates are resolved, the project lifecycle runner validates generated files, builds the generated Docker Compose stack, starts it on isolated ports, checks API/Web health live, runs API pytest, runs the web production build, requests Qwen unified-diff repairs when failures remain, writes a per-project sandbox manifest, runs security review, and creates a release ZIP.
 - The configurable correction loop records retry history, applies exponential backoff, writes a failure summary, and escalates to a human engineer after the configured limit.
@@ -124,6 +130,7 @@ The provider abstraction supports:
 ## Data and Logs
 
 - `logs/audit.jsonl`: approval, agent, and run events
+- `logs/audit.jsonl` also stores typed `subagent.*` delegation lifecycle events.
 - `data/runs`: persisted run records and execution results
 - `data/postgres`: PostgreSQL Docker volume
 - `data/ollama`: Ollama Docker volume

@@ -5,17 +5,24 @@ from dataclasses import asdict
 from fastapi import APIRouter, HTTPException, Request
 
 from agentic_engineering_network.agents.definitions import get_agent_registry
+from agentic_engineering_network.agents.subagents import get_subagent_registry
 from agentic_engineering_network.orchestration.readiness import get_saas_readiness_checklist
 from agentic_engineering_network.orchestration.requirements_engine import refine_idea
 from agentic_engineering_network.orchestration.saas_templates import get_saas_templates
-from agentic_engineering_network.orchestration.application.sdlc_pipeline import get_senior_sdlc_pipeline
+from agentic_engineering_network.orchestration.application.sdlc_pipeline import (
+    get_senior_sdlc_pipeline,
+)
 from agentic_engineering_network.orchestration.application.senior_review import SeniorReviewService
 from agentic_engineering_network.orchestration.application.testing_strategy import get_test_strategy
 from agentic_engineering_network.orchestration.application.architecture_uncertainty import (
     get_architecture_uncertainty_review,
 )
-from agentic_engineering_network.orchestration.application.business_context import assess_business_context
-from agentic_engineering_network.orchestration.application.confidence import build_confidence_dashboard
+from agentic_engineering_network.orchestration.application.business_context import (
+    assess_business_context,
+)
+from agentic_engineering_network.orchestration.application.confidence import (
+    build_confidence_dashboard,
+)
 from agentic_engineering_network.orchestration.application.human_gates import (
     make_human_gate_decision,
     summarize_human_gates,
@@ -26,8 +33,12 @@ from agentic_engineering_network.orchestration.application.market_validation imp
 from agentic_engineering_network.orchestration.application.release_readiness import (
     evaluate_release_readiness,
 )
-from agentic_engineering_network.orchestration.application.risk_register import unresolved_critical_count
-from agentic_engineering_network.orchestration.application.approval_packets import build_approval_packets
+from agentic_engineering_network.orchestration.application.risk_register import (
+    unresolved_critical_count,
+)
+from agentic_engineering_network.orchestration.application.approval_packets import (
+    build_approval_packets,
+)
 from agentic_engineering_network.orchestration.application.intelligence import (
     ArchitectureIntelligenceEngine,
     ComplianceIntelligenceEngine,
@@ -36,7 +47,9 @@ from agentic_engineering_network.orchestration.application.intelligence import (
     SecurityIntelligenceEngine,
     build_intelligence_suite,
 )
-from agentic_engineering_network.orchestration.application.simulation import run_estimate_simulations
+from agentic_engineering_network.orchestration.application.simulation import (
+    run_estimate_simulations,
+)
 from agentic_engineering_network.security.approvals import ApprovalRequest
 from agentic_engineering_network.security.compliance import get_compliance_checklist
 from agentic_engineering_network.security.compliance_evidence import collect_compliance_evidence
@@ -49,7 +62,13 @@ from agentic_network.runtime_engine.model_setup import (
     register_local_gguf,
 )
 
-from app.core.container import agent_office_service, approval_center, audit_logger, run_store
+from app.core.container import (
+    agent_office_service,
+    approval_center,
+    audit_logger,
+    network,
+    run_store,
+)
 from app.core.settings import settings
 from app.schemas.runs import (
     ApprovalDecision,
@@ -126,7 +145,31 @@ def error_tracking_status() -> dict[str, object]:
 
 @router.get("/agents")
 def agents() -> list[dict[str, object]]:
-    return [asdict(agent) for agent in get_agent_registry()]
+    return [
+        {
+            **asdict(agent),
+            "subagents": [asdict(item) for item in get_subagent_registry(agent.name)],
+        }
+        for agent in get_agent_registry()
+    ]
+
+
+@router.get("/subagents/catalog")
+def subagent_catalog(parent_agent: str | None = None) -> dict[str, object]:
+    registry = get_subagent_registry(parent_agent)
+    return {
+        "count": len(registry),
+        "parent_agent": parent_agent,
+        "subagents": [asdict(item) for item in registry],
+        "execution_policy": "SEQUENTIAL",
+        "active_models_limit": 1,
+        "parallel_llm_loads": 0,
+    }
+
+
+@router.get("/subagents/state")
+def subagent_state(run_id: str | None = None, limit: int = 100) -> dict[str, object]:
+    return network.runtime.subagent_state(run_id=run_id, limit=max(1, min(limit, 500)))
 
 
 @router.get("/agent-office/state")
@@ -171,10 +214,16 @@ def billing_status() -> dict[str, object]:
 @router.post("/billing/checkout")
 def billing_checkout(payload: BillingCheckoutRequest) -> dict[str, object]:
     try:
-        return StripeBillingService().create_checkout_session(payload.customer_email, payload.tenant_id)
+        return StripeBillingService().create_checkout_session(
+            payload.customer_email, payload.tenant_id
+        )
     except Exception as exc:
-        _record_public_api_failure("billing.checkout_failed", "BillingAPI", "Billing checkout failed.", exc)
-        raise HTTPException(status_code=400, detail="Billing checkout could not be created.") from exc
+        _record_public_api_failure(
+            "billing.checkout_failed", "BillingAPI", "Billing checkout failed.", exc
+        )
+        raise HTTPException(
+            status_code=400, detail="Billing checkout could not be created."
+        ) from exc
 
 
 @router.post("/billing/portal")
@@ -182,7 +231,9 @@ def billing_portal(payload: BillingPortalRequest) -> dict[str, object]:
     try:
         return StripeBillingService().create_customer_portal(payload.customer_id)
     except Exception as exc:
-        _record_public_api_failure("billing.portal_failed", "BillingAPI", "Billing portal request failed.", exc)
+        _record_public_api_failure(
+            "billing.portal_failed", "BillingAPI", "Billing portal request failed.", exc
+        )
         raise HTTPException(status_code=400, detail="Customer portal could not be opened.") from exc
 
 
@@ -193,7 +244,9 @@ async def billing_webhook(request: Request) -> dict[str, object]:
     try:
         return StripeBillingService().handle_webhook(payload, signature)
     except Exception as exc:
-        _record_public_api_failure("billing.webhook_rejected", "BillingAPI", "Billing webhook rejected.", exc)
+        _record_public_api_failure(
+            "billing.webhook_rejected", "BillingAPI", "Billing webhook rejected.", exc
+        )
         raise HTTPException(status_code=400, detail="Invalid billing webhook.") from exc
 
 
@@ -288,7 +341,9 @@ def intelligence_suite(payload: SeniorAssessmentRequest) -> dict[str, object]:
 
 @router.post("/simulations")
 def simulations(payload: SimulationRequest) -> dict[str, object]:
-    return run_estimate_simulations(payload.monthly_visitors, payload.conversion_rate, payload.price)
+    return run_estimate_simulations(
+        payload.monthly_visitors, payload.conversion_rate, payload.price
+    )
 
 
 @router.get("/approval-packets")
@@ -383,7 +438,13 @@ def architecture_uncertainty() -> dict[str, object]:
 def legal_workflow() -> dict[str, object]:
     return {
         "legal_review_required": True,
-        "jurisdiction_selector": ["EU/GDPR", "United States", "United Kingdom", "Canada", "Other/manual review"],
+        "jurisdiction_selector": [
+            "EU/GDPR",
+            "United States",
+            "United Kingdom",
+            "Canada",
+            "Other/manual review",
+        ],
         "privacy_data_processing_questionnaire": [
             "What personal data is collected?",
             "What is the lawful basis or contractual basis?",

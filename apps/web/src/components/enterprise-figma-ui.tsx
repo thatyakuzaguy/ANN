@@ -1040,6 +1040,18 @@ function TerminalPanel({ onClose, onRunSelected }: { onClose: () => void; onRunS
         type: "run",
         text: `${agent}: ${outputs}`,
       });
+      const delegated = Array.isArray(result.subagent_results) ? result.subagent_results : [];
+      for (const item of delegated) {
+        if (!item || typeof item !== "object") continue;
+        const subagent = item as Record<string, unknown>;
+        const name = String(subagent.subagent_name ?? subagent.subagent_id ?? "Specialist");
+        const status = String(subagent.status ?? "completed");
+        const summary = String(subagent.summary ?? "Delegated evidence ready.");
+        appendLiveLine(`run:${run.run_id}:subagent:${String(subagent.work_order_id ?? name)}`, {
+          type: status === "failed" || status === "blocked" ? "error" : "pipeline",
+          text: `-> ${agent} / ${name} [${status}]: ${summary}`,
+        });
+      }
     }
     lastRunSnapshotRef.current = snapshot;
   };

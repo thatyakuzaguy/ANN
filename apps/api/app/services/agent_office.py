@@ -89,28 +89,96 @@ class AgentOfficeAgent:
 
 
 class AgentOfficeProvider(Protocol):
-    def state(self) -> dict[str, Any]:
-        ...
+    def state(self) -> dict[str, Any]: ...
 
-    def events(self, limit: int = 50) -> list[dict[str, str]]:
-        ...
+    def events(self, limit: int = 50) -> list[dict[str, str]]: ...
 
 
 OFFICE_LAYOUT: tuple[dict[str, Any], ...] = (
-    {"id": "product-manager", "name": "Product Manager", "role": "Product strategy", "position": OfficePosition(120, 118)},
-    {"id": "requirements-agent", "name": "Requirements Agent", "role": "Requirements analysis", "position": OfficePosition(286, 118)},
-    {"id": "planner", "name": "Planner", "role": "Task decomposition", "position": OfficePosition(452, 118)},
-    {"id": "architect", "name": "Architect", "role": "System architecture", "position": OfficePosition(618, 118)},
-    {"id": "database-engineer", "name": "Database Engineer", "role": "Data modeling", "position": OfficePosition(120, 300)},
-    {"id": "backend-engineer", "name": "Backend Engineer", "role": "API engineering", "position": OfficePosition(286, 300)},
-    {"id": "frontend-engineer", "name": "Frontend Engineer", "role": "UI engineering", "position": OfficePosition(452, 300)},
-    {"id": "devops-engineer", "name": "DevOps Engineer", "role": "Sandbox and release automation", "position": OfficePosition(618, 300)},
-    {"id": "qa-engineer", "name": "QA Engineer", "role": "Verification", "position": OfficePosition(120, 482)},
-    {"id": "security-engineer", "name": "Security Engineer", "role": "Security review", "position": OfficePosition(286, 482)},
-    {"id": "compliance-agent", "name": "Compliance Agent", "role": "Compliance evidence", "position": OfficePosition(452, 482)},
-    {"id": "documentation-agent", "name": "Documentation Agent", "role": "Technical writing", "position": OfficePosition(618, 482)},
-    {"id": "release-agent", "name": "Release Agent", "role": "Packaging and release", "position": OfficePosition(784, 300)},
-    {"id": "meta-review-agent", "name": "Meta Review Agent", "role": "Cross-agent review", "position": OfficePosition(784, 482)},
+    {
+        "id": "product-manager",
+        "name": "Product Manager",
+        "role": "Product strategy",
+        "position": OfficePosition(120, 118),
+    },
+    {
+        "id": "requirements-agent",
+        "name": "Requirements Agent",
+        "role": "Requirements analysis",
+        "position": OfficePosition(286, 118),
+    },
+    {
+        "id": "planner",
+        "name": "Planner",
+        "role": "Task decomposition",
+        "position": OfficePosition(452, 118),
+    },
+    {
+        "id": "architect",
+        "name": "Architect",
+        "role": "System architecture",
+        "position": OfficePosition(618, 118),
+    },
+    {
+        "id": "database-engineer",
+        "name": "Database Engineer",
+        "role": "Data modeling",
+        "position": OfficePosition(120, 300),
+    },
+    {
+        "id": "backend-engineer",
+        "name": "Backend Engineer",
+        "role": "API engineering",
+        "position": OfficePosition(286, 300),
+    },
+    {
+        "id": "frontend-engineer",
+        "name": "Frontend Engineer",
+        "role": "UI engineering",
+        "position": OfficePosition(452, 300),
+    },
+    {
+        "id": "devops-engineer",
+        "name": "DevOps Engineer",
+        "role": "Sandbox and release automation",
+        "position": OfficePosition(618, 300),
+    },
+    {
+        "id": "qa-engineer",
+        "name": "QA Engineer",
+        "role": "Verification",
+        "position": OfficePosition(120, 482),
+    },
+    {
+        "id": "security-engineer",
+        "name": "Security Engineer",
+        "role": "Security review",
+        "position": OfficePosition(286, 482),
+    },
+    {
+        "id": "compliance-agent",
+        "name": "Compliance Agent",
+        "role": "Compliance evidence",
+        "position": OfficePosition(452, 482),
+    },
+    {
+        "id": "documentation-agent",
+        "name": "Documentation Agent",
+        "role": "Technical writing",
+        "position": OfficePosition(618, 482),
+    },
+    {
+        "id": "release-agent",
+        "name": "Release Agent",
+        "role": "Packaging and release",
+        "position": OfficePosition(784, 300),
+    },
+    {
+        "id": "meta-review-agent",
+        "name": "Meta Review Agent",
+        "role": "Cross-agent review",
+        "position": OfficePosition(784, 482),
+    },
 )
 
 
@@ -243,7 +311,9 @@ class MockAgentOfficeProvider:
                     lastActivityAt=timestamp,
                     events=(event,),
                     confidence=round(0.68 + (index % 5) * 0.06, 2),
-                    blockedReason="Waiting for human approval" if status == "waiting approval" else None,
+                    blockedReason="Waiting for human approval"
+                    if status == "waiting approval"
+                    else None,
                     approvalRequired=status == "waiting approval",
                 )
             )
@@ -278,7 +348,7 @@ class LiveAgentOfficeProvider:
         events_by_agent: dict[str, list[AgentOfficeEvent]] = {}
         status_by_agent: dict[str, AgentStatus] = {}
         for raw in current_events:
-            agent_id = self._agent_id_for_actor(str(raw.get("actor", "")))
+            agent_id = self._agent_id_for_event(raw)
             if not agent_id:
                 continue
             status_by_agent[agent_id] = _status_from_event(raw)
@@ -294,11 +364,16 @@ class LiveAgentOfficeProvider:
             status = status_by_agent.get(agent_id, "idle" if not agent_events else "thinking")
             if latest and terminal_status == "completed" and status not in {"failed", "blocked"}:
                 status = "completed"
-            elif latest and terminal_status in {"failed", "blocked"} and status not in {
-                "completed",
-                "failed",
-                "blocked",
-            }:
+            elif (
+                latest
+                and terminal_status in {"failed", "blocked"}
+                and status
+                not in {
+                    "completed",
+                    "failed",
+                    "blocked",
+                }
+            ):
                 status = "blocked"
             agents.append(
                 AgentOfficeAgent(
@@ -313,7 +388,9 @@ class LiveAgentOfficeProvider:
                     lastActivityAt=latest.createdAt if latest else timestamp,
                     events=agent_events,
                     confidence=0.9 if agent_events else 0.55,
-                    blockedReason=latest.message if status in {"blocked", "failed"} and latest else None,
+                    blockedReason=latest.message
+                    if status in {"blocked", "failed"} and latest
+                    else None,
                     approvalRequired=status == "waiting approval",
                 )
             )
@@ -333,8 +410,7 @@ class LiveAgentOfficeProvider:
     def _map_events(self, raw_events: list[dict[str, Any]]) -> list[AgentOfficeEvent]:
         mapped: list[AgentOfficeEvent] = []
         for raw in raw_events:
-            actor = str(raw.get("actor", ""))
-            agent_id = self._agent_id_for_actor(actor)
+            agent_id = self._agent_id_for_event(raw)
             if not agent_id:
                 continue
             name = next(item["name"] for item in OFFICE_LAYOUT if item["id"] == agent_id)
@@ -343,7 +419,10 @@ class LiveAgentOfficeProvider:
             message = str(raw.get("message", "Agent activity updated."))
             mapped.append(
                 AgentOfficeEvent(
-                    id=str(raw.get("event_id") or _stable_event_id(agent_id, event_type, created_at, message)),
+                    id=str(
+                        raw.get("event_id")
+                        or _stable_event_id(agent_id, event_type, created_at, message)
+                    ),
                     agentId=agent_id,
                     agentName=str(name),
                     type=_status_from_event(raw),
@@ -362,7 +441,9 @@ class LiveAgentOfficeProvider:
         return None
 
     @staticmethod
-    def _events_for_run(raw_events: list[dict[str, Any]], run_id: str | None) -> list[dict[str, Any]]:
+    def _events_for_run(
+        raw_events: list[dict[str, Any]], run_id: str | None
+    ) -> list[dict[str, Any]]:
         if run_id is None:
             return raw_events
         return [
@@ -393,6 +474,22 @@ class LiveAgentOfficeProvider:
             if alias.lower() in lowered:
                 return agent_id
         return None
+
+    @classmethod
+    def _agent_id_for_event(cls, event: dict[str, Any]) -> str | None:
+        metadata = event.get("metadata")
+        if isinstance(metadata, dict):
+            parent_agent = metadata.get("parent_agent")
+            if isinstance(parent_agent, str):
+                parent_id = cls._agent_id_for_actor(parent_agent)
+                if parent_id:
+                    return parent_id
+            result = metadata.get("result")
+            if isinstance(result, dict) and isinstance(result.get("parent_agent"), str):
+                parent_id = cls._agent_id_for_actor(str(result["parent_agent"]))
+                if parent_id:
+                    return parent_id
+        return cls._agent_id_for_actor(str(event.get("actor", "")))
 
 
 class AgentOfficeService:

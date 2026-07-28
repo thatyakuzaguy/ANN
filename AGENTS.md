@@ -2,6 +2,11 @@
 
 Each agent has a role, goals, tools, outputs, action logs, and decision reports. Agent decisions are written to the audit log.
 
+Each principal agent also owns three read-only specialist subagents. The runtime selects only the
+specialty justified by the request (one per parent by default), runs it on the parent's already
+routed provider, unloads according to the existing model lifecycle, and gives its evidence back to
+the parent. The parent remains accountable for the decision.
+
 | Agent | Responsibility | Key Outputs |
 | --- | --- | --- |
 | Product Manager Agent | Product brief, success metrics, MVP boundaries, release risks | `product_brief.md`, `success_metrics.json` |
@@ -26,11 +31,12 @@ Each agent has a role, goals, tools, outputs, action logs, and decision reports.
 flowchart LR
   User["User idea"] --> PM["Product Manager"]
   PM --> Req["Requirements"]
-  Req --> Plan["Planner"]
-  Plan --> Arch["Solution Architect"]
-  Arch --> FE["Frontend Engineer"]
-  Arch --> BE["Backend Engineer"]
-  Arch --> DB["Database Engineer"]
+  Req --> ProductReview["Product Review"]
+  ProductReview --> Arch["Solution Architect"]
+  Arch --> Plan["Planner"]
+  Plan --> DB["Database Engineer"]
+  DB --> BE["Backend Engineer"]
+  BE --> FE["Frontend Engineer"]
   FE --> QA["QA"]
   BE --> QA
   DB --> QA
@@ -52,6 +58,29 @@ The runtime sends each agent a role-specific prompt and records:
 - provider and model
 - context keys
 - UTC timestamp
+- delegated work-order IDs, specialist statuses, provider/model, confidence, and blockers
+
+## Controlled Delegation
+
+ANN's subagents are ephemeral analytical capabilities, not independent processes with authority.
+Every delegation uses a typed `SubagentWorkOrder` containing its parent, objective, context
+references, allowed files, allowed analytical tools, acceptance criteria, output schema, token
+budget, timeout budget, depth, and lineage.
+
+Safety invariants:
+
+- One routed provider is used sequentially for the specialist and its parent.
+- `active_models <= 1`, `parallel_llm_loads == 0`, and `SEQUENTIAL` remain mandatory.
+- Subagents cannot run terminal commands, write files, apply patches, install packages, deploy, or
+  delegate again.
+- Absolute paths, traversal, and protected repository areas are rejected.
+- Context is allowlisted, bounded, and redacts credential-like fields.
+- Cycles, depth overflow, parent mismatch, undeclared tools, and budget overflow are blocked.
+- Specialist failure is visible to the parent; it never becomes an implicit approval or success.
+- The audit log records requested, started, completed, failed, and blocked delegation events.
+
+The catalog and recent state are available through read-only endpoints:
+`GET /api/subagents/catalog` and `GET /api/subagents/state`.
 
 ## Tool Boundaries
 

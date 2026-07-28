@@ -32,6 +32,9 @@ human rather than looping forever.
 - Natural-language conversation handoff into a real multi-stage run.
 - Product, requirements, planning, architecture, frontend, backend, database,
   DevOps, QA, security, documentation, review, meta-review, and release roles.
+- Forty-five read-only specialist capabilities behind typed, bounded work
+  orders. Principal agents delegate one focused analysis by default and remain
+  accountable for every decision.
 - Supervised and full-approval modes with persistent audit evidence.
 - Proposed diffs before writes, patch quality gates, token confirmation, safe
   terminal allowlists, protected paths, and workspace traversal defenses.
@@ -205,6 +208,7 @@ manifest.
 
 - [Architecture](ARCHITECTURE.md)
 - [Agent responsibilities](AGENTS.md)
+- [Controlled subagents](docs/CONTROLLED_SUBAGENTS.md)
 - [Security policy](SECURITY.md)
 - [Dependency security](docs/DEPENDENCY_SECURITY.md)
 - [Known limitations](LIMITATIONS.md)

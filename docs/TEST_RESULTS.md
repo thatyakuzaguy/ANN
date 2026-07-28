@@ -1,5 +1,38 @@
 # Test Results
 
+Date: 2026-07-28
+
+## Controlled Subagent Validation
+
+```text
+python -m ruff check agentic_network packages tests/python scripts
+All checks passed!
+
+python -m pytest tests/python -q
+1612 passed, 54 skipped in 825.89s (0:13:45)
+
+npm --workspace apps/web run lint
+TypeScript passed
+
+npm --workspace apps/web run test
+5 test files passed, 22 tests passed
+
+npm --workspace apps/web run build
+Next.js 16.2.12 production build passed
+
+npm --workspace apps/web run e2e
+1 passed
+
+npm audit --audit-level=moderate
+found 0 vulnerabilities
+```
+
+The new regression coverage verifies catalog completeness, parent ownership,
+cycle and depth blocking, protected paths, host-affecting tool rejection,
+credential redaction, bounded context, per-parent and per-run budgets,
+specialist failure fallback, read-only APIs, Agent Office attribution, and the
+one-active-model invariant under concurrent runs.
+
 Date: 2026-07-27
 
 ## Stable 1.0.1 Source Validation

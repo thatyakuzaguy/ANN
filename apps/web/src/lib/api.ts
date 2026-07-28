@@ -6,6 +6,38 @@ export type Agent = {
   goals: string[];
   tools: string[];
   outputs: string[];
+  subagents?: SubagentDefinition[];
+};
+
+export type SubagentDefinition = {
+  id: string;
+  parent_agent: string;
+  name: string;
+  role: string;
+  goals: string[];
+  tools: string[];
+  outputs: string[];
+  triggers: string[];
+};
+
+export type SubagentResult = {
+  work_order_id: string;
+  task_id: string;
+  parent_agent: string;
+  subagent_id: string;
+  subagent_name: string;
+  status: "completed" | "blocked" | "failed";
+  summary: string;
+  evidence: string[];
+  risks: string[];
+  blockers: string[];
+  confidence: number;
+  recommendation: string;
+  requested_context: string[];
+  provider: string;
+  model: string;
+  duration_seconds: number;
+  created_at: string;
 };
 
 export type EngineeringRun = {
@@ -260,6 +292,23 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 export const api = {
   agents: () => request<Agent[]>("/agents"),
+  subagentCatalog: (parentAgent?: string) =>
+    request<{
+      count: number;
+      parent_agent: string | null;
+      subagents: SubagentDefinition[];
+      execution_policy: "SEQUENTIAL";
+      active_models_limit: 1;
+      parallel_llm_loads: 0;
+    }>(`/subagents/catalog${parentAgent ? `?parent_agent=${encodeURIComponent(parentAgent)}` : ""}`),
+  subagentState: (runId?: string, limit = 100) =>
+    request<{
+      policy: Record<string, unknown>;
+      active_models_limit: 1;
+      parallel_llm_loads: 0;
+      execution_policy: "SEQUENTIAL";
+      results: SubagentResult[];
+    }>(`/subagents/state?limit=${limit}${runId ? `&run_id=${encodeURIComponent(runId)}` : ""}`),
   agentOfficeState: () => request<AgentOfficeState>("/agent-office/state"),
   agentOfficeEvents: (limit = 50) => request<{ events: AgentOfficeEvent[] }>(`/agent-office/events?limit=${limit}`),
   approvals: () => request<Approval[]>("/approvals"),

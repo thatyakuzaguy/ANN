@@ -1,7 +1,7 @@
 name: package_registry
 version: 1.0
-description: Optional future package registry metadata skill manifest. No installs are allowed.
-enabled: false
+description: Read-only PyPI and npm metadata lookup through fixed registry endpoints; installation is unavailable.
+enabled: true
 requires_user_approval: true
 audit_enabled: true
 permissions:

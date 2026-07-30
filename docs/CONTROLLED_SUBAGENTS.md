@@ -58,6 +58,13 @@ Each of the 15 principal agents owns three capabilities:
 Only named context references are compiled. Credential-like keys are redacted and total context is
 bounded. Specialists do not read arbitrary files on their own.
 
+Principal agents can also declare read-only analytical capabilities from ANN's typed engineering
+skill catalog. This connects requirements contracts, dependency diagnostics, architecture fitness,
+test validity, runtime observability, supply-chain evidence, deployment readiness, UX quality, and
+domain validators to the relevant specialist groups. Declaring a skill does not grant permission
+to execute it: network, terminal, Git, backup/restore, signing, deployment, and mutation actions
+still pass through the skill permission store and Approval Center.
+
 ## Safety
 
 The scheduler blocks:

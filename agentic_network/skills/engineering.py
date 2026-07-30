@@ -27,6 +27,86 @@ TERMINAL = SkillPermission.TERMINAL_EXECUTE.value
 
 
 ENGINEERING_SKILL_ACTIONS: dict[str, tuple[EngineeringSkillAction, ...]] = {
+    "internet_search": (
+        EngineeringSkillAction("search", "Search the public web through ANN's fixed privacy-bounded search endpoint.", (SkillPermission.NETWORK.value,), True),
+    ),
+    "package_registry": (
+        EngineeringSkillAction("lookup", "Read package metadata from the fixed PyPI or npm registry without installing.", (SkillPermission.NETWORK.value,), True),
+    ),
+    "requirements_contract": (
+        EngineeringSkillAction("refine", "Create a versioned, testable product contract from user intent.", (READ,)),
+        EngineeringSkillAction("arbitrate", "Resolve contract ownership with the existing deterministic arbitration gate.", (READ,)),
+    ),
+    "dependency_doctor": (
+        EngineeringSkillAction("analyze", "Inspect runtimes, manifests, lockfiles, and dependency compatibility.", (READ,)),
+        EngineeringSkillAction("verify_lock", "Verify lockfile coverage without installing dependencies.", (READ,)),
+    ),
+    "runtime_observability": (
+        EngineeringSkillAction("snapshot", "Collect bounded local runtime, log, port, and resource evidence.", (READ,)),
+        EngineeringSkillAction("correlate", "Correlate runtime evidence with recent project failures.", (READ,)),
+    ),
+    "test_quality": (
+        EngineeringSkillAction("analyze", "Measure test quality, weak assertions, skips, and mutation readiness.", (READ,)),
+        EngineeringSkillAction("validate_failure", "Challenge a failed test through the existing Test Validity Gate.", (READ,)),
+    ),
+    "architecture_fitness": (
+        EngineeringSkillAction("analyze", "Measure boundaries, cycles, complexity, duplication, and entropy.", (READ,)),
+    ),
+    "backup_restore": (
+        EngineeringSkillAction("inspect", "Inspect backup, restore, retention, and recovery readiness.", (READ,)),
+        EngineeringSkillAction("backup", "Create an approved PostgreSQL logical backup through Compose.", (READ, WRITE, TERMINAL), True),
+        EngineeringSkillAction("restore", "Restore an approved PostgreSQL logical backup through Compose.", (READ, WRITE, TERMINAL), True, True),
+    ),
+    "performance_testing": (
+        EngineeringSkillAction("analyze", "Inspect performance budgets, benchmarks, and load-test readiness.", (READ,)),
+        EngineeringSkillAction("run", "Run an allowlisted performance recipe in the project sandbox.", (READ, WRITE, TERMINAL), True),
+    ),
+    "supply_chain_compliance": (
+        EngineeringSkillAction("scan", "Audit licenses, lockfiles, provenance, SBOM, and dependency policy.", (READ,)),
+    ),
+    "release_provenance": (
+        EngineeringSkillAction("inspect", "Inspect hashes, signatures, attestations, and clean-machine evidence.", (READ,)),
+        EngineeringSkillAction("verify", "Verify release provenance and Authenticode evidence.", (READ, TERMINAL), True),
+        EngineeringSkillAction("sign", "Run the repository's approved Authenticode signing script.", (READ, WRITE, SkillPermission.NETWORK.value, TERMINAL), True, True),
+    ),
+    "deployment_verification": (
+        EngineeringSkillAction("inspect", "Inspect deployment manifests, health checks, TLS, and rollback readiness.", (READ,)),
+        EngineeringSkillAction("smoke", "Start and smoke-test an approved isolated local deployment.", (READ, WRITE, TERMINAL), True),
+    ),
+    "external_integration_verification": (
+        EngineeringSkillAction("inspect", "Inspect provider, webhook, credential, retry, and idempotency boundaries.", (READ,)),
+        EngineeringSkillAction("probe", "Probe explicitly allowlisted HTTPS integration health endpoints.", (READ, SkillPermission.NETWORK.value), True),
+    ),
+    "ux_quality": (
+        EngineeringSkillAction("analyze", "Inspect responsive, accessibility, keyboard, and visual-regression evidence.", (READ,)),
+    ),
+    "git_collaboration": (
+        EngineeringSkillAction("status", "Read branch, worktree, and remote collaboration state.", (READ, SkillPermission.GIT_READ.value, TERMINAL), True),
+        EngineeringSkillAction("branch", "Create an approved namespaced Git branch.", (READ, WRITE, SkillPermission.GIT_WRITE.value, TERMINAL), True, True),
+        EngineeringSkillAction("commit", "Create an approved commit from an explicit bounded file list.", (READ, WRITE, SkillPermission.GIT_WRITE.value, TERMINAL), True, True),
+        EngineeringSkillAction("publish_pr", "Push an approved branch and open a draft pull request.", (READ, SkillPermission.NETWORK.value, SkillPermission.GIT_READ.value, SkillPermission.GIT_WRITE.value, TERMINAL), True, True),
+    ),
+    "mobile_validation": (
+        EngineeringSkillAction("analyze", "Inspect Android, iOS, React Native, and Flutter project readiness.", (READ,)),
+    ),
+    "game_validation": (
+        EngineeringSkillAction("analyze", "Inspect game loop, assets, controls, physics, and gameplay-test readiness.", (READ,)),
+    ),
+    "data_pipeline": (
+        EngineeringSkillAction("analyze", "Inspect ETL lineage, schemas, quality checks, idempotency, and backfills.", (READ,)),
+    ),
+    "ml_evaluation": (
+        EngineeringSkillAction("analyze", "Inspect datasets, metrics, model cards, reproducibility, and evaluation evidence.", (READ,)),
+    ),
+    "infrastructure_validation": (
+        EngineeringSkillAction("analyze", "Inspect Terraform, Kubernetes, CI, secrets, and infrastructure safety.", (READ,)),
+    ),
+    "desktop_validation": (
+        EngineeringSkillAction("analyze", "Inspect native desktop packaging, lifecycle, accessibility, and update readiness.", (READ,)),
+    ),
+    "localization": (
+        EngineeringSkillAction("analyze", "Inspect locale coverage, hardcoded text, pluralization, and RTL readiness.", (READ,)),
+    ),
     "repository_intelligence": (
         EngineeringSkillAction("scan", "Index AST symbols, routes, tests, and dependencies.", (READ,)),
         EngineeringSkillAction("impact", "Rank files and tests affected by target paths.", (READ,)),

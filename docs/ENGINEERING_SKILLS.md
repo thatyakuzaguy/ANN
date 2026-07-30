@@ -1,6 +1,6 @@
 # ANN Engineering Skills
 
-ANN exposes ten local engineering skills through `GET /api/skills` and
+ANN exposes thirty-two local engineering skills through `GET /api/skills` and
 `POST /api/skills/{skill}/execute`. They use the persistent skill permission
 store and the existing Approval Center. A skill permission never replaces a
 file, terminal, migration, container, or patch approval gate.
@@ -20,6 +20,33 @@ file, terminal, migration, container, or patch approval gate.
 | `api_contract` | `analyze` | OpenAPI/backend/frontend/webhook compatibility |
 | `release_packaging` | `prepare`, `verify`, `smoke_installer` | CycloneDX SBOM, SHA-256 hashes, installer evidence, and rollback |
 
+## Advanced Skills
+
+| Skill | Actions | Purpose |
+| --- | --- | --- |
+| `requirements_contract` | `refine`, `arbitrate` | Versioned requirements and deterministic contract ownership |
+| `dependency_doctor` | `analyze`, `verify_lock` | Runtime, manifest, lockfile, image, and compatibility evidence |
+| `runtime_observability` | `snapshot`, `correlate` | Local runtime, logs, ports, telemetry, and failure correlation |
+| `test_quality` | `analyze`, `validate_failure` | Test strength, mutation readiness, and Test Validity Gate |
+| `architecture_fitness` | `analyze` | Cycles, duplication, repository structure, and entropy |
+| `backup_restore` | `inspect`, `backup`, `restore` | PostgreSQL recovery readiness and approved Compose recipes |
+| `performance_testing` | `analyze`, `run` | Performance budgets and allowlisted benchmark recipes |
+| `supply_chain_compliance` | `scan` | Licenses, locks, SBOM, provenance, and CI action pinning |
+| `release_provenance` | `inspect`, `verify`, `sign` | Hashes, Authenticode, attestations, and clean-machine evidence |
+| `deployment_verification` | `inspect`, `smoke` | Health, TLS, rollback, manifests, and isolated local smoke |
+| `external_integration_verification` | `inspect`, `probe` | Webhooks, credentials, retries, idempotency, and approved HTTPS probes |
+| `ux_quality` | `analyze` | Responsive, keyboard, accessibility, and visual evidence |
+| `git_collaboration` | `status`, `branch`, `commit`, `publish_pr` | Approval-gated branch, commit, push, and draft PR |
+| `internet_search` | `search` | Fixed-endpoint public search with bounded results and domain filtering |
+| `package_registry` | `lookup` | Read-only PyPI/npm metadata with no downloads or installs |
+| `mobile_validation` | `analyze` | Android, iOS, React Native, and Flutter evidence |
+| `game_validation` | `analyze` | Engine, game loop, assets, controls, physics, and gameplay tests |
+| `data_pipeline` | `analyze` | ETL lineage, schemas, quality, idempotency, and backfills |
+| `ml_evaluation` | `analyze` | Metrics, model cards, reproducibility, drift, and bias without training |
+| `infrastructure_validation` | `analyze` | Terraform, Kubernetes, Helm, CI, policy, and unsafe topology |
+| `desktop_validation` | `analyze` | Native lifecycle, installer, update, and accessibility evidence |
+| `localization` | `analyze` | Locale coverage, hardcoded text, pluralization, and RTL |
+
 ## Basic Payload
 
 Every action takes `project_root`. Optional bounded fields include
@@ -35,6 +62,14 @@ Every action takes `project_root`. Optional bounded fields include
   a bounded relative step.
 - Container logs: `tail`, capped at 2,000 lines.
 - Release verification: `manifest_path` when verifying a prior package.
+- Internet search: `query`, optional `allowed_domains`, and `max_results`.
+- Package registry: `ecosystem` and `name`; package installation is unavailable.
+- Backup/restore: Compose `service`, database, username, and approved SQL backup path.
+- Performance: one of the declared performance `recipe` values and Compose service.
+- Git collaboration: a namespaced `agent/*` branch and explicit file list.
+- External probes: HTTPS `urls` plus mandatory `allowed_domains`.
+- Authenticode signing: a certificate thumbprint and a trusted HTTPS timestamp
+  endpoint; non-DigiCert providers require an explicit `allowed_timestamp_domains` entry.
 
 Raw command payloads are ignored. No action accepts arbitrary shell text.
 
@@ -91,3 +126,9 @@ action runs; delegated model text cannot authorize execution.
 - Container and migration actions require images already present locally.
 - Release packaging does not sign binaries or guarantee clean-machine behavior;
   signing and clean-machine smoke evidence remain separate release gates.
+- Public search uses a fixed provider and does not open result pages. Results
+  remain untrusted evidence and never become executable instructions.
+- Package registry lookup reads metadata only; it never downloads an archive or
+  invokes pip, npm, pnpm, yarn, Cargo, or another installer.
+- Domain validation skills are evidence scanners, not substitutes for real
+  device, gameplay, infrastructure, load, accessibility, or clean-machine tests.

@@ -12,6 +12,7 @@ from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 import hashlib
+import ipaddress
 import json
 import os
 from pathlib import Path
@@ -85,9 +86,13 @@ def execute_engineering_action(
         "release_packaging": _release_packaging,
     }
     handler = handlers.get(skill_name)
-    if handler is None:
-        raise ValueError("unsupported_engineering_skill")
-    result = handler(action, payload, workspace)
+    result = (
+        handler(action, payload, workspace)
+        if handler is not None
+        else _advanced_engineering_action(
+            skill_name, action, payload, workspace
+        )
+    )
     result.setdefault("status", "SUCCESS")
     result.setdefault("summary", f"{skill_name}.{action} completed")
     result.setdefault("artifacts", [])
@@ -103,6 +108,41 @@ def execute_engineering_action(
     _write_json(workspace / "skill_result.json", result, workspace)
     _write_summary(workspace / "result_summary.md", result, workspace)
     return result
+
+
+def _advanced_engineering_action(
+    skill_name: str,
+    action: str,
+    payload: dict[str, Any],
+    workspace: Path,
+) -> dict[str, Any]:
+    no_project_skills = {"internet_search", "package_registry"}
+    root = (
+        workspace
+        if skill_name in no_project_skills
+        else _project_root(payload)
+    )
+    if skill_name == "backup_restore" and action in {"backup", "restore"}:
+        return _backup_restore_command(action, payload, workspace, root)
+    if skill_name == "performance_testing" and action == "run":
+        return _performance_command(payload, workspace, root)
+    if skill_name == "release_provenance" and action in {"verify", "sign"}:
+        return _release_provenance_command(
+            action, payload, workspace, root
+        )
+    if skill_name == "deployment_verification" and action == "smoke":
+        return _deployment_smoke(payload, workspace)
+    if skill_name == "git_collaboration":
+        return _git_collaboration_command(
+            action, payload, workspace, root
+        )
+    from agentic_network.skills.advanced_runtime import (
+        execute_advanced_action,
+    )
+
+    return execute_advanced_action(
+        skill_name, action, payload, workspace, root
+    )
 
 
 def _repository_intelligence(action: str, payload: dict[str, Any], workspace: Path) -> dict[str, Any]:
@@ -563,6 +603,547 @@ def _release_packaging(action: str, payload: dict[str, Any], workspace: Path) ->
     }
 
 
+def _backup_restore_command(
+    action: str,
+    payload: dict[str, Any],
+    workspace: Path,
+    root: Path,
+) -> dict[str, Any]:
+    compose = _compose_file(root)
+    if compose is None:
+        return {
+            "status": "BLOCKED",
+            "summary": "Compose file not found.",
+            "errors": ["compose_file_missing"],
+        }
+    services = _compose_services(compose)
+    service = _safe_recipe_segment(
+        payload.get("service"), "db", "database_service"
+    )
+    if service not in services:
+        return {
+            "status": "BLOCKED",
+            "summary": f"Compose service {service} was not found.",
+            "errors": ["database_service_missing"],
+        }
+    database = _safe_recipe_segment(
+        payload.get("database"), "postgres", "database_name"
+    )
+    username = _safe_recipe_segment(
+        payload.get("username"), "postgres", "database_username"
+    )
+    project_name = _compose_project_name(
+        payload.get("project_name"), root
+    )
+    prefix = _compose_prefix(
+        root, compose, project_name, workspace
+    )
+    timeout = _bounded_int(
+        payload.get("timeout_seconds"), 1, MAX_TIMEOUT, 180
+    )
+    if action == "backup":
+        command = [
+            *prefix,
+            "exec",
+            "-T",
+            service,
+            "pg_dump",
+            "-U",
+            username,
+            "--format=plain",
+            "--no-owner",
+            "--no-privileges",
+            database,
+        ]
+        result = _run_recipe(
+            "postgres_backup", command, root, workspace, timeout
+        )
+        backup_path = workspace / "postgres_backup.sql"
+        if result.status == "SUCCESS":
+            shutil.copy2(result.stdout_path, backup_path)
+        return {
+            "status": result.status,
+            "summary": (
+                f"PostgreSQL logical backup finished with "
+                f"{result.status}."
+            ),
+            "data": {
+                "database": database,
+                "service": service,
+                "backup_path": (
+                    str(backup_path)
+                    if backup_path.is_file()
+                    else ""
+                ),
+                "result": asdict(result),
+            },
+            "artifacts": [
+                *_recipe_artifacts([result]),
+                *(
+                    [str(backup_path)]
+                    if backup_path.is_file()
+                    else []
+                ),
+            ],
+            "errors": [result.error] if result.error else [],
+            "terminal_used": True,
+        }
+    backup_file = _project_file(
+        root, payload.get("backup_file"), required=True
+    )
+    if backup_file.suffix.lower() != ".sql":
+        raise ValueError("restore_file_must_be_sql")
+    sql = backup_file.read_text(
+        encoding="utf-8", errors="strict"
+    )
+    if len(sql) > 100_000_000:
+        raise ValueError("restore_file_too_large")
+    command = [
+        *prefix,
+        "exec",
+        "-T",
+        service,
+        "psql",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-U",
+        username,
+        "-d",
+        database,
+    ]
+    result = _run_recipe(
+        "postgres_restore",
+        command,
+        root,
+        workspace,
+        timeout,
+        input_text=sql,
+    )
+    return {
+        "status": result.status,
+        "summary": (
+            f"PostgreSQL restore finished with {result.status}."
+        ),
+        "data": {
+            "database": database,
+            "service": service,
+            "backup_file": str(backup_file),
+            "backup_sha256": _sha256(backup_file),
+            "result": asdict(result),
+        },
+        "artifacts": _recipe_artifacts([result]),
+        "errors": [result.error] if result.error else [],
+        "terminal_used": True,
+    }
+
+
+def _performance_command(
+    payload: dict[str, Any],
+    workspace: Path,
+    root: Path,
+) -> dict[str, Any]:
+    compose = _compose_file(root)
+    if compose is None:
+        return {
+            "status": "BLOCKED",
+            "summary": "Compose file not found.",
+            "errors": ["compose_file_missing"],
+        }
+    service = _safe_recipe_segment(
+        payload.get("service"), "api", "performance_service"
+    )
+    if service not in _compose_services(compose):
+        return {
+            "status": "BLOCKED",
+            "summary": f"Compose service {service} was not found.",
+            "errors": ["performance_service_missing"],
+        }
+    recipe = str(payload.get("recipe") or "").strip()
+    commands = {
+        "python_pytest_performance": [
+            "python",
+            "-m",
+            "pytest",
+            "-q",
+            "-m",
+            "performance",
+        ],
+        "npm_benchmark": ["npm", "run", "benchmark"],
+        "npm_performance": ["npm", "run", "test:performance"],
+    }
+    inner = commands.get(recipe)
+    if inner is None:
+        return {
+            "status": "BLOCKED",
+            "summary": "Performance recipe is not allowlisted.",
+            "errors": ["performance_recipe_not_allowlisted"],
+            "data": {"allowed_recipes": sorted(commands)},
+        }
+    if inner[0] == "npm":
+        inner = _container_npm_command(inner)
+    prefix = _compose_prefix(
+        root,
+        compose,
+        _compose_project_name(payload.get("project_name"), root),
+        workspace,
+    )
+    command = [
+        *prefix,
+        "run",
+        "--rm",
+        "--no-deps",
+        service,
+        *inner,
+    ]
+    result = _run_recipe(
+        "performance",
+        command,
+        root,
+        workspace,
+        _bounded_int(
+            payload.get("timeout_seconds"), 1, MAX_TIMEOUT, 300
+        ),
+    )
+    return {
+        "status": result.status,
+        "summary": (
+            f"Performance recipe {recipe} finished with "
+            f"{result.status}."
+        ),
+        "data": {"recipe": recipe, "result": asdict(result)},
+        "artifacts": _recipe_artifacts([result]),
+        "errors": [result.error] if result.error else [],
+        "terminal_used": True,
+    }
+
+
+def _release_provenance_command(
+    action: str,
+    payload: dict[str, Any],
+    workspace: Path,
+    root: Path,
+) -> dict[str, Any]:
+    timeout = _bounded_int(
+        payload.get("timeout_seconds"), 1, MAX_TIMEOUT, 180
+    )
+    if action == "verify":
+        artifact = _project_file(
+            root, payload.get("artifact"), required=True
+        )
+        if artifact.suffix.lower() not in {".exe", ".msi"}:
+            raise ValueError("signature_artifact_type_not_allowed")
+        result = _run_recipe(
+            "authenticode_verify",
+            ["signtool", "verify", "/pa", "/all", "/v", str(artifact)],
+            root,
+            workspace,
+            timeout,
+        )
+        return {
+            "status": result.status,
+            "summary": (
+                f"Authenticode verification finished with "
+                f"{result.status}."
+            ),
+            "data": {
+                "artifact": str(artifact),
+                "sha256": _sha256(artifact),
+                "result": asdict(result),
+            },
+            "artifacts": _recipe_artifacts([result]),
+            "errors": [result.error] if result.error else [],
+            "terminal_used": True,
+        }
+    script = root / "installer" / "sign_release.ps1"
+    if not script.is_file():
+        return {
+            "status": "BLOCKED",
+            "summary": "Approved signing script is missing.",
+            "errors": ["signing_script_missing"],
+        }
+    thumbprint = re.sub(
+        r"\s+", "", str(payload.get("certificate_thumbprint") or "")
+    )
+    if not re.fullmatch(r"[0-9A-Fa-f]{40}", thumbprint):
+        raise ValueError("certificate_thumbprint_invalid")
+    timestamp_url = str(
+        payload.get("timestamp_url")
+        or "https://timestamp.digicert.com"
+    )
+    parsed = urlparse(timestamp_url)
+    timestamp_host = (parsed.hostname or "").lower().rstrip(".")
+    allowed_timestamp_domains = {
+        "timestamp.digicert.com",
+        *(
+            _safe_network_domain(item)
+            for item in _string_list(
+                payload.get("allowed_timestamp_domains"), 10
+            )
+        ),
+    }
+    if (
+        parsed.scheme != "https"
+        or not timestamp_host
+        or parsed.username
+        or parsed.password
+        or parsed.query
+        or parsed.fragment
+        or not any(
+            timestamp_host == domain
+            or timestamp_host.endswith(f".{domain}")
+            for domain in allowed_timestamp_domains
+        )
+    ):
+        raise ValueError("timestamp_url_invalid")
+    evidence = workspace / "release_signing_evidence.json"
+    command = [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        str(script.relative_to(root)),
+        "-CertificateThumbprint",
+        thumbprint,
+        "-TimestampUrl",
+        timestamp_url,
+        "-OutputPath",
+        str(evidence),
+        "-Execute",
+    ]
+    result = _run_recipe(
+        "authenticode_sign",
+        command,
+        root,
+        workspace,
+        timeout,
+    )
+    return {
+        "status": result.status,
+        "summary": (
+            f"Authenticode signing recipe finished with "
+            f"{result.status}."
+        ),
+        "data": {
+            "timestamp_host": timestamp_host,
+            "evidence": str(evidence),
+            "result": asdict(result),
+        },
+        "artifacts": [
+            *_recipe_artifacts([result]),
+            *([str(evidence)] if evidence.is_file() else []),
+        ],
+        "errors": [result.error] if result.error else [],
+        "terminal_used": True,
+    }
+
+
+def _deployment_smoke(
+    payload: dict[str, Any], workspace: Path
+) -> dict[str, Any]:
+    start = _container_operations("up", payload, workspace)
+    results: list[dict[str, Any]] = [start]
+    if start.get("status") == "SUCCESS":
+        results.append(
+            _container_operations("status", payload, workspace)
+        )
+    if payload.get("cleanup") is not False:
+        results.append(
+            _container_operations("down", payload, workspace)
+        )
+    status = (
+        "SUCCESS"
+        if results
+        and all(item.get("status") == "SUCCESS" for item in results)
+        else "FAILED"
+    )
+    return {
+        "status": status,
+        "summary": (
+            f"Local deployment smoke completed with {status}."
+        ),
+        "data": {
+            "steps": results,
+            "cleanup_attempted": payload.get("cleanup") is not False,
+        },
+        "artifacts": [
+            artifact
+            for item in results
+            for artifact in item.get("artifacts", [])
+        ],
+        "errors": [
+            error
+            for item in results
+            for error in item.get("errors", [])
+        ],
+        "terminal_used": True,
+    }
+
+
+def _git_collaboration_command(
+    action: str,
+    payload: dict[str, Any],
+    workspace: Path,
+    root: Path,
+) -> dict[str, Any]:
+    timeout = _bounded_int(
+        payload.get("timeout_seconds"), 1, MAX_TIMEOUT, 120
+    )
+    if action == "status":
+        result = _run_recipe(
+            "git_status",
+            ["git", "status", "--porcelain=v2", "--branch"],
+            root,
+            workspace,
+            timeout,
+        )
+        return _git_result(action, [result])
+    if action == "branch":
+        branch = _safe_git_branch(payload.get("branch"))
+        result = _run_recipe(
+            "git_branch",
+            ["git", "switch", "-c", branch],
+            root,
+            workspace,
+            timeout,
+        )
+        return _git_result(action, [result])
+    if action == "commit":
+        files = _relative_paths(
+            payload.get("files"), root, required=True
+        )[:100]
+        message = _safe_commit_message(payload.get("message"))
+        add = _run_recipe(
+            "git_add",
+            ["git", "add", "--", *files],
+            root,
+            workspace,
+            timeout,
+        )
+        results = [add]
+        if add.status == "SUCCESS":
+            results.append(
+                _run_recipe(
+                    "git_commit",
+                    ["git", "commit", "-m", message],
+                    root,
+                    workspace,
+                    timeout,
+                )
+            )
+        return _git_result(action, results)
+    branch = _safe_git_branch(payload.get("branch"))
+    if not branch.startswith("agent/"):
+        raise ValueError("publish_branch_must_be_namespaced")
+    push = _run_recipe(
+        "git_push",
+        ["git", "push", "-u", "origin", branch],
+        root,
+        workspace,
+        timeout,
+    )
+    results = [push]
+    if push.status == "SUCCESS":
+        title = _safe_commit_message(
+            payload.get("title") or f"Publish {branch}"
+        )
+        results.append(
+            _run_recipe(
+                "github_pr",
+                [
+                    "gh",
+                    "pr",
+                    "create",
+                    "--draft",
+                    "--fill",
+                    "--head",
+                    branch,
+                    "--title",
+                    title,
+                ],
+                root,
+                workspace,
+                timeout,
+            )
+        )
+    return _git_result(action, results)
+
+
+def _git_result(
+    action: str, results: list[RecipeResult]
+) -> dict[str, Any]:
+    status = _aggregate_recipe_status(results)
+    return {
+        "status": status,
+        "summary": (
+            f"Git collaboration action {action} finished with "
+            f"{status}."
+        ),
+        "data": {
+            "action": action,
+            "results": [asdict(item) for item in results],
+        },
+        "artifacts": _recipe_artifacts(results),
+        "errors": [
+            item.error for item in results if item.error
+        ],
+        "terminal_used": True,
+    }
+
+
+def _safe_recipe_segment(
+    value: object, default: str, label: str
+) -> str:
+    text = str(value or default).strip()
+    if not re.fullmatch(r"[A-Za-z0-9_.-]{1,63}", text):
+        raise ValueError(f"{label}_invalid")
+    return text
+
+
+def _safe_git_branch(value: object) -> str:
+    raw = str(value or "").strip().replace("\\", "/")
+    if not re.fullmatch(
+        r"agent/[a-z0-9][a-z0-9._/-]{0,80}", raw
+    ):
+        raise ValueError("git_branch_invalid")
+    if ".." in raw or raw.endswith("/") or "//" in raw:
+        raise ValueError("git_branch_invalid")
+    return raw
+
+
+def _safe_network_domain(value: object) -> str:
+    domain = str(value or "").strip().lower().rstrip(".")
+    if len(domain) > 253 or "." not in domain:
+        raise ValueError("network_domain_invalid")
+    try:
+        ipaddress.ip_address(domain)
+    except ValueError:
+        pass
+    else:
+        raise ValueError("network_domain_invalid")
+    if not all(
+        re.fullmatch(
+            r"[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?",
+            label,
+        )
+        is not None
+        for label in domain.split(".")
+    ):
+        raise ValueError("network_domain_invalid")
+    return domain
+
+
+def _safe_commit_message(value: object) -> str:
+    text = " ".join(str(value or "").split())[:120]
+    if (
+        not text
+        or COMMAND_META.search(text)
+        or any(ord(char) < 32 for char in text)
+    ):
+        raise ValueError("git_message_invalid")
+    return text
+
+
 def _project_root(payload: dict[str, Any]) -> Path:
     raw = str(payload.get("project_root") or "").strip()
     if not raw:
@@ -624,6 +1205,7 @@ def _run_recipe(
     timeout: int,
     *,
     extra_env: dict[str, str] | None = None,
+    input_text: str | None = None,
 ) -> RecipeResult:
     if not command or any(COMMAND_META.search(str(part)) for part in command):
         raise ValueError("unsafe_recipe_command")
@@ -637,6 +1219,7 @@ def _run_recipe(
         completed = subprocess.run(  # noqa: S603 - command is built only by closed recipes.
             _resolve_executable(command),
             cwd=str(cwd),
+            input=input_text,
             capture_output=True,
             text=True,
             timeout=timeout,
@@ -702,6 +1285,12 @@ def _resolve_executable(command: list[str]) -> list[str]:
         return [shutil.which("docker.exe" if os.name == "nt" else "docker") or "docker", *command[1:]]
     if first == "powershell":
         return [shutil.which("powershell.exe") or "powershell", *command[1:]]
+    if first == "git":
+        return [shutil.which("git.exe" if os.name == "nt" else "git") or "git", *command[1:]]
+    if first == "gh":
+        return [shutil.which("gh.exe" if os.name == "nt" else "gh") or "gh", *command[1:]]
+    if first == "signtool":
+        return [shutil.which("signtool.exe" if os.name == "nt" else "signtool") or "signtool", *command[1:]]
     if Path(first).resolve() == Path(sys.executable).resolve():
         return command
     raise ValueError("recipe_executable_not_allowlisted")
@@ -879,8 +1468,8 @@ def _find_alembic_config(root: Path) -> Path | None:
     return None
 
 
-def _migration_analysis(root: Path, config: Path | None) -> dict[str, object]:
-    revisions = []
+def _migration_analysis(root: Path, config: Path | None) -> dict[str, Any]:
+    revisions: list[dict[str, Any]] = []
     for path in root.rglob("*.py"):
         relative = path.relative_to(root)
         if any(part.lower() in PROTECTED_PARTS | {"node_modules", ".venv", "venv"} for part in relative.parts):
@@ -1129,7 +1718,7 @@ def _webhook_security_evidence(root: Path, webhook_paths: list[str]) -> dict[str
 
 def _release_input_files(root: Path, max_files: int) -> list[Path]:
     excluded = PROTECTED_PARTS | {"node_modules", ".venv", "venv", "dist", "build", "outputs", "logs", "data"}
-    files = []
+    files: list[Path] = []
     for path in sorted(root.rglob("*")):
         if len(files) >= max_files:
             break
@@ -1297,7 +1886,11 @@ def _write_summary(path: Path, result: dict[str, Any], workspace: Path) -> None:
 
 def _bounded_int(value: object, minimum: int, maximum: int, default: int) -> int:
     try:
-        parsed = int(value) if value is not None else default
+        parsed = (
+            int(value)
+            if isinstance(value, (str, bytes, bytearray, int, float))
+            else default
+        )
     except (TypeError, ValueError):
         parsed = default
     return max(minimum, min(maximum, parsed))

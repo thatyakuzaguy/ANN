@@ -1,7 +1,7 @@
 name: internet_search
 version: 1.0
-description: Optional future internet search skill manifest. No network execution exists in v10.0.
-enabled: false
+description: Approved public web search through a fixed endpoint with bounded results and optional domain filtering.
+enabled: true
 requires_user_approval: true
 audit_enabled: true
 permissions:

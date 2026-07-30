@@ -43,8 +43,8 @@ flowchart TB
 ## Backend
 
 - FastAPI exposes `/api/health`, `/api/agents`, `/api/runs`, `/api/approvals`, and `/api/logs/audit`.
-- `GET /api/skills`, the permission endpoint, and the execution endpoint expose ten typed engineering
-  skills. Manifest denials are immutable, terminal recipes require a single-use Approval Center
+- `GET /api/skills`, the permission endpoint, and the execution endpoint expose thirty-two typed
+  core and advanced skills. Manifest denials are immutable, terminal recipes require a single-use Approval Center
   decision, and skill artifacts are written only under `outputs/skills`.
 - The orchestrator decomposes ideas, runs all registered agents, creates proposed artifacts, scans for secrets, and queues approvals.
 - Each principal agent can delegate a bounded analytical work order to a selected specialist. The
@@ -113,7 +113,7 @@ Security rules:
 | Billing facade | Stripe checkout, portal, webhook handling, and mock mode |
 | Integration facade | Email, payments, analytics, storage, auth, and notifications health/status abstraction |
 | Senior review | Product, requirements, architecture, security, QA, compliance, release gates and scorecards |
-| Engineering skills | Repository intelligence, sandbox verification, diagnostics, patch workspace, browser E2E, migrations, security, containers, API contracts, and release packaging |
+| Engineering skills | Thirty-two typed skills covering repository, contract, dependency, runtime, test, architecture, data, performance, security, release, deployment, collaboration, and domain validation |
 
 ## Clean Architecture Boundaries
 

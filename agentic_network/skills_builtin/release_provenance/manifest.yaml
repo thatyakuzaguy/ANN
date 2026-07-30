@@ -1,0 +1,13 @@
+name: release_provenance
+version: 1.0
+description: Release hashes, Authenticode, attestations, and clean-machine evidence.
+enabled: true
+requires_user_approval: true
+audit_enabled: true
+permissions:
+  network: ASK_ALWAYS
+  filesystem_read: ASK_ALWAYS
+  filesystem_write: ASK_ALWAYS
+  git_read: DENY
+  git_write: DENY
+  terminal_execute: ASK_ALWAYS

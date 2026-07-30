@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Added twenty advanced engineering skills plus real bounded Internet Search
+  and Package Registry lookup, bringing the typed skill catalog to 32.
+- Added deterministic contract, dependency, observability, test-quality,
+  architecture, recovery, performance, supply-chain, provenance, deployment,
+  integration, UX, Git, and specialist domain evidence.
+- Added approval-gated PostgreSQL backup/restore, performance, Authenticode,
+  deployment-smoke, Git branch/commit/publish, and HTTPS probe recipes while
+  preserving shell=False, path policy, audit, and single-use approvals.
 - Added a controlled hierarchical delegation layer with 45 read-only specialist
   capabilities across all 15 principal agents.
 - Added typed work orders, deterministic capability selection, bounded context,

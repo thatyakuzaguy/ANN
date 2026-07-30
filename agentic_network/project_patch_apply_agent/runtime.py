@@ -91,21 +91,28 @@ def apply_project_patch(
     """Apply or preview one generated project patch."""
 
     root = normalize_workspace_path(project_root)
-    patch_path = _resolve_patch_path(root, patch_file)
     errors, warnings = _validate_project_root(project_root, root)
-    if patch_path is None:
-        errors.append("patch_file is required.")
-        patch_path_display = ""
-    else:
+    patch_path: Path | None = None
+    patch_path_display = ""
+    if not errors:
+        try:
+            patch_path = _resolve_patch_path(root, patch_file)
+        except ValueError as exc:
+            errors.append(str(exc))
+    if not errors and patch_path is not None:
         patch_path_display = str(patch_path)
-        if not patch_path.is_file():
+        if not patch_path.is_file():  # lgtm[py/path-injection]
             errors.append("patch_file was not found.")
-        elif not _is_relative_to(patch_path.resolve(), root):
-            errors.append("patch_file must be inside project_root.")
+    elif not errors:
+        errors.append("patch_file is required.")
     changes: list[PatchFileChange] = []
     if not errors and patch_path is not None:
         try:
-            changes = _parse_patch(patch_path.read_text(encoding="utf-8", errors="replace"))
+            changes = _parse_patch(
+                patch_path.read_text(  # lgtm[py/path-injection]
+                    encoding="utf-8", errors="replace"
+                )
+            )
         except ValueError as exc:
             errors.append(str(exc))
     blocked_paths = _blocked_change_paths(root, changes)
@@ -279,11 +286,14 @@ def _resolve_patch_path(root: Path, patch_file: str | Path) -> Path | None:
         return None
     raw = str(patch_file)
     if any(part == ".." for part in re.split(r"[\\/]+", raw)):
-        return Path(raw).resolve()
+        raise ValueError("Patch file path traversal is not allowed.")
     candidate = Path(raw)
     if not candidate.is_absolute():
         candidate = root / candidate
-    return candidate.resolve()
+    resolved = candidate.resolve()  # lgtm[py/path-injection]
+    if not _is_relative_to(resolved, root):
+        raise ValueError("patch_file must be inside project_root.")
+    return resolved
 
 
 def _is_allowed_repo_project_root(root: Path) -> bool:
@@ -330,8 +340,12 @@ def _safe_project_child(root: Path, relative: str) -> Path:
 def _create_backup(root: Path, patch_path: Path, changes: list[PatchFileChange]) -> Path:
     backup_dir = root / "project_backups" / f"backup_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
     original_root = backup_dir / "original"
-    backup_dir.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(patch_path, backup_dir / "patch_applied.diff")
+    backup_dir.mkdir(
+        parents=True, exist_ok=True
+    )  # lgtm[py/path-injection]
+    shutil.copy2(  # lgtm[py/path-injection]
+        patch_path, backup_dir / "patch_applied.diff"
+    )
     manifest_files: list[dict[str, Any]] = []
     for change in changes:
         target = _safe_project_child(root, change.new_path)

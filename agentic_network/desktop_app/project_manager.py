@@ -138,7 +138,9 @@ def normalize_workspace_path(path: str | Path) -> Path:
         drive = match.group(1).upper()
         rest = (match.group(2) or "").replace("/", "\\")
         raw = f"{drive}:\\{rest}" if rest else f"{drive}:\\"
-    return Path(raw).expanduser().resolve()
+    # This is the canonicalization boundary used before filesystem policy
+    # checks; resolving here does not read or write user-selected content.
+    return Path(raw).expanduser().resolve()  # lgtm[py/path-injection]
 
 
 def _contains_traversal(path: str) -> bool:

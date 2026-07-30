@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-07-30T20:41:06.0692951Z",
+  "generated_at_utc": "2026-07-30T20:52:27.7286459Z",
   "release_stage": "stable",
   "release_version": "1.0.1",
-  "source_revision": "d46c486fd0c9caec87dc62fedfa411617c28d31a",
+  "source_revision": "316d4bb74ca3499a647fb7d0893a7419352358b4",
   "file_count": 1033,
-  "total_bytes": 6446958,
+  "total_bytes": 6448277,
   "maximum_file_size_mb": 25,
   "files": [
     {
@@ -310,8 +310,8 @@
     },
     {
       "path": "agentic_network/desktop_app/project_manager.py",
-      "bytes": 5859,
-      "sha256": "f8e48589df3f1c2642db87112ea868a7034a226c5af0a70d72f036ad5fc4a9f8"
+      "bytes": 6035,
+      "sha256": "b652637fd3e09cf455ea4d318f8f1cb85704752a27fbbb6abafe898e181fcc21"
     },
     {
       "path": "agentic_network/desktop_app/run.py",
@@ -895,8 +895,8 @@
     },
     {
       "path": "agentic_network/project_patch_apply_agent/runtime.py",
-      "bytes": 18492,
-      "sha256": "7ca771e43d37d4772bb8511bd489dd0b178ed201f390d835be66013726b5d589"
+      "bytes": 18934,
+      "sha256": "6f9a67b20de41a89400a0c54e1497ecca5790906d2af9c0810019e36c82cd100"
     },
     {
       "path": "agentic_network/project_scaffold_agent/__init__.py",
@@ -2300,8 +2300,8 @@
     },
     {
       "path": "agentic_network/skills/advanced_runtime.py",
-      "bytes": 108649,
-      "sha256": "72fa8967258dc0c772b7c0c9ed3e1d34f33d99f4134421c85382b1799365b7a8"
+      "bytes": 108587,
+      "sha256": "53a15d1e9fb2ab0c5f78d9215964bc62f7b9c5fc93a603770beb123462d1b2fd"
     },
     {
       "path": "agentic_network/skills/approval_runtime.py",
@@ -2315,8 +2315,8 @@
     },
     {
       "path": "agentic_network/skills/engineering_runtime.py",
-      "bytes": 88757,
-      "sha256": "a079db8a0c2cb04880a71a7c26f68d15fe78e668608e00391e99cafd70b54b59"
+      "bytes": 89520,
+      "sha256": "196e38cf809206b53fc39cc501820450eccc9ef6c73c2340c1abe5f8e976c048"
     },
     {
       "path": "agentic_network/skills/engineering.py",

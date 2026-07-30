@@ -3105,14 +3105,13 @@ def _walk(root: Path) -> list[Path]:
 
 def _is_test(path: Path) -> bool:
     normalized = str(path).replace("\\", "/").lower()
+    filename = path.name.lower()
     return (
         "/test" in normalized
         or "/__tests__/" in normalized
-        or re.search(
-            r"(?:^|/)(?:test_|.*\.(?:test|spec)\.)",
-            normalized,
-        )
-        is not None
+        or filename.startswith("test_")
+        or ".test." in filename
+        or ".spec." in filename
     )
 
 
@@ -3204,11 +3203,7 @@ def _sha256(path: Path) -> str:
 
 def _relative(root: Path, path: Path) -> str:
     try:
-        return (
-            path.resolve()
-            .relative_to(root.resolve())
-            .as_posix()
-        )
+        return path.relative_to(root).as_posix()
     except ValueError:
         return path.name
 

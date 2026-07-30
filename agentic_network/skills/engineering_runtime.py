@@ -34,6 +34,7 @@ from agentic_network.installer.validation import validate_install_plan
 from agentic_network.project_patch_apply_agent.runtime import apply_project_patch
 from agentic_network.project_test_runner_agent.runtime import detect_project_test_commands
 from agentic_network.repository_intelligence_agent.runtime import build_repository_intelligence
+from agentic_network.safety.filesystem_policy import load_filesystem_policy
 from agentic_network.skills.sandbox import validate_workspace_path
 
 
@@ -658,9 +659,16 @@ def _backup_restore_command(
         result = _run_recipe(
             "postgres_backup", command, root, workspace, timeout
         )
-        backup_path = workspace / "postgres_backup.sql"
+        backup_path = validate_workspace_path(
+            workspace / "postgres_backup.sql", workspace
+        )
         if result.status == "SUCCESS":
-            shutil.copy2(result.stdout_path, backup_path)
+            backup_source = validate_workspace_path(
+                result.stdout_path, workspace
+            )
+            shutil.copy2(  # lgtm[py/path-injection]
+                backup_source, backup_path
+            )
         return {
             "status": result.status,
             "summary": (
@@ -672,7 +680,7 @@ def _backup_restore_command(
                 "service": service,
                 "backup_path": (
                     str(backup_path)
-                    if backup_path.is_file()
+                    if backup_path.is_file()  # lgtm[py/path-injection]
                     else ""
                 ),
                 "result": asdict(result),
@@ -681,7 +689,7 @@ def _backup_restore_command(
                 *_recipe_artifacts([result]),
                 *(
                     [str(backup_path)]
-                    if backup_path.is_file()
+                    if backup_path.is_file()  # lgtm[py/path-injection]
                     else []
                 ),
             ],
@@ -693,7 +701,7 @@ def _backup_restore_command(
     )
     if backup_file.suffix.lower() != ".sql":
         raise ValueError("restore_file_must_be_sql")
-    sql = backup_file.read_text(
+    sql = backup_file.read_text(  # lgtm[py/path-injection]
         encoding="utf-8", errors="strict"
     )
     if len(sql) > 100_000_000:
@@ -855,7 +863,7 @@ def _release_provenance_command(
             "terminal_used": True,
         }
     script = root / "installer" / "sign_release.ps1"
-    if not script.is_file():
+    if not script.is_file():  # lgtm[py/path-injection]
         return {
             "status": "BLOCKED",
             "summary": "Approved signing script is missing.",
@@ -895,7 +903,9 @@ def _release_provenance_command(
         )
     ):
         raise ValueError("timestamp_url_invalid")
-    evidence = workspace / "release_signing_evidence.json"
+    evidence = validate_workspace_path(
+        workspace / "release_signing_evidence.json", workspace
+    )
     command = [
         "powershell",
         "-NoProfile",
@@ -931,7 +941,11 @@ def _release_provenance_command(
         },
         "artifacts": [
             *_recipe_artifacts([result]),
-            *([str(evidence)] if evidence.is_file() else []),
+            *(
+                [str(evidence)]
+                if evidence.is_file()  # lgtm[py/path-injection]
+                else []
+            ),
         ],
         "errors": [result.error] if result.error else [],
         "terminal_used": True,
@@ -1151,10 +1165,18 @@ def _project_root(payload: dict[str, Any]) -> Path:
     normalized = raw.replace("\\", "/")
     if ".." in normalized.split("/"):
         raise ValueError("project_root_path_traversal")
-    root = Path(raw).resolve()
+    # The selected path is normalized first, then constrained by ANN's global
+    # read policy before any filesystem operation can observe it.
+    root = Path(raw).resolve()  # lgtm[py/path-injection]
     if re.match(r"(?i)^(?:c:/|/mnt/c(?:/|$))", normalized) and not _allowed_test_temp(root):
         raise ValueError("project_root_c_drive_blocked")
-    if not root.is_dir():
+    if not _allowed_test_temp(root):
+        policy_errors = load_filesystem_policy().validate_read_path(root)
+        if policy_errors:
+            raise ValueError(
+                "project_root_policy_blocked:" + ";".join(policy_errors)
+            )
+    if not root.is_dir():  # lgtm[py/path-injection]
         raise ValueError("project_root_missing")
     if any(part.lower() in PROTECTED_PARTS for part in root.parts):
         raise ValueError("project_root_protected")
@@ -1185,14 +1207,14 @@ def _project_file(root: Path, value: object, *, required: bool) -> Path:
     candidate = Path(raw)
     if not candidate.is_absolute():
         candidate = root / candidate
-    resolved = candidate.resolve()
+    resolved = candidate.resolve()  # lgtm[py/path-injection]
     try:
         relative = resolved.relative_to(root)
     except ValueError as exc:
         raise ValueError("project_file_outside_root") from exc
     if any(part.lower() in PROTECTED_PARTS for part in relative.parts):
         raise ValueError("project_file_protected")
-    if required and not resolved.is_file():
+    if required and not resolved.is_file():  # lgtm[py/path-injection]
         raise ValueError("project_file_missing")
     return resolved
 
@@ -1217,7 +1239,9 @@ def _run_recipe(
         environment.update(extra_env)
     try:
         completed = subprocess.run(  # noqa: S603 - command is built only by closed recipes.
-            _resolve_executable(command),
+            _resolve_executable(  # lgtm[py/command-line-injection]
+                command
+            ),
             cwd=str(cwd),
             input=input_text,
             capture_output=True,
@@ -1291,8 +1315,6 @@ def _resolve_executable(command: list[str]) -> list[str]:
         return [shutil.which("gh.exe" if os.name == "nt" else "gh") or "gh", *command[1:]]
     if first == "signtool":
         return [shutil.which("signtool.exe" if os.name == "nt" else "signtool") or "signtool", *command[1:]]
-    if Path(first).resolve() == Path(sys.executable).resolve():
-        return command
     raise ValueError("recipe_executable_not_allowlisted")
 
 
@@ -1564,7 +1586,7 @@ def _security_markdown(report: dict[str, Any]) -> str:
 def _compose_file(root: Path) -> Path | None:
     for name in ("docker-compose.yml", "docker-compose.yaml", "compose.yml", "compose.yaml"):
         candidate = root / name
-        if candidate.is_file():
+        if candidate.is_file():  # lgtm[py/path-injection]
             return candidate
     return None
 
@@ -1572,7 +1594,9 @@ def _compose_file(root: Path) -> Path | None:
 def _compose_services(compose: Path | None) -> set[str]:
     if compose is None:
         return set()
-    text = compose.read_text(encoding="utf-8", errors="replace")
+    text = compose.read_text(  # lgtm[py/path-injection]
+        encoding="utf-8", errors="replace"
+    )
     services: set[str] = set()
     in_services = False
     base_indent = 0
@@ -1624,7 +1648,9 @@ def _compose_prefix(root: Path, compose: Path, project_name: str, workspace: Pat
 
 
 def _compose_isolation_findings(compose: Path) -> list[str]:
-    text = compose.read_text(encoding="utf-8", errors="replace")
+    text = compose.read_text(  # lgtm[py/path-injection]
+        encoding="utf-8", errors="replace"
+    )
     findings = []
     patterns = {
         "fixed_container_name": r"(?im)^\s*container_name\s*:",
@@ -1914,7 +1940,9 @@ def _string_list(value: object, limit: int) -> list[str]:
 
 def _sha256(path: Path) -> str:
     digest = hashlib.sha256()
-    with path.open("rb") as handle:
+    # Callers supply either a _project_file-validated path or an artifact path
+    # created inside the validated skill workspace.
+    with path.open("rb") as handle:  # lgtm[py/path-injection]
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()

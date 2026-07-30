@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import subprocess
 from typing import Any
+from urllib.parse import urlparse
 
 import pytest
 from fastapi.testclient import TestClient
@@ -14,6 +15,7 @@ from agentic_network.skills import (
     SkillPermissionStore,
     SkillRegistry,
 )
+from agentic_network.skills import engineering_runtime
 from agentic_network.skills.engineering import (
     ENGINEERING_SKILL_ACTIONS,
     engineering_skill_catalog,
@@ -46,6 +48,28 @@ ADVANCED_SKILLS = {
     "desktop_validation",
     "localization",
 }
+
+
+def test_project_root_honors_global_filesystem_policy(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    allowed_root = Path.cwd().resolve()
+    disallowed_root = allowed_root.parent
+    monkeypatch.setattr(
+        engineering_runtime, "_allowed_test_temp", lambda _path: False
+    )
+    monkeypatch.setenv("ANN_PROJECT_ROOT", str(allowed_root))
+    monkeypatch.setenv("ANN_ALLOWED_ROOTS", str(allowed_root))
+    monkeypatch.setenv("ANN_BLOCKED_ROOTS", "")
+    monkeypatch.setenv("ANN_PROTECTED_PATHS", "")
+
+    assert engineering_runtime._project_root(
+        {"project_root": str(allowed_root)}
+    ) == allowed_root
+    with pytest.raises(ValueError, match="project_root_policy_blocked"):
+        engineering_runtime._project_root(
+            {"project_root": str(disallowed_root)}
+        )
 
 
 @pytest.fixture(autouse=True)
@@ -527,7 +551,7 @@ def test_internet_search_and_package_registry_are_real_bounded_lookups(
     class Opener:
         def open(self, request: Any, timeout: int) -> Response:
             assert timeout <= 15
-            if "duckduckgo.com" in request.full_url:
+            if urlparse(request.full_url).hostname == "html.duckduckgo.com":
                 return Response(
                     b'<a class="result__a" href="https://docs.example.com/api">'
                     b"Example API</a><div class=\"result__snippet\">Official docs</div>"

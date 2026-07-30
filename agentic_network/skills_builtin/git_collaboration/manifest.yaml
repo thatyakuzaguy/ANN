@@ -1,0 +1,13 @@
+name: git_collaboration
+version: 1.0
+description: Approval-gated branch, commit, push, and draft pull-request collaboration.
+enabled: true
+requires_user_approval: true
+audit_enabled: true
+permissions:
+  network: ASK_ALWAYS
+  filesystem_read: ASK_ALWAYS
+  filesystem_write: ASK_ALWAYS
+  git_read: ASK_ALWAYS
+  git_write: ASK_ALWAYS
+  terminal_execute: ASK_ALWAYS

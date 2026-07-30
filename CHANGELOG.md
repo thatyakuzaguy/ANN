@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- Added eighteen specialist engineering skills for evaluation, adversarial
+  review, fuzzing, dependency remediation, refactoring, incident response,
+  observability, context quality, failure replay, privacy, events, resilience,
+  synthetic data, feature flags, memory, cloud planning, prompt regression,
+  and accessibility, bringing the typed catalog to 50 skills and 95 actions.
+- Added approval-gated, no-pull Docker Compose recipes for fuzz/property tests,
+  deterministic failure replay, memory profiling, and accessibility checks.
+- Connected every new skill to an existing controlled subagent specialty while
+  preserving sequential model routing, principal-agent ownership, and all
+  approval, filesystem, terminal, patch, and audit gates.
 - Added twenty advanced engineering skills plus real bounded Internet Search
   and Package Registry lookup, bringing the typed skill catalog to 32.
 - Added deterministic contract, dependency, observability, test-quality,

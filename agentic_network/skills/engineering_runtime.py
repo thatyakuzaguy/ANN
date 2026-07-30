@@ -127,6 +127,19 @@ def _advanced_engineering_action(
         return _backup_restore_command(action, payload, workspace, root)
     if skill_name == "performance_testing" and action == "run":
         return _performance_command(payload, workspace, root)
+    if (
+        skill_name
+        in {
+            "accessibility_execution",
+            "failure_replay",
+            "fuzz_property_testing",
+            "memory_profiling",
+        }
+        and action == "run"
+    ):
+        return _specialist_test_command(
+            skill_name, payload, workspace, root
+        )
     if skill_name == "release_provenance" and action in {"verify", "sign"}:
         return _release_provenance_command(
             action, payload, workspace, root
@@ -823,6 +836,181 @@ def _performance_command(
         "errors": [result.error] if result.error else [],
         "terminal_used": True,
     }
+
+
+def _specialist_test_command(
+    skill_name: str,
+    payload: dict[str, Any],
+    workspace: Path,
+    root: Path,
+) -> dict[str, Any]:
+    """Run one closed specialist recipe in the project's Compose sandbox."""
+
+    compose = _compose_file(root)
+    if compose is None:
+        return {
+            "status": "BLOCKED",
+            "summary": "Docker Compose sandbox is required.",
+            "errors": ["compose_file_missing"],
+        }
+    requested = str(payload.get("recipe") or "").strip().lower()
+    defaults = {
+        "accessibility_execution": "web_accessibility",
+        "failure_replay": "python_tests",
+        "fuzz_property_testing": "python_fuzz",
+        "memory_profiling": "python_memory",
+    }
+    aliases = {
+        "accessibility": "web_accessibility",
+        "fuzz": "python_fuzz",
+        "memory": "python_memory",
+    }
+    recipe = aliases.get(requested, requested) or defaults[skill_name]
+    allowed_by_skill = {
+        "accessibility_execution": {"web_accessibility"},
+        "failure_replay": {
+            "compose_config",
+            "python_fuzz",
+            "python_memory",
+            "python_tests",
+            "web_accessibility",
+            "web_tests",
+        },
+        "fuzz_property_testing": {"python_fuzz", "web_fuzz"},
+        "memory_profiling": {"python_memory", "web_memory"},
+    }
+    if recipe not in allowed_by_skill[skill_name]:
+        return {
+            "status": "BLOCKED",
+            "summary": "Specialist recipe is not allowlisted.",
+            "errors": ["specialist_recipe_not_allowlisted"],
+            "data": {
+                "allowed_recipes": sorted(allowed_by_skill[skill_name])
+            },
+        }
+
+    prefix = _compose_prefix(
+        root,
+        compose,
+        _compose_project_name(payload.get("project_name"), root),
+        workspace,
+    )
+    if recipe == "compose_config":
+        command = [*prefix, "config", "--quiet"]
+    else:
+        service, inner, script = _specialist_recipe(recipe)
+        if service not in _compose_services(compose):
+            return {
+                "status": "BLOCKED",
+                "summary": f"Compose service {service} was not found.",
+                "errors": ["specialist_service_missing"],
+                "data": {"recipe": recipe, "service": service},
+            }
+        if script and not _safe_specialist_package_script(root, script):
+            return {
+                "status": "BLOCKED",
+                "summary": f"Safe package script {script} was not found.",
+                "errors": ["specialist_package_script_missing_or_unsafe"],
+                "data": {"recipe": recipe, "service": service},
+            }
+        command = [
+            *prefix,
+            "run",
+            "--rm",
+            "--no-deps",
+            "--pull",
+            "never",
+            service,
+            *inner,
+        ]
+    result = _run_recipe(
+        f"specialist_{recipe}",
+        command,
+        root,
+        workspace,
+        _bounded_int(
+            payload.get("timeout_seconds"), 1, MAX_TIMEOUT, 300
+        ),
+    )
+    return {
+        "status": result.status,
+        "summary": (
+            f"Approved specialist recipe {recipe} finished with "
+            f"{result.status}."
+        ),
+        "data": {
+            "recipe": recipe,
+            "sandbox": "docker_compose",
+            "result": asdict(result),
+        },
+        "artifacts": _recipe_artifacts([result]),
+        "errors": [result.error] if result.error else [],
+        "terminal_used": True,
+    }
+
+
+def _specialist_recipe(
+    recipe: str,
+) -> tuple[str, list[str], str | None]:
+    recipes: dict[str, tuple[str, list[str], str | None]] = {
+        "python_fuzz": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "fuzz"],
+            None,
+        ),
+        "python_memory": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "memory"],
+            None,
+        ),
+        "python_tests": (
+            "api",
+            ["python", "-m", "pytest", "-q"],
+            None,
+        ),
+        "web_accessibility": (
+            "web",
+            ["npm", "run", "test:a11y"],
+            "test:a11y",
+        ),
+        "web_fuzz": (
+            "web",
+            ["npm", "run", "test:fuzz"],
+            "test:fuzz",
+        ),
+        "web_memory": (
+            "web",
+            ["npm", "run", "test:memory"],
+            "test:memory",
+        ),
+        "web_tests": ("web", ["npm", "test", "--", "--run"], "test"),
+    }
+    return recipes[recipe]
+
+
+def _safe_specialist_package_script(root: Path, name: str) -> bool:
+    allowed_prefixes = {
+        "test": ("jest", "node --test", "vitest"),
+        "test:a11y": ("axe", "jest", "playwright test", "vitest"),
+        "test:fuzz": ("fast-check", "jest", "node --test", "vitest"),
+        "test:memory": ("clinic", "jest", "node --test", "vitest"),
+    }
+    for package_root in (root, root / "apps" / "web"):
+        manifest = _read_json(package_root / "package.json")
+        scripts = (
+            manifest.get("scripts", {})
+            if isinstance(manifest, dict)
+            else {}
+        )
+        script = scripts.get(name) if isinstance(scripts, dict) else None
+        if not isinstance(script, str):
+            continue
+        normalized = " ".join(script.lower().split())
+        if not COMMAND_META.search(normalized) and normalized.startswith(
+            allowed_prefixes[name]
+        ):
+            return True
+    return False
 
 
 def _release_provenance_command(

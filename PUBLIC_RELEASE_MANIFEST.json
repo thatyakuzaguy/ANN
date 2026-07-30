@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-07-30T09:14:12.0342229Z",
+  "generated_at_utc": "2026-07-30T18:43:04.6976639Z",
   "release_stage": "stable",
   "release_version": "1.0.1",
-  "source_revision": "9e470a2032bc3658238eacd3ae8c7ed0c7be4e33",
-  "file_count": 923,
-  "total_bytes": 6277097,
+  "source_revision": "84dbf057504239a15a43b63eb39baf6d711f946a",
+  "file_count": 978,
+  "total_bytes": 6364687,
   "maximum_file_size_mb": 25,
   "files": [
     {
@@ -1249,6 +1249,51 @@
       "sha256": "21c7658d33103894861767d917a90d7840ed56cdd2a4ee92ca41fab54d8f1c17"
     },
     {
+      "path": "agentic_network/skills_builtin/accessibility_execution/manifest.yaml",
+      "bytes": 359,
+      "sha256": "418be38e53144d68eec3a6c3f9addd1a9b00fa17f8d70e8c8d7e54416caf1e0a"
+    },
+    {
+      "path": "agentic_network/skills_builtin/accessibility_execution/runtime.py",
+      "bytes": 490,
+      "sha256": "6021688ee4e9c889217b80c8b4b23b0f5b953ae5a1f11a9299feb3e96e57583a"
+    },
+    {
+      "path": "agentic_network/skills_builtin/accessibility_execution/SKILL.md",
+      "bytes": 657,
+      "sha256": "f125e5f4b2dbf4be1c95b66c0df5b1dc39702da67363c0b151376469edc418be"
+    },
+    {
+      "path": "agentic_network/skills_builtin/adversarial_red_team/manifest.yaml",
+      "bytes": 352,
+      "sha256": "226dcf3f5bb0505c9049566ce61382c1022459be4f8ec2878d197804b01791a4"
+    },
+    {
+      "path": "agentic_network/skills_builtin/adversarial_red_team/runtime.py",
+      "bytes": 481,
+      "sha256": "0ebdaec136950cb03321bc9604f1d3ab5e25ffa0feed45660505fedb7e86e1a1"
+    },
+    {
+      "path": "agentic_network/skills_builtin/adversarial_red_team/SKILL.md",
+      "bytes": 698,
+      "sha256": "a2a8b20a66688dabe54a0ec3faf7338424145d5b386edcc34bce210285627510"
+    },
+    {
+      "path": "agentic_network/skills_builtin/agent_evaluation/manifest.yaml",
+      "bytes": 341,
+      "sha256": "d1eb3bb46411fd1d86e54d432ef2d9ddd0db475f38228fa180b1483c33e2367c"
+    },
+    {
+      "path": "agentic_network/skills_builtin/agent_evaluation/runtime.py",
+      "bytes": 469,
+      "sha256": "fb293802e2ee7ffb6f58437246923f5a5c5d5f63c66f3452f568f2135f1e7315"
+    },
+    {
+      "path": "agentic_network/skills_builtin/agent_evaluation/SKILL.md",
+      "bytes": 683,
+      "sha256": "a960c9fcd82a64ce246738faf968b32d99f978e3cba6f7545d21def82378b974"
+    },
+    {
       "path": "agentic_network/skills_builtin/api_contract/manifest.yaml",
       "bytes": 325,
       "sha256": "0d9357a24c35a58c10da4241e6da669e9592c9e4001150285830a4379688cb42"
@@ -1309,6 +1354,21 @@
       "sha256": "efd5216b5c18aca69cd4ee013cb00f68b1deb4090a3a356e18b1f89e863f9701"
     },
     {
+      "path": "agentic_network/skills_builtin/cloud_deployment/manifest.yaml",
+      "bytes": 349,
+      "sha256": "bdd1ed47c2d1079743fcdf4d0e6a2f70533aecc47e01cfb05d7be7de23f5ab8f"
+    },
+    {
+      "path": "agentic_network/skills_builtin/cloud_deployment/runtime.py",
+      "bytes": 469,
+      "sha256": "234b4e4e3e20ffe60ffe8ed1eb084851118783967065058e38a27ca1b391fb90"
+    },
+    {
+      "path": "agentic_network/skills_builtin/cloud_deployment/SKILL.md",
+      "bytes": 698,
+      "sha256": "3ce1b594dd7866d5a495dd770df7e818d71b555013b4fe690a263e63f736df17"
+    },
+    {
       "path": "agentic_network/skills_builtin/container_operations/manifest.yaml",
       "bytes": 343,
       "sha256": "5a0840fe2f2892bbf6ef146c56d12afd47a2021572176ea529673f3e726ab97b"
@@ -1322,6 +1382,21 @@
       "path": "agentic_network/skills_builtin/container_operations/SKILL.md",
       "bytes": 472,
       "sha256": "c05edd3744afadb14a58e3f8207f9799c493a9e828a0dc91fe78f86d6d3d08c9"
+    },
+    {
+      "path": "agentic_network/skills_builtin/context_quality_evaluation/manifest.yaml",
+      "bytes": 356,
+      "sha256": "e307d2a40c9b39991d2a591d6e9f49b8dcf84039aaf865a2697985e64ca14d59"
+    },
+    {
+      "path": "agentic_network/skills_builtin/context_quality_evaluation/runtime.py",
+      "bytes": 499,
+      "sha256": "b3c6c345f44ec99bacc66670a9c28928e29898ba213066827b6666c3b11ed73b"
+    },
+    {
+      "path": "agentic_network/skills_builtin/context_quality_evaluation/SKILL.md",
+      "bytes": 601,
+      "sha256": "27169ab99b640a70a0c54ed7929503555b4cf32cd19f5d9685d3e65d2fd28bc2"
     },
     {
       "path": "agentic_network/skills_builtin/data_pipeline/manifest.yaml",
@@ -1369,6 +1444,21 @@
       "sha256": "bd41a8ceae70e6cd5a341d5af58c3c24eefdff26172784c561d1893a610b3999"
     },
     {
+      "path": "agentic_network/skills_builtin/dependency_remediation/manifest.yaml",
+      "bytes": 366,
+      "sha256": "4bdcc6807abe2073123d5dd63beab00233f280ea4f3c8e9e3537f0b5008b6d4a"
+    },
+    {
+      "path": "agentic_network/skills_builtin/dependency_remediation/runtime.py",
+      "bytes": 487,
+      "sha256": "f445d3808cde9bb40d9edeaa2d0981d1a06e3f4035fbb5e72a61cc3c5ecc4e98"
+    },
+    {
+      "path": "agentic_network/skills_builtin/dependency_remediation/SKILL.md",
+      "bytes": 723,
+      "sha256": "e121136771829efdf58f18287c41b245ed7b907a6993af9722111f51434d9380"
+    },
+    {
       "path": "agentic_network/skills_builtin/deployment_verification/manifest.yaml",
       "bytes": 360,
       "sha256": "1dcae756d88340909800ba6ebafdf590eb4929e49469b80a64da5b5274ec66e8"
@@ -1399,6 +1489,21 @@
       "sha256": "476abcfc6a68117495c00fa802124540f3aa570e9de68e16f60b82c308665fdd"
     },
     {
+      "path": "agentic_network/skills_builtin/distributed_resilience/manifest.yaml",
+      "bytes": 359,
+      "sha256": "4187c32e31b9e853800a111926f4e06068c2733b1d517ea2c50d885ef1e2e122"
+    },
+    {
+      "path": "agentic_network/skills_builtin/distributed_resilience/runtime.py",
+      "bytes": 487,
+      "sha256": "56d4d2e9df8afb4397599fcb66ba129417f5d5bcf40aa6369b20ea5642e258db"
+    },
+    {
+      "path": "agentic_network/skills_builtin/distributed_resilience/SKILL.md",
+      "bytes": 698,
+      "sha256": "a0b42362da77ec89694c9085308ce58441fa68afe53a4e23243582ac17fb8be5"
+    },
+    {
       "path": "agentic_network/skills_builtin/documentation/manifest.yaml",
       "bytes": 329,
       "sha256": "1346f13dd002b810851eec57251aea28775a93d5fbb5a3a22d2f14e8006fb13e"
@@ -1407,6 +1512,21 @@
       "path": "agentic_network/skills_builtin/documentation/runtime.py",
       "bytes": 12000,
       "sha256": "43a8a8a8db52fec8c60205cd7ad3ad3823c18b8c796d7a524b7ea73c8f1dfd41"
+    },
+    {
+      "path": "agentic_network/skills_builtin/event_contract/manifest.yaml",
+      "bytes": 335,
+      "sha256": "e8d965db97991162d54b2122ec37e5ff3c7a89a92c066f40d79737d30d346cf4"
+    },
+    {
+      "path": "agentic_network/skills_builtin/event_contract/runtime.py",
+      "bytes": 463,
+      "sha256": "79c11e6af97d2f39c297e1d7d725fad9bb8daa2b1fab9cb21cf5555c1ec74a73"
+    },
+    {
+      "path": "agentic_network/skills_builtin/event_contract/SKILL.md",
+      "bytes": 587,
+      "sha256": "6f7f2c2d427e2dfbe022c743a18d8739988b7f95e5e6c4b1eef5f2a8bd138307"
     },
     {
       "path": "agentic_network/skills_builtin/external_integration_verification/manifest.yaml",
@@ -1437,6 +1557,51 @@
       "path": "agentic_network/skills_builtin/failure_diagnostics/SKILL.md",
       "bytes": 448,
       "sha256": "22b3025b547e9d177b5b6337ad08f1ae304cf1c1e0473a05b3e88e2f7bd788a9"
+    },
+    {
+      "path": "agentic_network/skills_builtin/failure_replay/manifest.yaml",
+      "bytes": 370,
+      "sha256": "699abc6436d4d98737fd0eb0e4016d08ece31ca13c51ff9a48afe34ef9b00d9d"
+    },
+    {
+      "path": "agentic_network/skills_builtin/failure_replay/runtime.py",
+      "bytes": 463,
+      "sha256": "116973c1261d82e1541e97302f62a545a89f179965bb518f12aa985280153b78"
+    },
+    {
+      "path": "agentic_network/skills_builtin/failure_replay/SKILL.md",
+      "bytes": 741,
+      "sha256": "7636ed507bf19d62987f9604f746228a5b2e858593e8a3200e4f53865ac974e2"
+    },
+    {
+      "path": "agentic_network/skills_builtin/feature_flag_management/manifest.yaml",
+      "bytes": 351,
+      "sha256": "919245d1d4b6157f333915eb4dd4cb4e7163d85ae4c25080426d29bfdb990a1b"
+    },
+    {
+      "path": "agentic_network/skills_builtin/feature_flag_management/runtime.py",
+      "bytes": 490,
+      "sha256": "b9e0c1e9336f24d10cf72ba26e8e7af959b4433d4ed433991fb3a8b8f90e1316"
+    },
+    {
+      "path": "agentic_network/skills_builtin/feature_flag_management/SKILL.md",
+      "bytes": 685,
+      "sha256": "2302cb897cf0127229ec6975efefa07a47da9c95cd7d878e805dd9b30577bcd0"
+    },
+    {
+      "path": "agentic_network/skills_builtin/fuzz_property_testing/manifest.yaml",
+      "bytes": 367,
+      "sha256": "7e042a1fba5ef3782f71f870f0f9dc8fbf07f7a87f31f833c9526f75763eed25"
+    },
+    {
+      "path": "agentic_network/skills_builtin/fuzz_property_testing/runtime.py",
+      "bytes": 484,
+      "sha256": "9f4c31e6cfe34b9d1025f5a7329df68ca5baab6db0d089e30b1e10bbdffd0ef4"
+    },
+    {
+      "path": "agentic_network/skills_builtin/fuzz_property_testing/SKILL.md",
+      "bytes": 754,
+      "sha256": "c1cc2db79afa509ce69417ef39be046c4e9744b65b949fbf5c4fe9c4566a3728"
     },
     {
       "path": "agentic_network/skills_builtin/game_validation/manifest.yaml",
@@ -1484,6 +1649,21 @@
       "sha256": "0c8d146b8afa449ff7284d4231bac17b4f4444c62ba48ec35d1ab17be8f159df"
     },
     {
+      "path": "agentic_network/skills_builtin/incident_response/manifest.yaml",
+      "bytes": 358,
+      "sha256": "423c4126e0213cce5e4f73f767d1b11b45bb08251c80a92efc49603b65751013"
+    },
+    {
+      "path": "agentic_network/skills_builtin/incident_response/runtime.py",
+      "bytes": 472,
+      "sha256": "10e045ac5691cf95a780dc7562ca8a4ae2eaadb88bc6936275bb46541cf41064"
+    },
+    {
+      "path": "agentic_network/skills_builtin/incident_response/SKILL.md",
+      "bytes": 713,
+      "sha256": "8c148ef2a47c1aa2587dede7ef5d89331942622421f9dcdef2bb8ebf0a469b0d"
+    },
+    {
       "path": "agentic_network/skills_builtin/infrastructure_validation/manifest.yaml",
       "bytes": 342,
       "sha256": "62e8c2baed0ba8c7ad5fe3c2b5e08f28c3cae2e5126a5a3e0de27243d28c9c66"
@@ -1514,6 +1694,21 @@
       "sha256": "b9fa11713f97552b78e742f381c1f4d8afc0ca16f374702308044e86480b2d26"
     },
     {
+      "path": "agentic_network/skills_builtin/llm_prompt_regression/manifest.yaml",
+      "bytes": 358,
+      "sha256": "f9a263b452f5dfd6751af8e103f7d3512c0c134758274592441634cf1f13e57c"
+    },
+    {
+      "path": "agentic_network/skills_builtin/llm_prompt_regression/runtime.py",
+      "bytes": 484,
+      "sha256": "20edcd857fddb790f3afee086c46dc40bd07bbda8607512870a20991f802f499"
+    },
+    {
+      "path": "agentic_network/skills_builtin/llm_prompt_regression/SKILL.md",
+      "bytes": 717,
+      "sha256": "134f35362df3c893608aad886078b845db37820188d09ebbfe27bbe4d223f9dc"
+    },
+    {
       "path": "agentic_network/skills_builtin/localization/manifest.yaml",
       "bytes": 318,
       "sha256": "78b901e598e7edd69aa5181e42d32dea2c2322fcd6b0f57875b560ff69573389"
@@ -1527,6 +1722,21 @@
       "path": "agentic_network/skills_builtin/localization/SKILL.md",
       "bytes": 559,
       "sha256": "4b3e972f889a6a4244bdfb014f75135d74505228b933a8cd92c6af08dc161632"
+    },
+    {
+      "path": "agentic_network/skills_builtin/memory_profiling/manifest.yaml",
+      "bytes": 347,
+      "sha256": "785662b6a69e51d3903c92935a6fdb9e914273cc71d35ecb066654fcbddaf2f7"
+    },
+    {
+      "path": "agentic_network/skills_builtin/memory_profiling/runtime.py",
+      "bytes": 469,
+      "sha256": "5caa909bcf8a4b20fb6f438542b14b70d634c6ff31bd758515efd649d1bc4773"
+    },
+    {
+      "path": "agentic_network/skills_builtin/memory_profiling/SKILL.md",
+      "bytes": 648,
+      "sha256": "d2073328da1b5f638b1db330d7c3deb4b62402876e2dccac2f030df5442d132d"
     },
     {
       "path": "agentic_network/skills_builtin/ml_evaluation/manifest.yaml",
@@ -1557,6 +1767,21 @@
       "path": "agentic_network/skills_builtin/mobile_validation/SKILL.md",
       "bytes": 548,
       "sha256": "069264c2c2e80a2752e6e126954f28391d3372ef3a631eff1611db7f8bf66b4c"
+    },
+    {
+      "path": "agentic_network/skills_builtin/observability_instrumentation/manifest.yaml",
+      "bytes": 359,
+      "sha256": "d02527344c1a0e44af55789eca61aecf6123ac262bf575414f8b9bbb5539064d"
+    },
+    {
+      "path": "agentic_network/skills_builtin/observability_instrumentation/runtime.py",
+      "bytes": 508,
+      "sha256": "08977d854a52f113f0a95d75c21ac199433bf35b2d2dd0e5a58ac9f0507c03f1"
+    },
+    {
+      "path": "agentic_network/skills_builtin/observability_instrumentation/SKILL.md",
+      "bytes": 701,
+      "sha256": "43342013c7334a297b85a12d3dd4508633dcf157d4b65a1e278561cadbeef7be"
     },
     {
       "path": "agentic_network/skills_builtin/package_registry/manifest.yaml",
@@ -1602,6 +1827,36 @@
       "path": "agentic_network/skills_builtin/performance_testing/SKILL.md",
       "bytes": 646,
       "sha256": "d6e87aa67f073f02ca2f14f81600c2527c0e2634e01213080fc124a438ab202c"
+    },
+    {
+      "path": "agentic_network/skills_builtin/privacy_data_governance/manifest.yaml",
+      "bytes": 360,
+      "sha256": "e8cce356a10f11893e08a62efa50f4d2e6922bbd777d95786a9d44bdb755520c"
+    },
+    {
+      "path": "agentic_network/skills_builtin/privacy_data_governance/runtime.py",
+      "bytes": 490,
+      "sha256": "6679e51574cacab8f89dd95ecec1edd49068587aa28f924cdd14dc638a086836"
+    },
+    {
+      "path": "agentic_network/skills_builtin/privacy_data_governance/SKILL.md",
+      "bytes": 701,
+      "sha256": "d5bffd986fa538954c45cb1ffb23e07a067fb336c0ebb25482f35689f0fdecfb"
+    },
+    {
+      "path": "agentic_network/skills_builtin/refactor_migration/manifest.yaml",
+      "bytes": 363,
+      "sha256": "65f377be3f1802f27153688b772d06aa27781753cef6c80c4f15501312d9d400"
+    },
+    {
+      "path": "agentic_network/skills_builtin/refactor_migration/runtime.py",
+      "bytes": 475,
+      "sha256": "cab9107ec469242a01dd356a82c8fcf5b2336431859ad6d2eae8295e0b1f8c2e"
+    },
+    {
+      "path": "agentic_network/skills_builtin/refactor_migration/SKILL.md",
+      "bytes": 706,
+      "sha256": "a965916399190946afad9abb899897ca6a795e07057d4d6ffcecbeff0daecb41"
     },
     {
       "path": "agentic_network/skills_builtin/release_packaging/manifest.yaml",
@@ -1724,6 +1979,21 @@
       "sha256": "e1bcb9d271c29646ede7614967931d936233013d2878455871642fc971199dc4"
     },
     {
+      "path": "agentic_network/skills_builtin/synthetic_test_data/manifest.yaml",
+      "bytes": 339,
+      "sha256": "d114662a562d5b33e44deec8f700ac2fef546f2488343d9cf0ea78698425cf64"
+    },
+    {
+      "path": "agentic_network/skills_builtin/synthetic_test_data/runtime.py",
+      "bytes": 478,
+      "sha256": "450acd35223244d0ca695938c24fc38d4e2057170cfd2a7306c79fcbb1d4e4eb"
+    },
+    {
+      "path": "agentic_network/skills_builtin/synthetic_test_data/SKILL.md",
+      "bytes": 668,
+      "sha256": "6f010ed1abd46a1841b8d3592857f55a48e50ebb99167f03d49a8f6b56ade91e"
+    },
+    {
       "path": "agentic_network/skills_builtin/test_quality/manifest.yaml",
       "bytes": 334,
       "sha256": "4d5ee3e5903ecd74460c531e9f62192d5e271dd54bc55767fa23dff4491e0843"
@@ -1760,8 +2030,8 @@
     },
     {
       "path": "agentic_network/skills/advanced_runtime.py",
-      "bytes": 64315,
-      "sha256": "50bf4330e8a9efa5f451e486923657bedf880a26d06b82522755d742669bb67b"
+      "bytes": 91084,
+      "sha256": "892508d9723aa667e9f8300e3f592fd662628d468be469bc653321f4a04f950b"
     },
     {
       "path": "agentic_network/skills/approval_runtime.py",
@@ -1775,13 +2045,13 @@
     },
     {
       "path": "agentic_network/skills/engineering_runtime.py",
-      "bytes": 73104,
-      "sha256": "b7132dfc3b4f304d42752b0c95d2d3b1165431b32201435e4346cfd6e90e1dee"
+      "bytes": 78943,
+      "sha256": "032a91a733b58c4005bfacc9282bbf88bd04e1b07c1de448b2fd113d14b2bf21"
     },
     {
       "path": "agentic_network/skills/engineering.py",
-      "bytes": 10270,
-      "sha256": "2ec7c029297f98981ec9459025ad0af745c0c4ed90d22984b0a099d2f11d45e3"
+      "bytes": 15880,
+      "sha256": "daecc4af167ba4a6a9560ccebf395e80790ec80fc6890533353fa49280f327bc"
     },
     {
       "path": "agentic_network/skills/executor.py",
@@ -1920,8 +2190,8 @@
     },
     {
       "path": "AGENTS.md",
-      "bytes": 6357,
-      "sha256": "b2ffa50fb3038c6c865d6703438a17d7088b6e55bf12bc9d8f95ffc00bb2e434"
+      "bytes": 6845,
+      "sha256": "bc2550323dd1b3d498792aa3d5b0cb4b42d9ee72755cff9c83f5a0a5250a16f7"
     },
     {
       "path": "apps/api/app/api/routes.py",
@@ -2180,8 +2450,8 @@
     },
     {
       "path": "ARCHITECTURE.md",
-      "bytes": 7935,
-      "sha256": "4dda8a6a86e326fc6e1c7462caea4a5666d9620ff4bce8af8fa6c66cea6c8ddb"
+      "bytes": 7973,
+      "sha256": "01c51a29c6992daf5a9dced418f30fb446bfbad59b432d7a3e06eb6e6f3da9d1"
     },
     {
       "path": "ATTRIBUTIONS.md",
@@ -2190,8 +2460,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "bytes": 14219,
-      "sha256": "f04fa011e85f356a9f02f93534942482bc8d8bc384f1d80c34fd7436716ee4dc"
+      "bytes": 14968,
+      "sha256": "f32c8d8afbbe68be3a1769f0c5aa28fdfb22e23defaba0e5246df0d35a217668"
     },
     {
       "path": "CICD_SETUP.md",
@@ -2475,8 +2745,8 @@
     },
     {
       "path": "docs/ENGINEERING_SKILLS.md",
-      "bytes": 8473,
-      "sha256": "3658d09e497633aa6a92e67b6d61acdecc0bc5d860caf00be1be9fe7c127d05b"
+      "bytes": 11893,
+      "sha256": "5d12028b69f75811784d1223c6b79b7fd15dfa56af6ae9de86a1a303fb9bdf11"
     },
     {
       "path": "docs/PRODUCT_AGENT_DATASET.md",
@@ -2502,6 +2772,11 @@
       "path": "docs/SECURITY_REVIEW.md",
       "bytes": 1626,
       "sha256": "9edefa0fe2e06838938e428a0119af1f961f2e270f1b394566b6a62e822f2b26"
+    },
+    {
+      "path": "docs/SPECIALIST_SKILLS.md",
+      "bytes": 3013,
+      "sha256": "961beab62e7fecf3be0735b7b0c2a07fd763d14e112c0fabb1eb0acac407befd"
     },
     {
       "path": "docs/STORAGE.md",
@@ -2625,8 +2900,8 @@
     },
     {
       "path": "packages/agents/agentic_engineering_network/agents/subagents.py",
-      "bytes": 35159,
-      "sha256": "84ad5f5b92a05c402eb5e77bf4abc8e010c82abe360e812bc2d52cde40970c64"
+      "bytes": 36379,
+      "sha256": "ebcf7cc03dd8d9a13edc3debdb243b1692e553f1e6f93937a7285356485d0e84"
     },
     {
       "path": "packages/database/agentic_engineering_network/database/migrations/0001_initial.sql",
@@ -2865,8 +3140,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 10632,
-      "sha256": "ea697085d6e88d5355fc0acf8e38c02e241a5394510d14d21b804440a9cc670f"
+      "bytes": 10862,
+      "sha256": "6c58bb9de3007238583f2ffefe99e18d6f257cd9481556582e59bfc9e78c4695"
     },
     {
       "path": "ROADMAP.md",
@@ -2895,8 +3170,8 @@
     },
     {
       "path": "scripts/maintenance/generate_advanced_skill_packages.py",
-      "bytes": 5636,
-      "sha256": "23784da1b8a7ca7d03562a8fab08ff6138d66933f6917429ef6044ba823729a3"
+      "bytes": 7855,
+      "sha256": "34d5cecedee2b7f715f22b75ea6d82c69cee4b35463f01aedb74c6d434cbcea2"
     },
     {
       "path": "scripts/maintenance/migrate-db.ps1",
@@ -3120,8 +3395,8 @@
     },
     {
       "path": "tests/python/test_advanced_engineering_skills_runtime.py",
-      "bytes": 26326,
-      "sha256": "422614eeb33158ca8961f9874559e81f2efeefb58a010feef4287a4d7c3b43da"
+      "bytes": 36895,
+      "sha256": "be854539bea360841fbf1abd3818a17184d14fa93b1fe9d35b5eb16f0bee9702"
     },
     {
       "path": "tests/python/test_agent_office.py",

@@ -1,6 +1,6 @@
 # ANN Engineering Skills
 
-ANN exposes thirty-two local engineering skills through `GET /api/skills` and
+ANN exposes fifty local engineering skills and ninety-five typed actions through `GET /api/skills` and
 `POST /api/skills/{skill}/execute`. They use the persistent skill permission
 store and the existing Approval Center. A skill permission never replaces a
 file, terminal, migration, container, or patch approval gate.
@@ -46,6 +46,24 @@ file, terminal, migration, container, or patch approval gate.
 | `infrastructure_validation` | `analyze` | Terraform, Kubernetes, Helm, CI, policy, and unsafe topology |
 | `desktop_validation` | `analyze` | Native lifecycle, installer, update, and accessibility evidence |
 | `localization` | `analyze` | Locale coverage, hardcoded text, pluralization, and RTL |
+| `agent_evaluation` | `evaluate`, `compare` | Golden-task outcomes, quality, latency, token, and retry regressions |
+| `adversarial_red_team` | `analyze`, `simulate` | Non-executing prompt, tool, approval, filesystem, and secret scenarios |
+| `fuzz_property_testing` | `inspect`, `plan`, `run` | Properties, seeds, crash evidence, and an approved Compose fuzz recipe |
+| `dependency_remediation` | `analyze`, `plan` | Bounded upgrade, verification, and rollback planning without installs |
+| `refactor_migration` | `analyze`, `plan` | Deprecation, blast-radius, codemod, compatibility, and migration evidence |
+| `incident_response` | `triage`, `postmortem` | Redacted incident correlation and blameless postmortem structure |
+| `observability_instrumentation` | `inspect`, `plan` | Metrics, traces, logs, correlation, alerts, and instrumentation planning |
+| `context_quality_evaluation` | `evaluate` | Retrieval precision, recall, freshness, grounding, and token budgets |
+| `failure_replay` | `prepare`, `verify`, `run` | Redacted failure fingerprints and approved deterministic replay recipes |
+| `privacy_data_governance` | `scan`, `retention_plan` | PII, consent, retention, export, deletion, and tenant-isolation evidence |
+| `event_contract` | `analyze` | AsyncAPI/schema, producers, consumers, compatibility, and delivery behavior |
+| `distributed_resilience` | `analyze`, `fault_plan` | Timeouts, retries, idempotency, circuit breakers, races, and degradation |
+| `synthetic_test_data` | `plan`, `generate` | Deterministic privacy-safe JSON fixtures written only to skill workspace |
+| `feature_flag_management` | `analyze`, `cleanup_plan` | Flag ownership, defaults, rollout, expiry, cleanup, and rollback |
+| `memory_profiling` | `inspect`, `run` | RAM/VRAM/resource evidence and an approved Compose profiling recipe |
+| `cloud_deployment` | `inspect`, `plan` | Provider-neutral identity, secrets, cost, rollout, and rollback planning |
+| `llm_prompt_regression` | `evaluate`, `compare` | Hashed output evidence and quality/format/runtime regression metrics |
+| `accessibility_execution` | `inspect`, `run` | Accessibility readiness and approved Compose `test:a11y` execution |
 
 ## Basic Payload
 
@@ -70,6 +88,13 @@ Every action takes `project_root`. Optional bounded fields include
 - External probes: HTTPS `urls` plus mandatory `allowed_domains`.
 - Authenticode signing: a certificate thumbprint and a trusted HTTPS timestamp
   endpoint; non-DigiCert providers require an explicit `allowed_timestamp_domains` entry.
+- Agent and prompt evaluation: bounded cases and metric snapshots. Raw prompt
+  outputs are represented by SHA-256 fingerprints rather than stored verbatim.
+- Failure replay: one of `python_tests`, `web_tests`, `compose_config`, `fuzz`,
+  `accessibility`, or `memory`; environment keys resembling secrets are dropped.
+- Synthetic test data: a bounded field-to-type `schema` and `count` up to 100.
+- Specialist execution: fixed `python_fuzz`, `web_fuzz`, `python_memory`,
+  `web_memory`, `web_accessibility`, or replay recipes only.
 
 Raw command payloads are ignored. No action accepts arbitrary shell text.
 
@@ -89,7 +114,8 @@ are single-use. Changing the target or action requires a new approval.
 ## Execution Safety
 
 - Generated project code is never executed directly on the host by Sandbox
-  Verification, Browser/E2E, or Database Migration.
+  Verification, Browser/E2E, Database Migration, Fuzz/Property Testing,
+  Failure Replay, Memory Profiling, or Accessibility Execution.
 - Those skills require an existing Compose file and a matching `api`, `web`,
   or `e2e` service.
 - Compose runs use `--pull never`, `--no-deps`, and `shell=False`.
@@ -132,3 +158,11 @@ action runs; delegated model text cannot authorize execution.
   invokes pip, npm, pnpm, yarn, Cargo, or another installer.
 - Domain validation skills are evidence scanners, not substitutes for real
   device, gameplay, infrastructure, load, accessibility, or clean-machine tests.
+- Adversarial red-team scenarios are static, non-destructive reviews. They do
+  not attack a live service or attempt exploit execution.
+- Privacy and data-governance outputs always require qualified legal review and
+  never claim GDPR, SOC 2, ISO 27001, or other compliance certification.
+- Cloud Deployment creates provider-neutral local plans only. It does not read
+  credentials, contact cloud APIs, create infrastructure, or estimate a binding bill.
+- Agent and LLM prompt evaluation score evidence supplied by a prior run; these
+  actions deliberately do not load or invoke a model.

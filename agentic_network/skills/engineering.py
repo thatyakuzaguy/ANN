@@ -107,6 +107,78 @@ ENGINEERING_SKILL_ACTIONS: dict[str, tuple[EngineeringSkillAction, ...]] = {
     "localization": (
         EngineeringSkillAction("analyze", "Inspect locale coverage, hardcoded text, pluralization, and RTL readiness.", (READ,)),
     ),
+    "agent_evaluation": (
+        EngineeringSkillAction("evaluate", "Score agent task outcomes against explicit golden expectations and runtime evidence.", (READ,)),
+        EngineeringSkillAction("compare", "Compare bounded agent or model evaluation result sets without loading a model.", (READ,)),
+    ),
+    "adversarial_red_team": (
+        EngineeringSkillAction("analyze", "Inspect prompt, tool, approval, filesystem, and secret boundaries for adversarial exposure.", (READ,)),
+        EngineeringSkillAction("simulate", "Generate a non-executing adversarial scenario matrix and expected defenses.", (READ,)),
+    ),
+    "fuzz_property_testing": (
+        EngineeringSkillAction("inspect", "Inspect fuzz targets, property tests, schemas, seeds, and crash-corpus readiness.", (READ,)),
+        EngineeringSkillAction("plan", "Create bounded fuzz and property-testing targets from repository evidence.", (READ,)),
+        EngineeringSkillAction("run", "Run only an approved fuzz test recipe inside Docker Compose.", (READ, WRITE, TERMINAL), True, True),
+    ),
+    "dependency_remediation": (
+        EngineeringSkillAction("analyze", "Rank vulnerable, incompatible, and stale dependencies using local manifest evidence.", (READ,)),
+        EngineeringSkillAction("plan", "Prepare a bounded dependency update, verification, and rollback plan without installing packages.", (READ,)),
+    ),
+    "refactor_migration": (
+        EngineeringSkillAction("analyze", "Identify refactor seams, deprecated APIs, blast radius, and migration ordering.", (READ,)),
+        EngineeringSkillAction("plan", "Create an incremental codemod and compatibility migration plan without applying changes.", (READ,)),
+    ),
+    "incident_response": (
+        EngineeringSkillAction("triage", "Correlate bounded logs, events, releases, and health evidence into an incident assessment.", (READ,)),
+        EngineeringSkillAction("postmortem", "Generate a blameless postmortem draft with evidence, impact, and prevention actions.", (READ,)),
+    ),
+    "observability_instrumentation": (
+        EngineeringSkillAction("inspect", "Inspect metrics, traces, logs, correlation IDs, dashboards, and alert coverage.", (READ,)),
+        EngineeringSkillAction("plan", "Prepare an OpenTelemetry-compatible instrumentation plan without modifying the project.", (READ,)),
+    ),
+    "context_quality_evaluation": (
+        EngineeringSkillAction("evaluate", "Measure retrieval precision, recall, stale context, and token-budget quality.", (READ,)),
+    ),
+    "failure_replay": (
+        EngineeringSkillAction("prepare", "Create a deterministic replay recipe from bounded failure evidence.", (READ,)),
+        EngineeringSkillAction("verify", "Validate replay completeness, redaction, environment, and seed evidence.", (READ,)),
+        EngineeringSkillAction("run", "Run an approved fixed replay recipe inside Docker Compose.", (READ, WRITE, TERMINAL), True, True),
+    ),
+    "privacy_data_governance": (
+        EngineeringSkillAction("scan", "Inspect PII, consent, retention, deletion, export, and tenant-isolation evidence.", (READ,)),
+        EngineeringSkillAction("retention_plan", "Create a data-classification and retention plan requiring human legal review.", (READ,)),
+    ),
+    "event_contract": (
+        EngineeringSkillAction("analyze", "Validate AsyncAPI, message schemas, producers, consumers, retries, and compatibility.", (READ,)),
+    ),
+    "distributed_resilience": (
+        EngineeringSkillAction("analyze", "Inspect timeouts, retries, idempotency, circuit breakers, concurrency, and degradation.", (READ,)),
+        EngineeringSkillAction("fault_plan", "Create a non-executing fault-injection and recovery verification plan.", (READ,)),
+    ),
+    "synthetic_test_data": (
+        EngineeringSkillAction("plan", "Design privacy-safe deterministic fixture coverage from a bounded schema.", (READ,)),
+        EngineeringSkillAction("generate", "Generate deterministic synthetic JSON fixtures only inside the skill workspace.", (READ,)),
+    ),
+    "feature_flag_management": (
+        EngineeringSkillAction("analyze", "Inventory feature flags, defaults, ownership, rollout, and stale-flag evidence.", (READ,)),
+        EngineeringSkillAction("cleanup_plan", "Prepare a safe flag retirement and rollback plan without changing code.", (READ,)),
+    ),
+    "memory_profiling": (
+        EngineeringSkillAction("inspect", "Inspect CPU, RAM, GPU, handle, connection, and leak-test evidence.", (READ,)),
+        EngineeringSkillAction("run", "Run only an approved memory profiling test recipe inside Docker Compose.", (READ, WRITE, TERMINAL), True, True),
+    ),
+    "cloud_deployment": (
+        EngineeringSkillAction("inspect", "Inspect provider manifests, identity, secret, region, cost, and rollback boundaries.", (READ,)),
+        EngineeringSkillAction("plan", "Create a provider-neutral deployment plan without contacting or modifying cloud accounts.", (READ,)),
+    ),
+    "llm_prompt_regression": (
+        EngineeringSkillAction("evaluate", "Evaluate bounded prompt cases against explicit expected output evidence without model loading.", (READ,)),
+        EngineeringSkillAction("compare", "Compare prompt-suite result sets for quality, format, latency, and token regressions.", (READ,)),
+    ),
+    "accessibility_execution": (
+        EngineeringSkillAction("inspect", "Inspect automated and manual accessibility execution readiness.", (READ,)),
+        EngineeringSkillAction("run", "Run only an approved accessibility package script inside Docker Compose.", (READ, WRITE, TERMINAL), True, True),
+    ),
     "repository_intelligence": (
         EngineeringSkillAction("scan", "Index AST symbols, routes, tests, and dependencies.", (READ,)),
         EngineeringSkillAction("impact", "Rank files and tests affected by target paths.", (READ,)),

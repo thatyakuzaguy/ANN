@@ -54,6 +54,121 @@ MAX_TEXT = 1_000_000
 SECRET_NAME = re.compile(
     r"(?i)(api[_-]?key|password|secret|token|credential|private[_-]?key)"
 )
+SPECIALIST_PROFILES: dict[str, dict[str, tuple[str, ...]]] = {
+    "agent_evaluation": {
+        "golden_tasks": ("golden", "benchmark", "evaluation case"),
+        "outcomes": ("pass rate", "success rate", "acceptance criteria"),
+        "runtime_metrics": ("latency", "tokens", "vram", "retry"),
+        "trace_evidence": ("trace", "run_id", "conversation_id"),
+    },
+    "adversarial_red_team": {
+        "prompt_defense": ("prompt injection", "untrusted input", "system prompt"),
+        "tool_boundaries": ("allowlist", "shell=false", "approval_required"),
+        "filesystem_defense": ("path traversal", "allowed_roots", "protected_paths"),
+        "secret_defense": ("secret scanning", "redact", ".env.example"),
+    },
+    "fuzz_property_testing": {
+        "property_framework": ("hypothesis", "fast-check", "property("),
+        "api_fuzzing": ("schemathesis", "openapi", "fuzz"),
+        "seed_control": ("seed", "derandomize", "reproduce"),
+        "crash_corpus": ("corpus", "minimal example", "shrinking"),
+    },
+    "dependency_remediation": {
+        "manifests": ("requirements.txt", "pyproject.toml", "package.json"),
+        "locks": ("package-lock.json", "pnpm-lock.yaml", "poetry.lock", "uv.lock"),
+        "audit": ("pip-audit", "npm audit", "dependabot", "renovate"),
+        "rollback": ("rollback", "revert", "previous version"),
+    },
+    "refactor_migration": {
+        "deprecation": ("deprecated", "deprecationwarning", "migration"),
+        "codemod": ("codemod", "libcst", "jscodeshift", "ast"),
+        "compatibility": ("backward compatible", "compatibility", "feature flag"),
+        "architecture": ("architecture", "boundary", "dependency graph"),
+    },
+    "incident_response": {
+        "detection": ("incident", "alert", "error rate", "healthcheck"),
+        "timeline": ("timestamp", "timeline", "deployed_at"),
+        "mitigation": ("rollback", "failover", "containment"),
+        "postmortem": ("root cause", "corrective action", "postmortem"),
+    },
+    "observability_instrumentation": {
+        "traces": ("opentelemetry", "trace_id", "span_id"),
+        "metrics": ("prometheus", "counter", "histogram", "metrics"),
+        "logs": ("structured log", "correlation_id", "request_id"),
+        "alerts": ("alert", "slo", "error budget", "dashboard"),
+    },
+    "context_quality_evaluation": {
+        "retrieval": ("retrieved_files", "repository context", "context_references"),
+        "grounding": ("evidence", "citation", "symbol"),
+        "freshness": ("stale", "revision", "commit_sha"),
+        "budget": ("token_budget", "context_characters", "truncated"),
+    },
+    "failure_replay": {
+        "command": ("test command", "recipe", "replay"),
+        "environment": ("python_version", "node_version", "environment"),
+        "determinism": ("seed", "lockfile", "container"),
+        "failure_evidence": ("stdout", "stderr", "stack trace", "failure_context"),
+    },
+    "privacy_data_governance": {
+        "classification": ("pii", "personal data", "data classification"),
+        "consent": ("consent", "cookie", "lawful basis"),
+        "retention": ("retention", "delete", "erasure"),
+        "portability": ("export", "data subject", "dsar"),
+        "tenant_isolation": ("tenant_id", "row level security", "tenant isolation"),
+    },
+    "event_contract": {
+        "schema": ("asyncapi", "avro", "protobuf", "json schema"),
+        "producer": ("producer", "publish", "emit"),
+        "consumer": ("consumer", "subscribe", "handler"),
+        "compatibility": ("schema registry", "backward compatible", "version"),
+        "delivery": ("dead letter", "retry", "idempotency"),
+    },
+    "distributed_resilience": {
+        "timeouts": ("timeout", "deadline"),
+        "retries": ("retry", "backoff", "jitter"),
+        "circuit_breakers": ("circuit breaker", "circuitbreaker"),
+        "idempotency": ("idempotency", "dedup"),
+        "concurrency": ("lock", "semaphore", "race", "atomic"),
+        "degradation": ("fallback", "degraded", "bulkhead"),
+    },
+    "synthetic_test_data": {
+        "factories": ("factory_boy", "faker", "fixture", "seed data"),
+        "privacy": ("synthetic", "anonym", "example.invalid"),
+        "determinism": ("seed", "deterministic", "snapshot"),
+        "coverage": ("edge case", "boundary", "invalid"),
+    },
+    "feature_flag_management": {
+        "providers": ("feature flag", "launchdarkly", "unleash", "flagsmith"),
+        "ownership": ("flag owner", "expires", "sunset"),
+        "rollout": ("percentage rollout", "canary", "cohort"),
+        "cleanup": ("stale flag", "remove flag", "flag debt"),
+    },
+    "memory_profiling": {
+        "python": ("tracemalloc", "memray", "memory_profiler"),
+        "javascript": ("heap snapshot", "--inspect", "clinic"),
+        "resources": ("vram", "cuda memory", "file descriptor", "connection pool"),
+        "leak_tests": ("memory leak", "leak test", "retained size"),
+    },
+    "cloud_deployment": {
+        "providers": ("aws", "azure", "gcp", "cloudflare", "vercel"),
+        "identity": ("workload identity", "oidc", "iam"),
+        "secrets": ("secret manager", "key vault", "parameter store"),
+        "cost": ("cost budget", "billing alert", "resource limit"),
+        "rollback": ("rollback", "blue green", "canary"),
+    },
+    "llm_prompt_regression": {
+        "golden_cases": ("golden prompt", "expected output", "eval case"),
+        "format": ("json schema", "structured output", "format"),
+        "quality": ("grounded", "correctness", "rubric"),
+        "runtime": ("latency", "tokens per second", "vram"),
+    },
+    "accessibility_execution": {
+        "automation": ("axe", "accessibility test", "a11y"),
+        "keyboard": ("keyboard", "tab order", "focus-visible"),
+        "contrast": ("contrast", "color-contrast"),
+        "screen_reader": ("aria-label", "accessible name", "screen reader"),
+    },
+}
 
 
 def execute_advanced_action(
@@ -89,9 +204,14 @@ def execute_advanced_action(
         "localization": _localization,
     }
     handler = handlers.get(skill_name)
-    if handler is None:
+    if handler is not None:
+        result = handler(action, payload, workspace, project_root)
+    elif skill_name in SPECIALIST_PROFILES:
+        result = _specialist_capability(
+            skill_name, action, payload, workspace, project_root
+        )
+    else:
         raise ValueError("unsupported_advanced_skill")
-    result = handler(action, payload, workspace, project_root)
     result.setdefault("status", "SUCCESS")
     result.setdefault("summary", f"{skill_name}.{action} completed")
     result.setdefault("data", {})
@@ -1401,6 +1521,536 @@ def _localization(
             f"{len(hardcoded)} hardcoded-text candidates."
         ),
     )
+
+
+def _specialist_capability(
+    skill_name: str,
+    action: str,
+    payload: dict[str, Any],
+    workspace: Path,
+    root: Path,
+) -> dict[str, Any]:
+    if skill_name == "agent_evaluation":
+        return _agent_evaluation(action, payload, workspace, root)
+    if skill_name == "context_quality_evaluation":
+        return _context_quality(payload, workspace, root)
+    if skill_name == "llm_prompt_regression":
+        return _prompt_regression(action, payload, workspace, root)
+    if skill_name == "failure_replay":
+        return _failure_replay(action, payload, workspace, root)
+    if skill_name == "synthetic_test_data":
+        return _synthetic_data(action, payload, workspace, root)
+    if skill_name == "incident_response":
+        return _incident_response(action, payload, workspace, root)
+    if skill_name == "dependency_remediation":
+        return _dependency_remediation(action, payload, workspace, root)
+
+    report = _domain_report(root, SPECIALIST_PROFILES[skill_name])
+    report["action"] = action
+    report["missing_evidence"] = sorted(
+        name for name, values in report["signals"].items() if not values
+    )
+    report["recommendations"] = [
+        f"Add verifiable {name.replace('_', ' ')} evidence."
+        for name in report["missing_evidence"]
+    ]
+    report["safety"] = {
+        "project_modified": False,
+        "terminal_executed": False,
+        "network_used": False,
+    }
+    if action in {
+        "plan",
+        "fault_plan",
+        "retention_plan",
+        "cleanup_plan",
+        "simulate",
+    }:
+        report["plan"] = _specialist_plan(
+            skill_name, report["missing_evidence"]
+        )
+    if skill_name == "adversarial_red_team":
+        report["simulation_only"] = True
+        report["scenarios"] = _red_team_scenarios()
+    if skill_name == "privacy_data_governance":
+        report["legal_review_required"] = True
+        report["compliance_guaranteed"] = False
+    if skill_name == "cloud_deployment":
+        report["cloud_contacted"] = False
+        report["credentials_requested"] = False
+    if skill_name in {"fuzz_property_testing", "memory_profiling", "accessibility_execution"}:
+        report["execution_available"] = True
+        report["execution_requires_approval"] = True
+        report["execution_sandbox"] = "docker_compose"
+    return _domain_result(
+        workspace,
+        f"{skill_name}.json",
+        report,
+        skill_name.replace("_", " "),
+    )
+
+
+def _agent_evaluation(
+    action: str,
+    payload: dict[str, Any],
+    workspace: Path,
+    root: Path,
+) -> dict[str, Any]:
+    if action == "compare":
+        baseline = _metric_snapshot(payload.get("baseline"))
+        candidate = _metric_snapshot(payload.get("candidate"))
+        deltas = {
+            key: round(candidate[key] - baseline[key], 4)
+            for key in baseline
+        }
+        report = {
+            "baseline": baseline,
+            "candidate": candidate,
+            "deltas": deltas,
+            "regression": (
+                deltas["success_rate"] < 0
+                or deltas["quality_score"] < 0
+                or deltas["failure_rate"] > 0
+            ),
+            "model_loaded": False,
+            "project_modified": False,
+        }
+        return _artifact_result(
+            workspace,
+            "agent_evaluation_comparison.json",
+            report,
+            "FAILED" if report["regression"] else "SUCCESS",
+            "Compared bounded agent evaluation metrics without loading a model.",
+        )
+
+    cases = _dict_list(payload.get("cases"), 200)
+    evaluated: list[dict[str, object]] = []
+    for index, case in enumerate(cases, 1):
+        expected = _bounded_text(case.get("expected_status"), 200).strip()
+        actual = _bounded_text(case.get("actual_status"), 200).strip()
+        explicit = case.get("passed")
+        passed = bool(explicit) if isinstance(explicit, bool) else bool(expected and expected == actual)
+        evaluated.append(
+            {
+                "id": _bounded_text(case.get("id") or f"case-{index}", 100),
+                "expected_status": expected,
+                "actual_status": actual,
+                "passed": passed,
+                "latency_seconds": _safe_float(case.get("latency_seconds")),
+                "tokens": max(0, _int(case.get("tokens"), 0)),
+                "retries": max(0, _int(case.get("retries"), 0)),
+            }
+        )
+    passed_count = sum(1 for item in evaluated if item["passed"])
+    evidence = _domain_report(root, SPECIALIST_PROFILES["agent_evaluation"])
+    report = {
+        "cases": evaluated,
+        "case_count": len(evaluated),
+        "passed": passed_count,
+        "failed": len(evaluated) - passed_count,
+        "success_rate": round(passed_count / len(evaluated), 4) if evaluated else 0.0,
+        "average_latency_seconds": _average(
+            [float(item["latency_seconds"]) for item in evaluated]
+        ),
+        "total_tokens": sum(int(item["tokens"]) for item in evaluated),
+        "total_retries": sum(int(item["retries"]) for item in evaluated),
+        "repository_evidence": evidence,
+        "model_loaded": False,
+        "project_modified": False,
+    }
+    status = "SUCCESS" if evaluated and passed_count == len(evaluated) else "PARTIAL"
+    return _artifact_result(
+        workspace,
+        "agent_evaluation.json",
+        report,
+        status,
+        f"Evaluated {len(evaluated)} bounded agent cases; {passed_count} passed.",
+    )
+
+
+def _context_quality(
+    payload: dict[str, Any], workspace: Path, root: Path
+) -> dict[str, Any]:
+    expected = set(_safe_relative_names(payload.get("expected_paths"), 500))
+    retrieved = set(_safe_relative_names(payload.get("retrieved_paths"), 500))
+    relevant = expected & retrieved
+    stale = set(_safe_relative_names(payload.get("stale_paths"), 200)) & retrieved
+    token_budget = max(0, _int(payload.get("token_budget"), 0))
+    tokens_used = max(0, _int(payload.get("tokens_used"), 0))
+    precision = len(relevant) / len(retrieved) if retrieved else 0.0
+    recall = len(relevant) / len(expected) if expected else 0.0
+    report = {
+        "expected_paths": sorted(expected),
+        "retrieved_paths": sorted(retrieved),
+        "relevant_paths": sorted(relevant),
+        "missing_paths": sorted(expected - retrieved),
+        "unexpected_paths": sorted(retrieved - expected),
+        "stale_paths": sorted(stale),
+        "precision": round(precision, 4),
+        "recall": round(recall, 4),
+        "f1": round(2 * precision * recall / (precision + recall), 4) if precision + recall else 0.0,
+        "token_budget": token_budget,
+        "tokens_used": tokens_used,
+        "budget_exceeded": bool(token_budget and tokens_used > token_budget),
+        "repository_evidence": _domain_report(
+            root, SPECIALIST_PROFILES["context_quality_evaluation"]
+        ),
+    }
+    ready = bool(expected) and recall >= 0.8 and not stale and not report["budget_exceeded"]
+    return _artifact_result(
+        workspace,
+        "context_quality_evaluation.json",
+        report,
+        "SUCCESS" if ready else "PARTIAL",
+        f"Context evaluation precision={precision:.2f}, recall={recall:.2f}.",
+    )
+
+
+def _prompt_regression(
+    action: str,
+    payload: dict[str, Any],
+    workspace: Path,
+    root: Path,
+) -> dict[str, Any]:
+    if action == "compare":
+        baseline = _metric_snapshot(payload.get("baseline"))
+        candidate = _metric_snapshot(payload.get("candidate"))
+        report = {
+            "baseline": baseline,
+            "candidate": candidate,
+            "quality_delta": round(candidate["quality_score"] - baseline["quality_score"], 4),
+            "success_rate_delta": round(candidate["success_rate"] - baseline["success_rate"], 4),
+            "latency_delta": round(candidate["latency_seconds"] - baseline["latency_seconds"], 4),
+            "token_delta": round(candidate["tokens"] - baseline["tokens"], 4),
+            "model_loaded": False,
+        }
+        report["regression"] = report["quality_delta"] < 0 or report["success_rate_delta"] < 0
+        return _artifact_result(
+            workspace,
+            "llm_prompt_regression_comparison.json",
+            report,
+            "FAILED" if report["regression"] else "SUCCESS",
+            "Compared prompt-suite metrics without invoking a model.",
+        )
+    cases = _dict_list(payload.get("cases"), 200)
+    results: list[dict[str, object]] = []
+    for index, case in enumerate(cases, 1):
+        actual = _bounded_text(case.get("actual"), 50_000)
+        expected = _string_list(case.get("expected_contains"), 30)
+        missing = [item for item in expected if item not in actual]
+        results.append(
+            {
+                "id": _bounded_text(case.get("id") or f"prompt-{index}", 100),
+                "passed": bool(expected) and not missing,
+                "missing_expectations": missing,
+                "actual_sha256": hashlib.sha256(actual.encode("utf-8")).hexdigest(),
+                "latency_seconds": _safe_float(case.get("latency_seconds")),
+                "tokens": max(0, _int(case.get("tokens"), 0)),
+            }
+        )
+    passed = sum(1 for item in results if item["passed"])
+    report = {
+        "cases": results,
+        "case_count": len(results),
+        "passed": passed,
+        "failed": len(results) - passed,
+        "success_rate": round(passed / len(results), 4) if results else 0.0,
+        "repository_evidence": _domain_report(
+            root, SPECIALIST_PROFILES["llm_prompt_regression"]
+        ),
+        "raw_outputs_stored": False,
+        "model_loaded": False,
+    }
+    return _artifact_result(
+        workspace,
+        "llm_prompt_regression.json",
+        report,
+        "SUCCESS" if results and passed == len(results) else "PARTIAL",
+        f"Evaluated {len(results)} prompt cases without loading a model.",
+    )
+
+
+def _failure_replay(
+    action: str,
+    payload: dict[str, Any],
+    workspace: Path,
+    root: Path,
+) -> dict[str, Any]:
+    allowed_recipes = {
+        "python_tests",
+        "web_tests",
+        "compose_config",
+        "fuzz",
+        "accessibility",
+        "memory",
+    }
+    recipe = _bounded_text(payload.get("recipe"), 100).strip().lower()
+    if recipe not in allowed_recipes:
+        recipe = ""
+    raw_environment = payload.get("environment")
+    environment: dict[str, str] = {}
+    if isinstance(raw_environment, dict):
+        for key, value in list(raw_environment.items())[:50]:
+            name = _bounded_text(key, 100).strip()
+            if re.fullmatch(r"[A-Z][A-Z0-9_]{0,63}", name) and not SECRET_NAME.search(name):
+                environment[name] = _bounded_text(value, 500)
+    stdout = _bounded_text(payload.get("stdout"), 100_000)
+    stderr = _bounded_text(payload.get("stderr"), 100_000)
+    report = {
+        "action": action,
+        "recipe": recipe,
+        "affected_files": _safe_relative_names(payload.get("affected_files"), 200),
+        "environment": environment,
+        "seed": max(0, _int(payload.get("seed"), 0)),
+        "failure_fingerprint": hashlib.sha256(
+            (stdout + "\n" + stderr).encode("utf-8")
+        ).hexdigest(),
+        "raw_logs_stored": False,
+        "secret_environment_keys_stored": False,
+        "repository_evidence": _domain_report(
+            root, SPECIALIST_PROFILES["failure_replay"]
+        ),
+    }
+    report["complete"] = bool(
+        recipe and report["affected_files"] and (stdout or stderr)
+    )
+    report["execution_requires_approval"] = True
+    return _artifact_result(
+        workspace,
+        "failure_replay.json",
+        report,
+        "SUCCESS" if report["complete"] else "PARTIAL",
+        f"Prepared replay recipe {recipe or 'none'}; complete={report['complete']}.",
+    )
+
+
+def _synthetic_data(
+    action: str,
+    payload: dict[str, Any],
+    workspace: Path,
+    root: Path,
+) -> dict[str, Any]:
+    raw_schema = payload.get("schema")
+    fields: dict[str, str] = {}
+    allowed_types = {"string", "integer", "number", "boolean", "email", "uuid", "date"}
+    if isinstance(raw_schema, dict):
+        for raw_name, raw_type in list(raw_schema.items())[:100]:
+            name = _bounded_text(raw_name, 64).strip()
+            kind = _bounded_text(raw_type, 32).strip().lower()
+            if re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]{0,63}", name) and kind in allowed_types:
+                fields[name] = kind
+    count = max(1, min(100, _int(payload.get("count"), 10)))
+    records = _synthetic_records(fields, count) if action == "generate" else []
+    report = {
+        "action": action,
+        "schema": fields,
+        "requested_count": count,
+        "records": records,
+        "records_generated": len(records),
+        "deterministic": True,
+        "contains_real_personal_data": False,
+        "project_modified": False,
+        "output_scope": "skill_workspace_only",
+        "repository_evidence": _domain_report(
+            root, SPECIALIST_PROFILES["synthetic_test_data"]
+        ),
+    }
+    return _artifact_result(
+        workspace,
+        "synthetic_test_data.json",
+        report,
+        "SUCCESS" if fields else "PARTIAL",
+        f"Prepared {len(records)} deterministic synthetic records for {len(fields)} fields.",
+    )
+
+
+def _incident_response(
+    action: str,
+    payload: dict[str, Any],
+    workspace: Path,
+    root: Path,
+) -> dict[str, Any]:
+    entries = _string_list(payload.get("events"), 500)
+    combined = "\n".join(entries).lower()
+    signals = {
+        "errors": len(re.findall(r"\b(?:error|exception|failed)\b", combined)),
+        "timeouts": len(re.findall(r"\btimeout\b", combined)),
+        "resource_pressure": len(re.findall(r"\b(?:oom|out of memory|disk full|cpu)\b", combined)),
+        "deployments": len(re.findall(r"\b(?:deploy|release|rollback)\b", combined)),
+        "security": len(re.findall(r"\b(?:unauthorized|forbidden|breach|attack)\b", combined)),
+    }
+    severity = "SEV1" if signals["security"] or signals["resource_pressure"] else "SEV2" if signals["errors"] else "SEV3"
+    report = {
+        "action": action,
+        "event_count": len(entries),
+        "event_hashes": [hashlib.sha256(item.encode("utf-8")).hexdigest() for item in entries],
+        "raw_events_stored": False,
+        "signals": signals,
+        "suggested_severity": severity,
+        "immediate_actions": [
+            "Preserve logs and deployment identifiers.",
+            "Confirm customer impact and affected boundaries.",
+            "Use the existing approval gate before rollback or containment.",
+        ],
+        "postmortem_sections": [
+            "Impact",
+            "Timeline",
+            "Root cause",
+            "Detection gap",
+            "Corrective actions",
+            "Owners and due dates",
+        ],
+        "repository_evidence": _domain_report(
+            root, SPECIALIST_PROFILES["incident_response"]
+        ),
+    }
+    return _artifact_result(
+        workspace,
+        f"incident_{action}.json",
+        report,
+        "SUCCESS" if entries else "PARTIAL",
+        f"Triaged {len(entries)} incident events as suggested {severity}.",
+    )
+
+
+def _dependency_remediation(
+    action: str,
+    payload: dict[str, Any],
+    workspace: Path,
+    root: Path,
+) -> dict[str, Any]:
+    updates: list[dict[str, str]] = []
+    for item in _dict_list(payload.get("updates"), 100):
+        package = _bounded_text(item.get("package"), 200).strip()
+        current = _bounded_text(item.get("current"), 100).strip()
+        target = _bounded_text(item.get("target"), 100).strip()
+        if (
+            re.fullmatch(r"(?:@?[A-Za-z0-9][A-Za-z0-9_.-]*)(?:/[A-Za-z0-9_.-]+)?", package)
+            and ".." not in package
+            and re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9.+_-]{0,99}", target)
+        ):
+            updates.append({"package": package, "current": current, "target": target})
+    report = {
+        "action": action,
+        "updates": updates,
+        "update_count": len(updates),
+        "manifests": _dependency_manifests(root),
+        "verification_order": [
+            "Update one dependency group in an isolated patch workspace.",
+            "Regenerate the existing lockfile with an approved recipe.",
+            "Run lint, unit, integration, and E2E gates.",
+            "Run dependency and license audits.",
+            "Retain a rollback diff and previous lockfile hash.",
+        ],
+        "packages_installed": False,
+        "project_modified": False,
+        "repository_evidence": _domain_report(
+            root, SPECIALIST_PROFILES["dependency_remediation"]
+        ),
+    }
+    return _artifact_result(
+        workspace,
+        "dependency_remediation.json",
+        report,
+        "SUCCESS" if updates or action == "analyze" else "PARTIAL",
+        f"Prepared remediation evidence for {len(updates)} dependency updates without installing packages.",
+    )
+
+
+def _specialist_plan(skill_name: str, missing: list[str]) -> list[dict[str, object]]:
+    groups = list(SPECIALIST_PROFILES[skill_name])
+    return [
+        {
+            "step": index,
+            "evidence_group": group,
+            "priority": "HIGH" if group in missing else "VERIFY",
+            "requires_approval": False,
+        }
+        for index, group in enumerate(groups, 1)
+    ]
+
+
+def _red_team_scenarios() -> list[dict[str, str]]:
+    return [
+        {"scenario": "prompt_injection", "expected_control": "system instructions and tool policy remain authoritative"},
+        {"scenario": "path_traversal", "expected_control": "filesystem policy rejects traversal and protected roots"},
+        {"scenario": "approval_bypass", "expected_control": "mutating action remains blocked without a valid approval"},
+        {"scenario": "raw_shell", "expected_control": "closed recipe allowlist rejects arbitrary commands"},
+        {"scenario": "secret_exfiltration", "expected_control": "secret values are redacted and network destinations are allowlisted"},
+    ]
+
+
+def _metric_snapshot(value: object) -> dict[str, float]:
+    source = value if isinstance(value, dict) else {}
+    return {
+        "success_rate": _safe_float(source.get("success_rate")),
+        "failure_rate": _safe_float(source.get("failure_rate")),
+        "quality_score": _safe_float(source.get("quality_score")),
+        "latency_seconds": _safe_float(source.get("latency_seconds")),
+        "tokens": _safe_float(source.get("tokens")),
+    }
+
+
+def _dict_list(value: object, limit: int) -> list[dict[str, Any]]:
+    if not isinstance(value, list):
+        return []
+    return [item for item in value[:limit] if isinstance(item, dict)]
+
+
+def _safe_relative_names(value: object, limit: int) -> list[str]:
+    safe: list[str] = []
+    for item in _string_list(value, limit):
+        normalized = item.replace("\\", "/").strip("/")
+        if (
+            normalized
+            and ".." not in normalized.split("/")
+            and not re.match(r"(?i)^[a-z]:/", normalized)
+            and not any(part.lower() in EXCLUDED_PARTS for part in normalized.split("/"))
+        ):
+            safe.append(normalized)
+    return _dedupe(safe)
+
+
+def _safe_float(value: object) -> float:
+    try:
+        number = float(value) if isinstance(value, (str, int, float)) else 0.0
+    except ValueError:
+        return 0.0
+    if number != number or number in {float("inf"), float("-inf")}:
+        return 0.0
+    return round(max(-1_000_000.0, min(1_000_000.0, number)), 4)
+
+
+def _average(values: list[float]) -> float:
+    return round(sum(values) / len(values), 4) if values else 0.0
+
+
+def _synthetic_records(fields: dict[str, str], count: int) -> list[dict[str, object]]:
+    records: list[dict[str, object]] = []
+    for index in range(count):
+        record: dict[str, object] = {}
+        for name, kind in fields.items():
+            ordinal = index + 1
+            if kind == "integer":
+                value: object = ordinal
+            elif kind == "number":
+                value = round(ordinal * 1.25, 2)
+            elif kind == "boolean":
+                value = index % 2 == 0
+            elif kind == "email":
+                value = f"user{ordinal}@example.invalid"
+            elif kind == "uuid":
+                digest = hashlib.sha256(f"{name}:{ordinal}".encode("utf-8")).hexdigest()
+                value = f"{digest[:8]}-{digest[8:12]}-{digest[12:16]}-{digest[16:20]}-{digest[20:32]}"
+            elif kind == "date":
+                value = f"2025-01-{((index % 28) + 1):02d}"
+            else:
+                value = f"{name}_{ordinal}"
+            if SECRET_NAME.search(name):
+                value = f"synthetic_{name}_{ordinal}"
+            record[name] = value
+        records.append(record)
+    return records
 
 
 class _NoRedirect(HTTPRedirectHandler):

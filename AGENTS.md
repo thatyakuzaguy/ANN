@@ -82,10 +82,16 @@ Safety invariants:
 The catalog and recent state are available through read-only endpoints:
 `GET /api/subagents/catalog` and `GET /api/subagents/state`.
 
-Specialist definitions may declare one of the thirty-two engineering skill identifiers as an analytical
+Specialist definitions may declare one of the fifty engineering skill identifiers as an analytical
 capability. This does not grant execution authority. The parent or user must still request the skill
 through its typed API, satisfy persistent permissions, and complete Approval Center for every
 terminal or mutating action. A subagent response can recommend a recipe but cannot authorize it.
+
+The specialist catalog additionally covers agent/prompt evaluation, adversarial review, fuzz and
+property testing, dependency remediation, refactor migrations, incident response, observability,
+context quality, failure replay, privacy, event contracts, distributed resilience, synthetic data,
+feature flags, memory profiling, cloud planning, and accessibility execution. Only four of these
+families expose execution actions; each uses a fixed Docker Compose recipe after single-use approval.
 
 ## Tool Boundaries
 

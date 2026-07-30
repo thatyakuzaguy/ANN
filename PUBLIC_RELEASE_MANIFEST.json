@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-07-30T20:52:27.7286459Z",
+  "generated_at_utc": "2026-07-30T21:02:20.5290226Z",
   "release_stage": "stable",
   "release_version": "1.0.1",
-  "source_revision": "316d4bb74ca3499a647fb7d0893a7419352358b4",
+  "source_revision": "ab43024e853431d14b566af6c6ad84de91b5386c",
   "file_count": 1033,
-  "total_bytes": 6448277,
+  "total_bytes": 6449974,
   "maximum_file_size_mb": 25,
   "files": [
     {
@@ -895,8 +895,8 @@
     },
     {
       "path": "agentic_network/project_patch_apply_agent/runtime.py",
-      "bytes": 18934,
-      "sha256": "6f9a67b20de41a89400a0c54e1497ecca5790906d2af9c0810019e36c82cd100"
+      "bytes": 19285,
+      "sha256": "547e982c1a4c6c0ec7546b3f75e13c89fc3fa54469eb27c5b7be466311ecf667"
     },
     {
       "path": "agentic_network/project_scaffold_agent/__init__.py",
@@ -4495,8 +4495,8 @@
     },
     {
       "path": "tests/python/test_project_patch_apply_runtime.py",
-      "bytes": 11170,
-      "sha256": "583425254e9224f2dc2f82e754e6f23b3263f6734ccdc5be31ffffa608c3d41a"
+      "bytes": 12516,
+      "sha256": "818a66c8824444cea9e20cda989013f3594b204ef51820b25d14c1a2e910ba9d"
     },
     {
       "path": "tests/python/test_project_scaffold_agent_runtime.py",

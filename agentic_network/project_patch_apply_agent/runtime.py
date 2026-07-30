@@ -11,6 +11,7 @@ import json
 import os
 import re
 import shutil
+import tempfile
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -30,6 +31,7 @@ PROTECTED_PARTS = {
     "training",
     "unsloth_compiled_cache",
 }
+MAX_PATCH_BYTES = 5_000_000
 
 
 @dataclass(frozen=True)
@@ -103,6 +105,10 @@ def apply_project_patch(
         patch_path_display = str(patch_path)
         if not patch_path.is_file():  # lgtm[py/path-injection]
             errors.append("patch_file was not found.")
+        elif patch_path.stat().st_size > MAX_PATCH_BYTES:  # lgtm[py/path-injection]
+            errors.append(
+                "patch_file is blocked because it exceeds the 5 MB safety limit."
+            )
     elif not errors:
         errors.append("patch_file is required.")
     changes: list[PatchFileChange] = []
@@ -338,11 +344,16 @@ def _safe_project_child(root: Path, relative: str) -> Path:
 
 
 def _create_backup(root: Path, patch_path: Path, changes: list[PatchFileChange]) -> Path:
-    backup_dir = root / "project_backups" / f"backup_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
-    original_root = backup_dir / "original"
-    backup_dir.mkdir(
+    backup_parent = _safe_project_child(root, "project_backups")
+    backup_parent.mkdir(
         parents=True, exist_ok=True
     )  # lgtm[py/path-injection]
+    backup_dir = Path(
+        tempfile.mkdtemp(  # lgtm[py/path-injection]
+            prefix="backup_", dir=backup_parent
+        )
+    )
+    original_root = backup_dir / "original"
     shutil.copy2(  # lgtm[py/path-injection]
         patch_path, backup_dir / "patch_applied.diff"
     )

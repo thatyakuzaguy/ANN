@@ -143,6 +143,46 @@ def test_path_traversal_blocked(tmp_path: Path, monkeypatch: pytest.MonkeyPatch)
     assert any("blocked" in error.lower() for error in result.validation_errors)
 
 
+def test_oversized_patch_is_blocked_before_parsing(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _allow_temp(monkeypatch)
+    monkeypatch.setattr(patch_apply_runtime, "MAX_PATCH_BYTES", 32)
+    root = _project_root(tmp_path)
+    patch = _patch_file(root)
+
+    result = apply_project_patch(root, patch, dry_run=True)
+
+    assert result.status == "BLOCKED"
+    assert any("5 MB" in error for error in result.validation_errors)
+
+
+def test_backups_use_unique_directories(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _allow_temp(monkeypatch)
+    monkeypatch.setenv("ANN_PROJECT_PATCH_TOKEN", "local-test-token")
+    root = _project_root(tmp_path)
+    first_patch = _existing_file_patch(root)
+    first = apply_project_patch(
+        root, first_patch, "local-test-token", True, True, False
+    )
+    second_patch = _existing_file_patch(root)
+    second_patch.write_text(
+        second_patch.read_text(encoding="utf-8")
+        .replace('-print("old")', '-print("new")')
+        .replace('+print("new")', '+print("newer")'),
+        encoding="utf-8",
+    )
+    second = apply_project_patch(
+        root, second_patch, "local-test-token", True, True, False
+    )
+
+    assert first.status == "APPLIED"
+    assert second.status == "APPLIED"
+    assert first.backups_created[0] != second.backups_created[0]
+
+
 def test_mnt_c_blocked_by_default(tmp_path: Path) -> None:
     result = apply_project_patch("/mnt/c/ANNProjects/crm", "patch.diff", dry_run=True)
 

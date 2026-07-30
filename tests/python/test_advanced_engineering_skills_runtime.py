@@ -66,6 +66,24 @@ ADVANCED_SKILLS = {
     "cloud_deployment",
     "llm_prompt_regression",
     "accessibility_execution",
+    "dependency_provisioning",
+    "semantic_code_transformation",
+    "test_generation",
+    "mutation_testing",
+    "visual_regression",
+    "service_virtualization",
+    "consumer_contract_testing",
+    "architecture_refactor_execution",
+    "infrastructure_plan_execution",
+    "schema_drift_data_evolution",
+    "chaos_verification",
+    "release_rollback",
+    "semantic_repository_search",
+    "queue_broker_verification",
+    "data_quality_execution",
+    "secrets_lifecycle",
+    "cross_platform_matrix",
+    "documentation_drift",
 }
 
 
@@ -129,6 +147,10 @@ def _project(tmp_path: Path) -> Path:
     (root / "requirements.txt").write_text(
         "fastapi==0.116.0\n", encoding="utf-8"
     )
+    (root / "requirements.lock").write_text(
+        "fastapi==0.116.0 --hash=sha256:" + "a" * 64 + "\n",
+        encoding="utf-8",
+    )
     (root / "package.json").write_text(
         json.dumps(
             {
@@ -136,9 +158,16 @@ def _project(tmp_path: Path) -> Path:
                     "benchmark": "vitest bench --run",
                     "test": "vitest --run",
                     "test:a11y": "playwright test --grep a11y",
+                    "test:chaos": "vitest --run chaos",
+                    "test:compatibility": "vitest --run compatibility",
+                    "test:contract": "vitest --run contract",
+                    "test:docs": "vitest --run docs",
                     "test:fuzz": "vitest --run fuzz",
                     "test:memory": "vitest --run memory",
+                    "test:mutation": "vitest --run mutation",
                     "test:performance": "vitest bench --run",
+                    "test:queue": "vitest --run queue",
+                    "test:visual": "playwright test --grep visual",
                 },
                 "dependencies": {"react": "18.3.1"},
             }
@@ -160,6 +189,8 @@ def _project(tmp_path: Path) -> Path:
         "    image: postgres:16\n"
         "    volumes:\n"
         "      - db-data:/var/lib/postgresql/data\n"
+        "  infra:\n"
+        "    image: hashicorp/terraform:1.9\n"
         "volumes:\n"
         "  db-data:\n",
         encoding="utf-8",
@@ -217,6 +248,10 @@ def _project(tmp_path: Path) -> Path:
     )
     (root / "main.tf").write_text(
         'terraform { backend "local" {} }\n',
+        encoding="utf-8",
+    )
+    (root / "alembic.ini").write_text(
+        "[alembic]\nscript_location = migrations\n",
         encoding="utf-8",
     )
     (root / "models").mkdir()
@@ -279,6 +314,165 @@ def test_all_advanced_skills_are_registered_enabled_and_typed() -> None:
         for name in ADVANCED_SKILLS
     )
     assert all(catalog[name]["actions"] for name in ADVANCED_SKILLS)
+    assert len(catalog) == 68
+    assert sum(len(item["actions"]) for item in catalog.values()) == 130
+
+
+def test_semantic_transformation_prepares_token_aware_diff_only(
+    tmp_path: Path,
+) -> None:
+    root = _project(tmp_path)
+    source_path = root / "app" / "main.py"
+    original = source_path.read_text(encoding="utf-8")
+    source_path.write_text(
+        original + "\nhealth_label = 'health'\n# health remains a comment\n",
+        encoding="utf-8",
+    )
+    before = source_path.read_text(encoding="utf-8")
+
+    result = _runtime(
+        tmp_path,
+        "semantic_code_transformation",
+        "prepare",
+        {
+            "project_root": str(root),
+            "from_symbol": "health",
+            "to_symbol": "health_check",
+            "target_paths": ["app/main.py"],
+        },
+    )
+
+    data = result.output["data"]
+    diff = Path(data["diff_path"]).read_text(encoding="utf-8")
+    assert result.status == "SUCCESS"
+    assert data["replacement_count"] == 1
+    assert data["project_modified"] is False
+    assert source_path.read_text(encoding="utf-8") == before
+    assert "+def health_check():" in diff
+    assert "health_label = 'health'" in diff
+    assert "-# health remains a comment" not in diff
+    assert "+# health remains a comment" not in diff
+
+
+def test_test_generation_writes_only_a_deterministic_workspace_skeleton(
+    tmp_path: Path,
+) -> None:
+    root = _project(tmp_path)
+    before = (root / "app" / "main.py").read_text(encoding="utf-8")
+    result = _runtime(
+        tmp_path,
+        "test_generation",
+        "generate",
+        {
+            "project_root": str(root),
+            "module": "app.main",
+            "callable": "health",
+            "cases": [
+                {
+                    "id": "healthy",
+                    "arguments": {},
+                    "expected": {"ok": True},
+                }
+            ],
+        },
+    )
+
+    data = result.output["data"]
+    skeleton = next(
+        Path(path)
+        for path in result.output["artifacts"]
+        if path.endswith("test_generated_contract.py")
+    )
+    assert result.status == "SUCCESS"
+    assert data["skeleton_generated"] is True
+    assert "from app.main import health as subject" in skeleton.read_text(
+        encoding="utf-8"
+    )
+    assert (root / "app" / "main.py").read_text(encoding="utf-8") == before
+
+
+def test_architecture_refactor_prepare_reuses_dry_run_patch_gate(
+    tmp_path: Path,
+) -> None:
+    root = _project(tmp_path)
+    target = root / "app" / "main.py"
+    before = target.read_text(encoding="utf-8")
+    patch = root / "refactor.diff"
+    patch.write_text(
+        "diff --git a/app/main.py b/app/main.py\n"
+        "--- a/app/main.py\n"
+        "+++ b/app/main.py\n"
+        "@@ -3,2 +3,2 @@\n"
+        " @app.get('/health')\n"
+        "-def health():\n"
+        "+def health_check():\n",
+        encoding="utf-8",
+    )
+
+    result = _runtime(
+        tmp_path,
+        "architecture_refactor_execution",
+        "prepare",
+        {"project_root": str(root), "patch_file": "refactor.diff"},
+    )
+
+    assert result.status == "SUCCESS"
+    assert result.output["data"]["status"] == "DRY_RUN"
+    assert result.output["data"]["approval_center_required"] is True
+    assert target.read_text(encoding="utf-8") == before
+
+
+def test_service_virtualization_discards_credentials_and_raw_responses(
+    tmp_path: Path,
+) -> None:
+    root = _project(tmp_path)
+    result = _runtime(
+        tmp_path,
+        "service_virtualization",
+        "generate",
+        {
+            "project_root": str(root),
+            "services": [
+                {
+                    "name": "stripe",
+                    "status": 429,
+                    "latency_ms": 250,
+                    "failure_mode": "rate_limit",
+                    "api_key": "must-not-survive",
+                    "response": {"secret": "must-not-survive"},
+                }
+            ],
+        },
+    )
+
+    encoded = json.dumps(result.output)
+    assert result.status == "SUCCESS"
+    assert result.output["data"]["credentials_stored"] is False
+    assert result.output["data"]["network_used"] is False
+    assert "must-not-survive" not in encoded
+
+
+def test_semantic_search_is_bounded_and_does_not_load_a_model(
+    tmp_path: Path,
+) -> None:
+    root = _project(tmp_path)
+    result = _runtime(
+        tmp_path,
+        "semantic_repository_search",
+        "query",
+        {
+            "project_root": str(root),
+            "query": "FastAPI health endpoint",
+            "max_results": 3,
+        },
+    )
+
+    data = result.output["data"]
+    assert result.status == "SUCCESS"
+    assert 1 <= data["result_count"] <= 3
+    assert data["model_loaded"] is False
+    assert data["raw_source_stored"] is False
+    assert all(set(item) == {"path", "score", "matched_terms", "is_test"} for item in data["results"])
 
 
 def test_requirements_contract_refines_and_arbitrates(
@@ -355,6 +549,23 @@ def test_requirements_contract_refines_and_arbitrates(
         ("cloud_deployment", "inspect"),
         ("llm_prompt_regression", "evaluate"),
         ("accessibility_execution", "inspect"),
+        ("dependency_provisioning", "inspect"),
+        ("semantic_code_transformation", "analyze"),
+        ("test_generation", "analyze"),
+        ("mutation_testing", "inspect"),
+        ("visual_regression", "inspect"),
+        ("service_virtualization", "inspect"),
+        ("consumer_contract_testing", "analyze"),
+        ("architecture_refactor_execution", "analyze"),
+        ("infrastructure_plan_execution", "inspect"),
+        ("schema_drift_data_evolution", "inspect"),
+        ("chaos_verification", "inspect"),
+        ("release_rollback", "inspect"),
+        ("queue_broker_verification", "inspect"),
+        ("data_quality_execution", "inspect"),
+        ("secrets_lifecycle", "inspect"),
+        ("cross_platform_matrix", "inspect"),
+        ("documentation_drift", "analyze"),
     ],
 )
 def test_advanced_analytical_skills_generate_bounded_evidence(
@@ -426,6 +637,18 @@ def test_test_quality_challenges_bad_test_contract(
         ("failure_replay", "run"),
         ("memory_profiling", "run"),
         ("accessibility_execution", "run"),
+        ("dependency_provisioning", "run"),
+        ("mutation_testing", "run"),
+        ("visual_regression", "run"),
+        ("consumer_contract_testing", "run"),
+        ("infrastructure_plan_execution", "run"),
+        ("schema_drift_data_evolution", "run"),
+        ("chaos_verification", "run"),
+        ("release_rollback", "run"),
+        ("queue_broker_verification", "run"),
+        ("data_quality_execution", "run"),
+        ("cross_platform_matrix", "run"),
+        ("documentation_drift", "run"),
     ],
 )
 def test_dangerous_actions_are_blocked_without_approval(
@@ -1187,6 +1410,18 @@ def test_incident_and_dependency_skills_never_execute_or_store_raw_logs(
         ("failure_replay", "compose_config", "config"),
         ("memory_profiling", "python_memory", "memory"),
         ("accessibility_execution", "web_accessibility", "test:a11y"),
+        ("dependency_provisioning", "python_dependency_lock", "--require-hashes"),
+        ("mutation_testing", "python_mutation", "mutmut"),
+        ("visual_regression", "web_visual", "test:visual"),
+        ("consumer_contract_testing", "python_contract", "contract"),
+        ("infrastructure_plan_execution", "terraform_plan", "plan"),
+        ("schema_drift_data_evolution", "python_schema_drift", "alembic"),
+        ("chaos_verification", "python_chaos", "chaos"),
+        ("release_rollback", "python_release_rollback", "release_rollback"),
+        ("queue_broker_verification", "python_queue", "queue"),
+        ("data_quality_execution", "python_data_quality", "data_quality"),
+        ("cross_platform_matrix", "python_compatibility", "compatibility"),
+        ("documentation_drift", "python_docs", "docs"),
     ],
 )
 def test_specialist_execution_uses_closed_compose_recipes_and_shell_false(
@@ -1259,3 +1494,107 @@ def test_all_specialist_skills_are_delegated_to_controlled_subagents() -> None:
     }
 
     assert specialist.issubset(tools)
+
+
+def test_dependency_provisioning_requires_a_hashed_lock(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    root = _project(tmp_path)
+    (root / "requirements.lock").write_text(
+        "fastapi==0.116.0\n", encoding="utf-8"
+    )
+    called = False
+
+    def fail_run(*_args: Any, **_kwargs: Any) -> None:
+        nonlocal called
+        called = True
+
+    monkeypatch.setattr(
+        "agentic_network.skills.engineering_runtime.subprocess.run",
+        fail_run,
+    )
+    result = _runtime(
+        tmp_path,
+        "dependency_provisioning",
+        "run",
+        {"project_root": str(root)},
+        approved=True,
+    )
+
+    assert result.status == "BLOCKED"
+    assert called is False
+    assert "hashes" in " ".join(result.errors)
+
+
+def test_specialist_execution_blocks_docker_socket_mounts(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    root = _project(tmp_path)
+    compose = root / "docker-compose.yml"
+    compose.write_text(
+        compose.read_text(encoding="utf-8").replace(
+            "  api:\n    image: ann-api:test\n",
+            "  api:\n"
+            "    image: ann-api:test\n"
+            "    volumes:\n"
+            "      - /var/run/docker.sock:/var/run/docker.sock\n",
+        ),
+        encoding="utf-8",
+    )
+    called = False
+
+    def fail_run(*_args: Any, **_kwargs: Any) -> None:
+        nonlocal called
+        called = True
+
+    monkeypatch.setattr(
+        "agentic_network.skills.engineering_runtime.subprocess.run",
+        fail_run,
+    )
+    result = _runtime(
+        tmp_path,
+        "chaos_verification",
+        "run",
+        {"project_root": str(root)},
+        approved=True,
+    )
+
+    assert result.status == "BLOCKED"
+    assert called is False
+    assert "docker_socket_mount" in result.errors
+
+
+def test_infrastructure_plan_blocks_executable_terraform_hooks(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    root = _project(tmp_path)
+    (root / "main.tf").write_text(
+        'data "external" "unsafe" {\n'
+        "  program = [\"cmd\", \"/c\", \"whoami\"]\n"
+        "}\n",
+        encoding="utf-8",
+    )
+    called = False
+
+    def fail_run(*_args: Any, **_kwargs: Any) -> None:
+        nonlocal called
+        called = True
+
+    monkeypatch.setattr(
+        "agentic_network.skills.engineering_runtime.subprocess.run",
+        fail_run,
+    )
+    result = _runtime(
+        tmp_path,
+        "infrastructure_plan_execution",
+        "run",
+        {"project_root": str(root)},
+        approved=True,
+    )
+
+    assert result.status == "BLOCKED"
+    assert called is False
+    assert "terraform_executable_hooks_blocked" in result.errors

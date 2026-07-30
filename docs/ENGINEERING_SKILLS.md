@@ -1,6 +1,6 @@
 # ANN Engineering Skills
 
-ANN exposes fifty local engineering skills and ninety-five typed actions through `GET /api/skills` and
+ANN exposes sixty-eight local engineering skills and one hundred thirty typed actions through `GET /api/skills` and
 `POST /api/skills/{skill}/execute`. They use the persistent skill permission
 store and the existing Approval Center. A skill permission never replaces a
 file, terminal, migration, container, or patch approval gate.
@@ -64,6 +64,24 @@ file, terminal, migration, container, or patch approval gate.
 | `cloud_deployment` | `inspect`, `plan` | Provider-neutral identity, secrets, cost, rollout, and rollback planning |
 | `llm_prompt_regression` | `evaluate`, `compare` | Hashed output evidence and quality/format/runtime regression metrics |
 | `accessibility_execution` | `inspect`, `run` | Accessibility readiness and approved Compose `test:a11y` execution |
+| `dependency_provisioning` | `inspect`, `run` | Offline hash-locked dependency materialization inside an ephemeral Compose container |
+| `semantic_code_transformation` | `analyze`, `prepare` | Token-aware Python symbol changes emitted as approval-required unified diffs |
+| `test_generation` | `analyze`, `generate` | Bounded deterministic pytest contracts written only to the skill workspace |
+| `mutation_testing` | `inspect`, `run` | Mutation readiness and approved Python or web mutation recipes |
+| `visual_regression` | `inspect`, `run` | Playwright visual-regression evidence through an approved web recipe |
+| `service_virtualization` | `inspect`, `generate` | Credential-free deterministic external-service mock contracts |
+| `consumer_contract_testing` | `analyze`, `run` | Producer/consumer compatibility evidence and approved contract tests |
+| `architecture_refactor_execution` | `analyze`, `prepare` | Architecture evidence plus dry-run validation through the existing Patch Workspace gate |
+| `infrastructure_plan_execution` | `inspect`, `run` | Offline Terraform plan execution in a pre-existing Compose service |
+| `schema_drift_data_evolution` | `inspect`, `run` | Schema-evolution evidence and approved Alembic drift checks |
+| `chaos_verification` | `inspect`, `run` | Resilience evidence and approved deterministic chaos-test recipes |
+| `release_rollback` | `inspect`, `run` | Rollback evidence and approved release-rollback verification |
+| `semantic_repository_search` | `query` | Bounded deterministic repository search without model loading or raw-source artifacts |
+| `queue_broker_verification` | `inspect`, `run` | Queue contract evidence and approved broker-focused tests |
+| `data_quality_execution` | `inspect`, `run` | Data-quality evidence and approved invariant tests |
+| `secrets_lifecycle` | `inspect`, `plan` | Secret ownership, rotation, revocation, and incident planning without reading secret values |
+| `cross_platform_matrix` | `inspect`, `run` | Compatibility evidence and approved platform-tagged tests |
+| `documentation_drift` | `analyze`, `run` | Documentation/source drift evidence and approved documentation tests |
 
 ## Basic Payload
 
@@ -94,7 +112,9 @@ Every action takes `project_root`. Optional bounded fields include
   `accessibility`, or `memory`; environment keys resembling secrets are dropped.
 - Synthetic test data: a bounded field-to-type `schema` and `count` up to 100.
 - Specialist execution: fixed `python_fuzz`, `web_fuzz`, `python_memory`,
-  `web_memory`, `web_accessibility`, or replay recipes only.
+  `web_memory`, `web_accessibility`, dependency-lock, mutation, visual,
+  contract, Terraform-plan, schema-drift, chaos, rollback, queue,
+  data-quality, compatibility, documentation, or replay recipes only.
 
 Raw command payloads are ignored. No action accepts arbitrary shell text.
 
@@ -123,11 +143,15 @@ are single-use. Changing the target or action requires a new approval.
   skill containers cannot use external network egress.
 - Container startup uses `--no-build --pull never`.
 - Host networking, privileged containers, and fixed container names block
-  container startup; all Compose projects receive an isolated project name.
+  container startup; Docker socket mounts and host PID/IPC namespaces also
+  block every executable recipe. All Compose projects receive an isolated
+  project name.
 - Public host-port bindings are blocked. Loopback-only bindings require an
   explicit `allow_host_ports: true` acknowledgement inside the approved payload.
-- Package installation, cloud access, arbitrary terminal commands, and
-  `shell=True` are unavailable.
+- Host package installation, cloud access, arbitrary terminal commands, and
+  `shell=True` are unavailable. Dependency Provisioning can only consume a
+  SHA-256-hashed `requirements.lock` with `pip --no-index --require-hashes`
+  into `/tmp/ann-dependencies` inside an approved ephemeral container.
 - `C:\\`, `/mnt/c`, traversal, and protected ANN areas remain blocked.
 - Manifest-level `DENY` permissions are immutable even if a stale permission
   store contains an allow decision.
@@ -166,3 +190,11 @@ action runs; delegated model text cannot authorize execution.
   credentials, contact cloud APIs, create infrastructure, or estimate a binding bill.
 - Agent and LLM prompt evaluation score evidence supplied by a prior run; these
   actions deliberately do not load or invoke a model.
+- Semantic transformations and generated tests are proposals only. They write
+  to the isolated skill workspace and require Patch Workspace plus Approval
+  Center before any project file can change.
+- Semantic Repository Search is deterministic term expansion, not embedding or
+  model-based semantic retrieval. It stores paths and match metadata, not raw
+  source excerpts.
+- Service Virtualization emits synthetic contracts; it does not start a mock
+  server, copy credentials, or contact a real provider.

@@ -60,13 +60,18 @@ human rather than looping forever.
   rollback, and `FAILED_PERMANENTLY` escalation.
 - Architecture entropy analysis to detect accumulated complexity and propose
   explicit refactoring work instead of endlessly adding local conditionals.
-- Fifty permission-scoped engineering skills and ninety-five typed actions covering contracts,
+- Sixty-eight permission-scoped engineering skills and one hundred thirty typed actions covering contracts,
   dependencies, observability, test validity, architecture fitness,
   backup/restore, performance, supply chain, provenance, deployment,
   integrations, UX, Git collaboration, web/package lookup, and specialist
   mobile, game, data, ML, infrastructure, desktop, localization, agent
   evaluation, adversarial review, fuzzing, replay, privacy, resilience,
-  incident response, accessibility, and controlled migration evidence.
+  incident response, accessibility, dependency provisioning, semantic
+  transformation/search, test generation, mutation and visual regression,
+  service virtualization, consumer contracts, infrastructure planning,
+  schema drift, chaos, rollback, queues, data quality, secret lifecycle,
+  cross-platform compatibility, documentation drift, and controlled
+  migration evidence.
 - Project templates, Docker validation, health checks, security scans,
   documentation, packaging, and generated-project lifecycle artifacts.
 

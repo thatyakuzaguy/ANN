@@ -179,6 +179,77 @@ ENGINEERING_SKILL_ACTIONS: dict[str, tuple[EngineeringSkillAction, ...]] = {
         EngineeringSkillAction("inspect", "Inspect automated and manual accessibility execution readiness.", (READ,)),
         EngineeringSkillAction("run", "Run only an approved accessibility package script inside Docker Compose.", (READ, WRITE, TERMINAL), True, True),
     ),
+    "dependency_provisioning": (
+        EngineeringSkillAction("inspect", "Inspect lockfiles, hashes, offline caches, and deterministic dependency inputs.", (READ,)),
+        EngineeringSkillAction("run", "Provision only hash-locked dependencies into an ephemeral Compose container target.", (READ, WRITE, TERMINAL), True, True),
+    ),
+    "semantic_code_transformation": (
+        EngineeringSkillAction("analyze", "Locate typed symbol rename targets and estimate their repository impact.", (READ,)),
+        EngineeringSkillAction("prepare", "Prepare a token-aware Python symbol rename diff in the skill workspace without applying it.", (READ,)),
+    ),
+    "test_generation": (
+        EngineeringSkillAction("analyze", "Identify test gaps from source, routes, contracts, and existing test evidence.", (READ,)),
+        EngineeringSkillAction("generate", "Generate a deterministic test plan and safe test skeleton in the skill workspace.", (READ,)),
+    ),
+    "mutation_testing": (
+        EngineeringSkillAction("inspect", "Inspect mutation configuration, test strength, and surviving-mutant evidence.", (READ,)),
+        EngineeringSkillAction("run", "Run only an approved mutation recipe inside Docker Compose.", (READ, WRITE, TERMINAL), True, True),
+    ),
+    "visual_regression": (
+        EngineeringSkillAction("inspect", "Inspect screenshot baselines, viewport coverage, masks, and visual evidence.", (READ,)),
+        EngineeringSkillAction("run", "Run only an approved Playwright visual-regression recipe inside Docker Compose.", (READ, WRITE, TERMINAL), True, True),
+    ),
+    "service_virtualization": (
+        EngineeringSkillAction("inspect", "Inspect external service boundaries, fixtures, webhooks, latency, and failure modes.", (READ,)),
+        EngineeringSkillAction("generate", "Generate deterministic mock-service contracts only inside the skill workspace.", (READ,)),
+    ),
+    "consumer_contract_testing": (
+        EngineeringSkillAction("analyze", "Inspect consumer/provider contracts, versions, fixtures, and compatibility evidence.", (READ,)),
+        EngineeringSkillAction("run", "Run only an approved consumer-contract recipe inside Docker Compose.", (READ, WRITE, TERMINAL), True, True),
+    ),
+    "architecture_refactor_execution": (
+        EngineeringSkillAction("analyze", "Rank architecture refactor candidates using entropy, cycles, coupling, and impact evidence.", (READ,)),
+        EngineeringSkillAction("prepare", "Validate an explicit refactor diff through the existing dry-run Patch Workspace gate.", (READ,)),
+    ),
+    "infrastructure_plan_execution": (
+        EngineeringSkillAction("inspect", "Inspect Terraform, Helm, and Kubernetes plan prerequisites without contacting cloud APIs.", (READ,)),
+        EngineeringSkillAction("run", "Run only an approved offline infrastructure validate/plan recipe inside Compose.", (READ, WRITE, TERMINAL), True, True),
+    ),
+    "schema_drift_data_evolution": (
+        EngineeringSkillAction("inspect", "Compare ORM, migrations, indexes, tenant scope, backfills, and destructive operations.", (READ,)),
+        EngineeringSkillAction("run", "Run only an approved Alembic schema-drift check inside Docker Compose.", (READ, WRITE, TERMINAL), True, True),
+    ),
+    "chaos_verification": (
+        EngineeringSkillAction("inspect", "Inspect bounded fault cases, recovery assertions, timeouts, and rollback evidence.", (READ,)),
+        EngineeringSkillAction("run", "Run only an approved non-destructive chaos test recipe inside Docker Compose.", (READ, WRITE, TERMINAL), True, True),
+    ),
+    "release_rollback": (
+        EngineeringSkillAction("inspect", "Inspect upgrade, rollback, data preservation, and version compatibility evidence.", (READ,)),
+        EngineeringSkillAction("run", "Run only an approved release rollback verification recipe inside Docker Compose.", (READ, WRITE, TERMINAL), True, True),
+    ),
+    "semantic_repository_search": (
+        EngineeringSkillAction("query", "Search bounded repository paths and symbols using intent terms without loading a model.", (READ,)),
+    ),
+    "queue_broker_verification": (
+        EngineeringSkillAction("inspect", "Inspect queue schemas, ordering, idempotency, retries, and dead-letter handling.", (READ,)),
+        EngineeringSkillAction("run", "Run only an approved queue/broker integration recipe inside Docker Compose.", (READ, WRITE, TERMINAL), True, True),
+    ),
+    "data_quality_execution": (
+        EngineeringSkillAction("inspect", "Inspect executable data constraints, reconciliation, lineage, anomaly, and backfill evidence.", (READ,)),
+        EngineeringSkillAction("run", "Run only an approved data-quality recipe inside Docker Compose.", (READ, WRITE, TERMINAL), True, True),
+    ),
+    "secrets_lifecycle": (
+        EngineeringSkillAction("inspect", "Inspect secret references, ownership, rotation, revocation, redaction, and storage boundaries.", (READ,)),
+        EngineeringSkillAction("plan", "Prepare a value-free secret rotation and rollback plan requiring human approval.", (READ,)),
+    ),
+    "cross_platform_matrix": (
+        EngineeringSkillAction("inspect", "Inspect declared operating systems, runtimes, architectures, and compatibility evidence.", (READ,)),
+        EngineeringSkillAction("run", "Run only an approved compatibility-matrix recipe inside Docker Compose.", (READ, WRITE, TERMINAL), True, True),
+    ),
+    "documentation_drift": (
+        EngineeringSkillAction("analyze", "Compare documentation commands, routes, settings, and examples with repository evidence.", (READ,)),
+        EngineeringSkillAction("run", "Run only an approved documentation-test recipe inside Docker Compose.", (READ, WRITE, TERMINAL), True, True),
+    ),
     "repository_intelligence": (
         EngineeringSkillAction("scan", "Index AST symbols, routes, tests, and dependencies.", (READ,)),
         EngineeringSkillAction("impact", "Rank files and tests affected by target paths.", (READ,)),

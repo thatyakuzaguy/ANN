@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+- Added eighteen delivery specialist skills for offline dependency
+  provisioning, token-aware transformations, test generation, mutation and
+  visual regression, service virtualization, consumer contracts, refactor
+  preparation, infrastructure plans, schema drift, chaos, rollback, semantic
+  repository search, queues, data quality, secret lifecycle, cross-platform
+  verification, and documentation drift. The typed catalog now contains 68
+  skills and 130 actions.
+- Added twelve approval-gated closed Compose recipe families with no pulls,
+  no host shell, no raw command payloads, and mandatory single-use approval.
+- Connected all eighteen skills to existing specialist subagents without
+  granting those subagents write, terminal, patch, or approval authority.
 - Added eighteen specialist engineering skills for evaluation, adversarial
   review, fuzzing, dependency remediation, refactoring, incident response,
   observability, context quality, failure replay, privacy, events, resilience,

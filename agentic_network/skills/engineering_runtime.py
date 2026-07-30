@@ -128,12 +128,29 @@ def _advanced_engineering_action(
     if skill_name == "performance_testing" and action == "run":
         return _performance_command(payload, workspace, root)
     if (
+        skill_name == "architecture_refactor_execution"
+        and action == "prepare"
+    ):
+        return _patch_workspace("inspect", payload, workspace)
+    if (
         skill_name
         in {
             "accessibility_execution",
+            "chaos_verification",
+            "consumer_contract_testing",
+            "cross_platform_matrix",
+            "data_quality_execution",
+            "dependency_provisioning",
+            "documentation_drift",
             "failure_replay",
             "fuzz_property_testing",
+            "infrastructure_plan_execution",
             "memory_profiling",
+            "mutation_testing",
+            "queue_broker_verification",
+            "release_rollback",
+            "schema_drift_data_evolution",
+            "visual_regression",
         }
         and action == "run"
     ):
@@ -211,6 +228,15 @@ def _sandbox_verification(action: str, payload: dict[str, Any], workspace: Path)
             "data": {"recipes": selected},
             "warnings": warnings,
             "errors": ["docker_compose_sandbox_required"],
+        }
+    execution_blockers = _compose_execution_blockers(compose)
+    if execution_blockers:
+        return {
+            "status": "BLOCKED",
+            "summary": "Compose topology violates verification sandbox policy.",
+            "data": {"recipes": selected},
+            "warnings": warnings,
+            "errors": execution_blockers,
         }
     timeout = _bounded_int(payload.get("timeout_seconds"), 1, MAX_TIMEOUT, 120)
     project_name = _compose_project_name(payload.get("project_name"), root)
@@ -326,6 +352,13 @@ def _browser_e2e(action: str, payload: dict[str, Any], workspace: Path) -> dict[
             "summary": "A Compose web/e2e service is required for browser execution.",
             "errors": ["browser_compose_service_required"],
         }
+    execution_blockers = _compose_execution_blockers(compose)
+    if execution_blockers:
+        return {
+            "status": "BLOCKED",
+            "summary": "Compose topology violates browser sandbox policy.",
+            "errors": execution_blockers,
+        }
     project_name = _compose_project_name(payload.get("project_name"), root)
     sandboxed = [
         *_compose_prefix(root, compose, project_name, workspace),
@@ -385,6 +418,14 @@ def _database_migration(action: str, payload: dict[str, Any], workspace: Path) -
             "summary": "A Compose api service is required for migration execution.",
             "artifacts": [str(analysis_path)],
             "errors": ["migration_compose_api_service_required"],
+        }
+    execution_blockers = _compose_execution_blockers(compose)
+    if execution_blockers:
+        return {
+            "status": "BLOCKED",
+            "summary": "Compose topology violates migration sandbox policy.",
+            "artifacts": [str(analysis_path)],
+            "errors": execution_blockers,
         }
     project_name = _compose_project_name(payload.get("project_name"), root)
     command = [
@@ -447,7 +488,15 @@ def _container_operations(action: str, payload: dict[str, Any], workspace: Path)
         finding
         for finding in isolation_findings
         if finding
-        in {"fixed_container_name", "host_network", "privileged_container", "public_host_ports"}
+        in {
+            "docker_socket_mount",
+            "fixed_container_name",
+            "host_ipc",
+            "host_network",
+            "host_pid",
+            "privileged_container",
+            "public_host_ports",
+        }
     )
     if action == "up" and hard_blockers:
         return {
@@ -630,6 +679,13 @@ def _backup_restore_command(
             "summary": "Compose file not found.",
             "errors": ["compose_file_missing"],
         }
+    execution_blockers = _compose_execution_blockers(compose)
+    if execution_blockers:
+        return {
+            "status": "BLOCKED",
+            "summary": "Compose topology violates backup sandbox policy.",
+            "errors": execution_blockers,
+        }
     services = _compose_services(compose)
     service = _safe_recipe_segment(
         payload.get("service"), "db", "database_service"
@@ -770,6 +826,13 @@ def _performance_command(
             "summary": "Compose file not found.",
             "errors": ["compose_file_missing"],
         }
+    execution_blockers = _compose_execution_blockers(compose)
+    if execution_blockers:
+        return {
+            "status": "BLOCKED",
+            "summary": "Compose topology violates performance sandbox policy.",
+            "errors": execution_blockers,
+        }
     service = _safe_recipe_segment(
         payload.get("service"), "api", "performance_service"
     )
@@ -856,18 +919,38 @@ def _specialist_test_command(
     requested = str(payload.get("recipe") or "").strip().lower()
     defaults = {
         "accessibility_execution": "web_accessibility",
+        "chaos_verification": "python_chaos",
+        "consumer_contract_testing": "python_contract",
+        "cross_platform_matrix": "python_compatibility",
+        "data_quality_execution": "python_data_quality",
+        "dependency_provisioning": "python_dependency_lock",
+        "documentation_drift": "python_docs",
         "failure_replay": "python_tests",
         "fuzz_property_testing": "python_fuzz",
+        "infrastructure_plan_execution": "terraform_plan",
         "memory_profiling": "python_memory",
+        "mutation_testing": "python_mutation",
+        "queue_broker_verification": "python_queue",
+        "release_rollback": "python_release_rollback",
+        "schema_drift_data_evolution": "python_schema_drift",
+        "visual_regression": "web_visual",
     }
     aliases = {
         "accessibility": "web_accessibility",
         "fuzz": "python_fuzz",
         "memory": "python_memory",
+        "mutation": "python_mutation",
+        "visual": "web_visual",
     }
     recipe = aliases.get(requested, requested) or defaults[skill_name]
     allowed_by_skill = {
         "accessibility_execution": {"web_accessibility"},
+        "chaos_verification": {"python_chaos", "web_chaos"},
+        "consumer_contract_testing": {"python_contract", "web_contract"},
+        "cross_platform_matrix": {"python_compatibility", "web_compatibility"},
+        "data_quality_execution": {"python_data_quality"},
+        "dependency_provisioning": {"python_dependency_lock"},
+        "documentation_drift": {"python_docs", "web_docs"},
         "failure_replay": {
             "compose_config",
             "python_fuzz",
@@ -877,7 +960,13 @@ def _specialist_test_command(
             "web_tests",
         },
         "fuzz_property_testing": {"python_fuzz", "web_fuzz"},
+        "infrastructure_plan_execution": {"terraform_plan"},
         "memory_profiling": {"python_memory", "web_memory"},
+        "mutation_testing": {"python_mutation", "web_mutation"},
+        "queue_broker_verification": {"python_queue", "web_queue"},
+        "release_rollback": {"python_release_rollback"},
+        "schema_drift_data_evolution": {"python_schema_drift"},
+        "visual_regression": {"web_visual"},
     }
     if recipe not in allowed_by_skill[skill_name]:
         return {
@@ -887,6 +976,16 @@ def _specialist_test_command(
             "data": {
                 "allowed_recipes": sorted(allowed_by_skill[skill_name])
             },
+        }
+
+    isolation_findings = _compose_isolation_findings(compose)
+    execution_blockers = _compose_execution_blockers(compose)
+    if execution_blockers:
+        return {
+            "status": "BLOCKED",
+            "summary": "Compose topology violates specialist sandbox policy.",
+            "errors": execution_blockers,
+            "data": {"isolation_findings": isolation_findings},
         }
 
     prefix = _compose_prefix(
@@ -911,6 +1010,14 @@ def _specialist_test_command(
                 "status": "BLOCKED",
                 "summary": f"Safe package script {script} was not found.",
                 "errors": ["specialist_package_script_missing_or_unsafe"],
+                "data": {"recipe": recipe, "service": service},
+            }
+        readiness_error = _specialist_recipe_readiness(root, recipe)
+        if readiness_error:
+            return {
+                "status": "BLOCKED",
+                "summary": "Specialist recipe prerequisites are not satisfied.",
+                "errors": [readiness_error],
                 "data": {"recipe": recipe, "service": service},
             }
         command = [
@@ -958,9 +1065,71 @@ def _specialist_recipe(
             ["python", "-m", "pytest", "-q", "-m", "fuzz"],
             None,
         ),
+        "python_chaos": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "chaos"],
+            None,
+        ),
+        "python_compatibility": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "compatibility"],
+            None,
+        ),
+        "python_contract": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "contract"],
+            None,
+        ),
+        "python_data_quality": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "data_quality"],
+            None,
+        ),
+        "python_dependency_lock": (
+            "api",
+            [
+                "python",
+                "-m",
+                "pip",
+                "install",
+                "--disable-pip-version-check",
+                "--no-index",
+                "--require-hashes",
+                "--target",
+                "/tmp/ann-dependencies",
+                "-r",
+                "requirements.lock",
+            ],
+            None,
+        ),
+        "python_docs": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "docs"],
+            None,
+        ),
         "python_memory": (
             "api",
             ["python", "-m", "pytest", "-q", "-m", "memory"],
+            None,
+        ),
+        "python_mutation": (
+            "api",
+            ["python", "-m", "mutmut", "run"],
+            None,
+        ),
+        "python_queue": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "queue"],
+            None,
+        ),
+        "python_release_rollback": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "release_rollback"],
+            None,
+        ),
+        "python_schema_drift": (
+            "api",
+            ["python", "-m", "alembic", "check"],
             None,
         ),
         "python_tests": (
@@ -973,6 +1142,38 @@ def _specialist_recipe(
             ["npm", "run", "test:a11y"],
             "test:a11y",
         ),
+        "terraform_plan": (
+            "infra",
+            [
+                "terraform",
+                "plan",
+                "-input=false",
+                "-lock=false",
+                "-refresh=false",
+                "-out=/tmp/ann.tfplan",
+            ],
+            None,
+        ),
+        "web_chaos": (
+            "web",
+            ["npm", "run", "test:chaos"],
+            "test:chaos",
+        ),
+        "web_compatibility": (
+            "web",
+            ["npm", "run", "test:compatibility"],
+            "test:compatibility",
+        ),
+        "web_contract": (
+            "web",
+            ["npm", "run", "test:contract"],
+            "test:contract",
+        ),
+        "web_docs": (
+            "web",
+            ["npm", "run", "test:docs"],
+            "test:docs",
+        ),
         "web_fuzz": (
             "web",
             ["npm", "run", "test:fuzz"],
@@ -983,7 +1184,22 @@ def _specialist_recipe(
             ["npm", "run", "test:memory"],
             "test:memory",
         ),
+        "web_mutation": (
+            "web",
+            ["npm", "run", "test:mutation"],
+            "test:mutation",
+        ),
+        "web_queue": (
+            "web",
+            ["npm", "run", "test:queue"],
+            "test:queue",
+        ),
         "web_tests": ("web", ["npm", "test", "--", "--run"], "test"),
+        "web_visual": (
+            "web",
+            ["npm", "run", "test:visual"],
+            "test:visual",
+        ),
     }
     return recipes[recipe]
 
@@ -992,8 +1208,15 @@ def _safe_specialist_package_script(root: Path, name: str) -> bool:
     allowed_prefixes = {
         "test": ("jest", "node --test", "vitest"),
         "test:a11y": ("axe", "jest", "playwright test", "vitest"),
+        "test:chaos": ("jest", "node --test", "playwright test", "vitest"),
+        "test:compatibility": ("jest", "node --test", "playwright test", "vitest"),
+        "test:contract": ("jest", "node --test", "pact", "playwright test", "vitest"),
+        "test:docs": ("jest", "node --test", "playwright test", "vitest"),
         "test:fuzz": ("fast-check", "jest", "node --test", "vitest"),
         "test:memory": ("clinic", "jest", "node --test", "vitest"),
+        "test:mutation": ("stryker",),
+        "test:queue": ("jest", "node --test", "playwright test", "vitest"),
+        "test:visual": ("playwright test",),
     }
     for package_root in (root, root / "apps" / "web"):
         manifest = _read_json(package_root / "package.json")
@@ -1011,6 +1234,44 @@ def _safe_specialist_package_script(root: Path, name: str) -> bool:
         ):
             return True
     return False
+
+
+def _specialist_recipe_readiness(root: Path, recipe: str) -> str:
+    if recipe == "python_dependency_lock":
+        lock = root / "requirements.lock"
+        if not lock.is_file():
+            return "hashed_requirements_lock_missing"
+        requirements = [
+            line.strip()
+            for line in lock.read_text(
+                encoding="utf-8", errors="replace"
+            ).splitlines()
+            if line.strip() and not line.lstrip().startswith("#")
+        ]
+        if not requirements or any(
+            "==" not in line
+            or re.search(
+                r"--hash=sha256:[0-9a-fA-F]{64}(?:\s|$)", line
+            )
+            is None
+            for line in requirements
+        ):
+            return "requirements_lock_hashes_required"
+    if recipe == "terraform_plan" and not any(root.glob("*.tf")):
+        return "terraform_configuration_missing"
+    if recipe == "terraform_plan":
+        terraform = "\n".join(
+            path.read_text(encoding="utf-8", errors="replace")[:512_000]
+            for path in sorted(root.glob("*.tf"))[:100]
+        )
+        if re.search(
+            r'(?is)(?:provisioner\s+"(?:local|remote)-exec"|data\s+"external")',
+            terraform,
+        ):
+            return "terraform_executable_hooks_blocked"
+    if recipe == "python_schema_drift" and _find_alembic_config(root) is None:
+        return "alembic_config_missing"
+    return ""
 
 
 def _release_provenance_command(
@@ -1843,7 +2104,10 @@ def _compose_isolation_findings(compose: Path) -> list[str]:
     patterns = {
         "fixed_container_name": r"(?im)^\s*container_name\s*:",
         "host_network": r"(?im)^\s*network_mode\s*:\s*['\"]?host['\"]?\s*$",
+        "host_pid": r"(?im)^\s*pid\s*:\s*['\"]?host['\"]?\s*$",
+        "host_ipc": r"(?im)^\s*ipc\s*:\s*['\"]?host['\"]?\s*$",
         "privileged_container": r"(?im)^\s*privileged\s*:\s*true\s*$",
+        "docker_socket_mount": r"(?im)/var/run/docker\.sock",
         "loopback_host_ports": r"(?im)^\s*-\s*['\"]?127\.0\.0\.1:\d{2,5}:\d{2,5}(?:/(?:tcp|udp))?['\"]?\s*$",
         "public_host_ports": r"(?im)^\s*-\s*['\"]?\d{2,5}:\d{2,5}(?:/(?:tcp|udp))?['\"]?\s*$",
     }
@@ -1851,6 +2115,22 @@ def _compose_isolation_findings(compose: Path) -> list[str]:
         if re.search(pattern, text):
             findings.append(finding)
     return sorted(findings)
+
+
+def _compose_execution_blockers(compose: Path) -> list[str]:
+    blocked = {
+        "docker_socket_mount",
+        "fixed_container_name",
+        "host_ipc",
+        "host_network",
+        "host_pid",
+        "privileged_container",
+    }
+    return sorted(
+        finding
+        for finding in _compose_isolation_findings(compose)
+        if finding in blocked
+    )
 
 
 def _openapi_paths(root: Path) -> set[str]:

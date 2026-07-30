@@ -9,14 +9,17 @@ from __future__ import annotations
 
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
+import difflib
 import hashlib
 import html
+import io
 import ipaddress
 import json
 import os
 from pathlib import Path
 import platform
 import re
+import tokenize
 from typing import Any, cast
 from urllib.error import HTTPError, URLError
 from urllib.parse import parse_qs, quote, urlencode, urlparse
@@ -167,6 +170,114 @@ SPECIALIST_PROFILES: dict[str, dict[str, tuple[str, ...]]] = {
         "keyboard": ("keyboard", "tab order", "focus-visible"),
         "contrast": ("contrast", "color-contrast"),
         "screen_reader": ("aria-label", "accessible name", "screen reader"),
+    },
+    "dependency_provisioning": {
+        "locks": ("requirements.lock", "package-lock.json", "pnpm-lock.yaml", "uv.lock"),
+        "hashes": ("--hash=sha256:", "integrity", "sha256"),
+        "offline": ("--no-index", "--offline", "wheelhouse", "npm cache"),
+        "rollback": ("rollback", "previous lock", "restore"),
+    },
+    "semantic_code_transformation": {
+        "symbols": ("def ", "class ", "export ", "interface "),
+        "codemods": ("libcst", "jscodeshift", "codemod", "tokenize"),
+        "impact": ("dependency graph", "affected files", "blast radius"),
+        "verification": ("typecheck", "lint", "test"),
+    },
+    "test_generation": {
+        "unit": ("pytest", "vitest", "jest", "unittest"),
+        "integration": ("integration", "testclient", "supertest"),
+        "contract": ("openapi", "contract test", "pact"),
+        "edge_cases": ("parametrize", "boundary", "invalid"),
+    },
+    "mutation_testing": {
+        "python": ("mutmut", "cosmic-ray", "mutation"),
+        "javascript": ("stryker", "mutation"),
+        "thresholds": ("mutation score", "survived", "killed"),
+        "exclusions": ("exclude", "omit", "ignore"),
+    },
+    "visual_regression": {
+        "baselines": ("tohavescreenshot", "screenshot", "snapshot"),
+        "viewports": ("viewport", "mobile", "desktop"),
+        "masking": ("mask", "animations", "reduced motion"),
+        "artifacts": ("test-results", "playwright-report", "screenshots"),
+    },
+    "service_virtualization": {
+        "mocks": ("wiremock", "mockserver", "msw", "responses"),
+        "contracts": ("openapi", "webhook", "fixture"),
+        "failures": ("timeout", "latency", "rate limit", "500"),
+        "providers": ("stripe", "email", "oauth", "storage"),
+    },
+    "consumer_contract_testing": {
+        "contracts": ("pact", "openapi", "contract test"),
+        "consumers": ("consumer", "frontend", "client"),
+        "providers": ("provider", "backend", "service"),
+        "compatibility": ("breaking change", "version", "backward compatible"),
+    },
+    "architecture_refactor_execution": {
+        "entropy": ("architecture entropy", "complexity", "duplication"),
+        "boundaries": ("bounded context", "layer", "module boundary"),
+        "migration": ("refactor", "codemod", "compatibility"),
+        "rollback": ("rollback", "feature flag", "revert"),
+    },
+    "infrastructure_plan_execution": {
+        "terraform": ("terraform", ".tf", "plan"),
+        "kubernetes": ("kubernetes", "deployment.yaml", "kustomization"),
+        "helm": ("chart.yaml", "values.yaml", "helm"),
+        "policy": ("checkov", "conftest", "policy"),
+    },
+    "schema_drift_data_evolution": {
+        "orm": ("sqlalchemy", "model", "metadata"),
+        "migrations": ("alembic", "upgrade", "downgrade"),
+        "backfills": ("backfill", "batch", "checkpoint"),
+        "tenancy": ("tenant_id", "row level security", "organization_id"),
+    },
+    "chaos_verification": {
+        "faults": ("chaos", "fault injection", "toxiproxy"),
+        "recovery": ("recover", "healthcheck", "rollback"),
+        "timeouts": ("timeout", "deadline", "latency"),
+        "safety": ("blast radius", "sandbox", "non-destructive"),
+    },
+    "release_rollback": {
+        "upgrade": ("upgrade", "migration", "version"),
+        "rollback": ("rollback", "downgrade", "previous release"),
+        "data": ("backup", "data preservation", "restore"),
+        "verification": ("smoke", "healthcheck", "compatibility"),
+    },
+    "semantic_repository_search": {
+        "symbols": ("symbol", "function", "class", "interface"),
+        "dependencies": ("import", "dependency", "references"),
+        "routes": ("route", "endpoint", "handler"),
+        "tests": ("test", "spec", "fixture"),
+    },
+    "queue_broker_verification": {
+        "brokers": ("kafka", "rabbitmq", "redis streams", "nats"),
+        "delivery": ("at least once", "ack", "dead letter", "retry"),
+        "ordering": ("partition", "ordering", "sequence"),
+        "idempotency": ("idempotency", "dedup", "message_id"),
+    },
+    "data_quality_execution": {
+        "constraints": ("great expectations", "pandera", "constraint"),
+        "reconciliation": ("reconcile", "row count", "checksum"),
+        "lineage": ("lineage", "source", "destination"),
+        "anomalies": ("anomaly", "drift", "freshness"),
+    },
+    "secrets_lifecycle": {
+        "storage": ("credential manager", "vault", "secret manager"),
+        "rotation": ("rotate", "rotation", "expiry"),
+        "revocation": ("revoke", "disable", "incident"),
+        "redaction": ("redact", "mask", "secret scan"),
+    },
+    "cross_platform_matrix": {
+        "operating_systems": ("windows", "linux", "macos"),
+        "runtimes": ("python-version", "node-version", "matrix"),
+        "architectures": ("amd64", "arm64", "x86_64"),
+        "containers": ("docker", "windows-latest", "ubuntu-latest"),
+    },
+    "documentation_drift": {
+        "commands": ("```", "powershell", "bash", "npm run"),
+        "routes": ("openapi", "/api/", "endpoint"),
+        "configuration": ("environment", ".env.example", "setting"),
+        "examples": ("example", "tutorial", "quickstart"),
     },
 }
 
@@ -1544,6 +1655,14 @@ def _specialist_capability(
         return _incident_response(action, payload, workspace, root)
     if skill_name == "dependency_remediation":
         return _dependency_remediation(action, payload, workspace, root)
+    if skill_name == "semantic_code_transformation":
+        return _semantic_code_transformation(action, payload, workspace, root)
+    if skill_name == "test_generation":
+        return _test_generation(action, payload, workspace, root)
+    if skill_name == "service_virtualization":
+        return _service_virtualization(action, payload, workspace, root)
+    if skill_name == "semantic_repository_search":
+        return _semantic_repository_search(payload, workspace, root)
 
     report = _domain_report(root, SPECIALIST_PROFILES[skill_name])
     report["action"] = action
@@ -1565,6 +1684,8 @@ def _specialist_capability(
         "retention_plan",
         "cleanup_plan",
         "simulate",
+        "prepare",
+        "generate",
     }:
         report["plan"] = _specialist_plan(
             skill_name, report["missing_evidence"]
@@ -1578,7 +1699,23 @@ def _specialist_capability(
     if skill_name == "cloud_deployment":
         report["cloud_contacted"] = False
         report["credentials_requested"] = False
-    if skill_name in {"fuzz_property_testing", "memory_profiling", "accessibility_execution"}:
+    if skill_name in {
+        "accessibility_execution",
+        "chaos_verification",
+        "consumer_contract_testing",
+        "cross_platform_matrix",
+        "data_quality_execution",
+        "dependency_provisioning",
+        "documentation_drift",
+        "fuzz_property_testing",
+        "infrastructure_plan_execution",
+        "memory_profiling",
+        "mutation_testing",
+        "queue_broker_verification",
+        "release_rollback",
+        "schema_drift_data_evolution",
+        "visual_regression",
+    }:
         report["execution_available"] = True
         report["execution_requires_approval"] = True
         report["execution_sandbox"] = "docker_compose"
@@ -1957,6 +2094,295 @@ def _dependency_remediation(
     )
 
 
+def _semantic_code_transformation(
+    action: str,
+    payload: dict[str, Any],
+    workspace: Path,
+    root: Path,
+) -> dict[str, Any]:
+    evidence = _domain_report(
+        root, SPECIALIST_PROFILES["semantic_code_transformation"]
+    )
+    if action == "analyze":
+        evidence.update(
+            {
+                "project_modified": False,
+                "supported_languages": ["python"],
+                "application_requires_patch_workspace": True,
+            }
+        )
+        return _domain_result(
+            workspace,
+            "semantic_code_transformation.json",
+            evidence,
+            "semantic code transformation",
+        )
+
+    source_name = _bounded_text(payload.get("from_symbol"), 128).strip()
+    target_name = _bounded_text(payload.get("to_symbol"), 128).strip()
+    if not source_name.isidentifier() or not target_name.isidentifier():
+        return _blocked("valid_python_symbol_names_required")
+    requested = set(
+        _safe_relative_names(payload.get("target_paths"), 200)
+    )
+    candidates = [
+        path
+        for path in _source_files(root, {".py"})
+        if not requested or _relative(root, path) in requested
+    ][:500]
+    patches: list[str] = []
+    changed_files: list[str] = []
+    replacements = 0
+    parse_failures: list[str] = []
+    for path in candidates:
+        source = _read_text(path)
+        try:
+            tokens = list(
+                tokenize.generate_tokens(io.StringIO(source).readline)
+            )
+        except (IndentationError, tokenize.TokenError):
+            parse_failures.append(_relative(root, path))
+            continue
+        count = sum(
+            1
+            for token in tokens
+            if token.type == tokenize.NAME and token.string == source_name
+        )
+        if not count:
+            continue
+        transformed = tokenize.untokenize(
+            [
+                token._replace(string=target_name)
+                if token.type == tokenize.NAME
+                and token.string == source_name
+                else token
+                for token in tokens
+            ]
+        )
+        relative = _relative(root, path)
+        patches.extend(
+            difflib.unified_diff(
+                source.splitlines(keepends=True),
+                transformed.splitlines(keepends=True),
+                fromfile=f"a/{relative}",
+                tofile=f"b/{relative}",
+            )
+        )
+        changed_files.append(relative)
+        replacements += count
+    diff_path = _write_text(
+        workspace / "semantic_code_transformation.diff",
+        "".join(patches),
+        workspace,
+    )
+    report = {
+        "from_symbol": source_name,
+        "to_symbol": target_name,
+        "changed_files": changed_files,
+        "replacement_count": replacements,
+        "parse_failures": parse_failures,
+        "project_modified": False,
+        "diff_requires_approval_center": True,
+        "diff_path": str(diff_path),
+        "repository_evidence": evidence,
+    }
+    result = _artifact_result(
+        workspace,
+        "semantic_code_transformation.json",
+        report,
+        "SUCCESS" if replacements else "PARTIAL",
+        f"Prepared {replacements} token-aware replacements across {len(changed_files)} Python files.",
+    )
+    result["artifacts"].append(str(diff_path))
+    return result
+
+
+def _test_generation(
+    action: str,
+    payload: dict[str, Any],
+    workspace: Path,
+    root: Path,
+) -> dict[str, Any]:
+    evidence = _domain_report(root, SPECIALIST_PROFILES["test_generation"])
+    module = _bounded_text(payload.get("module"), 300).strip()
+    callable_name = _bounded_text(payload.get("callable"), 128).strip()
+    cases = _dict_list(payload.get("cases"), 100)
+    safe_cases = [
+        {
+            "id": _bounded_text(case.get("id") or f"case-{index}", 100),
+            "arguments": {
+                str(key): _bounded_json_value(value)
+                for key, value in (
+                    case.get("arguments", {}).items()
+                    if isinstance(case.get("arguments"), dict)
+                    else ()
+                )
+                if str(key).isidentifier()
+            },
+            "expected": _bounded_json_value(case.get("expected")),
+        }
+        for index, case in enumerate(cases, 1)
+    ]
+    valid_target = bool(
+        re.fullmatch(
+            r"[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*",
+            module,
+        )
+        and callable_name.isidentifier()
+    )
+    skeleton_path: Path | None = None
+    if action == "generate" and valid_target and safe_cases:
+        serialized = repr(
+            json.dumps(safe_cases, ensure_ascii=True, default=str)
+        )
+        skeleton = (
+            "import json\n\n"
+            "import pytest\n\n"
+            f"from {module} import {callable_name} as subject\n\n\n"
+            f"CASES = json.loads({serialized})\n\n\n"
+            "@pytest.mark.parametrize('case', CASES, ids=lambda case: case['id'])\n"
+            "def test_generated_contract(case):\n"
+            "    assert subject(**case['arguments']) == case['expected']\n"
+        )
+        skeleton_path = _write_text(
+            workspace / "test_generated_contract.py",
+            skeleton,
+            workspace,
+        )
+    report = {
+        "action": action,
+        "target": f"{module}.{callable_name}" if valid_target else "",
+        "cases": safe_cases,
+        "case_count": len(safe_cases),
+        "skeleton_generated": skeleton_path is not None,
+        "project_modified": False,
+        "application_requires_patch_workspace": True,
+        "repository_evidence": evidence,
+    }
+    result = _artifact_result(
+        workspace,
+        "test_generation.json",
+        report,
+        "SUCCESS" if action == "analyze" or skeleton_path else "PARTIAL",
+        f"Prepared {len(safe_cases)} deterministic test cases; skeleton={bool(skeleton_path)}.",
+    )
+    if skeleton_path is not None:
+        result["artifacts"].append(str(skeleton_path))
+    return result
+
+
+def _service_virtualization(
+    action: str,
+    payload: dict[str, Any],
+    workspace: Path,
+    root: Path,
+) -> dict[str, Any]:
+    providers: list[dict[str, object]] = []
+    allowed_failures = {"none", "timeout", "rate_limit", "server_error"}
+    for item in _dict_list(payload.get("services"), 50):
+        name = _bounded_text(item.get("name"), 64).strip().lower()
+        if not re.fullmatch(r"[a-z][a-z0-9_-]{0,63}", name):
+            continue
+        failure = _bounded_text(item.get("failure_mode"), 32).lower()
+        failure = failure if failure in allowed_failures else "none"
+        status = max(100, min(599, _int(item.get("status"), 200)))
+        latency = max(0, min(30_000, _int(item.get("latency_ms"), 0)))
+        providers.append(
+            {
+                "name": name,
+                "path": f"/mock/{name}",
+                "status": status,
+                "latency_ms": latency,
+                "failure_mode": failure,
+                "response": {"provider": name, "ok": status < 400},
+            }
+        )
+    report = {
+        "action": action,
+        "providers": providers,
+        "provider_count": len(providers),
+        "deterministic": True,
+        "credentials_stored": False,
+        "network_used": False,
+        "project_modified": False,
+        "output_scope": "skill_workspace_only",
+        "repository_evidence": _domain_report(
+            root, SPECIALIST_PROFILES["service_virtualization"]
+        ),
+    }
+    filename = (
+        "service_virtualization_mocks.json"
+        if action == "generate"
+        else "service_virtualization.json"
+    )
+    return _artifact_result(
+        workspace,
+        filename,
+        report,
+        "SUCCESS" if action == "inspect" or providers else "PARTIAL",
+        f"Prepared {len(providers)} deterministic mock service contracts.",
+    )
+
+
+def _semantic_repository_search(
+    payload: dict[str, Any], workspace: Path, root: Path
+) -> dict[str, Any]:
+    query = _bounded_text(payload.get("query"), 500).strip().lower()
+    terms = {
+        item
+        for item in re.findall(r"[a-z_][a-z0-9_-]{1,63}", query)
+        if item not in {"and", "for", "from", "the", "with"}
+    }
+    expansions = {
+        "auth": {"jwt", "oauth", "session", "permission"},
+        "billing": {"stripe", "subscription", "invoice", "payment"},
+        "queue": {"kafka", "rabbitmq", "consumer", "producer"},
+        "database": {"sqlalchemy", "migration", "alembic", "query"},
+        "test": {"pytest", "vitest", "playwright", "spec"},
+    }
+    expanded = set(terms)
+    for term in terms:
+        expanded.update(expansions.get(term, set()))
+    matches: list[dict[str, object]] = []
+    for path in _source_files(
+        root,
+        {".py", ".ts", ".tsx", ".js", ".jsx", ".json", ".yaml", ".yml", ".md"},
+    )[:2_000]:
+        relative = _relative(root, path)
+        haystack = f"{relative}\n{_read_text(path, 200_000)}".lower()
+        found = sorted(term for term in expanded if term in haystack)
+        if not found:
+            continue
+        path_hits = sum(1 for term in found if term in relative.lower())
+        matches.append(
+            {
+                "path": relative,
+                "score": len(found) + path_hits * 2,
+                "matched_terms": found,
+                "is_test": _is_test(path),
+            }
+        )
+    matches.sort(key=lambda item: (-int(item["score"]), str(item["path"])))
+    limit = max(1, min(100, _int(payload.get("max_results"), 25)))
+    report = {
+        "query": query,
+        "terms": sorted(terms),
+        "expanded_terms": sorted(expanded),
+        "results": matches[:limit],
+        "result_count": min(len(matches), limit),
+        "raw_source_stored": False,
+        "model_loaded": False,
+        "project_modified": False,
+    }
+    return _artifact_result(
+        workspace,
+        "semantic_repository_search.json",
+        report,
+        "SUCCESS" if query and matches else "PARTIAL",
+        f"Found {min(len(matches), limit)} bounded repository matches without loading a model.",
+    )
+
+
 def _specialist_plan(skill_name: str, missing: list[str]) -> list[dict[str, object]]:
     groups = list(SPECIALIST_PROFILES[skill_name])
     return [
@@ -1995,6 +2421,30 @@ def _dict_list(value: object, limit: int) -> list[dict[str, Any]]:
     if not isinstance(value, list):
         return []
     return [item for item in value[:limit] if isinstance(item, dict)]
+
+
+def _bounded_json_value(value: object, depth: int = 0) -> object:
+    if depth >= 5:
+        return None
+    if value is None or isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        return value[:2_000]
+    if isinstance(value, int):
+        return max(-1_000_000_000, min(1_000_000_000, value))
+    if isinstance(value, float):
+        return _safe_float(value)
+    if isinstance(value, list):
+        return [
+            _bounded_json_value(item, depth + 1)
+            for item in value[:50]
+        ]
+    if isinstance(value, dict):
+        return {
+            str(key)[:200]: _bounded_json_value(item, depth + 1)
+            for key, item in list(value.items())[:50]
+        }
+    return _bounded_text(value, 2_000)
 
 
 def _safe_relative_names(value: object, limit: int) -> list[str]:
@@ -2732,6 +3182,13 @@ def _write_json(
         ),
         encoding="utf-8",
     )
+    return safe
+
+
+def _write_text(path: Path, value: str, workspace: Path) -> Path:
+    safe = cast(Path, validate_workspace_path(path, workspace))
+    safe.parent.mkdir(parents=True, exist_ok=True)  # lgtm[py/path-injection]
+    safe.write_text(value, encoding="utf-8")  # lgtm[py/path-injection]
     return safe
 
 

@@ -200,12 +200,16 @@ def test_lookup_file_generates_artifacts(tmp_path: Path, monkeypatch: pytest.Mon
     store = _store(tmp_path)
     _allow_both(store)
 
-    execute_skill("github", "lookup_file", _lookup_payload(), registry=_enabled_registry(), store=store, audit_logger=_audit(tmp_path))
+    payload = _lookup_payload()
+    secret = "unit-test-secret-value-123456"
+    payload["token"] = secret
+    execute_skill("github", "lookup_file", payload, registry=_enabled_registry(), store=store, audit_logger=_audit(tmp_path))
 
     root = tmp_path / "outputs" / "skills" / "github"
     assert (root / "github_file_lookup_request.json").is_file()
     assert (root / "github_file_lookup_result.json").is_file()
     assert (root / "github_file_content_redacted.txt").is_file()
+    assert secret not in (root / "github_file_lookup_request.json").read_text(encoding="utf-8")
 
 
 def test_extract_patterns_generates_patterns_json(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

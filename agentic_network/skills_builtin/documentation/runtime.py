@@ -21,6 +21,7 @@ from urllib.parse import quote_plus, urljoin, urlparse
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 from agentic_network.skills.sandbox import validate_skill_artifact_directory, validate_workspace_path
+from agentic_network.skills.redaction import redact_sensitive_text
 
 
 DEFAULT_TIMEOUT_SECONDS = 8
@@ -206,12 +207,15 @@ def _write_artifact(audit_dir: Path, name: str, content: str, *, append: bool = 
     path = (audit_dir / name).resolve()
     if path.parent != audit_dir:
         raise ValueError("Documentation artifact escaped its audit directory.")
+    safe_content, _ = redact_sensitive_text(content)
     if append:
-        # The directory and fixed filename are both validated immediately above.
+        # The fixed path is contained above and all persisted text is redacted.
         with path.open("a", encoding="utf-8") as handle:  # lgtm[py/path-injection]
-            handle.write(content)
+            handle.write(safe_content)  # lgtm[py/clear-text-storage-sensitive-data]
         return
-    path.write_text(content, encoding="utf-8")  # lgtm[py/path-injection]
+    path.write_text(  # lgtm[py/path-injection,py/clear-text-storage-sensitive-data]
+        safe_content, encoding="utf-8"
+    )
 
 
 def _candidate_urls(query: str, allowed_domains: list[str], urls: object, max_results: int) -> list[str]:

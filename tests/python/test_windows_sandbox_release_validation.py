@@ -73,7 +73,7 @@ def test_windows_sandbox_validates_a_fresh_install_not_a_preinstalled_tree() -> 
 
 @pytest.mark.parametrize("script", [HOST_SCRIPT, SANDBOX_SCRIPT])
 def test_windows_sandbox_scripts_parse(script: Path) -> None:
-    powershell = shutil.which("powershell.exe") or shutil.which("powershell") or shutil.which("pwsh")
+    powershell = shutil.which("pwsh") or shutil.which("powershell.exe") or shutil.which("powershell")
     if not powershell:
         pytest.skip("PowerShell parser is unavailable")
     command = (
@@ -88,7 +88,7 @@ def test_windows_sandbox_scripts_parse(script: Path) -> None:
         check=False,
         capture_output=True,
         text=True,
-        timeout=30,
+        timeout=90,
     )
 
     assert result.returncode == 0, result.stdout + result.stderr

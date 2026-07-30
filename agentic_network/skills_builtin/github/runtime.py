@@ -21,6 +21,7 @@ from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
 from agentic_network.skills.sandbox import validate_skill_artifact_directory, validate_workspace_path
+from agentic_network.skills.redaction import redact_sensitive_text
 from agentic_network.skills_builtin.github.patterns import extract_patterns_from_files
 
 
@@ -326,16 +327,12 @@ def fetch_json(url: str) -> object:
 def redact_secret_like_content(content: str) -> tuple[str, bool]:
     """Redact secret-like lines before persisting previews or evidence."""
 
-    redacted = False
-    safe_lines: list[str] = []
-    for line in content.splitlines():
-        safe_line = line
-        for pattern in SECRET_PATTERNS:
-            if pattern.search(safe_line):
-                safe_line = pattern.sub("[REDACTED_SECRET]", safe_line)
-                redacted = True
-        safe_lines.append(safe_line)
-    return "\n".join(safe_lines), redacted
+    safe_content, redacted = redact_sensitive_text(content)
+    for pattern in SECRET_PATTERNS:
+        if pattern.search(safe_content):
+            safe_content = pattern.sub("[REDACTED_SECRET]", safe_content)
+            redacted = True
+    return safe_content, redacted
 
 
 def write_github_artifacts(
@@ -474,12 +471,15 @@ def _write_artifact(audit_dir: Path, name: str, content: str, *, append: bool = 
     path = (audit_dir / name).resolve()
     if path.parent != audit_dir:
         raise ValueError("GitHub artifact escaped its audit directory.")
+    safe_content, _ = redact_sensitive_text(content)
     if append:
-        # The directory and fixed filename are both validated immediately above.
+        # The fixed path is contained above and all persisted text is redacted.
         with path.open("a", encoding="utf-8") as handle:  # lgtm[py/path-injection]
-            handle.write(content)
+            handle.write(safe_content)  # lgtm[py/clear-text-storage-sensitive-data]
         return
-    path.write_text(content, encoding="utf-8")  # lgtm[py/path-injection]
+    path.write_text(  # lgtm[py/path-injection,py/clear-text-storage-sensitive-data]
+        safe_content, encoding="utf-8"
+    )
 
 
 def _clean_domains(value: object) -> list[str]:

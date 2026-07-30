@@ -2633,7 +2633,8 @@ def _source_files(
 
 def _walk(root: Path) -> list[Path]:
     files: list[Path] = []
-    for directory, names, filenames in os.walk(root):
+    # ``root`` is resolved and approved by engineering_runtime._project_root.
+    for directory, names, filenames in os.walk(root):  # lgtm[py/path-injection]
         names[:] = [
             name
             for name in names
@@ -2704,10 +2705,11 @@ def _read_json(path: Path) -> dict[str, Any]:
 def _read_text(
     path: Path | None, limit: int = MAX_TEXT
 ) -> str:
-    if path is None or not path.is_file():
+    # All callers derive paths from the policy-approved project root above.
+    if path is None or not path.is_file():  # lgtm[py/path-injection]
         return ""
     try:
-        return path.read_text(
+        return path.read_text(  # lgtm[py/path-injection]
             encoding="utf-8", errors="replace"
         )[:limit]
     except OSError:

@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-07-30T18:43:04.6976639Z",
+  "generated_at_utc": "2026-07-30T19:39:40.7068121Z",
   "release_stage": "stable",
   "release_version": "1.0.1",
-  "source_revision": "84dbf057504239a15a43b63eb39baf6d711f946a",
-  "file_count": 978,
-  "total_bytes": 6364687,
+  "source_revision": "114e2e1ae5e8831e578ecbf3f77b9afd801deabe",
+  "file_count": 979,
+  "total_bytes": 6367152,
   "maximum_file_size_mb": 25,
   "files": [
     {
@@ -1510,8 +1510,8 @@
     },
     {
       "path": "agentic_network/skills_builtin/documentation/runtime.py",
-      "bytes": 12000,
-      "sha256": "43a8a8a8db52fec8c60205cd7ad3ad3823c18b8c796d7a524b7ea73c8f1dfd41"
+      "bytes": 12226,
+      "sha256": "9c58ac67d239852684c3863c201cf316ea9a7a925b4ceb5f8011ac4c92d04b3c"
     },
     {
       "path": "agentic_network/skills_builtin/event_contract/manifest.yaml",
@@ -1645,8 +1645,8 @@
     },
     {
       "path": "agentic_network/skills_builtin/github/runtime.py",
-      "bytes": 26300,
-      "sha256": "0c8d146b8afa449ff7284d4231bac17b4f4444c62ba48ec35d1ab17be8f159df"
+      "bytes": 26418,
+      "sha256": "c967dfe796dafa738942f9102bcfc80c044de3af63e5b4384820c5f62890048f"
     },
     {
       "path": "agentic_network/skills_builtin/incident_response/manifest.yaml",
@@ -2030,8 +2030,8 @@
     },
     {
       "path": "agentic_network/skills/advanced_runtime.py",
-      "bytes": 91084,
-      "sha256": "892508d9723aa667e9f8300e3f592fd662628d468be469bc653321f4a04f950b"
+      "bytes": 91319,
+      "sha256": "be4656c05f578d547ce27393ac8a831520c24edf2cdf0c22f58c022d469c147e"
     },
     {
       "path": "agentic_network/skills/approval_runtime.py",
@@ -2077,6 +2077,11 @@
       "path": "agentic_network/skills/permissions.py",
       "bytes": 5283,
       "sha256": "490b966e6273c301fdac51dd307b793ac812b7b269ebe0e0c9aacfafe79c64b9"
+    },
+    {
+      "path": "agentic_network/skills/redaction.py",
+      "bytes": 897,
+      "sha256": "00e5b4c0df31d0b5b410c63fff9907cfecfc22e239f814527aef900cb85841a1"
     },
     {
       "path": "agentic_network/skills/registry.py",
@@ -3735,8 +3740,8 @@
     },
     {
       "path": "tests/python/test_documentation_skill_runtime.py",
-      "bytes": 11495,
-      "sha256": "880a2603c57ecf9a4a598ad3339148b5ed2d62c83ca75a4e06a548a8ab452557"
+      "bytes": 12291,
+      "sha256": "832fbeed01c560084313857381a33b62be7e752822e765b5e3f2b322640abf54"
     },
     {
       "path": "tests/python/test_e2e_patch_apply_pipeline.py",
@@ -3945,8 +3950,8 @@
     },
     {
       "path": "tests/python/test_github_pattern_extraction_runtime.py",
-      "bytes": 14322,
-      "sha256": "8b63ab6928ab729af00b2905804b0b2ea781c79263e176f8516562fec3af08fb"
+      "bytes": 14515,
+      "sha256": "ef69d43b99beb7a8df12eecdc7ba0fc5ffb5f3f7d86b2d89403ad25255a31cab"
     },
     {
       "path": "tests/python/test_github_skill_runtime.py",
@@ -4676,7 +4681,7 @@
     {
       "path": "tests/python/test_windows_sandbox_release_validation.py",
       "bytes": 4346,
-      "sha256": "e10b2cfa7c8ab5e7d8331a63fe368982d1b64532a2754a36fdc497e46c5b6dc1"
+      "sha256": "fe28ba23aae8020c8c841cd21d9d9b60c85951671cef91687cba66d729d5cc86"
     },
     {
       "path": "tests/python/test_wsl_external_runtime_bridge.py",

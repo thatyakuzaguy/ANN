@@ -177,6 +177,36 @@ def test_artifact_writer_rejects_unpaired_audit_path(tmp_path: Path) -> None:
         write_lookup_artifacts(result, {}, workspace, tmp_path / "unrelated")
 
 
+def test_artifact_writer_redacts_secret_like_values(tmp_path: Path) -> None:
+    workspace = tmp_path / "outputs" / "skills" / "documentation" / "workspace"
+    workspace.mkdir(parents=True)
+    audit_path = workspace.parent
+    secret = "unit-test-secret-value-123456"
+    result = DocumentationLookupResult(
+        "SUCCESS",
+        f"token={secret}",
+        [],
+        f"credential: {secret}",
+        [],
+        [],
+    )
+
+    write_lookup_artifacts(
+        result,
+        {"query": result.query, "api_key": secret},
+        workspace,
+        audit_path,
+    )
+
+    persisted = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in audit_path.iterdir()
+        if path.is_file()
+    )
+    assert secret not in persisted
+    assert "[REDACTED_SECRET]" in persisted
+
+
 def test_result_generates_audit(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr("agentic_network.skills_builtin.documentation.runtime.fetch_url", _fake_fetch)
     store = _store(tmp_path)

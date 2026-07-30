@@ -22,6 +22,10 @@
   parent's routed provider sequentially for specialist and parent inference.
 - Connected delegated activity to ANN Terminal and Agent Office without
   changing the existing visual design.
+- Hardened engineering-skill project roots against paths outside the global
+  filesystem policy and documented the validated filesystem/subprocess
+  boundaries used by closed recipes, clearing high-severity CodeQL flows
+  without relaxing approvals, executable allowlists, or `shell=False`.
 
 ## 1.0.1 - 2026-07-27
 

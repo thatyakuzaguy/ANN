@@ -1,6 +1,6 @@
 # ANN Engineering Skills
 
-ANN exposes sixty-eight local engineering skills and one hundred thirty typed actions through `GET /api/skills` and
+ANN exposes eighty-six local engineering skills and one hundred sixty-four typed actions through `GET /api/skills` and
 `POST /api/skills/{skill}/execute`. They use the persistent skill permission
 store and the existing Approval Center. A skill permission never replaces a
 file, terminal, migration, container, or patch approval gate.
@@ -83,6 +83,29 @@ file, terminal, migration, container, or patch approval gate.
 | `cross_platform_matrix` | `inspect`, `run` | Compatibility evidence and approved platform-tagged tests |
 | `documentation_drift` | `analyze`, `run` | Documentation/source drift evidence and approved documentation tests |
 
+## Delivery Assurance Skills
+
+| Skill | Actions | Purpose |
+| --- | --- | --- |
+| `requirements_traceability` | `analyze`, `verify` | Requirement-to-architecture, implementation, test, and release trace graph |
+| `git_history_intelligence` | `analyze` | Pseudonymized bounded churn, ownership, co-change, and regression hotspots |
+| `database_query_performance` | `inspect`, `run` | Query plans, indexes, N+1, locks, budgets, and approved database tests |
+| `stateful_workflow_verification` | `analyze`, `run` | States, transitions, invariants, idempotency, and recovery tests |
+| `concurrency_correctness` | `inspect`, `run` | Races, deadlocks, atomicity, cancellation, and deterministic stress tests |
+| `reproducible_build_verification` | `inspect`, `run` | Locked inputs, deterministic artifacts, hashes, SBOM, and repeat builds |
+| `configuration_parity` | `analyze` | Environment-key parity without reading configuration secret values |
+| `slo_telemetry_verification` | `inspect`, `run` | SLO, metric, trace, log, redaction, alert, and telemetry-contract evidence |
+| `user_journey_synthesis` | `analyze`, `generate` | Reviewable user journeys and workspace-only E2E specifications |
+| `upgrade_compatibility` | `inspect`, `run` | Runtime, framework, database, deprecation, migration, and upgrade tests |
+| `disaster_recovery_drill` | `inspect`, `run` | RPO/RTO, backup, restore, integrity, and isolated recovery tests |
+| `release_channel_management` | `inspect`, `verify` | Alpha/beta/RC/stable promotion, compatibility, hashes, and rollback evidence |
+| `clean_machine_certification` | `inspect`, `verify` | Evidence gate for isolated install, first run, uninstall, and residue scans |
+| `signed_vulnerability_intelligence` | `inspect`, `verify` | Freshness and provenance gate for externally verified signed local feeds |
+| `policy_as_code` | `inspect`, `run` | OPA/Rego/Conftest evidence and approved offline policy tests |
+| `formal_model_checking` | `inspect`, `run` | TLA+/PlusCal/Alloy evidence and approved bounded model-check recipes |
+| `coverage_guided_test_synthesis` | `analyze`, `generate` | Ranked coverage/mutation gaps and workspace-only test plans |
+| `architectural_debt_ledger` | `snapshot`, `compare` | Architecture debt metrics, markers, trend, and repayment evidence |
+
 ## Basic Payload
 
 Every action takes `project_root`. Optional bounded fields include
@@ -115,6 +138,9 @@ Every action takes `project_root`. Optional bounded fields include
   `web_memory`, `web_accessibility`, dependency-lock, mutation, visual,
   contract, Terraform-plan, schema-drift, chaos, rollback, queue,
   data-quality, compatibility, documentation, or replay recipes only.
+- Delivery-assurance execution: fixed database-performance, stateful-workflow,
+  concurrency, reproducible-build, telemetry, upgrade, disaster-recovery,
+  policy, and formal-model markers/scripts only.
 
 Raw command payloads are ignored. No action accepts arbitrary shell text.
 
@@ -198,3 +224,13 @@ action runs; delegated model text cannot authorize execution.
   source excerpts.
 - Service Virtualization emits synthetic contracts; it does not start a mock
   server, copy credentials, or contact a real provider.
+- Requirements Traceability relies on explicit stable requirement identifiers;
+  prose without IDs remains review evidence rather than a guaranteed trace.
+- Git History Intelligence hashes author identities and does not store commit
+  messages. Its bounded history window is not a complete ownership record.
+- Clean Machine Certification validates evidence produced by an isolated VM;
+  it deliberately does not execute an installer directly on the ANN host.
+- Signed Vulnerability Intelligence gates prior cryptographic verification
+  evidence. It neither downloads a feed nor implements a certificate authority.
+- Formal, concurrency, recovery, SLO, and reproducible-build results are only as
+  strong as the project-supplied sandbox tests and their declared invariants.

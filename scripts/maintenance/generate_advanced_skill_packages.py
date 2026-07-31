@@ -75,16 +75,31 @@ ADVANCED_SKILLS = {
     "secrets_lifecycle": "Value-free secret ownership, rotation, revocation, redaction, and rollback planning.",
     "cross_platform_matrix": "Operating-system, runtime, architecture, and approved compatibility-matrix evidence.",
     "documentation_drift": "Documentation-to-code command, route, setting, example, and approved doctest verification.",
+    "requirements_traceability": "Requirement-to-architecture, source, test, artifact, and release traceability evidence.",
+    "git_history_intelligence": "Bounded Git churn, co-change, ownership, and regression-hotspot evidence.",
+    "database_query_performance": "Query-plan, index, N+1, lock, budget, and approved database-performance verification.",
+    "stateful_workflow_verification": "State, transition, invariant, idempotency, and interruption-recovery verification.",
+    "concurrency_correctness": "Race, deadlock, lock, atomicity, cancellation, and approved concurrency verification.",
+    "reproducible_build_verification": "Deterministic build-input, artifact-hash, and approved repeat-build verification.",
+    "configuration_parity": "Environment, setting, port, runtime, and secret-reference parity evidence.",
+    "slo_telemetry_verification": "SLO, error-budget, metric, trace, log, redaction, and alert-contract verification.",
+    "user_journey_synthesis": "Repository-grounded user journeys and workspace-only E2E journey specifications.",
+    "upgrade_compatibility": "Runtime, framework, database, deprecation, migration, and approved upgrade verification.",
+    "disaster_recovery_drill": "RPO, RTO, backup, restore, isolation, and approved recovery-drill verification.",
+    "release_channel_management": "Alpha, beta, stable, promotion, downgrade, and compatibility evidence.",
+    "clean_machine_certification": "Installer, first-run, uninstall, residue, and clean-machine evidence validation.",
+    "signed_vulnerability_intelligence": "Local vulnerability-feed freshness, provenance, signature, and coverage gating.",
+    "policy_as_code": "OPA, Rego, Conftest, infrastructure policy, and approved offline policy verification.",
+    "formal_model_checking": "TLA+, PlusCal, Alloy, invariant, state-space, and approved bounded model checking.",
+    "coverage_guided_test_synthesis": "Coverage-gap, surviving-mutant, branch-risk, and workspace-only test synthesis plans.",
+    "architectural_debt_ledger": "Versioned architecture debt, trend, ownership, exception, and repayment evidence.",
 }
 
 
 def main() -> None:
     for name, description in ADVANCED_SKILLS.items():
         actions = ENGINEERING_SKILL_ACTIONS[name]
-        permissions = {
-            item.value: "DENY"
-            for item in SkillPermission
-        }
+        permissions = {item.value: "DENY" for item in SkillPermission}
         for action in actions:
             for permission in action.permissions:
                 permissions[permission] = "ASK_ALWAYS"
@@ -120,10 +135,7 @@ def _manifest(
         "requires_user_approval: true",
         "audit_enabled: true",
         "permissions:",
-        *[
-            f"  {permission}: {decision}"
-            for permission, decision in permissions.items()
-        ],
+        *[f"  {permission}: {decision}" for permission, decision in permissions.items()],
         "",
     ]
     return "\n".join(lines)

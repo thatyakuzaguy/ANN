@@ -84,6 +84,24 @@ ADVANCED_SKILLS = {
     "secrets_lifecycle",
     "cross_platform_matrix",
     "documentation_drift",
+    "requirements_traceability",
+    "git_history_intelligence",
+    "database_query_performance",
+    "stateful_workflow_verification",
+    "concurrency_correctness",
+    "reproducible_build_verification",
+    "configuration_parity",
+    "slo_telemetry_verification",
+    "user_journey_synthesis",
+    "upgrade_compatibility",
+    "disaster_recovery_drill",
+    "release_channel_management",
+    "clean_machine_certification",
+    "signed_vulnerability_intelligence",
+    "policy_as_code",
+    "formal_model_checking",
+    "coverage_guided_test_synthesis",
+    "architectural_debt_ledger",
 }
 
 
@@ -92,31 +110,21 @@ def test_project_root_honors_global_filesystem_policy(
 ) -> None:
     allowed_root = Path.cwd().resolve()
     disallowed_root = allowed_root.parent
-    monkeypatch.setattr(
-        engineering_runtime, "_allowed_test_temp", lambda _path: False
-    )
+    monkeypatch.setattr(engineering_runtime, "_allowed_test_temp", lambda _path: False)
     monkeypatch.setenv("ANN_PROJECT_ROOT", str(allowed_root))
     monkeypatch.setenv("ANN_ALLOWED_ROOTS", str(allowed_root))
     monkeypatch.setenv("ANN_BLOCKED_ROOTS", "")
     monkeypatch.setenv("ANN_PROTECTED_PATHS", "")
 
-    assert engineering_runtime._project_root(
-        {"project_root": str(allowed_root)}
-    ) == allowed_root
+    assert engineering_runtime._project_root({"project_root": str(allowed_root)}) == allowed_root
     with pytest.raises(ValueError, match="project_root_policy_blocked"):
-        engineering_runtime._project_root(
-            {"project_root": str(disallowed_root)}
-        )
+        engineering_runtime._project_root({"project_root": str(disallowed_root)})
 
 
 @pytest.fixture(autouse=True)
-def allow_pytest_temp(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
-) -> None:
+def allow_pytest_temp(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     monkeypatch.setenv("ANN_ALLOW_TEMP_SKILL_TARGETS", "1")
-    monkeypatch.setenv(
-        "ANN_ALLOW_TEMP_PROJECT_PATCH_TARGETS", "1"
-    )
+    monkeypatch.setenv("ANN_ALLOW_TEMP_PROJECT_PATCH_TARGETS", "1")
     monkeypatch.setenv("TEMP", str(tmp_path.parent))
     monkeypatch.setenv("TMP", str(tmp_path.parent))
 
@@ -134,19 +142,14 @@ def _project(tmp_path: Path) -> Path:
     )
     (root / "tests").mkdir()
     (root / "tests" / "test_main.py").write_text(
-        "from app.main import health\n"
-        "def test_health():\n"
-        "    assert health()['ok'] is True\n",
+        "from app.main import health\ndef test_health():\n    assert health()['ok'] is True\n",
         encoding="utf-8",
     )
     (root / "pyproject.toml").write_text(
-        "[project]\nname='advanced-project'\n"
-        "version='1.0.0'\ndependencies=['fastapi==0.116.0']\n",
+        "[project]\nname='advanced-project'\nversion='1.0.0'\ndependencies=['fastapi==0.116.0']\n",
         encoding="utf-8",
     )
-    (root / "requirements.txt").write_text(
-        "fastapi==0.116.0\n", encoding="utf-8"
-    )
+    (root / "requirements.txt").write_text("fastapi==0.116.0\n", encoding="utf-8")
     (root / "requirements.lock").write_text(
         "fastapi==0.116.0 --hash=sha256:" + "a" * 64 + "\n",
         encoding="utf-8",
@@ -174,9 +177,7 @@ def _project(tmp_path: Path) -> Path:
         ),
         encoding="utf-8",
     )
-    (root / "pnpm-lock.yaml").write_text(
-        "lockfileVersion: '9.0'\n", encoding="utf-8"
-    )
+    (root / "pnpm-lock.yaml").write_text("lockfileVersion: '9.0'\n", encoding="utf-8")
     (root / "docker-compose.yml").write_text(
         "services:\n"
         "  api:\n"
@@ -203,9 +204,7 @@ def _project(tmp_path: Path) -> Path:
         encoding="utf-8",
     )
     (root / "scripts").mkdir()
-    (root / "scripts" / "backup.ps1").write_text(
-        "Write-Output backup\n", encoding="utf-8"
-    )
+    (root / "scripts" / "backup.ps1").write_text("Write-Output backup\n", encoding="utf-8")
     (root / "apps" / "web" / "src").mkdir(parents=True)
     (root / "apps" / "web" / "src" / "App.tsx").write_text(
         "export function App(){return <main aria-label='App' "
@@ -216,30 +215,23 @@ def _project(tmp_path: Path) -> Path:
         "test('visual accessibility', async () => { expect(true).toBe(true) })\n",
         encoding="utf-8",
     )
-    (root / "playwright.config.ts").write_text(
-        "export default {}\n", encoding="utf-8"
-    )
+    (root / "playwright.config.ts").write_text("export default {}\n", encoding="utf-8")
     (root / "locales" / "en").mkdir(parents=True)
     (root / "locales" / "en" / "common.json").write_text(
         '{"dashboard":"Dashboard"}\n', encoding="utf-8"
     )
     (root / "LICENSE").write_text("MIT\n", encoding="utf-8")
     (root / "installer").mkdir()
-    (root / "installer" / "ANN_Setup.exe").write_bytes(
-        b"test installer"
-    )
+    (root / "installer" / "ANN_Setup.exe").write_bytes(b"test installer")
     (root / "installer" / "signing_evidence.json").write_text(
         '{"signed": true}\n', encoding="utf-8"
     )
     (root / "game.ts").write_text(
-        "import * as THREE from 'three';\n"
-        "requestAnimationFrame(loop);\n",
+        "import * as THREE from 'three';\nrequestAnimationFrame(loop);\n",
         encoding="utf-8",
     )
     (root / "pipeline.py").write_text(
-        "def backfill():\n"
-        "    # lineage upsert checkpoint data quality\n"
-        "    return True\n",
+        "def backfill():\n    # lineage upsert checkpoint data quality\n    return True\n",
         encoding="utf-8",
     )
     (root / "model_card.md").write_text(
@@ -255,9 +247,7 @@ def _project(tmp_path: Path) -> Path:
         encoding="utf-8",
     )
     (root / "models").mkdir()
-    (root / "models" / "must-not-read.txt").write_text(
-        "API_KEY=protected-value", encoding="utf-8"
-    )
+    (root / "models" / "must-not-read.txt").write_text("API_KEY=protected-value", encoding="utf-8")
     return root
 
 
@@ -271,51 +261,33 @@ def _runtime(
 ):
     registry = SkillRegistry()
     store = SkillPermissionStore(tmp_path / "permissions.json")
-    spec = next(
-        item
-        for item in ENGINEERING_SKILL_ACTIONS[skill]
-        if item.name == action
-    )
+    spec = next(item for item in ENGINEERING_SKILL_ACTIONS[skill] if item.name == action)
     for permission in spec.permissions:
-        store.set_permission(
-            skill, permission, PermissionDecision.ALLOW_ALWAYS
-        )
+        store.set_permission(skill, permission, PermissionDecision.ALLOW_ALWAYS)
     return execute_skill(
         skill,
         action,
         payload,
         registry=registry,
         store=store,
-        audit_logger=SkillAuditLogger(
-            tmp_path / "skill-outputs"
-        ),
-        approval_validator=(
-            (lambda *_args: (True, "test_approval"))
-            if approved
-            else None
-        ),
+        audit_logger=SkillAuditLogger(tmp_path / "skill-outputs"),
+        approval_validator=((lambda *_args: (True, "test_approval")) if approved else None),
     )
 
 
 def test_all_advanced_skills_are_registered_enabled_and_typed() -> None:
     registry = SkillRegistry()
-    catalog = {
-        str(item["name"]): item
-        for item in engineering_skill_catalog()
-    }
+    catalog = {str(item["name"]): item for item in engineering_skill_catalog()}
 
     assert ADVANCED_SKILLS.issubset(catalog)
-    assert all(
-        registry.get_skill(name) is not None
-        for name in ADVANCED_SKILLS
-    )
+    assert all(registry.get_skill(name) is not None for name in ADVANCED_SKILLS)
     assert all(
         registry.get_skill(name).enabled  # type: ignore[union-attr]
         for name in ADVANCED_SKILLS
     )
     assert all(catalog[name]["actions"] for name in ADVANCED_SKILLS)
-    assert len(catalog) == 68
-    assert sum(len(item["actions"]) for item in catalog.values()) == 130
+    assert len(catalog) == 86
+    assert sum(len(item["actions"]) for item in catalog.values()) == 164
 
 
 def test_semantic_transformation_prepares_token_aware_diff_only(
@@ -385,9 +357,7 @@ def test_test_generation_writes_only_a_deterministic_workspace_skeleton(
     )
     assert result.status == "SUCCESS"
     assert data["skeleton_generated"] is True
-    assert "from app.main import health as subject" in skeleton.read_text(
-        encoding="utf-8"
-    )
+    assert "from app.main import health as subject" in skeleton.read_text(encoding="utf-8")
     assert (root / "app" / "main.py").read_text(encoding="utf-8") == before
 
 
@@ -472,7 +442,9 @@ def test_semantic_search_is_bounded_and_does_not_load_a_model(
     assert 1 <= data["result_count"] <= 3
     assert data["model_loaded"] is False
     assert data["raw_source_stored"] is False
-    assert all(set(item) == {"path", "score", "matched_terms", "is_test"} for item in data["results"])
+    assert all(
+        set(item) == {"path", "score", "matched_terms", "is_test"} for item in data["results"]
+    )
 
 
 def test_requirements_contract_refines_and_arbitrates(
@@ -486,8 +458,7 @@ def test_requirements_contract_refines_and_arbitrates(
         {
             "project_root": str(root),
             "user_request": (
-                "Build a task API with JWT authentication. "
-                "Users can create and complete tasks."
+                "Build a task API with JWT authentication. Users can create and complete tasks."
             ),
         },
     )
@@ -585,9 +556,7 @@ def test_advanced_analytical_skills_generate_bounded_evidence(
     assert result.output["internet_used"] is False
     assert result.output["dependency_install_used"] is False
     assert result.output["artifacts"]
-    assert all(
-        Path(path).is_file() for path in result.output["artifacts"]
-    )
+    assert all(Path(path).is_file() for path in result.output["artifacts"])
     assert "protected-value" not in json.dumps(result.output)
 
 
@@ -602,19 +571,13 @@ def test_test_quality_challenges_bad_test_contract(
         {
             "project_root": str(root),
             "user_request": "The amount must be a float.",
-            "test_report": (
-                "tests/test_amount.py AssertionError: "
-                "expected integer got float"
-            ),
+            "test_report": ("tests/test_amount.py AssertionError: expected integer got float"),
             "affected_files": ["tests/test_amount.py"],
         },
     )
 
     assert result.status == "BLOCKED"
-    assert (
-        result.output["data"]["classification"]
-        == "TEST_EXPECTATION_SUSPECT"
-    )
+    assert result.output["data"]["classification"] == "TEST_EXPECTATION_SUSPECT"
 
 
 @pytest.mark.parametrize(
@@ -673,18 +636,12 @@ def test_backup_and_performance_use_only_closed_compose_recipes(
     root = _project(tmp_path)
     calls: list[tuple[list[str], dict[str, Any]]] = []
 
-    def fake_run(
-        command: list[str], **kwargs: Any
-    ) -> subprocess.CompletedProcess[str]:
+    def fake_run(command: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
         calls.append((command, kwargs))
         stdout = (
-            "CREATE TABLE tasks(id integer);\n"
-            if "pg_dump" in command
-            else "benchmark passed\n"
+            "CREATE TABLE tasks(id integer);\n" if "pg_dump" in command else "benchmark passed\n"
         )
-        return subprocess.CompletedProcess(
-            command, 0, stdout=stdout, stderr=""
-        )
+        return subprocess.CompletedProcess(command, 0, stdout=stdout, stderr="")
 
     monkeypatch.setattr(
         "agentic_network.skills.engineering_runtime.subprocess.run",
@@ -714,15 +671,15 @@ def test_backup_and_performance_use_only_closed_compose_recipes(
     )
 
     assert backup.status == "SUCCESS"
-    assert Path(
-        backup.output["data"]["backup_path"]
-    ).read_text(encoding="utf-8").startswith("CREATE TABLE")
+    assert (
+        Path(backup.output["data"]["backup_path"])
+        .read_text(encoding="utf-8")
+        .startswith("CREATE TABLE")
+    )
     assert performance.status == "SUCCESS"
     assert all(kwargs["shell"] is False for _, kwargs in calls)
     assert any("pg_dump" in command for command, _ in calls)
-    assert any(
-        "performance" in command for command, _ in calls
-    )
+    assert any("performance" in command for command, _ in calls)
 
 
 def test_restore_passes_sql_as_stdin_not_command_text(
@@ -730,20 +687,14 @@ def test_restore_passes_sql_as_stdin_not_command_text(
 ) -> None:
     root = _project(tmp_path)
     backup = root / "backup.sql"
-    backup.write_text(
-        "CREATE TABLE restored(id integer);\n", encoding="utf-8"
-    )
+    backup.write_text("CREATE TABLE restored(id integer);\n", encoding="utf-8")
     observed: dict[str, Any] = {}
 
-    def fake_run(
-        command: list[str], **kwargs: Any
-    ) -> subprocess.CompletedProcess[str]:
+    def fake_run(command: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
         observed["command"] = command
         observed["input"] = kwargs.get("input")
         observed["shell"] = kwargs.get("shell")
-        return subprocess.CompletedProcess(
-            command, 0, stdout="", stderr=""
-        )
+        return subprocess.CompletedProcess(command, 0, stdout="", stderr="")
 
     monkeypatch.setattr(
         "agentic_network.skills.engineering_runtime.subprocess.run",
@@ -824,7 +775,7 @@ def test_internet_search_and_package_registry_are_real_bounded_lookups(
             if urlparse(request.full_url).hostname == "html.duckduckgo.com":
                 return Response(
                     b'<a class="result__a" href="https://docs.example.com/api">'
-                    b"Example API</a><div class=\"result__snippet\">Official docs</div>"
+                    b'Example API</a><div class="result__snippet">Official docs</div>'
                 )
             assert "pypi.org/pypi/fastapi/json" in request.full_url
             return Response(
@@ -879,13 +830,9 @@ def test_git_collaboration_rejects_raw_commands_and_uses_shell_false(
     root = _project(tmp_path)
     calls: list[tuple[list[str], dict[str, Any]]] = []
 
-    def fake_run(
-        command: list[str], **kwargs: Any
-    ) -> subprocess.CompletedProcess[str]:
+    def fake_run(command: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
         calls.append((command, kwargs))
-        return subprocess.CompletedProcess(
-            command, 0, stdout="", stderr=""
-        )
+        return subprocess.CompletedProcess(command, 0, stdout="", stderr="")
 
     monkeypatch.setattr(
         "agentic_network.skills.engineering_runtime.subprocess.run",
@@ -919,13 +866,9 @@ def test_git_commit_accepts_only_explicit_project_files(
     root = _project(tmp_path)
     calls: list[tuple[list[str], dict[str, Any]]] = []
 
-    def fake_run(
-        command: list[str], **kwargs: Any
-    ) -> subprocess.CompletedProcess[str]:
+    def fake_run(command: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
         calls.append((command, kwargs))
-        return subprocess.CompletedProcess(
-            command, 0, stdout="", stderr=""
-        )
+        return subprocess.CompletedProcess(command, 0, stdout="", stderr="")
 
     monkeypatch.setattr(
         "agentic_network.skills.engineering_runtime.subprocess.run",
@@ -969,9 +912,7 @@ def test_git_commit_rejects_traversal_and_command_metacharacters(
     root = _project(tmp_path)
     called = False
 
-    def fake_run(
-        command: list[str], **kwargs: Any
-    ) -> subprocess.CompletedProcess[str]:
+    def fake_run(command: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
         nonlocal called
         called = True
         return subprocess.CompletedProcess(command, 0, "", "")
@@ -1139,14 +1080,10 @@ def test_release_signing_rejects_unapproved_timestamp_host(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     root = _project(tmp_path)
-    (root / "installer" / "sign_release.ps1").write_text(
-        "param()\n", encoding="utf-8"
-    )
+    (root / "installer" / "sign_release.ps1").write_text("param()\n", encoding="utf-8")
     called = False
 
-    def fake_run(
-        command: list[str], **kwargs: Any
-    ) -> subprocess.CompletedProcess[str]:
+    def fake_run(command: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
         nonlocal called
         called = True
         return subprocess.CompletedProcess(command, 0, "", "")
@@ -1295,17 +1232,13 @@ def test_failure_replay_redacts_environment_and_rejects_raw_recipe(
         },
     )
     assert prepared.status == "SUCCESS"
-    assert prepared.output["data"]["environment"] == {
-        "PYTHONHASHSEED": "7"
-    }
+    assert prepared.output["data"]["environment"] == {"PYTHONHASHSEED": "7"}
     assert "one failure" not in json.dumps(prepared.output)
     assert "must-not-survive" not in json.dumps(prepared.output)
 
     called = False
 
-    def fake_run(
-        command: list[str], **kwargs: Any
-    ) -> subprocess.CompletedProcess[str]:
+    def fake_run(command: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
         nonlocal called
         called = True
         return subprocess.CompletedProcess(command, 0, "", "")
@@ -1343,22 +1276,15 @@ def test_synthetic_data_is_deterministic_and_workspace_only(
         },
         "count": 3,
     }
-    first = _runtime(
-        tmp_path, "synthetic_test_data", "generate", payload
-    )
-    second = _runtime(
-        tmp_path, "synthetic_test_data", "generate", payload
-    )
+    first = _runtime(tmp_path, "synthetic_test_data", "generate", payload)
+    second = _runtime(tmp_path, "synthetic_test_data", "generate", payload)
 
     first_data = first.output["data"]
     second_data = second.output["data"]
     assert first_data["records"] == second_data["records"]
     assert first_data["contains_real_personal_data"] is False
     assert first_data["project_modified"] is False
-    assert all(
-        item["email"].endswith("@example.invalid")
-        for item in first_data["records"]
-    )
+    assert all(item["email"].endswith("@example.invalid") for item in first_data["records"])
 
 
 def test_incident_and_dependency_skills_never_execute_or_store_raw_logs(
@@ -1390,9 +1316,7 @@ def test_incident_and_dependency_skills_never_execute_or_store_raw_logs(
         "plan",
         {
             "project_root": str(root),
-            "updates": [
-                {"package": "fastapi", "current": "1.0", "target": "1.1"}
-            ],
+            "updates": [{"package": "fastapi", "current": "1.0", "target": "1.1"}],
         },
     )
 
@@ -1434,9 +1358,7 @@ def test_specialist_execution_uses_closed_compose_recipes_and_shell_false(
     root = _project(tmp_path)
     calls: list[tuple[list[str], dict[str, Any]]] = []
 
-    def fake_run(
-        command: list[str], **kwargs: Any
-    ) -> subprocess.CompletedProcess[str]:
+    def fake_run(command: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
         calls.append((command, kwargs))
         return subprocess.CompletedProcess(command, 0, "passed", "")
 
@@ -1501,9 +1423,7 @@ def test_dependency_provisioning_requires_a_hashed_lock(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     root = _project(tmp_path)
-    (root / "requirements.lock").write_text(
-        "fastapi==0.116.0\n", encoding="utf-8"
-    )
+    (root / "requirements.lock").write_text("fastapi==0.116.0\n", encoding="utf-8")
     called = False
 
     def fail_run(*_args: Any, **_kwargs: Any) -> None:
@@ -1572,9 +1492,7 @@ def test_infrastructure_plan_blocks_executable_terraform_hooks(
 ) -> None:
     root = _project(tmp_path)
     (root / "main.tf").write_text(
-        'data "external" "unsafe" {\n'
-        "  program = [\"cmd\", \"/c\", \"whoami\"]\n"
-        "}\n",
+        'data "external" "unsafe" {\n  program = ["cmd", "/c", "whoami"]\n}\n',
         encoding="utf-8",
     )
     called = False

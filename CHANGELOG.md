@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- Added eighteen delivery-assurance skills for requirements traceability, Git
+  history intelligence, database query performance, stateful workflows,
+  concurrency, reproducible builds, configuration parity, SLO telemetry, user
+  journeys, upgrade compatibility, disaster recovery, release channels,
+  clean-machine evidence, signed vulnerability feeds, policy as code, formal
+  model checking, coverage-guided test synthesis, and architecture debt. The
+  typed catalog now contains 86 skills and 164 actions.
+- Added nine approval-gated Compose recipe families, bounded pseudonymized Git
+  history analysis, evidence-only certification gates, and workspace-only
+  journey/test-gap artifacts without adding shell, patch, or approval bypasses.
 - Added eighteen delivery specialist skills for offline dependency
   provisioning, token-aware transformations, test generation, mutation and
   visual regression, service virtualization, consumer contracts, refactor

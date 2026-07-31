@@ -1,0 +1,13 @@
+name: database_query_performance
+version: 1.0
+description: Query-plan, index, N+1, lock, budget, and approved database-performance verification.
+enabled: true
+requires_user_approval: true
+audit_enabled: true
+permissions:
+  network: DENY
+  filesystem_read: ASK_ALWAYS
+  filesystem_write: ASK_ALWAYS
+  git_read: DENY
+  git_write: DENY
+  terminal_execute: ASK_ALWAYS

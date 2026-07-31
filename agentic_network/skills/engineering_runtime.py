@@ -7,7 +7,7 @@ command or opt into ``shell=True``.
 
 from __future__ import annotations
 
-from collections import defaultdict
+from collections import Counter, defaultdict
 from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
@@ -90,9 +90,7 @@ def execute_engineering_action(
     result = (
         handler(action, payload, workspace)
         if handler is not None
-        else _advanced_engineering_action(
-            skill_name, action, payload, workspace
-        )
+        else _advanced_engineering_action(skill_name, action, payload, workspace)
     )
     result.setdefault("status", "SUCCESS")
     result.setdefault("summary", f"{skill_name}.{action} completed")
@@ -118,19 +116,12 @@ def _advanced_engineering_action(
     workspace: Path,
 ) -> dict[str, Any]:
     no_project_skills = {"internet_search", "package_registry"}
-    root = (
-        workspace
-        if skill_name in no_project_skills
-        else _project_root(payload)
-    )
+    root = workspace if skill_name in no_project_skills else _project_root(payload)
     if skill_name == "backup_restore" and action in {"backup", "restore"}:
         return _backup_restore_command(action, payload, workspace, root)
     if skill_name == "performance_testing" and action == "run":
         return _performance_command(payload, workspace, root)
-    if (
-        skill_name == "architecture_refactor_execution"
-        and action == "prepare"
-    ):
+    if skill_name == "architecture_refactor_execution" and action == "prepare":
         return _patch_workspace("inspect", payload, workspace)
     if (
         skill_name
@@ -138,45 +129,50 @@ def _advanced_engineering_action(
             "accessibility_execution",
             "chaos_verification",
             "consumer_contract_testing",
+            "concurrency_correctness",
             "cross_platform_matrix",
             "data_quality_execution",
+            "database_query_performance",
             "dependency_provisioning",
+            "disaster_recovery_drill",
             "documentation_drift",
             "failure_replay",
+            "formal_model_checking",
             "fuzz_property_testing",
             "infrastructure_plan_execution",
             "memory_profiling",
             "mutation_testing",
+            "policy_as_code",
             "queue_broker_verification",
             "release_rollback",
+            "reproducible_build_verification",
             "schema_drift_data_evolution",
+            "slo_telemetry_verification",
+            "stateful_workflow_verification",
+            "upgrade_compatibility",
             "visual_regression",
         }
         and action == "run"
     ):
-        return _specialist_test_command(
-            skill_name, payload, workspace, root
-        )
+        return _specialist_test_command(skill_name, payload, workspace, root)
     if skill_name == "release_provenance" and action in {"verify", "sign"}:
-        return _release_provenance_command(
-            action, payload, workspace, root
-        )
+        return _release_provenance_command(action, payload, workspace, root)
     if skill_name == "deployment_verification" and action == "smoke":
         return _deployment_smoke(payload, workspace)
     if skill_name == "git_collaboration":
-        return _git_collaboration_command(
-            action, payload, workspace, root
-        )
+        return _git_collaboration_command(action, payload, workspace, root)
+    if skill_name == "git_history_intelligence":
+        return _git_history_intelligence_command(payload, workspace, root)
     from agentic_network.skills.advanced_runtime import (
         execute_advanced_action,
     )
 
-    return execute_advanced_action(
-        skill_name, action, payload, workspace, root
-    )
+    return execute_advanced_action(skill_name, action, payload, workspace, root)
 
 
-def _repository_intelligence(action: str, payload: dict[str, Any], workspace: Path) -> dict[str, Any]:
+def _repository_intelligence(
+    action: str, payload: dict[str, Any], workspace: Path
+) -> dict[str, Any]:
     root = _project_root(payload)
     output = workspace / "repository_intelligence"
     result = build_repository_intelligence(
@@ -339,18 +335,30 @@ def _browser_e2e(action: str, payload: dict[str, Any], workspace: Path) -> dict[
     compose = _compose_file(root)
     services = _compose_services(compose) if compose else set()
     service = "e2e" if "e2e" in services else "web"
-    default_url = "http://web:3000" if service == "e2e" and "web" in services else "http://127.0.0.1:3000"
+    default_url = (
+        "http://web:3000" if service == "e2e" and "web" in services else "http://127.0.0.1:3000"
+    )
     base_url = str(payload.get("base_url") or default_url)
     _validate_local_url(base_url, allowed_hosts=services)
     evidence = _browser_validation_evidence(root)
     if action == "detect":
         return {
             "status": "SUCCESS" if command else "PARTIAL",
-            "summary": "Playwright recipe detected." if command else "No safe Playwright recipe detected.",
-            "data": {"recipe": _display_command(command) if command else [], "base_url": base_url, "evidence": evidence},
+            "summary": "Playwright recipe detected."
+            if command
+            else "No safe Playwright recipe detected.",
+            "data": {
+                "recipe": _display_command(command) if command else [],
+                "base_url": base_url,
+                "evidence": evidence,
+            },
         }
     if not command:
-        return {"status": "SKIPPED", "summary": "No safe Playwright recipe detected.", "warnings": ["playwright_recipe_missing"]}
+        return {
+            "status": "SKIPPED",
+            "summary": "No safe Playwright recipe detected.",
+            "warnings": ["playwright_recipe_missing"],
+        }
     if compose is None or service not in services:
         return {
             "status": "BLOCKED",
@@ -411,7 +419,12 @@ def _database_migration(action: str, payload: dict[str, Any], workspace: Path) -
             "warnings": [] if config else ["alembic_config_missing"],
         }
     if config is None:
-        return {"status": "BLOCKED", "summary": "Alembic config is missing.", "artifacts": [str(analysis_path)], "errors": ["alembic_config_missing"]}
+        return {
+            "status": "BLOCKED",
+            "summary": "Alembic config is missing.",
+            "artifacts": [str(analysis_path)],
+            "errors": ["alembic_config_missing"],
+        }
     target = str(payload.get("target") or ("head" if action == "upgrade" else "-1"))
     if not re.fullmatch(r"(?:head|base|-?[1-9][0-9]{0,2}|[A-Za-z0-9_]{1,64})", target):
         raise ValueError("invalid_migration_target")
@@ -450,7 +463,11 @@ def _database_migration(action: str, payload: dict[str, Any], workspace: Path) -
         target,
     ]
     result = _run_recipe(
-        f"alembic_{action}", command, root, workspace, _bounded_int(payload.get("timeout_seconds"), 1, MAX_TIMEOUT, 180)
+        f"alembic_{action}",
+        command,
+        root,
+        workspace,
+        _bounded_int(payload.get("timeout_seconds"), 1, MAX_TIMEOUT, 180),
     )
     return {
         "status": result.status,
@@ -464,12 +481,19 @@ def _database_migration(action: str, payload: dict[str, Any], workspace: Path) -
 
 def _security_audit(_action: str, payload: dict[str, Any], workspace: Path) -> dict[str, Any]:
     root = _project_root(payload)
-    findings = _scan_security(root, _bounded_int(payload.get("max_files"), 1, MAX_SCAN_FILES, 2_000))
+    findings = _scan_security(
+        root, _bounded_int(payload.get("max_files"), 1, MAX_SCAN_FILES, 2_000)
+    )
     counts: dict[str, int] = defaultdict(int)
     for finding in findings:
         counts[str(finding["severity"])] += 1
     status = "FAILED" if counts["critical"] or counts["high"] else "SUCCESS"
-    report = {"status": status, "counts": dict(counts), "findings": findings, "scanned_root": str(root)}
+    report = {
+        "status": status,
+        "counts": dict(counts),
+        "findings": findings,
+        "scanned_root": str(root),
+    }
     json_path = workspace / "security_audit.json"
     md_path = workspace / "security_audit.md"
     _write_json(json_path, report, workspace)
@@ -486,7 +510,11 @@ def _container_operations(action: str, payload: dict[str, Any], workspace: Path)
     root = _project_root(payload)
     compose = _compose_file(root)
     if compose is None:
-        return {"status": "BLOCKED", "summary": "Compose file not found.", "errors": ["compose_file_missing"]}
+        return {
+            "status": "BLOCKED",
+            "summary": "Compose file not found.",
+            "errors": ["compose_file_missing"],
+        }
     project_name = _compose_project_name(payload.get("project_name"), root)
     isolation_findings = _compose_isolation_findings(compose)
     hard_blockers = sorted(
@@ -532,7 +560,11 @@ def _container_operations(action: str, payload: dict[str, Any], workspace: Path)
         "cleanup": [*prefix, "down", "--remove-orphans", "--volumes"],
     }
     result = _run_recipe(
-        f"compose_{action}", recipes[action], root, workspace, _bounded_int(payload.get("timeout_seconds"), 1, MAX_TIMEOUT, 180)
+        f"compose_{action}",
+        recipes[action],
+        root,
+        workspace,
+        _bounded_int(payload.get("timeout_seconds"), 1, MAX_TIMEOUT, 180),
     )
     return {
         "status": result.status,
@@ -590,10 +622,25 @@ def _release_packaging(action: str, payload: dict[str, Any], workspace: Path) ->
     if action == "smoke_installer":
         verifier = root / "installer" / "verify_install.ps1"
         if not verifier.is_file():
-            return {"status": "BLOCKED", "summary": "Installer verifier missing.", "errors": ["installer_verifier_missing"]}
-        command = ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(verifier.relative_to(root))]
+            return {
+                "status": "BLOCKED",
+                "summary": "Installer verifier missing.",
+                "errors": ["installer_verifier_missing"],
+            }
+        command = [
+            "powershell",
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(verifier.relative_to(root)),
+        ]
         result = _run_recipe(
-            "installer_smoke", command, root, workspace, _bounded_int(payload.get("timeout_seconds"), 1, MAX_TIMEOUT, 180)
+            "installer_smoke",
+            command,
+            root,
+            workspace,
+            _bounded_int(payload.get("timeout_seconds"), 1, MAX_TIMEOUT, 180),
         )
         return {
             "status": result.status,
@@ -692,30 +739,18 @@ def _backup_restore_command(
             "errors": execution_blockers,
         }
     services = _compose_services(compose)
-    service = _safe_recipe_segment(
-        payload.get("service"), "db", "database_service"
-    )
+    service = _safe_recipe_segment(payload.get("service"), "db", "database_service")
     if service not in services:
         return {
             "status": "BLOCKED",
             "summary": f"Compose service {service} was not found.",
             "errors": ["database_service_missing"],
         }
-    database = _safe_recipe_segment(
-        payload.get("database"), "postgres", "database_name"
-    )
-    username = _safe_recipe_segment(
-        payload.get("username"), "postgres", "database_username"
-    )
-    project_name = _compose_project_name(
-        payload.get("project_name"), root
-    )
-    prefix = _compose_prefix(
-        root, compose, project_name, workspace
-    )
-    timeout = _bounded_int(
-        payload.get("timeout_seconds"), 1, MAX_TIMEOUT, 180
-    )
+    database = _safe_recipe_segment(payload.get("database"), "postgres", "database_name")
+    username = _safe_recipe_segment(payload.get("username"), "postgres", "database_username")
+    project_name = _compose_project_name(payload.get("project_name"), root)
+    prefix = _compose_prefix(root, compose, project_name, workspace)
+    timeout = _bounded_int(payload.get("timeout_seconds"), 1, MAX_TIMEOUT, 180)
     if action == "backup":
         command = [
             *prefix,
@@ -730,25 +765,16 @@ def _backup_restore_command(
             "--no-privileges",
             database,
         ]
-        result = _run_recipe(
-            "postgres_backup", command, root, workspace, timeout
-        )
-        backup_path = validate_workspace_path(
-            workspace / "postgres_backup.sql", workspace
-        )
+        result = _run_recipe("postgres_backup", command, root, workspace, timeout)
+        backup_path = validate_workspace_path(workspace / "postgres_backup.sql", workspace)
         if result.status == "SUCCESS":
-            backup_source = validate_workspace_path(
-                result.stdout_path, workspace
-            )
+            backup_source = validate_workspace_path(result.stdout_path, workspace)
             shutil.copy2(  # lgtm[py/path-injection]
                 backup_source, backup_path
             )
         return {
             "status": result.status,
-            "summary": (
-                f"PostgreSQL logical backup finished with "
-                f"{result.status}."
-            ),
+            "summary": (f"PostgreSQL logical backup finished with {result.status}."),
             "data": {
                 "database": database,
                 "service": service,
@@ -770,9 +796,7 @@ def _backup_restore_command(
             "errors": [result.error] if result.error else [],
             "terminal_used": True,
         }
-    backup_file = _project_file(
-        root, payload.get("backup_file"), required=True
-    )
+    backup_file = _project_file(root, payload.get("backup_file"), required=True)
     if backup_file.suffix.lower() != ".sql":
         raise ValueError("restore_file_must_be_sql")
     sql = backup_file.read_text(  # lgtm[py/path-injection]
@@ -803,9 +827,7 @@ def _backup_restore_command(
     )
     return {
         "status": result.status,
-        "summary": (
-            f"PostgreSQL restore finished with {result.status}."
-        ),
+        "summary": (f"PostgreSQL restore finished with {result.status}."),
         "data": {
             "database": database,
             "service": service,
@@ -838,9 +860,7 @@ def _performance_command(
             "summary": "Compose topology violates performance sandbox policy.",
             "errors": execution_blockers,
         }
-    service = _safe_recipe_segment(
-        payload.get("service"), "api", "performance_service"
-    )
+    service = _safe_recipe_segment(payload.get("service"), "api", "performance_service")
     if service not in _compose_services(compose):
         return {
             "status": "BLOCKED",
@@ -889,16 +909,11 @@ def _performance_command(
         command,
         root,
         workspace,
-        _bounded_int(
-            payload.get("timeout_seconds"), 1, MAX_TIMEOUT, 300
-        ),
+        _bounded_int(payload.get("timeout_seconds"), 1, MAX_TIMEOUT, 300),
     )
     return {
         "status": result.status,
-        "summary": (
-            f"Performance recipe {recipe} finished with "
-            f"{result.status}."
-        ),
+        "summary": (f"Performance recipe {recipe} finished with {result.status}."),
         "data": {"recipe": recipe, "result": asdict(result)},
         "artifacts": _recipe_artifacts([result]),
         "errors": [result.error] if result.error else [],
@@ -926,18 +941,27 @@ def _specialist_test_command(
         "accessibility_execution": "web_accessibility",
         "chaos_verification": "python_chaos",
         "consumer_contract_testing": "python_contract",
+        "concurrency_correctness": "python_concurrency",
         "cross_platform_matrix": "python_compatibility",
         "data_quality_execution": "python_data_quality",
+        "database_query_performance": "python_db_performance",
         "dependency_provisioning": "python_dependency_lock",
+        "disaster_recovery_drill": "python_disaster_recovery",
         "documentation_drift": "python_docs",
         "failure_replay": "python_tests",
+        "formal_model_checking": "python_formal_model",
         "fuzz_property_testing": "python_fuzz",
         "infrastructure_plan_execution": "terraform_plan",
         "memory_profiling": "python_memory",
         "mutation_testing": "python_mutation",
+        "policy_as_code": "python_policy",
         "queue_broker_verification": "python_queue",
         "release_rollback": "python_release_rollback",
+        "reproducible_build_verification": "python_reproducible_build",
         "schema_drift_data_evolution": "python_schema_drift",
+        "slo_telemetry_verification": "python_telemetry",
+        "stateful_workflow_verification": "python_stateful_workflow",
+        "upgrade_compatibility": "python_upgrade_compatibility",
         "visual_regression": "web_visual",
     }
     aliases = {
@@ -952,9 +976,12 @@ def _specialist_test_command(
         "accessibility_execution": {"web_accessibility"},
         "chaos_verification": {"python_chaos", "web_chaos"},
         "consumer_contract_testing": {"python_contract", "web_contract"},
+        "concurrency_correctness": {"python_concurrency", "web_concurrency"},
         "cross_platform_matrix": {"python_compatibility", "web_compatibility"},
         "data_quality_execution": {"python_data_quality"},
+        "database_query_performance": {"python_db_performance"},
         "dependency_provisioning": {"python_dependency_lock"},
+        "disaster_recovery_drill": {"python_disaster_recovery"},
         "documentation_drift": {"python_docs", "web_docs"},
         "failure_replay": {
             "compose_config",
@@ -965,12 +992,27 @@ def _specialist_test_command(
             "web_tests",
         },
         "fuzz_property_testing": {"python_fuzz", "web_fuzz"},
+        "formal_model_checking": {"python_formal_model", "web_formal_model"},
         "infrastructure_plan_execution": {"terraform_plan"},
         "memory_profiling": {"python_memory", "web_memory"},
         "mutation_testing": {"python_mutation", "web_mutation"},
+        "policy_as_code": {"python_policy", "web_policy"},
         "queue_broker_verification": {"python_queue", "web_queue"},
         "release_rollback": {"python_release_rollback"},
+        "reproducible_build_verification": {
+            "python_reproducible_build",
+            "web_reproducible_build",
+        },
         "schema_drift_data_evolution": {"python_schema_drift"},
+        "slo_telemetry_verification": {"python_telemetry", "web_telemetry"},
+        "stateful_workflow_verification": {
+            "python_stateful_workflow",
+            "web_stateful_workflow",
+        },
+        "upgrade_compatibility": {
+            "python_upgrade_compatibility",
+            "web_upgrade_compatibility",
+        },
         "visual_regression": {"web_visual"},
     }
     if recipe not in allowed_by_skill[skill_name]:
@@ -978,9 +1020,7 @@ def _specialist_test_command(
             "status": "BLOCKED",
             "summary": "Specialist recipe is not allowlisted.",
             "errors": ["specialist_recipe_not_allowlisted"],
-            "data": {
-                "allowed_recipes": sorted(allowed_by_skill[skill_name])
-            },
+            "data": {"allowed_recipes": sorted(allowed_by_skill[skill_name])},
         }
 
     isolation_findings = _compose_isolation_findings(compose)
@@ -1040,16 +1080,11 @@ def _specialist_test_command(
         command,
         root,
         workspace,
-        _bounded_int(
-            payload.get("timeout_seconds"), 1, MAX_TIMEOUT, 300
-        ),
+        _bounded_int(payload.get("timeout_seconds"), 1, MAX_TIMEOUT, 300),
     )
     return {
         "status": result.status,
-        "summary": (
-            f"Approved specialist recipe {recipe} finished with "
-            f"{result.status}."
-        ),
+        "summary": (f"Approved specialist recipe {recipe} finished with {result.status}."),
         "data": {
             "recipe": recipe,
             "sandbox": "docker_compose",
@@ -1085,9 +1120,19 @@ def _specialist_recipe(
             ["python", "-m", "pytest", "-q", "-m", "contract"],
             None,
         ),
+        "python_concurrency": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "concurrency"],
+            None,
+        ),
         "python_data_quality": (
             "api",
             ["python", "-m", "pytest", "-q", "-m", "data_quality"],
+            None,
+        ),
+        "python_db_performance": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "db_performance"],
             None,
         ),
         "python_dependency_lock": (
@@ -1112,6 +1157,16 @@ def _specialist_recipe(
             ["python", "-m", "pytest", "-q", "-m", "docs"],
             None,
         ),
+        "python_disaster_recovery": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "disaster_recovery"],
+            None,
+        ),
+        "python_formal_model": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "formal_model"],
+            None,
+        ),
         "python_memory": (
             "api",
             ["python", "-m", "pytest", "-q", "-m", "memory"],
@@ -1120,6 +1175,11 @@ def _specialist_recipe(
         "python_mutation": (
             "api",
             ["python", "-m", "mutmut", "run"],
+            None,
+        ),
+        "python_policy": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "policy"],
             None,
         ),
         "python_queue": (
@@ -1132,6 +1192,11 @@ def _specialist_recipe(
             ["python", "-m", "pytest", "-q", "-m", "release_rollback"],
             None,
         ),
+        "python_reproducible_build": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "reproducible_build"],
+            None,
+        ),
         "python_schema_drift": (
             "api",
             ["python", "-m", "alembic", "check"],
@@ -1140,6 +1205,21 @@ def _specialist_recipe(
         "python_tests": (
             "api",
             ["python", "-m", "pytest", "-q"],
+            None,
+        ),
+        "python_stateful_workflow": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "stateful_workflow"],
+            None,
+        ),
+        "python_telemetry": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "telemetry"],
+            None,
+        ),
+        "python_upgrade_compatibility": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "upgrade_compatibility"],
             None,
         ),
         "web_accessibility": (
@@ -1174,6 +1254,11 @@ def _specialist_recipe(
             ["npm", "run", "test:contract"],
             "test:contract",
         ),
+        "web_concurrency": (
+            "web",
+            ["npm", "run", "test:concurrency"],
+            "test:concurrency",
+        ),
         "web_docs": (
             "web",
             ["npm", "run", "test:docs"],
@@ -1183,6 +1268,11 @@ def _specialist_recipe(
             "web",
             ["npm", "run", "test:fuzz"],
             "test:fuzz",
+        ),
+        "web_formal_model": (
+            "web",
+            ["npm", "run", "test:formal"],
+            "test:formal",
         ),
         "web_memory": (
             "web",
@@ -1194,12 +1284,37 @@ def _specialist_recipe(
             ["npm", "run", "test:mutation"],
             "test:mutation",
         ),
+        "web_policy": (
+            "web",
+            ["npm", "run", "test:policy"],
+            "test:policy",
+        ),
         "web_queue": (
             "web",
             ["npm", "run", "test:queue"],
             "test:queue",
         ),
         "web_tests": ("web", ["npm", "test", "--", "--run"], "test"),
+        "web_reproducible_build": (
+            "web",
+            ["npm", "run", "test:reproducible"],
+            "test:reproducible",
+        ),
+        "web_stateful_workflow": (
+            "web",
+            ["npm", "run", "test:stateful"],
+            "test:stateful",
+        ),
+        "web_telemetry": (
+            "web",
+            ["npm", "run", "test:telemetry"],
+            "test:telemetry",
+        ),
+        "web_upgrade_compatibility": (
+            "web",
+            ["npm", "run", "test:upgrade"],
+            "test:upgrade",
+        ),
         "web_visual": (
             "web",
             ["npm", "run", "test:visual"],
@@ -1215,28 +1330,29 @@ def _safe_specialist_package_script(root: Path, name: str) -> bool:
         "test:a11y": ("axe", "jest", "playwright test", "vitest"),
         "test:chaos": ("jest", "node --test", "playwright test", "vitest"),
         "test:compatibility": ("jest", "node --test", "playwright test", "vitest"),
+        "test:concurrency": ("jest", "node --test", "playwright test", "vitest"),
         "test:contract": ("jest", "node --test", "pact", "playwright test", "vitest"),
         "test:docs": ("jest", "node --test", "playwright test", "vitest"),
+        "test:formal": ("alloy", "jest", "node --test", "playwright test", "tlc", "vitest"),
         "test:fuzz": ("fast-check", "jest", "node --test", "vitest"),
         "test:memory": ("clinic", "jest", "node --test", "vitest"),
         "test:mutation": ("stryker",),
+        "test:policy": ("conftest", "jest", "node --test", "opa test", "vitest"),
         "test:queue": ("jest", "node --test", "playwright test", "vitest"),
+        "test:reproducible": ("jest", "node --test", "vitest"),
+        "test:stateful": ("jest", "node --test", "playwright test", "vitest"),
+        "test:telemetry": ("jest", "node --test", "playwright test", "vitest"),
+        "test:upgrade": ("jest", "node --test", "playwright test", "vitest"),
         "test:visual": ("playwright test",),
     }
     for package_root in (root, root / "apps" / "web"):
         manifest = _read_json(package_root / "package.json")
-        scripts = (
-            manifest.get("scripts", {})
-            if isinstance(manifest, dict)
-            else {}
-        )
+        scripts = manifest.get("scripts", {}) if isinstance(manifest, dict) else {}
         script = scripts.get(name) if isinstance(scripts, dict) else None
         if not isinstance(script, str):
             continue
         normalized = " ".join(script.lower().split())
-        if not COMMAND_META.search(normalized) and normalized.startswith(
-            allowed_prefixes[name]
-        ):
+        if not COMMAND_META.search(normalized) and normalized.startswith(allowed_prefixes[name]):
             return True
     return False
 
@@ -1244,9 +1360,7 @@ def _safe_specialist_package_script(root: Path, name: str) -> bool:
 def _specialist_recipe_readiness(root: Path, recipe: str) -> str:
     if recipe == "python_dependency_lock":
         try:
-            lock = _project_file(
-                root, "requirements.lock", required=True
-            )
+            lock = _project_file(root, "requirements.lock", required=True)
         except ValueError:
             return "hashed_requirements_lock_missing"
         requirements = [
@@ -1257,11 +1371,7 @@ def _specialist_recipe_readiness(root: Path, recipe: str) -> str:
             if line.strip() and not line.lstrip().startswith("#")
         ]
         if not requirements or any(
-            "==" not in line
-            or re.search(
-                r"--hash=sha256:[0-9a-fA-F]{64}(?:\s|$)", line
-            )
-            is None
+            "==" not in line or re.search(r"--hash=sha256:[0-9a-fA-F]{64}(?:\s|$)", line) is None
             for line in requirements
         ):
             return "requirements_lock_hashes_required"
@@ -1293,8 +1403,7 @@ def _top_level_files(root: Path, suffix: str) -> list[Path]:
         except ValueError:
             continue
         if (
-            candidate.suffix.lower() == suffix
-            and candidate.is_file()  # lgtm[py/path-injection]
+            candidate.suffix.lower() == suffix and candidate.is_file()  # lgtm[py/path-injection]
         ):
             files.append(candidate)
             if len(files) >= 100:
@@ -1308,13 +1417,9 @@ def _release_provenance_command(
     workspace: Path,
     root: Path,
 ) -> dict[str, Any]:
-    timeout = _bounded_int(
-        payload.get("timeout_seconds"), 1, MAX_TIMEOUT, 180
-    )
+    timeout = _bounded_int(payload.get("timeout_seconds"), 1, MAX_TIMEOUT, 180)
     if action == "verify":
-        artifact = _project_file(
-            root, payload.get("artifact"), required=True
-        )
+        artifact = _project_file(root, payload.get("artifact"), required=True)
         if artifact.suffix.lower() not in {".exe", ".msi"}:
             raise ValueError("signature_artifact_type_not_allowed")
         result = _run_recipe(
@@ -1326,10 +1431,7 @@ def _release_provenance_command(
         )
         return {
             "status": result.status,
-            "summary": (
-                f"Authenticode verification finished with "
-                f"{result.status}."
-            ),
+            "summary": (f"Authenticode verification finished with {result.status}."),
             "data": {
                 "artifact": str(artifact),
                 "sha256": _sha256(artifact),
@@ -1346,24 +1448,17 @@ def _release_provenance_command(
             "summary": "Approved signing script is missing.",
             "errors": ["signing_script_missing"],
         }
-    thumbprint = re.sub(
-        r"\s+", "", str(payload.get("certificate_thumbprint") or "")
-    )
+    thumbprint = re.sub(r"\s+", "", str(payload.get("certificate_thumbprint") or ""))
     if not re.fullmatch(r"[0-9A-Fa-f]{40}", thumbprint):
         raise ValueError("certificate_thumbprint_invalid")
-    timestamp_url = str(
-        payload.get("timestamp_url")
-        or "https://timestamp.digicert.com"
-    )
+    timestamp_url = str(payload.get("timestamp_url") or "https://timestamp.digicert.com")
     parsed = urlparse(timestamp_url)
     timestamp_host = (parsed.hostname or "").lower().rstrip(".")
     allowed_timestamp_domains = {
         "timestamp.digicert.com",
         *(
             _safe_network_domain(item)
-            for item in _string_list(
-                payload.get("allowed_timestamp_domains"), 10
-            )
+            for item in _string_list(payload.get("allowed_timestamp_domains"), 10)
         ),
     }
     if (
@@ -1374,15 +1469,12 @@ def _release_provenance_command(
         or parsed.query
         or parsed.fragment
         or not any(
-            timestamp_host == domain
-            or timestamp_host.endswith(f".{domain}")
+            timestamp_host == domain or timestamp_host.endswith(f".{domain}")
             for domain in allowed_timestamp_domains
         )
     ):
         raise ValueError("timestamp_url_invalid")
-    evidence = validate_workspace_path(
-        workspace / "release_signing_evidence.json", workspace
-    )
+    evidence = validate_workspace_path(workspace / "release_signing_evidence.json", workspace)
     command = [
         "powershell",
         "-NoProfile",
@@ -1407,10 +1499,7 @@ def _release_provenance_command(
     )
     return {
         "status": result.status,
-        "summary": (
-            f"Authenticode signing recipe finished with "
-            f"{result.status}."
-        ),
+        "summary": (f"Authenticode signing recipe finished with {result.status}."),
         "data": {
             "timestamp_host": timestamp_host,
             "evidence": str(evidence),
@@ -1429,44 +1518,27 @@ def _release_provenance_command(
     }
 
 
-def _deployment_smoke(
-    payload: dict[str, Any], workspace: Path
-) -> dict[str, Any]:
+def _deployment_smoke(payload: dict[str, Any], workspace: Path) -> dict[str, Any]:
     start = _container_operations("up", payload, workspace)
     results: list[dict[str, Any]] = [start]
     if start.get("status") == "SUCCESS":
-        results.append(
-            _container_operations("status", payload, workspace)
-        )
+        results.append(_container_operations("status", payload, workspace))
     if payload.get("cleanup") is not False:
-        results.append(
-            _container_operations("down", payload, workspace)
-        )
+        results.append(_container_operations("down", payload, workspace))
     status = (
         "SUCCESS"
-        if results
-        and all(item.get("status") == "SUCCESS" for item in results)
+        if results and all(item.get("status") == "SUCCESS" for item in results)
         else "FAILED"
     )
     return {
         "status": status,
-        "summary": (
-            f"Local deployment smoke completed with {status}."
-        ),
+        "summary": (f"Local deployment smoke completed with {status}."),
         "data": {
             "steps": results,
             "cleanup_attempted": payload.get("cleanup") is not False,
         },
-        "artifacts": [
-            artifact
-            for item in results
-            for artifact in item.get("artifacts", [])
-        ],
-        "errors": [
-            error
-            for item in results
-            for error in item.get("errors", [])
-        ],
+        "artifacts": [artifact for item in results for artifact in item.get("artifacts", [])],
+        "errors": [error for item in results for error in item.get("errors", [])],
         "terminal_used": True,
     }
 
@@ -1477,9 +1549,7 @@ def _git_collaboration_command(
     workspace: Path,
     root: Path,
 ) -> dict[str, Any]:
-    timeout = _bounded_int(
-        payload.get("timeout_seconds"), 1, MAX_TIMEOUT, 120
-    )
+    timeout = _bounded_int(payload.get("timeout_seconds"), 1, MAX_TIMEOUT, 120)
     if action == "status":
         result = _run_recipe(
             "git_status",
@@ -1500,9 +1570,7 @@ def _git_collaboration_command(
         )
         return _git_result(action, [result])
     if action == "commit":
-        files = _relative_paths(
-            payload.get("files"), root, required=True
-        )[:100]
+        files = _relative_paths(payload.get("files"), root, required=True)[:100]
         message = _safe_commit_message(payload.get("message"))
         add = _run_recipe(
             "git_add",
@@ -1535,9 +1603,7 @@ def _git_collaboration_command(
     )
     results = [push]
     if push.status == "SUCCESS":
-        title = _safe_commit_message(
-            payload.get("title") or f"Publish {branch}"
-        )
+        title = _safe_commit_message(payload.get("title") or f"Publish {branch}")
         results.append(
             _run_recipe(
                 "github_pr",
@@ -1560,31 +1626,144 @@ def _git_collaboration_command(
     return _git_result(action, results)
 
 
-def _git_result(
-    action: str, results: list[RecipeResult]
+def _git_history_intelligence_command(
+    payload: dict[str, Any], workspace: Path, root: Path
 ) -> dict[str, Any]:
+    max_commits = _bounded_int(payload.get("max_commits"), 1, 500, 100)
+    result = _run_recipe(
+        "git_history_intelligence",
+        [
+            "git",
+            "log",
+            "--no-renames",
+            "--date=iso-strict",
+            "--format=ANN_COMMIT%x09%H%x09%an%x09%aI%x09%s",
+            "--name-only",
+            "-n",
+            str(max_commits),
+            "--",
+        ],
+        root,
+        workspace,
+        _bounded_int(payload.get("timeout_seconds"), 1, MAX_TIMEOUT, 120),
+    )
+    if result.status != "SUCCESS":
+        return {
+            "status": result.status,
+            "summary": "Bounded Git history collection failed.",
+            "data": {"max_commits": max_commits, "result": asdict(result)},
+            "artifacts": _recipe_artifacts([result]),
+            "errors": [result.error] if result.error else [],
+            "terminal_used": True,
+        }
+
+    stdout = _read_recipe_output(result.stdout_path, workspace)
+    commits: list[dict[str, Any]] = []
+    current: dict[str, Any] | None = None
+    for line in stdout.splitlines():
+        if line.startswith("ANN_COMMIT\t"):
+            parts = line.split("\t", 4)
+            if len(parts) != 5:
+                current = None
+                continue
+            message = parts[4].lower()
+            current = {
+                "sha": parts[1][:12],
+                "author_id": hashlib.sha256(parts[2].encode("utf-8")).hexdigest()[:12],
+                "timestamp": parts[3][:40],
+                "classification": (
+                    "regression_fix"
+                    if re.search(r"\b(?:fix|bug|regression|revert|hotfix)\b", message)
+                    else "change"
+                ),
+                "files": [],
+            }
+            commits.append(current)
+            continue
+        normalized = line.strip().replace("\\", "/").strip("/")
+        if not normalized or current is None:
+            continue
+        parts = normalized.split("/")
+        if (
+            ".." not in parts
+            and not any(part.lower() in PROTECTED_PARTS for part in parts)
+            and len(current["files"]) < 500
+        ):
+            current["files"].append(normalized)
+
+    churn: Counter[str] = Counter()
+    owners: dict[str, Counter[str]] = defaultdict(Counter)
+    cochange: Counter[tuple[str, str]] = Counter()
+    for commit in commits:
+        files = sorted(set(commit["files"]))[:100]
+        for path in files:
+            churn[path] += 1
+            owners[path][commit["author_id"]] += 1
+        for index, left in enumerate(files):
+            for right in files[index + 1 :]:
+                cochange[(left, right)] += 1
+
+    hotspots = [
+        {
+            "path": path,
+            "changes": count,
+            "primary_owner_id": owners[path].most_common(1)[0][0] if owners[path] else "",
+            "owner_count": len(owners[path]),
+        }
+        for path, count in churn.most_common(100)
+    ]
+    report = {
+        "commit_count": len(commits),
+        "regression_fix_count": sum(
+            1 for item in commits if item["classification"] == "regression_fix"
+        ),
+        "hotspots": hotspots,
+        "cochange_pairs": [
+            {"left": pair[0], "right": pair[1], "count": count}
+            for pair, count in cochange.most_common(100)
+        ],
+        "authors_pseudonymized": True,
+        "commit_messages_stored": False,
+        "project_modified": False,
+    }
+    report_path = workspace / "git_history_intelligence.json"
+    _write_json(report_path, report, workspace)
+    return {
+        "status": "SUCCESS" if commits else "PARTIAL",
+        "summary": f"Analyzed {len(commits)} commits and {len(churn)} changed files.",
+        "data": report,
+        "artifacts": [str(report_path), *_recipe_artifacts([result])],
+        "terminal_used": True,
+    }
+
+
+def _read_recipe_output(value: str, workspace: Path) -> str:
+    path = Path(value)
+    validate_workspace_path(path, workspace)
+    try:
+        return path.read_text(  # lgtm[py/path-injection]
+            encoding="utf-8", errors="replace"
+        )[:MAX_CAPTURE]
+    except OSError:
+        return ""
+
+
+def _git_result(action: str, results: list[RecipeResult]) -> dict[str, Any]:
     status = _aggregate_recipe_status(results)
     return {
         "status": status,
-        "summary": (
-            f"Git collaboration action {action} finished with "
-            f"{status}."
-        ),
+        "summary": (f"Git collaboration action {action} finished with {status}."),
         "data": {
             "action": action,
             "results": [asdict(item) for item in results],
         },
         "artifacts": _recipe_artifacts(results),
-        "errors": [
-            item.error for item in results if item.error
-        ],
+        "errors": [item.error for item in results if item.error],
         "terminal_used": True,
     }
 
 
-def _safe_recipe_segment(
-    value: object, default: str, label: str
-) -> str:
+def _safe_recipe_segment(value: object, default: str, label: str) -> str:
     text = str(value or default).strip()
     if not re.fullmatch(r"[A-Za-z0-9_.-]{1,63}", text):
         raise ValueError(f"{label}_invalid")
@@ -1593,9 +1772,7 @@ def _safe_recipe_segment(
 
 def _safe_git_branch(value: object) -> str:
     raw = str(value or "").strip().replace("\\", "/")
-    if not re.fullmatch(
-        r"agent/[a-z0-9][a-z0-9._/-]{0,80}", raw
-    ):
+    if not re.fullmatch(r"agent/[a-z0-9][a-z0-9._/-]{0,80}", raw):
         raise ValueError("git_branch_invalid")
     if ".." in raw or raw.endswith("/") or "//" in raw:
         raise ValueError("git_branch_invalid")
@@ -1626,11 +1803,7 @@ def _safe_network_domain(value: object) -> str:
 
 def _safe_commit_message(value: object) -> str:
     text = " ".join(str(value or "").split())[:120]
-    if (
-        not text
-        or COMMAND_META.search(text)
-        or any(ord(char) < 32 for char in text)
-    ):
+    if not text or COMMAND_META.search(text) or any(ord(char) < 32 for char in text):
         raise ValueError("git_message_invalid")
     return text
 
@@ -1650,9 +1823,7 @@ def _project_root(payload: dict[str, Any]) -> Path:
     if not _allowed_test_temp(root):
         policy_errors = load_filesystem_policy().validate_read_path(root)
         if policy_errors:
-            raise ValueError(
-                "project_root_policy_blocked:" + ";".join(policy_errors)
-            )
+            raise ValueError("project_root_policy_blocked:" + ";".join(policy_errors))
     if not root.is_dir():  # lgtm[py/path-injection]
         raise ValueError("project_root_missing")
     if any(part.lower() in PROTECTED_PARTS for part in root.parts):
@@ -1763,7 +1934,8 @@ def _safe_env(root: Path) -> dict[str, str]:
     allowed = {
         key: value
         for key, value in os.environ.items()
-        if key.upper() in {"PATH", "PATHEXT", "SYSTEMROOT", "WINDIR", "TEMP", "TMP", "HOME", "USERPROFILE"}
+        if key.upper()
+        in {"PATH", "PATHEXT", "SYSTEMROOT", "WINDIR", "TEMP", "TMP", "HOME", "USERPROFILE"}
     }
     allowed.update(
         {
@@ -1783,7 +1955,10 @@ def _resolve_executable(command: list[str]) -> list[str]:
     if first == "npm":
         return [shutil.which("npm.cmd" if os.name == "nt" else "npm") or "npm", *command[1:]]
     if first == "docker":
-        return [shutil.which("docker.exe" if os.name == "nt" else "docker") or "docker", *command[1:]]
+        return [
+            shutil.which("docker.exe" if os.name == "nt" else "docker") or "docker",
+            *command[1:],
+        ]
     if first == "powershell":
         return [shutil.which("powershell.exe") or "powershell", *command[1:]]
     if first == "git":
@@ -1791,7 +1966,10 @@ def _resolve_executable(command: list[str]) -> list[str]:
     if first == "gh":
         return [shutil.which("gh.exe" if os.name == "nt" else "gh") or "gh", *command[1:]]
     if first == "signtool":
-        return [shutil.which("signtool.exe" if os.name == "nt" else "signtool") or "signtool", *command[1:]]
+        return [
+            shutil.which("signtool.exe" if os.name == "nt" else "signtool") or "signtool",
+            *command[1:],
+        ]
     raise ValueError("recipe_executable_not_allowlisted")
 
 
@@ -1800,7 +1978,10 @@ def _display_command(command: list[str]) -> list[str]:
 
 
 def _redact_command(command: list[str]) -> list[str]:
-    return ["<redacted>" if re.search(r"(?i)(token|secret|password|api[_-]?key)=", item) else item for item in command]
+    return [
+        "<redacted>" if re.search(r"(?i)(token|secret|password|api[_-]?key)=", item) else item
+        for item in command
+    ]
 
 
 def _impact_payload(targets: list[str], graph: object, tests: object) -> dict[str, object]:
@@ -1821,10 +2002,12 @@ def _impact_payload(targets: list[str], graph: object, tests: object) -> dict[st
             if dependent not in affected:
                 affected.add(dependent)
                 queue.append(dependent)
-    impacted_tests = sorted(
-        {str(test) for path in affected for test in tests_map.get(path, [])}
-    )
-    return {"targets": targets, "affected_files": sorted(affected), "impacted_tests": impacted_tests}
+    impacted_tests = sorted({str(test) for path in affected for test in tests_map.get(path, [])})
+    return {
+        "targets": targets,
+        "affected_files": sorted(affected),
+        "impacted_tests": impacted_tests,
+    }
 
 
 def _relative_paths(value: object, root: Path, *, required: bool) -> list[str]:
@@ -1876,7 +2059,7 @@ def _container_verification_commands(root: Path) -> tuple[list[list[str]], list[
             script = scripts.get(name)
             if not isinstance(script, str) or not _safe_package_script(name, script):
                 continue
-            command = ["npm", *prefix, *( [name] if name == "test" else ["run", name] )]
+            command = ["npm", *prefix, *([name] if name == "test" else ["run", name])]
             if tuple(command) not in existing:
                 commands.append(command)
                 existing.add(tuple(command))
@@ -1946,9 +2129,7 @@ def _browser_validation_evidence(root: Path) -> dict[str, object]:
         "traces": sorted(
             path for path in files if Path(path).name.lower().endswith(("trace.zip", ".zip"))
         ),
-        "videos": sorted(
-            path for path in files if Path(path).suffix.lower() in {".webm", ".mp4"}
-        ),
+        "videos": sorted(path for path in files if Path(path).suffix.lower() in {".webm", ".mp4"}),
         "console_assertions_declared": bool(re.search(r"console|pageerror", test_text)),
         "network_assertions_declared": bool(
             re.search(r"page\.(?:on|waitforresponse|waitforrequest)|route\(", test_text)
@@ -1971,7 +2152,10 @@ def _migration_analysis(root: Path, config: Path | None) -> dict[str, Any]:
     revisions: list[dict[str, Any]] = []
     for path in root.rglob("*.py"):
         relative = path.relative_to(root)
-        if any(part.lower() in PROTECTED_PARTS | {"node_modules", ".venv", "venv"} for part in relative.parts):
+        if any(
+            part.lower() in PROTECTED_PARTS | {"node_modules", ".venv", "venv"}
+            for part in relative.parts
+        ):
             continue
         normalized = relative.as_posix().lower()
         if "migration" not in normalized and "alembic" not in normalized:
@@ -2011,12 +2195,20 @@ def _migration_analysis(root: Path, config: Path | None) -> dict[str, Any]:
 def _scan_security(root: Path, max_files: int) -> list[dict[str, object]]:
     findings: list[dict[str, object]] = []
     patterns = (
-        ("critical", "hardcoded_secret", re.compile(r"(?i)(api[_-]?key|secret|password|token)\s*=\s*['\"][^'\"]{8,}['\"]")),
+        (
+            "critical",
+            "hardcoded_secret",
+            re.compile(r"(?i)(api[_-]?key|secret|password|token)\s*=\s*['\"][^'\"]{8,}['\"]"),
+        ),
         ("high", "shell_true", re.compile(r"shell\s*=\s*True")),
         ("high", "dynamic_eval", re.compile(r"\b(?:eval|exec)\s*\(")),
         ("high", "docker_privileged", re.compile(r"privileged\s*:\s*true", re.IGNORECASE)),
         ("medium", "docker_latest", re.compile(r"image\s*:\s*[^\s:#]+:latest", re.IGNORECASE)),
-        ("medium", "jwt_decode_without_algorithms", re.compile(r"jwt\.decode\([^\n]+\)(?![^\n]*algorithms)")),
+        (
+            "medium",
+            "jwt_decode_without_algorithms",
+            re.compile(r"jwt\.decode\([^\n]+\)(?![^\n]*algorithms)"),
+        ),
         ("medium", "wildcard_cors", re.compile(r"allow_origins\s*=\s*\[['\"]\*['\"]\]")),
     )
     scanned = 0
@@ -2026,9 +2218,23 @@ def _scan_security(root: Path, max_files: int) -> list[dict[str, object]]:
         if not path.is_file() or path.stat().st_size > 512_000:
             continue
         relative = path.relative_to(root)
-        if any(part.lower() in PROTECTED_PARTS | {"node_modules", ".venv", "venv", "dist", "build"} for part in relative.parts):
+        if any(
+            part.lower() in PROTECTED_PARTS | {"node_modules", ".venv", "venv", "dist", "build"}
+            for part in relative.parts
+        ):
             continue
-        if path.suffix.lower() not in {".py", ".js", ".jsx", ".ts", ".tsx", ".yaml", ".yml", ".json", ".toml", ".env"}:
+        if path.suffix.lower() not in {
+            ".py",
+            ".js",
+            ".jsx",
+            ".ts",
+            ".tsx",
+            ".yaml",
+            ".yml",
+            ".json",
+            ".toml",
+            ".env",
+        }:
             continue
         scanned += 1
         text = path.read_text(encoding="utf-8", errors="replace")
@@ -2046,15 +2252,28 @@ def _scan_security(root: Path, max_files: int) -> list[dict[str, object]]:
         if path.name in {"requirements.txt", "pyproject.toml", "package.json"}:
             for line_number, line in enumerate(text.splitlines(), start=1):
                 stripped = line.strip()
-                if stripped and not stripped.startswith(("#", "[", "{", "}")) and "latest" in stripped.lower():
-                    findings.append({"severity": "medium", "rule": "unbounded_dependency", "path": relative.as_posix(), "line": line_number})
+                if (
+                    stripped
+                    and not stripped.startswith(("#", "[", "{", "}"))
+                    and "latest" in stripped.lower()
+                ):
+                    findings.append(
+                        {
+                            "severity": "medium",
+                            "rule": "unbounded_dependency",
+                            "path": relative.as_posix(),
+                            "line": line_number,
+                        }
+                    )
     return findings[:1_000]
 
 
 def _security_markdown(report: dict[str, Any]) -> str:
     lines = ["# Security Audit", "", f"Status: {report['status']}", "", "## Findings"]
     for item in report["findings"]:
-        lines.append(f"- {item['severity'].upper()} {item['rule']} at {item['path']}:{item['line']}")
+        lines.append(
+            f"- {item['severity'].upper()} {item['rule']} at {item['path']}:{item['line']}"
+        )
     if not report["findings"]:
         lines.append("- No deterministic findings.")
     return "\n".join(lines) + "\n"
@@ -2154,11 +2373,7 @@ def _compose_execution_blockers(compose: Path) -> list[str]:
         "host_pid",
         "privileged_container",
     }
-    return sorted(
-        finding
-        for finding in _compose_isolation_findings(compose)
-        if finding in blocked
-    )
+    return sorted(finding for finding in _compose_isolation_findings(compose) if finding in blocked)
 
 
 def _openapi_paths(root: Path) -> set[str]:
@@ -2177,9 +2392,14 @@ def _openapi_paths(root: Path) -> set[str]:
 
 def _backend_route_paths(root: Path) -> set[str]:
     paths: set[str] = set()
-    pattern = re.compile(r"@(?:router|app)\.(?:get|post|put|patch|delete|options|head)\(\s*['\"]([^'\"]+)")
+    pattern = re.compile(
+        r"@(?:router|app)\.(?:get|post|put|patch|delete|options|head)\(\s*['\"]([^'\"]+)"
+    )
     for path in root.rglob("*.py"):
-        if any(part.lower() in PROTECTED_PARTS | {".venv", "venv"} for part in path.relative_to(root).parts):
+        if any(
+            part.lower() in PROTECTED_PARTS | {".venv", "venv"}
+            for part in path.relative_to(root).parts
+        ):
             continue
         paths.update(pattern.findall(path.read_text(encoding="utf-8", errors="replace")))
     return paths
@@ -2202,13 +2422,15 @@ def _contract_test_files(root: Path) -> list[str]:
         if not path.is_file():
             continue
         relative = path.relative_to(root)
-        if any(part.lower() in PROTECTED_PARTS | {"node_modules", ".venv", "venv"} for part in relative.parts):
+        if any(
+            part.lower() in PROTECTED_PARTS | {"node_modules", ".venv", "venv"}
+            for part in relative.parts
+        ):
             continue
         name = path.name.lower()
         normalized = relative.as_posix().lower()
-        if (
-            any(marker in name for marker in ("contract", "openapi", "webhook"))
-            and any(marker in normalized for marker in ("test", "spec"))
+        if any(marker in name for marker in ("contract", "openapi", "webhook")) and any(
+            marker in normalized for marker in ("test", "spec")
         ):
             matches.append(relative.as_posix())
     return sorted(matches)[:500]
@@ -2225,7 +2447,10 @@ def _webhook_security_evidence(root: Path, webhook_paths: list[str]) -> dict[str
         if not path.is_file() or path.suffix.lower() not in {".py", ".js", ".jsx", ".ts", ".tsx"}:
             continue
         relative = path.relative_to(root)
-        if any(part.lower() in PROTECTED_PARTS | {"node_modules", ".venv", "venv"} for part in relative.parts):
+        if any(
+            part.lower() in PROTECTED_PARTS | {"node_modules", ".venv", "venv"}
+            for part in relative.parts
+        ):
             continue
         if path.stat().st_size > 512_000:
             continue
@@ -2239,12 +2464,23 @@ def _webhook_security_evidence(root: Path, webhook_paths: list[str]) -> dict[str
 
 
 def _release_input_files(root: Path, max_files: int) -> list[Path]:
-    excluded = PROTECTED_PARTS | {"node_modules", ".venv", "venv", "dist", "build", "outputs", "logs", "data"}
+    excluded = PROTECTED_PARTS | {
+        "node_modules",
+        ".venv",
+        "venv",
+        "dist",
+        "build",
+        "outputs",
+        "logs",
+        "data",
+    }
     files: list[Path] = []
     for path in sorted(root.rglob("*")):
         if len(files) >= max_files:
             break
-        if path.is_file() and not any(part.lower() in excluded for part in path.relative_to(root).parts):
+        if path.is_file() and not any(
+            part.lower() in excluded for part in path.relative_to(root).parts
+        ):
             files.append(path)
     return files
 
@@ -2257,7 +2493,9 @@ def _build_sbom(root: Path) -> dict[str, object]:
             value = line.strip()
             if value and not value.startswith("#"):
                 name = re.split(r"[<>=!~\[]", value, maxsplit=1)[0]
-                components.append({"type": "library", "name": name, "version_spec": value[len(name):]})
+                components.append(
+                    {"type": "library", "name": name, "version_spec": value[len(name) :]}
+                )
     package = _read_json(root / "package.json")
     for group in ("dependencies", "devDependencies"):
         values = package.get(group, {}) if isinstance(package, dict) else {}
@@ -2322,7 +2560,11 @@ def _verify_release_manifest(manifest: dict[str, Any]) -> dict[str, object]:
                     errors.append("installer_hash_mismatch")
         except (OSError, zipfile.BadZipFile, KeyError) as exc:
             errors.append(f"archive_invalid:{type(exc).__name__}")
-    preserve = manifest.get("rollback", {}).get("preserve", []) if isinstance(manifest.get("rollback"), dict) else []
+    preserve = (
+        manifest.get("rollback", {}).get("preserve", [])
+        if isinstance(manifest.get("rollback"), dict)
+        else []
+    )
     if not {"projects", "models", "outputs"}.issubset(set(preserve)):
         errors.append("rollback_policy_incomplete")
     return {"valid": not errors, "errors": errors, "archive": str(archive)}
@@ -2408,11 +2650,7 @@ def _write_summary(path: Path, result: dict[str, Any], workspace: Path) -> None:
 
 def _bounded_int(value: object, minimum: int, maximum: int, default: int) -> int:
     try:
-        parsed = (
-            int(value)
-            if isinstance(value, (str, bytes, bytearray, int, float))
-            else default
-        )
+        parsed = int(value) if isinstance(value, (str, bytes, bytearray, int, float)) else default
     except (TypeError, ValueError):
         parsed = default
     return max(minimum, min(maximum, parsed))

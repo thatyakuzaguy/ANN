@@ -765,15 +765,15 @@ def _backup_restore_command(
             "--no-privileges",
             database,
         ]
-        result = _run_recipe("postgres_backup", command, root, workspace, timeout)
         backup_path = validate_workspace_path(workspace / "postgres_backup.sql", workspace)
-        if result.status == "SUCCESS":
-            # The recipe name is internal and fixes this path. Never trust a
-            # path carried back in a result object for a subsequent file copy.
-            backup_source = validate_workspace_path(
-                workspace / "postgres_backup_stdout.log", workspace
-            )
-            shutil.copy2(backup_source, backup_path)
+        result = _run_recipe(
+            "postgres_backup",
+            command,
+            root,
+            workspace,
+            timeout,
+            stdout_artifact=backup_path,
+        )
         return {
             "status": result.status,
             "summary": (f"PostgreSQL logical backup finished with {result.status}."),
@@ -1878,6 +1878,7 @@ def _run_recipe(
     *,
     extra_env: dict[str, str] | None = None,
     input_text: str | None = None,
+    stdout_artifact: Path | None = None,
 ) -> RecipeResult:
     if not command or any(COMMAND_META.search(str(part)) for part in command):
         raise ValueError("unsafe_recipe_command")
@@ -1920,6 +1921,8 @@ def _run_recipe(
         exit_code = None
     _write_text(stdout_path, stdout, workspace)
     _write_text(stderr_path, stderr, workspace)
+    if stdout_artifact is not None and status == "SUCCESS":
+        _write_text(stdout_artifact, stdout, workspace)
     return RecipeResult(
         name,
         status,

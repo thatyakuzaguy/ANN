@@ -510,12 +510,15 @@ def test_database_backup_ignores_result_supplied_source_path(
     )
     workspace = tmp_path / "skill-workspace"
     workspace.mkdir()
-    safe_source = workspace / "postgres_backup_stdout.log"
-    safe_source.write_text("safe backup", encoding="utf-8")
     outside = tmp_path / "attacker-controlled.sql"
     outside.write_text("unsafe backup", encoding="utf-8")
+    captured_artifact: list[Path] = []
 
     def fake_recipe(*_args: Any, **_kwargs: Any) -> RecipeResult:
+        artifact = _kwargs["stdout_artifact"]
+        assert isinstance(artifact, Path)
+        captured_artifact.append(artifact)
+        artifact.write_text("safe backup", encoding="utf-8")
         return RecipeResult(
             name="postgres_backup",
             status="SUCCESS",
@@ -536,4 +539,5 @@ def test_database_backup_ignores_result_supplied_source_path(
     )
 
     assert result["status"] == "SUCCESS"
+    assert captured_artifact == [workspace / "postgres_backup.sql"]
     assert (workspace / "postgres_backup.sql").read_text(encoding="utf-8") == "safe backup"

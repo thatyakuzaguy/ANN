@@ -15,6 +15,11 @@ from agentic_network.skills import (
     SkillRegistry,
 )
 from agentic_network.skills.engineering import ENGINEERING_SKILL_ACTIONS
+from agentic_network.skills.advanced_runtime import _walk
+from agentic_network.skills.engineering_runtime import (
+    RecipeResult,
+    _backup_restore_command,
+)
 from agentic_network.skills.runtime import execute_skill
 from agentic_engineering_network.agents.subagents import SUBAGENT_REGISTRY
 
@@ -476,3 +481,59 @@ def test_git_history_is_bounded_and_pseudonymized(
     assert "Fix race" not in encoded
     assert calls[0][-3:] == ["-n", "25", "--"]
     assert "show" not in calls[0]
+
+
+def test_repository_walk_does_not_follow_file_symlinks(tmp_path: Path) -> None:
+    root = _project(tmp_path)
+    outside = tmp_path / "outside-secret.txt"
+    outside.write_text("must not be scanned", encoding="utf-8")
+    link = root / "linked-secret.txt"
+    try:
+        link.symlink_to(outside)
+    except OSError:
+        pytest.skip("File symlinks are unavailable on this Windows account.")
+
+    scanned = _walk(root)
+
+    assert link not in scanned
+    assert outside not in scanned
+
+
+def test_database_backup_ignores_result_supplied_source_path(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root = tmp_path / "backup-project"
+    root.mkdir()
+    (root / "docker-compose.yml").write_text(
+        "services:\n  db:\n    image: postgres:16\n",
+        encoding="utf-8",
+    )
+    workspace = tmp_path / "skill-workspace"
+    workspace.mkdir()
+    safe_source = workspace / "postgres_backup_stdout.log"
+    safe_source.write_text("safe backup", encoding="utf-8")
+    outside = tmp_path / "attacker-controlled.sql"
+    outside.write_text("unsafe backup", encoding="utf-8")
+
+    def fake_recipe(*_args: Any, **_kwargs: Any) -> RecipeResult:
+        return RecipeResult(
+            name="postgres_backup",
+            status="SUCCESS",
+            command=["docker", "compose", "exec", "db", "pg_dump"],
+            exit_code=0,
+            stdout_path=str(outside),
+            stderr_path=str(workspace / "postgres_backup_stderr.log"),
+            duration_seconds=0.1,
+            error="",
+        )
+
+    monkeypatch.setattr(
+        "agentic_network.skills.engineering_runtime._run_recipe", fake_recipe
+    )
+
+    result = _backup_restore_command(
+        "backup", {"service": "db"}, workspace, root.resolve()
+    )
+
+    assert result["status"] == "SUCCESS"
+    assert (workspace / "postgres_backup.sql").read_text(encoding="utf-8") == "safe backup"

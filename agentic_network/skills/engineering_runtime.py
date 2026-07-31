@@ -768,10 +768,12 @@ def _backup_restore_command(
         result = _run_recipe("postgres_backup", command, root, workspace, timeout)
         backup_path = validate_workspace_path(workspace / "postgres_backup.sql", workspace)
         if result.status == "SUCCESS":
-            backup_source = validate_workspace_path(result.stdout_path, workspace)
-            shutil.copy2(  # lgtm[py/path-injection]
-                backup_source, backup_path
+            # The recipe name is internal and fixes this path. Never trust a
+            # path carried back in a result object for a subsequent file copy.
+            backup_source = validate_workspace_path(
+                workspace / "postgres_backup_stdout.log", workspace
             )
+            shutil.copy2(backup_source, backup_path)
         return {
             "status": result.status,
             "summary": (f"PostgreSQL logical backup finished with {result.status}."),

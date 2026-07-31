@@ -3413,17 +3413,27 @@ def _source_files(root: Path, suffixes: set[str]) -> list[Path]:
 
 
 def _walk(root: Path) -> list[Path]:
+    safe_root = root.resolve(strict=True)
     files: list[Path] = []
-    # ``root`` is resolved and approved by engineering_runtime._project_root.
-    for directory, names, filenames in os.walk(root):  # lgtm[py/path-injection]
-        names[:] = [name for name in names if name.lower() not in EXCLUDED_PARTS]
-        current = Path(directory)
-        for filename in filenames:
-            path = current / filename
-            if not any(part.lower() in EXCLUDED_PARTS for part in path.relative_to(root).parts):
-                files.append(path)
-                if len(files) >= MAX_FILES:
-                    return files
+    for path in safe_root.rglob("*"):
+        try:
+            relative = path.relative_to(safe_root)
+        except ValueError:
+            continue
+        if any(part.lower() in EXCLUDED_PARTS for part in relative.parts):
+            continue
+        # Repository evidence must never follow a file or directory symlink
+        # into an area that was not approved by the filesystem policy.
+        if path.is_symlink() or not path.is_file():
+            continue
+        resolved = path.resolve(strict=True)
+        try:
+            resolved.relative_to(safe_root)
+        except ValueError:
+            continue
+        files.append(resolved)
+        if len(files) >= MAX_FILES:
+            return files
     return files
 
 

@@ -6,15 +6,15 @@
 # packages. Optional HF/Unsloth development backends are intentionally excluded:
 # every model shipped by the Windows release uses the sequential llama.cpp backend.
 
-fastapi==0.135.1
-uvicorn[standard]==0.41.0
-pydantic==2.12.5
-sqlalchemy==2.0.48
-psycopg[binary]==3.2.9
+fastapi==0.140.13
+uvicorn[standard]==0.51.0
+pydantic==2.13.4
+sqlalchemy==2.0.51
+psycopg[binary]==3.3.4
 python-dotenv==1.2.2
 stripe==15.3.1
 PySide6==6.11.1
-llama-cpp-python==0.3.32
+llama-cpp-python==0.3.34
 numpy==2.4.6
 psutil==5.9.8
 PyYAML==6.0.3

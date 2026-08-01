@@ -1,6 +1,6 @@
 # ANN Engineering Skills
 
-ANN exposes eighty-six local engineering skills and one hundred sixty-four typed actions through `GET /api/skills` and
+ANN exposes one hundred four local engineering skills and two hundred one typed actions through `GET /api/skills` and
 `POST /api/skills/{skill}/execute`. They use the persistent skill permission
 store and the existing Approval Center. A skill permission never replaces a
 file, terminal, migration, container, or patch approval gate.
@@ -106,6 +106,29 @@ file, terminal, migration, container, or patch approval gate.
 | `coverage_guided_test_synthesis` | `analyze`, `generate` | Ranked coverage/mutation gaps and workspace-only test plans |
 | `architectural_debt_ledger` | `snapshot`, `compare` | Architecture debt metrics, markers, trend, and repayment evidence |
 
+## Supreme Engineering Skills
+
+| Skill | Actions | Purpose |
+| --- | --- | --- |
+| `project_archetype_synthesis` | `analyze`, `synthesize` | Classify API, SaaS, game, desktop, CLI, data, infrastructure, and library products and emit a bounded blueprint |
+| `behavioral_acceptance_oracle` | `analyze`, `run` | Trace requirements to observable behavior and approved acceptance tests |
+| `dynamic_authorization_verification` | `inspect`, `run` | Map endpoint, role, tenant, and access-control boundaries and run approved authorization tests |
+| `long_horizon_checkpoint_integrity` | `inspect`, `run` | Verify checkpoint, idempotency, replay, approval, atomicity, and recovery controls |
+| `agent_trajectory_forensics` | `analyze`, `compare` | Redacted decision, evidence, tool-call, retry, and terminal-outcome analysis |
+| `delegation_optimizer` | `analyze`, `plan` | Detect duplicate work, missing ownership, load imbalance, and weak acceptance criteria |
+| `cross_language_semantic_graph` | `scan`, `impact` | Index symbols/imports and rank impact across Python, TS/JS, Go, Rust, Java, and C# |
+| `flaky_test_investigator` | `analyze`, `run` | Analyze outcome/timing variance and run an approved repeated-test recipe |
+| `online_migration_rehearsal` | `inspect`, `run` | Verify expand-contract, backfill, lock, compatibility, tenancy, and rollback evidence |
+| `local_resource_guardian` | `snapshot`, `plan`, `cleanup` | Measure bounded project storage and clean only the isolated Compose project after approval |
+| `secure_update_delivery` | `inspect`, `verify` | Verify offline signed metadata, hashes, expiry, monotonic versions, and rollback protection |
+| `installer_vm_lab` | `inspect`, `run` | Gate clean-VM install, first-launch, upgrade, uninstall, rollback, and residue evidence |
+| `model_runtime_certification` | `inspect`, `benchmark` | Gate backend/device/load-run-unload/rollback evidence through approved certification tests |
+| `api_abuse_simulation` | `inspect`, `run` | Derive and execute approved non-destructive authz, rate, replay, input, and resource scenarios |
+| `performance_regression_bisect` | `analyze`, `run` | Identify the first evidenced benchmark regression without mutating Git history |
+| `asset_provenance` | `scan`, `verify` | Hash assets and require source, license, attribution, and legal-review evidence |
+| `domain_invariant_mining` | `analyze`, `generate` | Mine candidate business invariants and generate a reviewable workspace-only catalog |
+| `ai_governance_evidence` | `assess`, `compare` | Assess AI inventory, risk, evaluation, oversight, privacy/security, and incident evidence without compliance claims |
+
 ## Basic Payload
 
 Every action takes `project_root`. Optional bounded fields include
@@ -141,6 +164,9 @@ Every action takes `project_root`. Optional bounded fields include
 - Delivery-assurance execution: fixed database-performance, stateful-workflow,
   concurrency, reproducible-build, telemetry, upgrade, disaster-recovery,
   policy, and formal-model markers/scripts only.
+- Supreme execution: fixed behavioral-oracle, authorization, checkpoint,
+  flaky-test, online-migration, installer-lab, model-runtime, API-abuse, and
+  performance-history markers plus isolated Compose cleanup only.
 
 Raw command payloads are ignored. No action accepts arbitrary shell text.
 
@@ -234,3 +260,14 @@ action runs; delegated model text cannot authorize execution.
   evidence. It neither downloads a feed nor implements a certificate authority.
 - Formal, concurrency, recovery, SLO, and reproducible-build results are only as
   strong as the project-supplied sandbox tests and their declared invariants.
+- Archetype synthesis and invariant mining produce evidence-based proposals,
+  not proof that a generated architecture or business rule is correct.
+- Installer VM Lab validates supplied VM evidence and a project-provided
+  sandbox recipe; it does not execute an installer directly on the host.
+- Model Runtime Certification does not modify, train, or download models. A
+  `SUCCESS` result requires explicit load, inference, unload, device, and
+  rollback evidence from the approved recipe.
+- Asset Provenance never claims copyright or license clearance. Legal review
+  remains required before public distribution.
+- AI Governance Evidence is an engineering checklist and comparison tool. It
+  does not guarantee EU AI Act, NIST AI RMF, ISO, or other compliance.

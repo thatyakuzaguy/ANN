@@ -29,6 +29,7 @@ from agentic_network.architecture_entropy import evaluate_architecture_entropy
 from agentic_network.contract_arbitration import evaluate_contract_arbitration
 from agentic_network.repository_intelligence_agent.runtime import build_repository_intelligence
 from agentic_network.skills.sandbox import validate_workspace_path
+from agentic_network.skills.supreme_runtime import SUPREME_SKILLS, execute_supreme_action
 from agentic_network.test_validity_gate import evaluate_test_validity_gate
 
 
@@ -441,6 +442,8 @@ def execute_advanced_action(
     handler = handlers.get(skill_name)
     if handler is not None:
         result = handler(action, payload, workspace, project_root)
+    elif skill_name in SUPREME_SKILLS:
+        result = execute_supreme_action(skill_name, action, payload, workspace, project_root)
     elif skill_name in SPECIALIST_PROFILES:
         result = _specialist_capability(skill_name, action, payload, workspace, project_root)
     else:

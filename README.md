@@ -60,7 +60,7 @@ human rather than looping forever.
   rollback, and `FAILED_PERMANENTLY` escalation.
 - Architecture entropy analysis to detect accumulated complexity and propose
   explicit refactoring work instead of endlessly adding local conditionals.
-- Eighty-six permission-scoped engineering skills and one hundred sixty-four typed actions covering contracts,
+- One hundred four permission-scoped engineering skills and two hundred one typed actions covering contracts,
   dependencies, observability, test validity, architecture fitness,
   backup/restore, performance, supply chain, provenance, deployment,
   integrations, UX, Git collaboration, web/package lookup, and specialist
@@ -75,7 +75,13 @@ human rather than looping forever.
   plans, stateful workflows, concurrency, reproducible builds, configuration
   parity, SLOs, journeys, upgrade/recovery drills, release channels,
   clean-machine evidence, signed vulnerability intelligence, policy as code,
-  formal models, coverage-guided synthesis, and architecture debt trends.
+  formal models, coverage-guided synthesis, architecture debt trends,
+  archetype synthesis, behavioral oracles, dynamic authorization,
+  checkpoint integrity, trajectory forensics, delegation optimization,
+  cross-language semantic impact, flaky-test investigation, online migration
+  rehearsals, local resource quotas, secure updates, installer VM evidence,
+  model-runtime certification, API-abuse simulation, performance bisecting,
+  asset provenance, invariant mining, and AI governance evidence.
 - Project templates, Docker validation, health checks, security scans,
   documentation, packaging, and generated-project lifecycle artifacts.
 

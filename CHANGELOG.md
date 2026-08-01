@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- Added eighteen supreme engineering skills for archetype synthesis,
+  behavioral acceptance, authorization boundaries, checkpoint integrity,
+  trajectory forensics, delegation, cross-language impact, flaky tests,
+  online migrations, resource governance, secure updates, installer VM
+  evidence, model runtime certification, API abuse, performance bisecting,
+  asset provenance, domain invariants, and AI governance. The typed catalog
+  now contains 104 skills and 201 actions.
+- Added ten single-use approval-gated Compose operations and deterministic,
+  bounded, workspace-only evidence handlers without arbitrary shell, host
+  installation, downloads, training, model mutation, or compliance claims.
 - Added eighteen delivery-assurance skills for requirements traceability, Git
   history intelligence, database query performance, stateful workflows,
   concurrency, reproducible builds, configuration parity, SLO telemetry, user

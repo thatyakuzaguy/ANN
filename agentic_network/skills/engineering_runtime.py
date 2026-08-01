@@ -123,7 +123,19 @@ def _advanced_engineering_action(
         return _performance_command(payload, workspace, root)
     if skill_name == "architecture_refactor_execution" and action == "prepare":
         return _patch_workspace("inspect", payload, workspace)
-    if (
+    specialist_execution = (skill_name, action) in {
+        ("api_abuse_simulation", "run"),
+        ("behavioral_acceptance_oracle", "run"),
+        ("dynamic_authorization_verification", "run"),
+        ("flaky_test_investigator", "run"),
+        ("installer_vm_lab", "run"),
+        ("local_resource_guardian", "cleanup"),
+        ("long_horizon_checkpoint_integrity", "run"),
+        ("model_runtime_certification", "benchmark"),
+        ("online_migration_rehearsal", "run"),
+        ("performance_regression_bisect", "run"),
+    }
+    if specialist_execution or (
         skill_name
         in {
             "accessibility_execution",
@@ -965,6 +977,16 @@ def _specialist_test_command(
         "stateful_workflow_verification": "python_stateful_workflow",
         "upgrade_compatibility": "python_upgrade_compatibility",
         "visual_regression": "web_visual",
+        "api_abuse_simulation": "python_api_abuse",
+        "behavioral_acceptance_oracle": "python_behavioral_oracle",
+        "dynamic_authorization_verification": "python_authorization",
+        "flaky_test_investigator": "python_flaky",
+        "installer_vm_lab": "python_installer_vm",
+        "local_resource_guardian": "compose_cleanup",
+        "long_horizon_checkpoint_integrity": "python_checkpoint",
+        "model_runtime_certification": "python_model_runtime",
+        "online_migration_rehearsal": "python_online_migration",
+        "performance_regression_bisect": "python_performance_bisect",
     }
     aliases = {
         "accessibility": "web_accessibility",
@@ -1016,6 +1038,16 @@ def _specialist_test_command(
             "web_upgrade_compatibility",
         },
         "visual_regression": {"web_visual"},
+        "api_abuse_simulation": {"python_api_abuse"},
+        "behavioral_acceptance_oracle": {"python_behavioral_oracle"},
+        "dynamic_authorization_verification": {"python_authorization"},
+        "flaky_test_investigator": {"python_flaky"},
+        "installer_vm_lab": {"python_installer_vm"},
+        "local_resource_guardian": {"compose_cleanup"},
+        "long_horizon_checkpoint_integrity": {"python_checkpoint"},
+        "model_runtime_certification": {"python_model_runtime"},
+        "online_migration_rehearsal": {"python_online_migration"},
+        "performance_regression_bisect": {"python_performance_bisect"},
     }
     if recipe not in allowed_by_skill[skill_name]:
         return {
@@ -1043,6 +1075,8 @@ def _specialist_test_command(
     )
     if recipe == "compose_config":
         command = [*prefix, "config", "--quiet"]
+    elif recipe == "compose_cleanup":
+        command = [*prefix, "down", "--remove-orphans"]
     else:
         service, inner, script = _specialist_recipe(recipe)
         if service not in _compose_services(compose):
@@ -1112,6 +1146,26 @@ def _specialist_recipe(
             ["python", "-m", "pytest", "-q", "-m", "chaos"],
             None,
         ),
+        "python_api_abuse": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "api_abuse"],
+            None,
+        ),
+        "python_authorization": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "authorization"],
+            None,
+        ),
+        "python_behavioral_oracle": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "behavioral_oracle"],
+            None,
+        ),
+        "python_checkpoint": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "checkpoint_integrity"],
+            None,
+        ),
         "python_compatibility": (
             "api",
             ["python", "-m", "pytest", "-q", "-m", "compatibility"],
@@ -1169,6 +1223,16 @@ def _specialist_recipe(
             ["python", "-m", "pytest", "-q", "-m", "formal_model"],
             None,
         ),
+        "python_flaky": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "flaky_investigation"],
+            None,
+        ),
+        "python_installer_vm": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "installer_vm_lab"],
+            None,
+        ),
         "python_memory": (
             "api",
             ["python", "-m", "pytest", "-q", "-m", "memory"],
@@ -1179,9 +1243,24 @@ def _specialist_recipe(
             ["python", "-m", "mutmut", "run"],
             None,
         ),
+        "python_model_runtime": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "model_runtime"],
+            None,
+        ),
+        "python_online_migration": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "online_migration"],
+            None,
+        ),
         "python_policy": (
             "api",
             ["python", "-m", "pytest", "-q", "-m", "policy"],
+            None,
+        ),
+        "python_performance_bisect": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "performance_history"],
             None,
         ),
         "python_queue": (

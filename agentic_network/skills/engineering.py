@@ -930,6 +930,247 @@ ENGINEERING_SKILL_ACTIONS: dict[str, tuple[EngineeringSkillAction, ...]] = {
             (READ,),
         ),
     ),
+    "project_archetype_synthesis": (
+        EngineeringSkillAction(
+            "analyze",
+            "Classify the repository and requested product using deterministic cross-domain evidence.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "synthesize",
+            "Generate a bounded architecture blueprint only inside the skill workspace.",
+            (READ,),
+        ),
+    ),
+    "behavioral_acceptance_oracle": (
+        EngineeringSkillAction(
+            "analyze",
+            "Map requirements and acceptance criteria to observable behavior and test evidence.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "run",
+            "Run only an approved behavioral-oracle test recipe inside Docker Compose.",
+            (READ, WRITE, TERMINAL),
+            True,
+            True,
+        ),
+    ),
+    "dynamic_authorization_verification": (
+        EngineeringSkillAction(
+            "inspect",
+            "Build an endpoint, role, tenant, and authorization-control verification matrix.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "run",
+            "Run only approved authorization-boundary tests inside Docker Compose.",
+            (READ, WRITE, TERMINAL),
+            True,
+            True,
+        ),
+    ),
+    "long_horizon_checkpoint_integrity": (
+        EngineeringSkillAction(
+            "inspect",
+            "Inspect checkpoints, idempotency keys, replay guards, approvals, and recovery evidence.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "run",
+            "Run only an approved checkpoint-resume recipe inside Docker Compose.",
+            (READ, WRITE, TERMINAL),
+            True,
+            True,
+        ),
+    ),
+    "agent_trajectory_forensics": (
+        EngineeringSkillAction(
+            "analyze",
+            "Analyze bounded agent decisions, evidence, tool calls, retries, and terminal outcomes.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "compare",
+            "Compare two redacted trajectory summaries without exposing prompts or secrets.",
+            (READ,),
+        ),
+    ),
+    "delegation_optimizer": (
+        EngineeringSkillAction(
+            "analyze",
+            "Detect duplicate delegation, missing ownership, context waste, and skill coverage gaps.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "plan",
+            "Create a bounded evidence-based delegation plan without executing subagents.",
+            (READ,),
+        ),
+    ),
+    "cross_language_semantic_graph": (
+        EngineeringSkillAction(
+            "scan",
+            "Index bounded symbols and imports across Python, TypeScript, JavaScript, Go, Rust, Java, and C#.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "impact",
+            "Rank cross-language files and boundaries affected by supplied target paths or symbols.",
+            (READ,),
+        ),
+    ),
+    "flaky_test_investigator": (
+        EngineeringSkillAction(
+            "analyze",
+            "Classify repeated test outcomes, timing variance, shared-state signals, and failure signatures.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "run",
+            "Run only an approved repeated-test investigation recipe inside Docker Compose.",
+            (READ, WRITE, TERMINAL),
+            True,
+            True,
+        ),
+    ),
+    "online_migration_rehearsal": (
+        EngineeringSkillAction(
+            "inspect",
+            "Inspect expand-contract ordering, locks, backfills, compatibility, and rollback evidence.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "run",
+            "Run only an approved isolated online-migration rehearsal inside Docker Compose.",
+            (READ, WRITE, TERMINAL),
+            True,
+            True,
+        ),
+    ),
+    "local_resource_guardian": (
+        EngineeringSkillAction(
+            "snapshot",
+            "Measure bounded project and local disk capacity without enumerating unrelated host data.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "plan",
+            "Create quota, retention, and cleanup recommendations without deleting host data.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "cleanup",
+            "Run only the approved isolated Compose cleanup recipe; never delete arbitrary host paths.",
+            (READ, WRITE, TERMINAL),
+            True,
+            True,
+        ),
+    ),
+    "secure_update_delivery": (
+        EngineeringSkillAction(
+            "inspect",
+            "Inspect offline update metadata, version monotonicity, expiry, hashes, signatures, and rollback policy.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "verify",
+            "Verify supplied update evidence without downloading, installing, or publishing anything.",
+            (READ,),
+        ),
+    ),
+    "installer_vm_lab": (
+        EngineeringSkillAction(
+            "inspect",
+            "Inspect clean-VM install, launch, upgrade, uninstall, rollback, and residue evidence.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "run",
+            "Run only an approved installer-lab evidence recipe inside Docker Compose.",
+            (READ, WRITE, TERMINAL),
+            True,
+            True,
+        ),
+    ),
+    "model_runtime_certification": (
+        EngineeringSkillAction(
+            "inspect",
+            "Inspect model manifest, backend, device, memory, load-run-unload, and rollback evidence.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "benchmark",
+            "Run only an approved model-runtime certification recipe inside Docker Compose.",
+            (READ, WRITE, TERMINAL),
+            True,
+            True,
+        ),
+    ),
+    "api_abuse_simulation": (
+        EngineeringSkillAction(
+            "inspect",
+            "Derive bounded authorization, rate-limit, injection, replay, and resource-abuse scenarios.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "run",
+            "Run only an approved non-destructive API abuse test recipe inside Docker Compose.",
+            (READ, WRITE, TERMINAL),
+            True,
+            True,
+        ),
+    ),
+    "performance_regression_bisect": (
+        EngineeringSkillAction(
+            "analyze",
+            "Rank supplied benchmark revisions and identify the first evidenced performance regression.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "run",
+            "Run only an approved performance-history recipe without mutating Git history.",
+            (READ, WRITE, TERMINAL),
+            True,
+            True,
+        ),
+    ),
+    "asset_provenance": (
+        EngineeringSkillAction(
+            "scan",
+            "Inventory bounded visual, audio, font, and binary assets with hashes and attribution evidence.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "verify",
+            "Gate supplied asset provenance without claiming legal clearance.",
+            (READ,),
+        ),
+    ),
+    "domain_invariant_mining": (
+        EngineeringSkillAction(
+            "analyze",
+            "Mine candidate business invariants from models, schemas, guards, tests, and requirements.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "generate",
+            "Generate a reviewable invariant catalog only inside the skill workspace.",
+            (READ,),
+        ),
+    ),
+    "ai_governance_evidence": (
+        EngineeringSkillAction(
+            "assess",
+            "Assess bounded AI inventory, intended use, evaluation, oversight, privacy, and incident evidence.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "compare",
+            "Compare governance snapshots without claiming legal or regulatory compliance.",
+            (READ,),
+        ),
+    ),
     "repository_intelligence": (
         EngineeringSkillAction(
             "scan", "Index AST symbols, routes, tests, and dependencies.", (READ,)

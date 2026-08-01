@@ -286,8 +286,8 @@ def test_all_advanced_skills_are_registered_enabled_and_typed() -> None:
         for name in ADVANCED_SKILLS
     )
     assert all(catalog[name]["actions"] for name in ADVANCED_SKILLS)
-    assert len(catalog) == 86
-    assert sum(len(item["actions"]) for item in catalog.values()) == 164
+    assert len(catalog) == 104
+    assert sum(len(item["actions"]) for item in catalog.values()) == 201
 
 
 def test_semantic_transformation_prepares_token_aware_diff_only(

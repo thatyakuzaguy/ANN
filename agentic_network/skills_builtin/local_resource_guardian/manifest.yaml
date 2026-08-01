@@ -1,0 +1,13 @@
+name: local_resource_guardian
+version: 1.0
+description: Bounded project capacity, quota, retention, and isolated Compose cleanup controls.
+enabled: true
+requires_user_approval: true
+audit_enabled: true
+permissions:
+  network: DENY
+  filesystem_read: ASK_ALWAYS
+  filesystem_write: ASK_ALWAYS
+  git_read: DENY
+  git_write: DENY
+  terminal_execute: ASK_ALWAYS

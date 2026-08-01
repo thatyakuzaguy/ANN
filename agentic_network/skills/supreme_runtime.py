@@ -13,7 +13,7 @@ import json
 from pathlib import Path
 import re
 import shutil
-from typing import Any, Callable
+from typing import Any, Callable, cast
 
 from agentic_network.skills.sandbox import validate_workspace_path
 
@@ -676,9 +676,11 @@ def _read(path: Path) -> str:
 
 
 def _write_json(path: Path, data: dict[str, Any], workspace: Path) -> Path:
-    target = validate_workspace_path(path, workspace)
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(json.dumps(data, indent=2, sort_keys=True), encoding="utf-8", newline="\n")
+    target = cast(Path, validate_workspace_path(path, workspace))
+    target.parent.mkdir(parents=True, exist_ok=True)  # lgtm[py/path-injection]
+    target.write_text(  # lgtm[py/path-injection]
+        json.dumps(data, indent=2, sort_keys=True), encoding="utf-8", newline="\n"
+    )
     return target
 
 

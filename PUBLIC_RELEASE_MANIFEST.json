@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-08-02T10:26:00.3530164Z",
+  "generated_at_utc": "2026-08-02T14:51:35.7308675Z",
   "release_stage": "stable",
   "release_version": "1.0.1",
-  "source_revision": "6036ef65c0bd0c4d9c56569655a12d248991d70e",
+  "source_revision": "ce88dc36a307d4f5d3fe25e5aa0c5dfff3eae940",
   "file_count": 1225,
-  "total_bytes": 6808160,
+  "total_bytes": 6810251,
   "maximum_file_size_mb": 25,
   "files": [
     {
@@ -3190,8 +3190,8 @@
     },
     {
       "path": "agentic_network/skills/engineering_runtime.py",
-      "bytes": 111026,
-      "sha256": "ba03601cc432c814c669614d4edf484a9dd1e5e86a886b7d29070acc3ee5349e"
+      "bytes": 111403,
+      "sha256": "c17a2a4937651e6971c13bfe29c94cf5700ba6c522a60c006d0acebafd8f15f7"
     },
     {
       "path": "agentic_network/skills/engineering.py",
@@ -3215,8 +3215,8 @@
     },
     {
       "path": "agentic_network/skills/frontier_runtime.py",
-      "bytes": 26887,
-      "sha256": "5e32d8f574459298873fdc7fb8900f4c4799d7a4a966ad1bba23bdd114079979"
+      "bytes": 26988,
+      "sha256": "be953489f00195559c3ceeeab793d30c22e73b568ab7ede1f5a330db5a9f36be"
     },
     {
       "path": "agentic_network/skills/manager.py",
@@ -5140,8 +5140,8 @@
     },
     {
       "path": "tests/python/test_frontier_skills_runtime.py",
-      "bytes": 14249,
-      "sha256": "cbfbade1a8c7f49a0fc6ebd44fc65386e24fe3f9309397e9bd14cb0e813a6545"
+      "bytes": 15862,
+      "sha256": "febd529d836cd1e8abc8f2eafbd0f0cea54b5761749643bb5a5b4b9fdb114082"
     },
     {
       "path": "tests/python/test_full_real_developer_team_pipeline.py",

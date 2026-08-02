@@ -1660,11 +1660,10 @@ def _safe_specialist_package_script(root: Path, name: str) -> bool:
 
 def _specialist_recipe_readiness(root: Path, recipe: str) -> str:
     if recipe == "python_lsp":
-        pyright_config = root / "pyrightconfig.json"
-        pyproject = root / "pyproject.toml"
-        configured = pyright_config.is_file() or (
-            pyproject.is_file()
-            and "pyright" in pyproject.read_text(encoding="utf-8", errors="replace").lower()
+        pyright_config = _optional_project_text(root, "pyrightconfig.json")
+        pyproject = _optional_project_text(root, "pyproject.toml")
+        configured = pyright_config is not None or (
+            pyproject is not None and "pyright" in pyproject.lower()
         )
         if not configured:
             return "pyright_configuration_missing"
@@ -1703,6 +1702,18 @@ def _specialist_recipe_readiness(root: Path, recipe: str) -> str:
     if recipe == "python_schema_drift" and _find_alembic_config(root) is None:
         return "alembic_config_missing"
     return ""
+
+
+def _optional_project_text(root: Path, filename: str) -> str | None:
+    """Read one fixed project config after applying the project path boundary."""
+
+    path = _project_file(root, filename, required=False)
+    try:
+        return path.read_text(  # lgtm[py/path-injection]
+            encoding="utf-8", errors="replace"
+        )[:512_000]
+    except OSError:
+        return None
 
 
 def _top_level_files(root: Path, suffix: str) -> list[Path]:

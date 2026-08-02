@@ -14,7 +14,10 @@ from agentic_network.skills import (
     SkillRegistry,
 )
 from agentic_network.skills.engineering import ENGINEERING_SKILL_ACTIONS
-from agentic_network.skills.frontier_runtime import FRONTIER_SKILLS
+from agentic_network.skills.frontier_runtime import (
+    FRONTIER_SKILLS,
+    enrich_specialist_execution,
+)
 from agentic_network.skills.runtime import execute_skill
 from agentic_engineering_network.agents.subagents import SUBAGENT_REGISTRY
 
@@ -255,6 +258,56 @@ def test_unapproved_or_unknown_frontier_recipe_never_executes(
     assert unapproved.status == "BLOCKED"
     assert unknown.status == "BLOCKED"
     assert called is False
+
+
+def test_specialist_interpreter_rejects_logs_outside_workspace(tmp_path: Path) -> None:
+    workspace = tmp_path / "skill-workspace"
+    workspace.mkdir()
+    outside = tmp_path / "outside.log"
+    outside.write_text("secret diagnostic", encoding="utf-8")
+    result = {
+        "status": "SUCCESS",
+        "data": {
+            "recipe": "python_lsp",
+            "result": {
+                "stdout_path": str(outside),
+                "stderr_path": str(outside),
+            },
+        },
+    }
+
+    enriched = enrich_specialist_execution(
+        "language_server_intelligence", workspace, result
+    )
+
+    interpretation = enriched["data"]["interpretation"]
+    assert interpretation["diagnostics"] == []
+    assert "secret diagnostic" not in json.dumps(enriched)
+
+
+def test_specialist_interpreter_rejects_workspace_symlink_escape(tmp_path: Path) -> None:
+    workspace = tmp_path / "skill-workspace"
+    workspace.mkdir()
+    outside = tmp_path / "outside.log"
+    outside.write_text("secret diagnostic", encoding="utf-8")
+    link = workspace / "stdout.log"
+    try:
+        link.symlink_to(outside)
+    except OSError:
+        pytest.skip("File symlinks are unavailable on this Windows account.")
+    result = {
+        "status": "SUCCESS",
+        "data": {
+            "recipe": "python_lsp",
+            "result": {"stdout_path": str(link), "stderr_path": ""},
+        },
+    }
+
+    enriched = enrich_specialist_execution(
+        "language_server_intelligence", workspace, result
+    )
+
+    assert enriched["data"]["interpretation"]["diagnostics"] == []
 
 
 def test_delivery_benchmark_requires_real_stage_and_model_evidence(tmp_path: Path) -> None:

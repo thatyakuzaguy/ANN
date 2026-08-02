@@ -23,6 +23,7 @@ from agentic_network.skills.supreme_runtime import (
     _write_json,
 )
 from agentic_network.skills.external_runner_evidence import validate_external_runner_evidence
+from agentic_network.skills.sandbox import validate_workspace_path
 
 
 FRONTIER_SKILLS = frozenset(
@@ -149,14 +150,16 @@ def enrich_specialist_execution(
 def _workspace_text(workspace: Path, value: Any) -> str:
     if not value:
         return ""
-    candidate = Path(str(value)).resolve()
     try:
-        candidate.relative_to(workspace.resolve())
-    except ValueError:
+        candidate = validate_workspace_path(str(value), workspace)
+    except (OSError, ValueError):
         return ""
-    if not candidate.is_file():
+    try:
+        return candidate.read_text(  # lgtm[py/path-injection]
+            encoding="utf-8", errors="replace"
+        )[:1_000_000]
+    except OSError:
         return ""
-    return candidate.read_text(encoding="utf-8", errors="replace")[:1_000_000]
 
 
 def _benchmark_catalog() -> dict[str, Any]:

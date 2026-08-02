@@ -11,12 +11,13 @@ from agentic_network.runtime_engine.loader import DEFAULT_CONFIG_PATH, get_loade
 from agentic_network.runtime_engine.model_policy import load_model_policy
 
 try:  # pragma: no cover - covered by manual desktop smoke when Qt is installed.
-    from PySide6.QtWidgets import QLabel, QPlainTextEdit, QVBoxLayout, QWidget
+    from PySide6.QtWidgets import QLabel, QPlainTextEdit, QPushButton, QVBoxLayout, QWidget
 
     PYSIDE6_AVAILABLE = True
 except ModuleNotFoundError:  # pragma: no cover
     QLabel = None
     QPlainTextEdit = None
+    QPushButton = None
     QVBoxLayout = None
     QWidget = object
     PYSIDE6_AVAILABLE = False
@@ -98,13 +99,22 @@ if PYSIDE6_AVAILABLE:
             layout = QVBoxLayout(self)
             title = QLabel("Runtime Engine")
             title.setAccessibleName("Runtime Engine view title")
-            self.body = QPlainTextEdit(runtime_engine_snapshot())
+            self.body = QPlainTextEdit(
+                f"{RUNTIME_ENGINE_MESSAGE}\n\nSelect Refresh to inspect current runtime state."
+            )
             self.body.setReadOnly(True)
             self.body.setAccessibleName("Runtime Engine read only status")
+            refresh = QPushButton("Refresh")
+            refresh.setAccessibleName("Refresh Runtime Engine state")
+            refresh.clicked.connect(self._refresh)
             layout.addWidget(title)
             layout.addWidget(self.body, 1)
+            layout.addWidget(refresh)
 
         def set_bundle(self, _bundle: Any, _snapshot: dict[str, Any]) -> None:
+            return
+
+        def _refresh(self) -> None:
             self.body.setPlainText(runtime_engine_snapshot())
 
 else:

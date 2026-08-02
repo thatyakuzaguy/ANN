@@ -52,6 +52,10 @@ OPTIONAL_ARTIFACT_PATTERNS = (
     ("36 Retry Failure Loop", "36_retry_failure_loop_attempt_*.md"),
     ("37 Failure Context", "37_failure_context_attempt_*.md"),
     ("37 Failure Context JSON", "37_failure_context_attempt_*.json"),
+    ("38 Skill Evidence Plan", "38_skill_evidence_plan_attempt_*.md"),
+    ("38 Skill Evidence Plan JSON", "38_skill_evidence_plan_attempt_*.json"),
+    ("39 Skill Evidence Decision", "39_skill_evidence_decision_attempt_*.md"),
+    ("39 Skill Evidence Decision JSON", "39_skill_evidence_decision_attempt_*.json"),
 )
 REQUIRED_HEADINGS = (
     "# ANN Handoff Bundle",

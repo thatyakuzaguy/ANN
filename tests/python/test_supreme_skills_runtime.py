@@ -99,8 +99,8 @@ def test_supreme_skills_are_registered_packaged_and_delegated() -> None:
     assert len(SUPREME_SKILLS) == 18
     assert SUPREME_SKILLS.issubset(ENGINEERING_SKILL_ACTIONS)
     assert SUPREME_SKILLS.issubset(delegated)
-    assert len(ENGINEERING_SKILL_ACTIONS) == 104
-    assert sum(len(actions) for actions in ENGINEERING_SKILL_ACTIONS.values()) == 201
+    assert len(ENGINEERING_SKILL_ACTIONS) == 126
+    assert sum(len(actions) for actions in ENGINEERING_SKILL_ACTIONS.values()) == 245
     for name in SUPREME_SKILLS:
         assert registry.get_skill(name) is not None
         assert (Path("agentic_network/skills_builtin") / name / "SKILL.md").is_file()

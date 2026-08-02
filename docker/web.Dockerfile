@@ -22,7 +22,9 @@ ENV HOSTNAME=0.0.0.0
 ENV PORT=3000
 COPY --from=builder /workspace/apps/web/.next/standalone ./
 COPY --from=builder /workspace/apps/web/.next/static ./apps/web/.next/static
-RUN addgroup -S ann && adduser -S ann -G ann \
+RUN rm -rf /usr/local/lib/node_modules/npm \
+    && rm -f /usr/local/bin/npm /usr/local/bin/npx \
+    && addgroup -S ann && adduser -S ann -G ann \
     && chown -R ann:ann /workspace
 USER ann
 WORKDIR /workspace/apps/web

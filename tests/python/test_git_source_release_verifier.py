@@ -226,6 +226,7 @@ def test_public_repository_verifier_supports_windows_powershell_51() -> None:
 
     assert "Get-AnnRelativePath" in source
     assert "[IO.Path]::GetRelativePath" not in source
+    assert "ls-files --cached --others --exclude-standard" in source
 
 
 def test_git_source_release_script_bootstraps_monorepo_packages() -> None:

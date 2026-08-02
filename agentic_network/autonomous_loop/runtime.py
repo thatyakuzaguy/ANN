@@ -30,6 +30,12 @@ from agentic_network.self_healing_agent.runtime import (
 )
 from agentic_network.test_runner_agent.runtime import run_tests_for_run
 from agentic_network.failure_context.runtime import compile_failure_context, write_failure_context_artifacts
+from agentic_network.skills.evidence_loop import (
+    build_skill_evidence_plan,
+    interpret_skill_results,
+    load_skill_results,
+    write_skill_evidence_loop_artifacts,
+)
 
 AUTONOMOUS_LOOP_FILE = "27_autonomous_loop.md"
 ATTEMPT_FILE_TEMPLATE = "28_autonomous_attempt_{attempt:03d}.md"
@@ -643,7 +649,33 @@ def _write_retry_test_failure_artifacts(
         json_name=f"37_failure_context_attempt_{attempt_number:03d}.json",
         markdown_name=f"37_failure_context_attempt_{attempt_number:03d}.md",
     )
-    artifacts = [str(analysis_path), str(plan_path), str(loop_path), *context_artifacts]
+    skill_context = {
+        "stdout": stdout,
+        "stderr": stderr,
+        "test_report": test_report,
+        "failure_reason": reason,
+        "commands": commands,
+        "affected_files": files_affected,
+    }
+    skill_plan = build_skill_evidence_plan(skill_context)
+    skill_results = load_skill_results(run_dir, skill_plan)
+    skill_decision = interpret_skill_results(skill_plan, skill_results)
+    skill_decision["consumed_result_files"] = [
+        item["source_file"] for item in skill_results
+    ]
+    skill_artifacts = write_skill_evidence_loop_artifacts(
+        run_dir,
+        attempt_number,
+        skill_plan,
+        skill_decision,
+    )
+    artifacts = [
+        str(analysis_path),
+        str(plan_path),
+        str(loop_path),
+        *context_artifacts,
+        *skill_artifacts,
+    ]
     _write_retry_summary_fields(
         run_dir,
         {
@@ -652,12 +684,20 @@ def _write_retry_test_failure_artifacts(
             "autonomous_loop_retry_failure_reason": reason,
             "autonomous_loop_retry_failure_artifacts": artifacts,
             "autonomous_loop_retry_failure_next_action": next_action,
+            "autonomous_loop_skill_evidence_status": skill_decision["status"],
+            "autonomous_loop_skill_evidence_selected": [
+                item["skill"] for item in skill_plan["selected_skills"]
+            ],
+            "autonomous_loop_skill_evidence_artifacts": skill_artifacts,
+            "autonomous_loop_skill_evidence_next_action": skill_decision["next_action"],
         },
         output_files={
             f"retry_test_failure_analysis_attempt_{attempt_number:03d}": str(analysis_path),
             f"retry_failure_followup_plan_attempt_{attempt_number:03d}": str(plan_path),
             f"retry_failure_loop_attempt_{attempt_number:03d}": str(loop_path),
             f"retry_failure_context_attempt_{attempt_number:03d}": context_artifacts[0],
+            f"skill_evidence_plan_attempt_{attempt_number:03d}": skill_artifacts[0],
+            f"skill_evidence_decision_attempt_{attempt_number:03d}": skill_artifacts[2],
         },
     )
     return artifacts

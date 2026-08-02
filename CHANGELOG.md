@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+- Added ten precision engineering skills for identity protocols, temporal and
+  monetary correctness, offline synchronization, binary hardening, web
+  protocols, search relevance, agent-tool contracts, messaging delivery, data
+  residency, and assistive-technology evidence. The typed catalog now contains
+  126 skills and 245 actions.
+- Added deterministic failure-to-skill selection and evidence interpretation
+  to the autonomous correction loop. It writes plan/decision artifacts for
+  each failed attempt but never executes a skill, approves a command, or
+  applies a patch automatically.
+- Added normalized Pyright/TypeScript diagnostics, a versioned local delivery
+  benchmark corpus, and strict hash/timestamp contracts for external Windows,
+  mobile, binary, residency, and assistive-technology runner evidence.
+- Added twelve frontier engineering skills for language-server intelligence,
+  autonomous delivery benchmarking, runtime failure recovery, native/mobile
+  evidence labs, LLM application security, privacy-rights execution,
+  cryptographic protocols, SDK conformance, capacity economics, cross-store
+  consistency, and product telemetry. The typed catalog then contained 116
+  skills and 225 actions.
+- Added ten single-use approval-gated Compose recipe families for the frontier
+  wave. Native/mobile checks remain read-only external evidence gates and no
+  new skill accepts arbitrary shell, host execution, downloads, or installs.
 - Added eighteen supreme engineering skills for archetype synthesis,
   behavioral acceptance, authorization boundaries, checkpoint integrity,
   trajectory forensics, delegation, cross-language impact, flaky tests,

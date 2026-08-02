@@ -96,6 +96,7 @@ def test_code_signing_readiness_checks_authenticode_without_shell(monkeypatch, t
     assert len(calls) == 2
     assert all(call["kwargs"].get("shell") is None for call in calls)
     assert all(call["kwargs"]["check"] is False for call in calls)
+    assert all(call["kwargs"]["errors"] == "replace" for call in calls)
 
 
 def test_code_signing_readiness_blocks_valid_signature_without_timestamp(monkeypatch, tmp_path: Path) -> None:

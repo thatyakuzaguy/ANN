@@ -1,6 +1,6 @@
 # ANN Engineering Skills
 
-ANN exposes one hundred four local engineering skills and two hundred one typed actions through `GET /api/skills` and
+ANN exposes one hundred twenty-six local engineering skills and two hundred forty-five typed actions through `GET /api/skills` and
 `POST /api/skills/{skill}/execute`. They use the persistent skill permission
 store and the existing Approval Center. A skill permission never replaces a
 file, terminal, migration, container, or patch approval gate.
@@ -129,6 +129,38 @@ file, terminal, migration, container, or patch approval gate.
 | `domain_invariant_mining` | `analyze`, `generate` | Mine candidate business invariants and generate a reviewable workspace-only catalog |
 | `ai_governance_evidence` | `assess`, `compare` | Assess AI inventory, risk, evaluation, oversight, privacy/security, and incident evidence without compliance claims |
 
+## Frontier Engineering Skills
+
+| Skill | Actions | Purpose |
+| --- | --- | --- |
+| `language_server_intelligence` | `inspect`, `run` | Typed source/configuration diagnostics and approved Pyright or TypeScript execution |
+| `autonomous_delivery_benchmark` | `inspect`, `run` | Reproducible requirements-to-release benchmark stages with model provenance |
+| `runtime_failure_lab` | `inspect`, `run` | Controlled interruption, resource, Docker, model-integrity, packaging, and recovery evidence |
+| `native_ui_automation` | `inspect`, `verify` | Windows UI automation readiness and external clean-machine evidence validation |
+| `llm_application_security` | `inspect`, `run` | Prompt, retrieval, tool, tenant, secret, and output-boundary security tests |
+| `privacy_rights_verification` | `inspect`, `run` | Export, erasure, retention, consent, tenancy, and audit verification |
+| `cryptographic_protocol_verification` | `inspect`, `run` | TLS, JWT, rotation, hashing, randomness, and unsafe-use checks |
+| `sdk_contract_conformance` | `analyze`, `run` | OpenAPI, SDK surface, versioning, errors, and client-contract tests |
+| `mobile_device_lab` | `inspect`, `verify` | Mobile framework readiness and external device-lab evidence validation |
+| `capacity_economics` | `analyze`, `benchmark` | Throughput, latency, memory, concurrency, and non-binding capacity projections |
+| `cross_store_consistency` | `inspect`, `run` | Database, cache, queue, search, outbox, reconciliation, and idempotency tests |
+| `product_telemetry_validation` | `analyze`, `run` | Event taxonomy, identity, consent, PII, funnels, experiments, and quality tests |
+
+## Precision Engineering Skills
+
+| Skill | Actions | Purpose |
+| --- | --- | --- |
+| `identity_protocol_conformance` | `inspect`, `run` | OAuth/OIDC, SAML, SCIM, request binding, token validation, and session lifecycle |
+| `temporal_monetary_correctness` | `inspect`, `run` | Timezone, DST, decimal money, currencies, rounding, tax, and exchange invariants |
+| `offline_sync_conflict_verification` | `inspect`, `run` | Offline queues, versions, tombstones, conflict resolution, and idempotency |
+| `binary_hardening_verification` | `inspect`, `verify` | Integrity, signing, SBOM, mitigations, rollback, and attested Windows lab evidence |
+| `web_protocol_conformance` | `inspect`, `run` | HTTP caching, CORS, compression, streaming, retries, and idempotency |
+| `search_relevance_evaluation` | `analyze`, `run` | Ranking, analysis, filters, golden queries, and relevance metrics |
+| `agent_tool_contract_verification` | `inspect`, `run` | Tool schemas, approval, timeout, idempotency, errors, and result validation |
+| `messaging_deliverability` | `inspect`, `run` | SPF/DKIM/DMARC, bounce handling, retries, consent, and delivery webhooks |
+| `data_residency_mapping` | `analyze`, `verify` | Regional storage, backup, transfers, subprocessors, retention, and legal-review evidence |
+| `assistive_technology_lab` | `inspect`, `verify` | Keyboard, semantics, focus, contrast, screen readers, and attested runner evidence |
+
 ## Basic Payload
 
 Every action takes `project_root`. Optional bounded fields include
@@ -167,6 +199,13 @@ Every action takes `project_root`. Optional bounded fields include
 - Supreme execution: fixed behavioral-oracle, authorization, checkpoint,
   flaky-test, online-migration, installer-lab, model-runtime, API-abuse, and
   performance-history markers plus isolated Compose cleanup only.
+- Frontier execution: fixed Pyright/typecheck, delivery benchmark, runtime
+  failure, LLM security, privacy rights, cryptographic protocol, SDK contract,
+  capacity, cross-store, and product telemetry recipes only.
+- Precision execution: fixed identity, temporal/monetary, offline-sync,
+  web-protocol, search-relevance, agent-tool, and messaging markers/scripts
+  only. Binary, residency, and assistive-technology verification consumes
+  attested external evidence and never launches host programs.
 
 Raw command payloads are ignored. No action accepts arbitrary shell text.
 
@@ -182,6 +221,14 @@ Raw command payloads are ignored. No action accepts arbitrary shell text.
 
 Approvals are scoped to a fingerprint of the skill, action, and payload. They
 are single-use. Changing the target or action requires a new approval.
+
+When the correction loop detects failed tests it writes deterministic
+`38_skill_evidence_plan_attempt_*.json` and
+`39_skill_evidence_decision_attempt_*.json` artifacts. Already-approved skill
+results placed by orchestration in the run-local `skill_evidence_results/`
+directory are consumed automatically by skill name and status. The reader is
+bounded to 20 JSON files of at most 1 MB each and cannot follow arbitrary
+paths; absence of evidence is reported as `EVIDENCE_REQUIRED`, never success.
 
 ## Execution Safety
 
@@ -234,6 +281,10 @@ action runs; delegated model text cannot authorize execution.
   invokes pip, npm, pnpm, yarn, Cargo, or another installer.
 - Domain validation skills are evidence scanners, not substitutes for real
   device, gameplay, infrastructure, load, accessibility, or clean-machine tests.
+- External runner evidence requires an allowed runner ID, timezone-aware
+  timestamp, report SHA-256, and per-artifact hashes. ANN validates the
+  attestation but does not claim the external test happened unless that
+  evidence is present and valid.
 - Adversarial red-team scenarios are static, non-destructive reviews. They do
   not attack a live service or attempt exploit execution.
 - Privacy and data-governance outputs always require qualified legal review and
@@ -271,3 +322,10 @@ action runs; delegated model text cannot authorize execution.
   remains required before public distribution.
 - AI Governance Evidence is an engineering checklist and comparison tool. It
   does not guarantee EU AI Act, NIST AI RMF, ISO, or other compliance.
+- Native UI Automation and Mobile Device Lab validate bounded external-runner
+  evidence. They do not launch project binaries, emulators, or installers on
+  the ANN host.
+- Capacity Economics produces non-binding projections from supplied or
+  sandbox benchmark evidence; it does not contact a cloud billing API.
+- Autonomous Delivery Benchmark requires explicit passing stage and model
+  provenance evidence. Repository files alone never produce a passing score.

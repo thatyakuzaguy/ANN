@@ -13,8 +13,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from agentic_network.desktop_app.bootstrap import bootstrap_local_package_paths
 from agentic_network.desktop_app.navigation import NAV_ITEMS, PRIMARY_NAV_ITEMS, create_sidebar
 from agentic_network.desktop_app.workspace_store import ProjectRecord, WorkspaceStore
+
+
+bootstrap_local_package_paths()
 
 try:  # pragma: no cover - exercised by smoke when PySide6 is installed.
     from PySide6.QtCore import Qt
@@ -33,6 +37,7 @@ try:  # pragma: no cover - exercised by smoke when PySide6 is installed.
         QVBoxLayout,
         QWidget,
     )
+    from shiboken6 import delete as delete_qt_object
 
     PYSIDE6_AVAILABLE = True
 except ModuleNotFoundError:  # pragma: no cover - deterministic fallback for CI without Qt.
@@ -50,6 +55,7 @@ except ModuleNotFoundError:  # pragma: no cover - deterministic fallback for CI 
     QStackedWidget = None
     QVBoxLayout = None
     QWidget = object
+    delete_qt_object = None
     PYSIDE6_AVAILABLE = False
 
 
@@ -239,6 +245,18 @@ def project_to_snapshot(project: ProjectRecord | None) -> dict[str, Any] | None:
         "last_opened_at": project.last_opened_at,
         "is_active": project.is_active,
     }
+
+
+def dispose_main_window(window: Any, app: Any) -> None:
+    """Destroy Qt objects deterministically before QApplication teardown."""
+
+    if window is None:
+        return
+    window.close()
+    if delete_qt_object is not None:
+        delete_qt_object(window)
+    if app is not None:
+        app.processEvents()
 
 
 if PYSIDE6_AVAILABLE:

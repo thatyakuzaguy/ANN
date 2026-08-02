@@ -12,6 +12,7 @@ from agentic_network.desktop_app.main_window import (
     DesktopSecurityError,
     PYSIDE6_AVAILABLE,
     create_main_window,
+    dispose_main_window,
 )
 from agentic_network.desktop_app.navigation import navigation_labels, primary_navigation_labels
 from agentic_network.desktop_app.project_manager import ProjectManager
@@ -537,5 +538,5 @@ def test_desktop_app_creates_native_window_when_qt_is_available(tmp_path: Path) 
 
     assert window.windowTitle() == "ANN (Agentic Neural Network)"
     assert window.sidebar.count() == len(primary_navigation_labels())
-    window.close()
+    dispose_main_window(window, app)
     app.quit()

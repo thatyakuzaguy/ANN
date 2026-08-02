@@ -755,7 +755,9 @@ if PYSIDE6_AVAILABLE:
             layout = QVBoxLayout(self)
             title = QLabel("First Run / System Check")
             title.setAccessibleName("First Run System Check title")
-            self.body = QPlainTextEdit(first_run_snapshot())
+            self.body = QPlainTextEdit(
+                f"{FIRST_RUN_MESSAGE}\n\nSelect Refresh to run local environment diagnostics."
+            )
             self.body.setReadOnly(True)
             self.body.setAccessibleName("First Run System Check read only status")
             actions = QHBoxLayout()
@@ -772,8 +774,7 @@ if PYSIDE6_AVAILABLE:
             retry_qwen25.setEnabled(False)
             retry_qwen25.setAccessibleName("Retry Qwen2.5 Smoke disabled until token confirmation wiring")
             first_smoke = QPushButton("Run First Qwen2.5 Smoke")
-            first_smoke_gate = build_qwen25_smoke_button_gate()
-            first_smoke.setEnabled(first_smoke_gate["button_enabled"])
+            first_smoke.setEnabled(False)
             first_smoke.setAccessibleName("Run First Qwen2.5 Smoke disabled until all gates pass")
             refresh_inventory = QPushButton("Refresh Inventory")
             refresh_inventory.setAccessibleName("Refresh Model Inventory read only placeholder")
@@ -804,7 +805,7 @@ if PYSIDE6_AVAILABLE:
             layout.addWidget(self.body, 1)
 
         def set_bundle(self, _bundle: Any, _snapshot: dict[str, Any]) -> None:
-            self._refresh()
+            return
 
         def _refresh(self) -> None:
             self.body.setPlainText(first_run_snapshot())

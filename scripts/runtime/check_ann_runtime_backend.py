@@ -7,8 +7,29 @@ execute terminal operations, install dependencies, or load models.
 from __future__ import annotations
 
 import json
+from pathlib import Path
+import sys
 
-from agentic_network.runtime_engine.local_model_activation import (
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+PACKAGE_ROOTS = (
+    "agents",
+    "orchestration",
+    "sandbox",
+    "git",
+    "logs",
+    "shared",
+    "database",
+    "security",
+)
+for package_root in reversed(PACKAGE_ROOTS):
+    candidate = str(REPO_ROOT / "packages" / package_root)
+    if candidate not in sys.path:
+        sys.path.insert(0, candidate)
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from agentic_network.runtime_engine.local_model_activation import (  # noqa: E402
     LOCAL_TEST_TOKEN,
     build_real_inference_launch_guard,
     diagnose_cuda_environment,

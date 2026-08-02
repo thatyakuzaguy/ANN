@@ -82,7 +82,7 @@ Safety invariants:
 The catalog and recent state are available through read-only endpoints:
 `GET /api/subagents/catalog` and `GET /api/subagents/state`.
 
-Specialist definitions may declare one of the one hundred four engineering skill identifiers as an analytical
+Specialist definitions may declare one of the one hundred twenty-six engineering skill identifiers as an analytical
 capability. This does not grant execution authority. The parent or user must still request the skill
 through its typed API, satisfy persistent permissions, and complete Approval Center for every
 terminal or mutating action. A subagent response can recommend a recipe but cannot authorize it.
@@ -103,6 +103,17 @@ investigation, online migration rehearsal, local resource governance, secure
 updates, installer VM evidence, model-runtime certification, API-abuse
 simulation, performance bisecting, asset provenance, domain invariants, and AI
 governance evidence without granting subagents execution authority.
+The frontier wave adds language-server evidence, end-to-end delivery
+benchmarks, controlled runtime-failure recovery, native and mobile external
+runner evidence, LLM application security, privacy-rights execution,
+cryptographic protocol checks, SDK conformance, capacity planning,
+cross-store consistency, and product telemetry validation. Native/mobile
+verification never launches generated binaries directly on the ANN host.
+The precision wave adds identity-protocol, temporal/monetary, offline-sync,
+binary-hardening, web-protocol, search-relevance, agent-tool, messaging,
+data-residency, and assistive-technology evidence. Failed test attempts use a
+deterministic selector to request the smallest relevant evidence set; this
+selector cannot execute a skill, approve work, or apply a diff.
 
 ## Tool Boundaries
 

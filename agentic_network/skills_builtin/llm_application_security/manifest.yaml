@@ -1,0 +1,13 @@
+name: llm_application_security
+version: 1.0
+description: Prompt, retrieval, tool, tenant, secret, and output-boundary security verification for LLM applications.
+enabled: true
+requires_user_approval: true
+audit_enabled: true
+permissions:
+  network: DENY
+  filesystem_read: ASK_ALWAYS
+  filesystem_write: ASK_ALWAYS
+  git_read: DENY
+  git_write: DENY
+  terminal_execute: ASK_ALWAYS

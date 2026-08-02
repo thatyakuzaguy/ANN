@@ -13056,6 +13056,7 @@ def _authenticode_signature_status(
                 str(path),
             ],
             capture_output=True,
+            errors="replace",
             text=True,
             timeout=timeout_seconds,
             check=False,

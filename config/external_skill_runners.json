@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "execution_policy": "external_explicit_only",
+  "runners": [
+    {
+      "family": "windows_binary",
+      "platforms": ["windows-sandbox", "windows-vm", "windows-release-lab"],
+      "purpose": "Installer and binary hardening evidence",
+      "ann_launches_host_binary": false
+    },
+    {
+      "family": "native_ui",
+      "platforms": ["windows-uia", "windows-appium", "windows-vm-uia"],
+      "purpose": "Native Windows interaction and accessibility evidence",
+      "ann_launches_host_binary": false
+    },
+    {
+      "family": "mobile",
+      "platforms": ["android-emulator", "android-device", "ios-simulator", "ios-device"],
+      "purpose": "Device lifecycle and UI evidence",
+      "ann_launches_host_emulator": false
+    },
+    {
+      "family": "assistive_technology",
+      "platforms": ["nvda-windows", "narrator-windows", "voiceover-macos", "talkback-android"],
+      "purpose": "Attested screen-reader and assistive-technology evidence",
+      "ann_launches_host_automation": false
+    }
+  ],
+  "required_evidence": [
+    "runner",
+    "status",
+    "generated_at",
+    "report_sha256",
+    "artifact_hashes"
+  ]
+}

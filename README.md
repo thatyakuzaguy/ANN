@@ -60,7 +60,7 @@ human rather than looping forever.
   rollback, and `FAILED_PERMANENTLY` escalation.
 - Architecture entropy analysis to detect accumulated complexity and propose
   explicit refactoring work instead of endlessly adding local conditionals.
-- One hundred four permission-scoped engineering skills and two hundred one typed actions covering contracts,
+- One hundred twenty-six permission-scoped engineering skills and two hundred forty-five typed actions covering contracts,
   dependencies, observability, test validity, architecture fitness,
   backup/restore, performance, supply chain, provenance, deployment,
   integrations, UX, Git collaboration, web/package lookup, and specialist
@@ -81,7 +81,17 @@ human rather than looping forever.
   cross-language semantic impact, flaky-test investigation, online migration
   rehearsals, local resource quotas, secure updates, installer VM evidence,
   model-runtime certification, API-abuse simulation, performance bisecting,
-  asset provenance, invariant mining, and AI governance evidence.
+  asset provenance, invariant mining, AI governance evidence, language-server
+  diagnostics, autonomous delivery benchmarks, runtime failure recovery,
+  native/mobile evidence labs, LLM application security, executable privacy
+  rights, cryptographic protocols, SDK conformance, capacity economics,
+  cross-store consistency, product telemetry contracts, identity protocols,
+  temporal and monetary invariants, offline synchronization, binary hardening,
+  web protocols, search relevance, agent-tool contracts, messaging delivery,
+  data residency, and assistive-technology evidence.
+- Deterministic failure-to-skill planning feeds bounded diagnostic evidence
+  back into correction attempts. Skill execution, command approval, and patch
+  application remain separate existing gates.
 - Project templates, Docker validation, health checks, security scans,
   documentation, packaging, and generated-project lifecycle artifacts.
 

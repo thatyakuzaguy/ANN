@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-08-01T05:43:42.5660688Z",
+  "generated_at_utc": "2026-08-02T10:26:00.3530164Z",
   "release_stage": "stable",
   "release_version": "1.0.1",
-  "source_revision": "b10a7721d546a4dc93ba9956ae165005746fa925",
-  "file_count": 1144,
-  "total_bytes": 6640103,
+  "source_revision": "6036ef65c0bd0c4d9c56569655a12d248991d70e",
+  "file_count": 1225,
+  "total_bytes": 6808160,
   "maximum_file_size_mb": 25,
   "files": [
     {
@@ -200,8 +200,8 @@
     },
     {
       "path": "agentic_network/autonomous_loop/runtime.py",
-      "bytes": 39276,
-      "sha256": "6902647c6f84cb411b61566850dc2d12d32f9300b28e5af582dc500c5c76bfd6"
+      "bytes": 40748,
+      "sha256": "6931e7fe55a0559315b689b4d7df694286b6483bffbe7ba615a225d1c6139655"
     },
     {
       "path": "agentic_network/code_agent/__init__.py",
@@ -284,6 +284,11 @@
       "sha256": "d14af51cc9c1a9713081e202d0529837d7b8e2bb0ad67b14962dee2848d10071"
     },
     {
+      "path": "agentic_network/desktop_app/bootstrap.py",
+      "bytes": 931,
+      "sha256": "069fe6eaa0ed919db815f33ff9a21ccc0f719b4d63d5f297d859e201d315e61b"
+    },
+    {
       "path": "agentic_network/desktop_app/chat_runtime.py",
       "bytes": 26313,
       "sha256": "4ec25788bf20b061d8311e47e45b70097d198f1c97c6c4bdedb406f86822f5ba"
@@ -295,8 +300,8 @@
     },
     {
       "path": "agentic_network/desktop_app/main_window.py",
-      "bytes": 38183,
-      "sha256": "d79b883577bbd23384d90421a34bcb0812d6bcecf8b8851ecf5aa5fec83e2af0"
+      "bytes": 38693,
+      "sha256": "a7b9b02334fbef0fc6d0813c458a97595a2fa9ea5decc684ab2011d873b964be"
     },
     {
       "path": "agentic_network/desktop_app/navigation.py",
@@ -315,8 +320,8 @@
     },
     {
       "path": "agentic_network/desktop_app/run.py",
-      "bytes": 676,
-      "sha256": "66fb7ce1b66beb6085dff1270d26ffb2de0153ff00a2fd77dc1d81c3b2d8869c"
+      "bytes": 951,
+      "sha256": "b6e1deb1679c5bc1cebe94661fd0e579a8186b1b00f1e3d7954457aa0f9c1a1e"
     },
     {
       "path": "agentic_network/desktop_app/views/action_plan_view.py",
@@ -355,18 +360,18 @@
     },
     {
       "path": "agentic_network/desktop_app/views/final_release_view.py",
-      "bytes": 12073,
-      "sha256": "b1629e8ecca4929ec7f19dd3405abe9055fcd22bd2fba92256868433633d89da"
+      "bytes": 12148,
+      "sha256": "eb9d47d7d47d4ca221ecf297cb8b9ef7821b1862f584ee9d1f822e567fdcdb0b"
     },
     {
       "path": "agentic_network/desktop_app/views/first_run_view.py",
-      "bytes": 44376,
-      "sha256": "e1a3bd64b498cf00c885bdba8d51c1f569a2b8e66f996cc942ac4e643bc3cf14"
+      "bytes": 44362,
+      "sha256": "dc1f6496a9f1b3ccc873bac1dca855137d60565466de8e03ae3479b5ae7cfa2b"
     },
     {
       "path": "agentic_network/desktop_app/views/model_inventory_view.py",
-      "bytes": 24135,
-      "sha256": "3173049d8bfd26aff59c74b5421cc5eb82d330cfe17e06239f9c040d529bef8d"
+      "bytes": 24512,
+      "sha256": "0c4ffa7a70665c6e1863b80bc5cd2e21c6bd022c1622996579c2e21bf0545eef"
     },
     {
       "path": "agentic_network/desktop_app/views/model_routing_view.py",
@@ -435,8 +440,8 @@
     },
     {
       "path": "agentic_network/desktop_app/views/runtime_engine_view.py",
-      "bytes": 5214,
-      "sha256": "844031df2b59ee8b7ba79ea63ca3406889af12ef63f26571e2ce9028631e8e9d"
+      "bytes": 5594,
+      "sha256": "fd919f9d89a1fa75b8ca295a284108a173e6a3339fa8f6e2ab9c3298833b3fb3"
     },
     {
       "path": "agentic_network/desktop_app/views/skill_audit_view.py",
@@ -445,8 +450,8 @@
     },
     {
       "path": "agentic_network/desktop_app/views/skill_evidence_view.py",
-      "bytes": 3512,
-      "sha256": "f1c6b98baa1e8dd2ec0fc435ae9078d685b2be5fce788eab0c5824b847527b24"
+      "bytes": 4850,
+      "sha256": "cc2d8b2652020ffa08bed2e6f00676aea363d69877bd8a436968ecd6ff516aa5"
     },
     {
       "path": "agentic_network/desktop_app/views/skill_permission_view.py",
@@ -570,8 +575,8 @@
     },
     {
       "path": "agentic_network/handoff/runtime.py",
-      "bytes": 9628,
-      "sha256": "d57f5bdaf64d9e9ea20b4275b2cab337dbeaf5e388e06a272c8ceb5c5d3083c6"
+      "bytes": 9942,
+      "sha256": "75e383648dcca374711b5899407cea18ccb93e4a5a8dafadb707e6e2f7bd3bac"
     },
     {
       "path": "agentic_network/human_approval_agent/__init__.py",
@@ -1140,8 +1145,8 @@
     },
     {
       "path": "agentic_network/runtime_engine/local_model_activation.py",
-      "bytes": 576148,
-      "sha256": "882370e3a0d48a5dbfff3c950dc789a60b9ae057110103d5cab6aa7920c08f33"
+      "bytes": 576178,
+      "sha256": "e625c30454092aa4477adb3897274459a8c1968ae4502fa2a148d23827e0b526"
     },
     {
       "path": "agentic_network/runtime_engine/model_inventory.py",
@@ -1294,6 +1299,21 @@
       "sha256": "a960c9fcd82a64ce246738faf968b32d99f978e3cba6f7545d21def82378b974"
     },
     {
+      "path": "agentic_network/skills_builtin/agent_tool_contract_verification/manifest.yaml",
+      "bytes": 376,
+      "sha256": "1cf3ed5b310dab73a132d02f6f85f13711470fef6e1abc9ad881df57186b6649"
+    },
+    {
+      "path": "agentic_network/skills_builtin/agent_tool_contract_verification/runtime.py",
+      "bytes": 517,
+      "sha256": "e87151d5a6547e5cf69e747bba6e11bce81a50e85f3b984603c600b68ee3e901"
+    },
+    {
+      "path": "agentic_network/skills_builtin/agent_tool_contract_verification/SKILL.md",
+      "bytes": 699,
+      "sha256": "2480c6c89c2db506d36a1357d40b5dea544254a86fcb609a5792e03d7b47c818"
+    },
+    {
       "path": "agentic_network/skills_builtin/agent_trajectory_forensics/manifest.yaml",
       "bytes": 346,
       "sha256": "53d0cf5a5c91b91aaf2a5fc8937f577e64c495015dcbba04f64b691c31fefc03"
@@ -1414,6 +1434,36 @@
       "sha256": "12b9da1296a00368de3ba3edc5c573fc08f052d6c67084a4cbfb177b9268af37"
     },
     {
+      "path": "agentic_network/skills_builtin/assistive_technology_lab/manifest.yaml",
+      "bytes": 365,
+      "sha256": "a33f3211224c7c2fcac0615d7648db1475fa92ed8f17491423db454a0711a0d2"
+    },
+    {
+      "path": "agentic_network/skills_builtin/assistive_technology_lab/runtime.py",
+      "bytes": 493,
+      "sha256": "e84e3c9831e5cecf68d1cfafb6ebad060333141b9360542a04c8641c586f949c"
+    },
+    {
+      "path": "agentic_network/skills_builtin/assistive_technology_lab/SKILL.md",
+      "bytes": 709,
+      "sha256": "44adb786053b6664259fe86d762a1555b071c9faecb4a4dc8046986e32766edc"
+    },
+    {
+      "path": "agentic_network/skills_builtin/autonomous_delivery_benchmark/manifest.yaml",
+      "bytes": 402,
+      "sha256": "a3533ef93f88e571d95b3528c39ffa78e89a620b781429a50e18a11951ff7af2"
+    },
+    {
+      "path": "agentic_network/skills_builtin/autonomous_delivery_benchmark/runtime.py",
+      "bytes": 508,
+      "sha256": "c42be6066468bbf1f8ccc1a6d8509b193b88e68fa0ba6319719ecdc319578864"
+    },
+    {
+      "path": "agentic_network/skills_builtin/autonomous_delivery_benchmark/SKILL.md",
+      "bytes": 710,
+      "sha256": "d3754b906359e2f19a2e89354907a8b598756e9c37535f7b41271122e40b2b2d"
+    },
+    {
       "path": "agentic_network/skills_builtin/backup_restore/manifest.yaml",
       "bytes": 365,
       "sha256": "a86b44b6e0ce20f993b2be37eca594806ba4502f3cac74d4211071ccbab0e441"
@@ -1444,6 +1494,21 @@
       "sha256": "748c99fddc7d8ac0032f0d57fca75778d8e49ec8fc6470112e57f3f6d30adda1"
     },
     {
+      "path": "agentic_network/skills_builtin/binary_hardening_verification/manifest.yaml",
+      "bytes": 358,
+      "sha256": "6d9646b68f02bdb262cecfc7771d20a63700bcb427d9e872d4f4c165f0c2a3d9"
+    },
+    {
+      "path": "agentic_network/skills_builtin/binary_hardening_verification/runtime.py",
+      "bytes": 508,
+      "sha256": "d6261ca96fd4f03b69cf99f106fabecdd99c55210cb9b4d81d9c6ea0b9ba1e9a"
+    },
+    {
+      "path": "agentic_network/skills_builtin/binary_hardening_verification/SKILL.md",
+      "bytes": 693,
+      "sha256": "38f671387ac557defc67c1de12238e258ef056c9eecdcb67cb0bd53176d6df30"
+    },
+    {
       "path": "agentic_network/skills_builtin/browser_e2e/manifest.yaml",
       "bytes": 343,
       "sha256": "54af6946e367149e9aeb552ac749153d3c7e04e3666469641a9fe29e548703c2"
@@ -1457,6 +1522,21 @@
       "path": "agentic_network/skills_builtin/browser_e2e/SKILL.md",
       "bytes": 447,
       "sha256": "efd5216b5c18aca69cd4ee013cb00f68b1deb4090a3a356e18b1f89e863f9701"
+    },
+    {
+      "path": "agentic_network/skills_builtin/capacity_economics/manifest.yaml",
+      "bytes": 372,
+      "sha256": "2a48be5832db17a3d46a2090de587dcdd1a2b20a10eab0063f422b047940839d"
+    },
+    {
+      "path": "agentic_network/skills_builtin/capacity_economics/runtime.py",
+      "bytes": 475,
+      "sha256": "c24f96edda59aebcedd3a582af9341bf3b81d129eb0880f3a015e2544bb57c9e"
+    },
+    {
+      "path": "agentic_network/skills_builtin/capacity_economics/SKILL.md",
+      "bytes": 696,
+      "sha256": "9f4372d12bf517b4a091a0c464c04300010d0aa1d8350d16a25d702e283e793e"
     },
     {
       "path": "agentic_network/skills_builtin/chaos_verification/manifest.yaml",
@@ -1624,6 +1704,36 @@
       "sha256": "4cc5f9faec028a385d2871ddc85de429de6b525aeb113976d46089d05f4b228c"
     },
     {
+      "path": "agentic_network/skills_builtin/cross_store_consistency/manifest.yaml",
+      "bytes": 361,
+      "sha256": "9b297726f80cff37cb8576c3481f00b5aacf17446ea125ce4fa75d8a17dd1e2a"
+    },
+    {
+      "path": "agentic_network/skills_builtin/cross_store_consistency/runtime.py",
+      "bytes": 490,
+      "sha256": "cac630f60f221d6b9002a215261bc068bb9c0f37465d108f1af4c4582712a292"
+    },
+    {
+      "path": "agentic_network/skills_builtin/cross_store_consistency/SKILL.md",
+      "bytes": 685,
+      "sha256": "069acc77dedc28ec3143635e8a8caa7cfbcefa4721c7318e8656a8c74303c877"
+    },
+    {
+      "path": "agentic_network/skills_builtin/cryptographic_protocol_verification/manifest.yaml",
+      "bytes": 384,
+      "sha256": "416da06219ee42f7449569e99afee6a3ecb771df8beb0bba508d1bf579316b95"
+    },
+    {
+      "path": "agentic_network/skills_builtin/cryptographic_protocol_verification/runtime.py",
+      "bytes": 526,
+      "sha256": "bf5a8a23878157d28ec147ef9387dbff6d0db6d257be892c1b6600870270cd52"
+    },
+    {
+      "path": "agentic_network/skills_builtin/cryptographic_protocol_verification/SKILL.md",
+      "bytes": 705,
+      "sha256": "1b430a2d9ddb12bcc5607c3fdc338e8bba3b8b4ca51424b46342f888eb2086f2"
+    },
+    {
       "path": "agentic_network/skills_builtin/data_pipeline/manifest.yaml",
       "bytes": 319,
       "sha256": "a8f7a42111018db96fdc24c5fb0db98f7f6e3ef9eb16efdfc4a445dccb9bda17"
@@ -1652,6 +1762,21 @@
       "path": "agentic_network/skills_builtin/data_quality_execution/SKILL.md",
       "bytes": 683,
       "sha256": "d1c0a271687564b508a1e6695d4e559d6f1924ca22b83be66d3c2295ea6433f8"
+    },
+    {
+      "path": "agentic_network/skills_builtin/data_residency_mapping/manifest.yaml",
+      "bytes": 356,
+      "sha256": "d9ab488e26c831b643a4cfb8f80a3f67a4d9dd769d8517bf9c301b1015b67570"
+    },
+    {
+      "path": "agentic_network/skills_builtin/data_residency_mapping/runtime.py",
+      "bytes": 487,
+      "sha256": "dc6e0c017579d59fddb50c2b48b98865fa439df6774b6e9afb51dcfd886e54b4"
+    },
+    {
+      "path": "agentic_network/skills_builtin/data_residency_mapping/SKILL.md",
+      "bytes": 704,
+      "sha256": "5f225f0df01fcf69ec0663ce5ba9d80130c5cee41eb23fc45ae68b29587858f7"
     },
     {
       "path": "agentic_network/skills_builtin/database_migration/manifest.yaml",
@@ -2039,6 +2164,21 @@
       "sha256": "c967dfe796dafa738942f9102bcfc80c044de3af63e5b4384820c5f62890048f"
     },
     {
+      "path": "agentic_network/skills_builtin/identity_protocol_conformance/manifest.yaml",
+      "bytes": 361,
+      "sha256": "3876a174edefa9a10e76f9640219a6691efdf37f4c4d6dba3bdc25237b6827dd"
+    },
+    {
+      "path": "agentic_network/skills_builtin/identity_protocol_conformance/runtime.py",
+      "bytes": 508,
+      "sha256": "dbf25d238fb2ef67bfcb6bab67e2c9e9693a17576366da4d5cb9250ef8b70d02"
+    },
+    {
+      "path": "agentic_network/skills_builtin/identity_protocol_conformance/SKILL.md",
+      "bytes": 683,
+      "sha256": "881e8b0c737fbbb203e9647a373f49d20fc3953b94cca030304d9a4bdd05e6c4"
+    },
+    {
       "path": "agentic_network/skills_builtin/incident_response/manifest.yaml",
       "bytes": 358,
       "sha256": "423c4126e0213cce5e4f73f767d1b11b45bb08251c80a92efc49603b65751013"
@@ -2112,6 +2252,36 @@
       "path": "agentic_network/skills_builtin/internet_search/SKILL.md",
       "bytes": 402,
       "sha256": "b9fa11713f97552b78e742f381c1f4d8afc0ca16f374702308044e86480b2d26"
+    },
+    {
+      "path": "agentic_network/skills_builtin/language_server_intelligence/manifest.yaml",
+      "bytes": 385,
+      "sha256": "10df246fc48d587efe17e2fa92e971f9f14cb4e7f0370b9ae8638e7d554839d1"
+    },
+    {
+      "path": "agentic_network/skills_builtin/language_server_intelligence/runtime.py",
+      "bytes": 505,
+      "sha256": "48cb2b24cf2c60c2b33fe2cea87fef3540c5e82a60691d2b338a63ffdee336b4"
+    },
+    {
+      "path": "agentic_network/skills_builtin/language_server_intelligence/SKILL.md",
+      "bytes": 713,
+      "sha256": "8c9f1fbf67cd5da0a8f2d47746d1cf933c6c0b9839627f81c574e063ec325c36"
+    },
+    {
+      "path": "agentic_network/skills_builtin/llm_application_security/manifest.yaml",
+      "bytes": 381,
+      "sha256": "8fa9d12695e816075d0e34c71207cc96c47f4177a522fcaf863f959cae4ba4b8"
+    },
+    {
+      "path": "agentic_network/skills_builtin/llm_application_security/runtime.py",
+      "bytes": 493,
+      "sha256": "457fb9cd0f9a9a316e971c846274c36cd4cd6adf38558b37552f918505744786"
+    },
+    {
+      "path": "agentic_network/skills_builtin/llm_application_security/SKILL.md",
+      "bytes": 713,
+      "sha256": "52d8c6fc977e1ce73a7cd61eea785f65fa6ed2f78a47117769d82efd0dcb33de"
     },
     {
       "path": "agentic_network/skills_builtin/llm_prompt_regression/manifest.yaml",
@@ -2189,6 +2359,21 @@
       "sha256": "d2073328da1b5f638b1db330d7c3deb4b62402876e2dccac2f030df5442d132d"
     },
     {
+      "path": "agentic_network/skills_builtin/messaging_deliverability/manifest.yaml",
+      "bytes": 368,
+      "sha256": "5bf4dd1a13d293ffadecdaa55e39b392646979b294f7b7f9ea9f50648fd57dfd"
+    },
+    {
+      "path": "agentic_network/skills_builtin/messaging_deliverability/runtime.py",
+      "bytes": 493,
+      "sha256": "8d9c23fe3f941feb908fb752196aa763a543e800991ba865c27fe4b7d1a77d72"
+    },
+    {
+      "path": "agentic_network/skills_builtin/messaging_deliverability/SKILL.md",
+      "bytes": 704,
+      "sha256": "079935b340ca9ee049e7046c96b526f99006c91fbaba9a3f43f9b00676a226bf"
+    },
+    {
       "path": "agentic_network/skills_builtin/ml_evaluation/manifest.yaml",
       "bytes": 333,
       "sha256": "14245c607515390146f1c4e3d6bf9d6564cb3cbe5f69ae3a149efab9ac6f4a24"
@@ -2202,6 +2387,21 @@
       "path": "agentic_network/skills_builtin/ml_evaluation/SKILL.md",
       "bytes": 581,
       "sha256": "903f8e08ff3c85293e324191314a8770e7a432f53dbbb6b6b96d0e27ea5f0158"
+    },
+    {
+      "path": "agentic_network/skills_builtin/mobile_device_lab/manifest.yaml",
+      "bytes": 354,
+      "sha256": "e5cea0e93a2aa0cb43374614a7a6a9803a4ea2c5e76e212b16d38fa13bf3e0cc"
+    },
+    {
+      "path": "agentic_network/skills_builtin/mobile_device_lab/runtime.py",
+      "bytes": 472,
+      "sha256": "1720d390a74a6009a70e42a68a20caccd0964b4ca6b0b5e22187e1127602a36a"
+    },
+    {
+      "path": "agentic_network/skills_builtin/mobile_device_lab/SKILL.md",
+      "bytes": 700,
+      "sha256": "339d9b01e1d97698ef96a71274d549bb5782559b82ef2877f4579b578f9fa27a"
     },
     {
       "path": "agentic_network/skills_builtin/mobile_validation/manifest.yaml",
@@ -2249,6 +2449,21 @@
       "sha256": "24ffed22f2429d3966ea1a7b156c6d3030bcec2326e866f8238e43847afb9ea1"
     },
     {
+      "path": "agentic_network/skills_builtin/native_ui_automation/manifest.yaml",
+      "bytes": 371,
+      "sha256": "da23174299147a30753942842fb8523e1487fdc004511bdf6449955782994f13"
+    },
+    {
+      "path": "agentic_network/skills_builtin/native_ui_automation/runtime.py",
+      "bytes": 481,
+      "sha256": "fd3ee6d6e58d7393c62e713edb8c65ca4a53f26570895831cdea451044de23b1"
+    },
+    {
+      "path": "agentic_network/skills_builtin/native_ui_automation/SKILL.md",
+      "bytes": 727,
+      "sha256": "ba83b5d54c0c92f1755cdf7be61577c60d11a8383a99a9c48b41cb4841ea8ebd"
+    },
+    {
       "path": "agentic_network/skills_builtin/observability_instrumentation/manifest.yaml",
       "bytes": 359,
       "sha256": "d02527344c1a0e44af55789eca61aecf6123ac262bf575414f8b9bbb5539064d"
@@ -2262,6 +2477,21 @@
       "path": "agentic_network/skills_builtin/observability_instrumentation/SKILL.md",
       "bytes": 701,
       "sha256": "43342013c7334a297b85a12d3dd4508633dcf157d4b65a1e278561cadbeef7be"
+    },
+    {
+      "path": "agentic_network/skills_builtin/offline_sync_conflict_verification/manifest.yaml",
+      "bytes": 372,
+      "sha256": "73b0e9ce2ae163410342b924f04bdd3304d7eda312ffa0273ff9e1bcb004a5a5"
+    },
+    {
+      "path": "agentic_network/skills_builtin/offline_sync_conflict_verification/runtime.py",
+      "bytes": 523,
+      "sha256": "814644c40985d84f47a9868cabb250dc17711344d56c345d24a850e68b1ea71e"
+    },
+    {
+      "path": "agentic_network/skills_builtin/offline_sync_conflict_verification/SKILL.md",
+      "bytes": 710,
+      "sha256": "584fb5f5dd60b6107a3d7c9f9baf6253fd036111f91298f7b788f36ab5d848f7"
     },
     {
       "path": "agentic_network/skills_builtin/online_migration_rehearsal/manifest.yaml",
@@ -2367,6 +2597,36 @@
       "path": "agentic_network/skills_builtin/privacy_data_governance/SKILL.md",
       "bytes": 701,
       "sha256": "d5bffd986fa538954c45cb1ffb23e07a067fb336c0ebb25482f35689f0fdecfb"
+    },
+    {
+      "path": "agentic_network/skills_builtin/privacy_rights_verification/manifest.yaml",
+      "bytes": 380,
+      "sha256": "076d572a48923d34b5d352d42e92bc61fefc03df581d76cb07a79fb426f13fae"
+    },
+    {
+      "path": "agentic_network/skills_builtin/privacy_rights_verification/runtime.py",
+      "bytes": 502,
+      "sha256": "fbfd56e5a712f80073bcb2a386311a64a8daafdc0093afe6ad2f0ecc58555b2d"
+    },
+    {
+      "path": "agentic_network/skills_builtin/privacy_rights_verification/SKILL.md",
+      "bytes": 705,
+      "sha256": "9953204d2be07cd04684da780912e92d7bf3425ebb5bf486969cc8f08b10503a"
+    },
+    {
+      "path": "agentic_network/skills_builtin/product_telemetry_validation/manifest.yaml",
+      "bytes": 376,
+      "sha256": "393e2b4de6db6ec23db71e222be87a5786bdf00499d853302ce210cec0b6f3e6"
+    },
+    {
+      "path": "agentic_network/skills_builtin/product_telemetry_validation/runtime.py",
+      "bytes": 505,
+      "sha256": "e0f167fef25aa35ce53b809b4a6866297cdee674c13e8b24311d9fd690ffd7bf"
+    },
+    {
+      "path": "agentic_network/skills_builtin/product_telemetry_validation/SKILL.md",
+      "bytes": 704,
+      "sha256": "dbbb93c45e2712fc8c904da0f9f18ee29da7ad2bfb1a6c7810f33544bc671dd6"
     },
     {
       "path": "agentic_network/skills_builtin/project_archetype_synthesis/manifest.yaml",
@@ -2534,6 +2794,21 @@
       "sha256": "02c7b98a779464705dc7f054e895174381281bd7bff3d3d6cc2a58f101dc3558"
     },
     {
+      "path": "agentic_network/skills_builtin/runtime_failure_lab/manifest.yaml",
+      "bytes": 369,
+      "sha256": "aae29eaf276cd980ca09e62a9c2581b81df54e9a341134e47fada6b7f60706c7"
+    },
+    {
+      "path": "agentic_network/skills_builtin/runtime_failure_lab/runtime.py",
+      "bytes": 478,
+      "sha256": "d0f592ce6113121a527f0e6395a844c8c9f9cf3ed6bccda0b38866e2247bb9ab"
+    },
+    {
+      "path": "agentic_network/skills_builtin/runtime_failure_lab/SKILL.md",
+      "bytes": 710,
+      "sha256": "a85275c735271b03bfa19fa0c4e6b6b30588c0bdef7599bbb6c30d1ad82dfe80"
+    },
+    {
       "path": "agentic_network/skills_builtin/runtime_observability/manifest.yaml",
       "bytes": 339,
       "sha256": "0133b4e5c0e39ea049a50b69c1be5f3d13c0bdf5fc80b18c96d8e1e1826da8ce"
@@ -2577,6 +2852,36 @@
       "path": "agentic_network/skills_builtin/schema_drift_data_evolution/SKILL.md",
       "bytes": 679,
       "sha256": "afc0beadbc6eaa59324c684f247b02a22dabf00d79163ec5106ef17d42ffd618"
+    },
+    {
+      "path": "agentic_network/skills_builtin/sdk_contract_conformance/manifest.yaml",
+      "bytes": 370,
+      "sha256": "16b967c811fe6e861c49ef3b85d08333c4d6111c87f0e65edb0eab187b7c9697"
+    },
+    {
+      "path": "agentic_network/skills_builtin/sdk_contract_conformance/runtime.py",
+      "bytes": 493,
+      "sha256": "79963f126ab1696a7b657dcd5199d8f87f122af5f26f04dd54c6a8867dd584e4"
+    },
+    {
+      "path": "agentic_network/skills_builtin/sdk_contract_conformance/SKILL.md",
+      "bytes": 693,
+      "sha256": "a344b3c02c494967a2a8d69a8cec77b847379493ba36c363e2d1ba3c10ba00d2"
+    },
+    {
+      "path": "agentic_network/skills_builtin/search_relevance_evaluation/manifest.yaml",
+      "bytes": 360,
+      "sha256": "7a44e7610c6f9e0aca5fb417577103e8cecb476aaf7e677d02242ea4501a86ac"
+    },
+    {
+      "path": "agentic_network/skills_builtin/search_relevance_evaluation/runtime.py",
+      "bytes": 502,
+      "sha256": "678479c3ab2ff223f876576aac0c16cfff65fdf94dbba397837d9e435501ff3e"
+    },
+    {
+      "path": "agentic_network/skills_builtin/search_relevance_evaluation/SKILL.md",
+      "bytes": 678,
+      "sha256": "e4d5703610bd767e8f7e97cd71c70da54afa37648e2670aac9244393cf24c099"
     },
     {
       "path": "agentic_network/skills_builtin/secrets_lifecycle/manifest.yaml",
@@ -2744,6 +3049,21 @@
       "sha256": "6f010ed1abd46a1841b8d3592857f55a48e50ebb99167f03d49a8f6b56ade91e"
     },
     {
+      "path": "agentic_network/skills_builtin/temporal_monetary_correctness/manifest.yaml",
+      "bytes": 369,
+      "sha256": "bbf94883a8095dfa9c5ece0ccde846f273999c9c6c85acc98b1f35c8559df5fc"
+    },
+    {
+      "path": "agentic_network/skills_builtin/temporal_monetary_correctness/runtime.py",
+      "bytes": 508,
+      "sha256": "5f22869814a009d40a1b11e70e8a7677ef16421148675b3670be086d89369e34"
+    },
+    {
+      "path": "agentic_network/skills_builtin/temporal_monetary_correctness/SKILL.md",
+      "bytes": 693,
+      "sha256": "23290764e18c36e6ea79beda2591ec9d56deec4829ab270148d30ec2fb34bd1b"
+    },
+    {
       "path": "agentic_network/skills_builtin/test_generation/manifest.yaml",
       "bytes": 342,
       "sha256": "33135f37a82f355fa95e9c3f9646b082e9d0f946056c05bfc190353cd48fdb9f"
@@ -2834,14 +3154,29 @@
       "sha256": "43b48233a2c0a85fb27eddd967306db1931b74b46cdc5d7b0dc5f1183a226bc0"
     },
     {
+      "path": "agentic_network/skills_builtin/web_protocol_conformance/manifest.yaml",
+      "bytes": 358,
+      "sha256": "c32f43f5021df930847ec0b4aafa683d279695f6fd344892eb75f1ebaa42631e"
+    },
+    {
+      "path": "agentic_network/skills_builtin/web_protocol_conformance/runtime.py",
+      "bytes": 493,
+      "sha256": "cffbeceebaadf71feef9b25f02e055591bd8e214710088e132f85443378fcafb"
+    },
+    {
+      "path": "agentic_network/skills_builtin/web_protocol_conformance/SKILL.md",
+      "bytes": 682,
+      "sha256": "3e4f79caf4aaefff40d5ac6632a2339a05ecde8ca19b0c84e87470e707ce030b"
+    },
+    {
       "path": "agentic_network/skills/__init__.py",
       "bytes": 1119,
       "sha256": "2d048d456e24fe475c82bda9b52d14e1bd67746d08e680ccc6641cc2aff0dae1"
     },
     {
       "path": "agentic_network/skills/advanced_runtime.py",
-      "bytes": 131826,
-      "sha256": "0be602809d1b704ef926eca3b87617145838901ebf3834713e90eb94aa720e53"
+      "bytes": 132313,
+      "sha256": "7c92b1eed618113afba48cccf7b13b03f4c8df94fb9c6fb6cab0793e38abd1ec"
     },
     {
       "path": "agentic_network/skills/approval_runtime.py",
@@ -2855,18 +3190,33 @@
     },
     {
       "path": "agentic_network/skills/engineering_runtime.py",
-      "bytes": 101963,
-      "sha256": "4b57d3cca659ca6c3991dfa766dfc275521f0f3c8c9a483d5ebbc3b9f6fc2f2e"
+      "bytes": 111026,
+      "sha256": "ba03601cc432c814c669614d4edf484a9dd1e5e86a886b7d29070acc3ee5349e"
     },
     {
       "path": "agentic_network/skills/engineering.py",
-      "bytes": 43192,
-      "sha256": "73dbd12d0cd2c52618683440740e49c8a55f5081cb3a9fe24ff10884a9323a22"
+      "bytes": 53082,
+      "sha256": "1b0feaba4be9d9130a7144223fc636509dae2d0442e3586ada44eb032f2330aa"
+    },
+    {
+      "path": "agentic_network/skills/evidence_loop.py",
+      "bytes": 11410,
+      "sha256": "30185b051e4d4e69981100110d83f48152c5efb17fbef8e231a772cc4faefaa7"
     },
     {
       "path": "agentic_network/skills/executor.py",
       "bytes": 17026,
       "sha256": "54f1b4202822394560a0ec059647cea4dabdef256c149877abeaaa2eb7bbb234"
+    },
+    {
+      "path": "agentic_network/skills/external_runner_evidence.py",
+      "bytes": 3367,
+      "sha256": "627c87ac1c0617bc70300c73b9a0c4fe070e008a13d651c11d652def651f29ac"
+    },
+    {
+      "path": "agentic_network/skills/frontier_runtime.py",
+      "bytes": 26887,
+      "sha256": "5e32d8f574459298873fdc7fb8900f4c4799d7a4a966ad1bba23bdd114079979"
     },
     {
       "path": "agentic_network/skills/manager.py",
@@ -2887,6 +3237,11 @@
       "path": "agentic_network/skills/permissions.py",
       "bytes": 5283,
       "sha256": "490b966e6273c301fdac51dd307b793ac812b7b269ebe0e0c9aacfafe79c64b9"
+    },
+    {
+      "path": "agentic_network/skills/precision_runtime.py",
+      "bytes": 10507,
+      "sha256": "0d92a3d19632d902590ed21b3ccdf958ed0b71712cf8045cf1b3d5f215d5cae7"
     },
     {
       "path": "agentic_network/skills/redaction.py",
@@ -3010,8 +3365,8 @@
     },
     {
       "path": "AGENTS.md",
-      "bytes": 7604,
-      "sha256": "0d0c37c7ab45a5cc9fad1dff0dce0db369e387b75633dc78b9f0dcbec390572c"
+      "bytes": 8403,
+      "sha256": "1be3cfad35ee3fec923902c8053f9a771c5e0d67fb79916cdf1b1859280899af"
     },
     {
       "path": "apps/api/app/api/routes.py",
@@ -3270,8 +3625,8 @@
     },
     {
       "path": "ARCHITECTURE.md",
-      "bytes": 8086,
-      "sha256": "cf4bd4a288fc21492990be8be37d05e0709da54b771955842a94f02bece7aa3c"
+      "bytes": 8630,
+      "sha256": "c6d5bf91b841093f0fde4a379bdff71f06487784ee081221fa9784eb1f8ed4be"
     },
     {
       "path": "ATTRIBUTIONS.md",
@@ -3280,8 +3635,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "bytes": 17185,
-      "sha256": "8463ad72e6b0d1f753421575aeab3204a7955a26bd44b11e719cdf82ddf773f5"
+      "bytes": 18638,
+      "sha256": "b2154ade6b85c13e5f889a63fc10a20f5d8eb6cc97ec6b28fe8754ec2dd4f992"
     },
     {
       "path": "CICD_SETUP.md",
@@ -3364,6 +3719,16 @@
       "sha256": "bf7b65e3c82bb2413e1c5f9b264168c430b346b8fe87501f885709d0b5656887"
     },
     {
+      "path": "config/autonomous_delivery_benchmarks.json",
+      "bytes": 1383,
+      "sha256": "73a7879ab7e377013d8e9ab82a988fe916b2afe6829fc3586f75826e531f3794"
+    },
+    {
+      "path": "config/external_skill_runners.json",
+      "bytes": 1153,
+      "sha256": "1d04d09081f6078d73a993b3284bac525d866f1eb87a8dc7a6a8e3cbf1eb32f9"
+    },
+    {
       "path": "config/public-release.json",
       "bytes": 1078,
       "sha256": "1fb5b2dde9fe7bba6d382b7ef4eccec8abc89a0e9dc21f8190cb9c8e783c9122"
@@ -3435,23 +3800,33 @@
     },
     {
       "path": "docker-compose.yml",
-      "bytes": 3228,
-      "sha256": "878ccee1e3e5ff87d5ca9934699eff102f45ae65d914d6a7efb9caee2941af05"
+      "bytes": 3517,
+      "sha256": "7719b2095f90cbba02be470bd6fd91710ac70aacfb21cc5f96877522be0d613f"
     },
     {
       "path": "docker/api.Dockerfile",
-      "bytes": 1203,
-      "sha256": "7e85e8f8a340af73aedc9e69f05fa5d731310741f0ff6ddf8df708ed03f1567f"
+      "bytes": 2143,
+      "sha256": "4a606cae073ab4547007820b1d4d435bd53580f9fbe0f93d116d6b39acec0237"
     },
     {
       "path": "docker/api.gpu.Dockerfile",
-      "bytes": 2938,
-      "sha256": "8f5e46e561c26d4dcde6a6554339834c5931afb4e55ec387906736aa4bce231f"
+      "bytes": 3990,
+      "sha256": "c81f0b731527afab0b6f404740495caea713709f8cd571258f14abb5b61cafd4"
+    },
+    {
+      "path": "docker/compose-compat/go.mod",
+      "bytes": 43,
+      "sha256": "bf78315945b30e458de9de67ea3165a9d8e696cf80aa1d0492d584fa408a3813"
+    },
+    {
+      "path": "docker/compose-compat/pkg/namesgenerator/names-generator.go",
+      "bytes": 410,
+      "sha256": "8100cbc056d763207a1739a741f4e95d1ef45ad5547ef0f4bd012e6885589002"
     },
     {
       "path": "docker/web.Dockerfile",
-      "bytes": 916,
-      "sha256": "756cd9b6a7c44ba89072973f58174b1ca77e0d3be1b04904cd4fde86dc0ed194"
+      "bytes": 1017,
+      "sha256": "d1d6d9c512283ff00f55f3ca37413e808d74b0b58023671038487c40648592d5"
     },
     {
       "path": "docs/adr/0001-clean-architecture-boundaries.md",
@@ -3565,8 +3940,8 @@
     },
     {
       "path": "docs/ENGINEERING_SKILLS.md",
-      "bytes": 21924,
-      "sha256": "2a41fe7ba7cd2cd37b4dbe4d62c3f33c0682e90713e96c5f49174ad824b3be49"
+      "bytes": 26710,
+      "sha256": "df0e7bf5e465ab897d4d2e9c330bd02e1797ac0fce2ce0e6b2503dd334b9493b"
     },
     {
       "path": "docs/PRODUCT_AGENT_DATASET.md",
@@ -3720,8 +4095,8 @@
     },
     {
       "path": "packages/agents/agentic_engineering_network/agents/subagents.py",
-      "bytes": 42015,
-      "sha256": "685479cad6e7ac44e27cae0deee7169d6d7d48065c08c1539bbd6611deee8f59"
+      "bytes": 43604,
+      "sha256": "b2101bbc1567c647dad4570c85e63ef03619d4de97ed957e7b52ec6588f54cb0"
     },
     {
       "path": "packages/database/agentic_engineering_network/database/migrations/0001_initial.sql",
@@ -3960,8 +4335,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 11962,
-      "sha256": "d850262b85794618e7efaddc6359b0e2e05bd212ce733a816dc5e81fbaf99b85"
+      "bytes": 12693,
+      "sha256": "0cb18515faa51ec8a6be3b2f25e1fdbcd3fa74f39a39cb527dc3c9769a65ef43"
     },
     {
       "path": "ROADMAP.md",
@@ -3990,8 +4365,8 @@
     },
     {
       "path": "scripts/maintenance/generate_advanced_skill_packages.py",
-      "bytes": 14165,
-      "sha256": "d602cac8bd8ea3cf416d6d5dc9f8cff71e60a4d322e551f6df505f9ccb1b756c"
+      "bytes": 17071,
+      "sha256": "398aa01f5a25b054319e8bcb78b3d0375f40edefc73cd670fd678025f0c98c21"
     },
     {
       "path": "scripts/maintenance/migrate-db.ps1",
@@ -4055,8 +4430,8 @@
     },
     {
       "path": "scripts/release/verify-public-repository.ps1",
-      "bytes": 5723,
-      "sha256": "2367b1220ad22038528d2e7a405dc4ecccc60400e600bcd746f9cd396538219a"
+      "bytes": 5771,
+      "sha256": "ee0323dc043c0b9fa76798a873dd35e83c21e2d0ac53f34b02bb5c1338f6b838"
     },
     {
       "path": "scripts/run_agentic_pipeline.py",
@@ -4075,13 +4450,13 @@
     },
     {
       "path": "scripts/runtime/check_ann_runtime_backend.py",
-      "bytes": 1254,
-      "sha256": "48535cf2d8a37b318d2b1981de03d7d2d3aef58fb93db178708a7fa2b5ab59ff"
+      "bytes": 1743,
+      "sha256": "9b922a712f8bc13bf16f4d3a58d07570ff42a0fa2bb169cf787964660a1f9baa"
     },
     {
       "path": "scripts/runtime/check_llama_cpp_cuda.py",
-      "bytes": 2278,
-      "sha256": "784499a6d57db022aabe9031fad230351dc4bdc323fc6efb4a7bae84bac23cf7"
+      "bytes": 2981,
+      "sha256": "fc5f337d21f3e7333ac703a7fb7d7f91ce827c57454059aca394fae989eae61f"
     },
     {
       "path": "scripts/runtime/check_torch_cuda.py",
@@ -4170,13 +4545,13 @@
     },
     {
       "path": "scripts/setup/verify-environment.ps1",
-      "bytes": 308,
-      "sha256": "e605cf94e42e71daae21eb7f98753fb90f00980421bc6df9f102dbe07f797b55"
+      "bytes": 309,
+      "sha256": "969a06ffab2173192806e3e7e2a1192a39eeedbbfbb05a02a5c395a6f4e213b6"
     },
     {
       "path": "scripts/setup/verify-gpu.ps1",
-      "bytes": 625,
-      "sha256": "c40f4d1c9884a95614ae7bd3996b607e2f74f3adc65681f51863c773cb5e8d49"
+      "bytes": 1371,
+      "sha256": "09e3a19d628c49a51613c5c1566eca551ec6aa8fc36168a95c911a7447b9e228"
     },
     {
       "path": "SECURITY.md",
@@ -4216,7 +4591,7 @@
     {
       "path": "tests/python/test_advanced_engineering_skills_runtime.py",
       "bytes": 47571,
-      "sha256": "510f76db0ccce3ce68f2879b584a6bbf1d3a0169123a6ddba7136df75ed17e21"
+      "sha256": "ce914eeff9ed127b53ad66e705808bb340b1e0927b0e85b39e0b1ac013038be3"
     },
     {
       "path": "tests/python/test_agent_office.py",
@@ -4310,8 +4685,8 @@
     },
     {
       "path": "tests/python/test_autonomous_loop_runtime.py",
-      "bytes": 22123,
-      "sha256": "939bf33286ff7a937ff7cadf408c879e1e611918f4743740296185b010b7e13f"
+      "bytes": 22630,
+      "sha256": "5d986644033996248998c3246d0848286e30e23b3ee39a1032e2718a73a87468"
     },
     {
       "path": "tests/python/test_backend_manual_readiness_checklist.py",
@@ -4395,8 +4770,8 @@
     },
     {
       "path": "tests/python/test_code_signing_readiness.py",
-      "bytes": 8991,
-      "sha256": "0d5809857616a9ee7c6f6828878f42f7e261006501486b1982aa967c6b103882"
+      "bytes": 9063,
+      "sha256": "bcb2abd496c10929c6bb1f349a3f5ae775e2b7168662d8e0dd83599d1047504e"
     },
     {
       "path": "tests/python/test_consensus_agent_runtime.py",
@@ -4475,8 +4850,8 @@
     },
     {
       "path": "tests/python/test_desktop_app_runtime.py",
-      "bytes": 21454,
-      "sha256": "5f8bc5445a584ea25577eadc948ccfa28933fe365c42bfd54d889d6a53b855c1"
+      "bytes": 21497,
+      "sha256": "38c4e48b9490ef0e130636fde36ae084dfef89521ac2c7ae4476a0737b24692e"
     },
     {
       "path": "tests/python/test_desktop_beta_candidate_status.py",
@@ -4502,6 +4877,11 @@
       "path": "tests/python/test_desktop_guided_runtime_flow.py",
       "bytes": 1425,
       "sha256": "c7038ef325ff2854563b4f59f4454d94dbc87e16a9f853b5a85b446ba1b7cb39"
+    },
+    {
+      "path": "tests/python/test_desktop_launch_bootstrap.py",
+      "bytes": 1569,
+      "sha256": "79f805cb5ab6ee2abca1471efd5cdb3cbfa56b8ea84fdebb8733d5fbeb5763ae"
     },
     {
       "path": "tests/python/test_desktop_powerful_deferred_status.py",
@@ -4759,14 +5139,19 @@
       "sha256": "7448f3c40c0c80977de6a258a170b8a0416792b1d8e5263347c97cb6bfe6c459"
     },
     {
+      "path": "tests/python/test_frontier_skills_runtime.py",
+      "bytes": 14249,
+      "sha256": "cbfbade1a8c7f49a0fc6ebd44fc65386e24fe3f9309397e9bd14cb0e813a6545"
+    },
+    {
       "path": "tests/python/test_full_real_developer_team_pipeline.py",
       "bytes": 2186,
       "sha256": "8b61206c5813d0473d23602f3d505f46d41e279662ee8015dfc880cc8a6aa5a9"
     },
     {
       "path": "tests/python/test_git_source_release_verifier.py",
-      "bytes": 9306,
-      "sha256": "9ea9845b233211ea7aa8bfef221d1d06e133e2f17293758d7f3fb87baf8ab15b"
+      "bytes": 9375,
+      "sha256": "b8b505008a72b3ab054c2bff85373664e2a69b2ed35dd56428f6b3cf43241728"
     },
     {
       "path": "tests/python/test_github_pattern_extraction_runtime.py",
@@ -4920,8 +5305,8 @@
     },
     {
       "path": "tests/python/test_model_routing_runtime.py",
-      "bytes": 7200,
-      "sha256": "669c9692c05e76461aac9a1c7359216bb90d9f2b0b2d7b2a62e4dbfba9933a3c"
+      "bytes": 7217,
+      "sha256": "a69385065eecb4d22b991841df310a7d721066e8a861e0b7a578dc486cfbb8ef"
     },
     {
       "path": "tests/python/test_model_setup.py",
@@ -5007,6 +5392,16 @@
       "path": "tests/python/test_powerful_policy_block.py",
       "bytes": 1066,
       "sha256": "1e832ec037e3a721b744fb76808dd2b21cc804bcea3363eb6c32ca715a3bf26c"
+    },
+    {
+      "path": "tests/python/test_powershell_script_syntax.py",
+      "bytes": 1530,
+      "sha256": "62977d7ce5c3f53d0e4183b58bc48ab821e57037f5ce79e9a4ed3188fbe8d094"
+    },
+    {
+      "path": "tests/python/test_precision_skills_runtime.py",
+      "bytes": 10134,
+      "sha256": "69a0ae23c56573cc58686ccc72dfae035651e8993dd539f4f7c060c17ebf914f"
     },
     {
       "path": "tests/python/test_preservation_policy_validation.py",
@@ -5284,6 +5679,11 @@
       "sha256": "9394e2d4b7d2a81bcaf3fc80945de84add387e353bb735a17062d4c997b0d20b"
     },
     {
+      "path": "tests/python/test_runtime_diagnostic_scripts.py",
+      "bytes": 1157,
+      "sha256": "50273409df6df570ccf54708619d8b1c24eaeba0debffa24d1466e492b5f5e4a"
+    },
+    {
       "path": "tests/python/test_runtime_engine_runtime.py",
       "bytes": 6467,
       "sha256": "0c8f2e0255933661563380bdbf6c8a59eae4555829d837fdd2c8638973a0f07f"
@@ -5300,8 +5700,8 @@
     },
     {
       "path": "tests/python/test_runtime_images.py",
-      "bytes": 445,
-      "sha256": "92778b2acef0aac6e5cc21002f79ecd5f53372371fae7a49ac5b3cfed450d595"
+      "bytes": 2292,
+      "sha256": "a4d43e8ca961b11fba8c340d1cd05cbf40f01e60fc9f92fe8dd07455547bd305"
     },
     {
       "path": "tests/python/test_runtime_integrity_verification.py",
@@ -5389,6 +5789,11 @@
       "sha256": "c9eea06c44a351267277e31c405af0dcce99934840e53c61277972475113ccac"
     },
     {
+      "path": "tests/python/test_skill_evidence_loop.py",
+      "bytes": 4874,
+      "sha256": "6a82eec32b4efff2270e0a05067934bb6700cb07c59e778805aa6aff7feb6027"
+    },
+    {
       "path": "tests/python/test_skill_execution_runtime.py",
       "bytes": 10165,
       "sha256": "0a03aba9a1ec944a79760ed5aa9afefcfb1572d4da6a75c819abe677d943ca79"
@@ -5421,7 +5826,7 @@
     {
       "path": "tests/python/test_supreme_skills_runtime.py",
       "bytes": 12678,
-      "sha256": "1c2eda8adfc2edd881175a7ea9884f106fa18b225582656dc49981882798ce87"
+      "sha256": "ce27b1584f02f6881b7af4ac9d1a80cc23dfdcca1d2b0ff1b82c79bfda2a4964"
     },
     {
       "path": "tests/python/test_task_dependency_order.py",

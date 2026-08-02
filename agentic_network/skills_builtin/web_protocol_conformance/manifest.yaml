@@ -1,0 +1,13 @@
+name: web_protocol_conformance
+version: 1.0
+description: HTTP caching, CORS, compression, streaming, retry, and web protocol verification.
+enabled: true
+requires_user_approval: true
+audit_enabled: true
+permissions:
+  network: DENY
+  filesystem_read: ASK_ALWAYS
+  filesystem_write: ASK_ALWAYS
+  git_read: DENY
+  git_write: DENY
+  terminal_execute: ASK_ALWAYS

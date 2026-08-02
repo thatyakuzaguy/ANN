@@ -43,7 +43,7 @@ flowchart TB
 ## Backend
 
 - FastAPI exposes `/api/health`, `/api/agents`, `/api/runs`, `/api/approvals`, and `/api/logs/audit`.
-- `GET /api/skills`, the permission endpoint, and the execution endpoint expose eighty-six typed
+- `GET /api/skills`, the permission endpoint, and the execution endpoint expose one hundred twenty-six typed
   core and advanced skills. Manifest denials are immutable, terminal recipes require a single-use Approval Center
   decision, and skill artifacts are written only under `outputs/skills`.
 - The orchestrator decomposes ideas, runs all registered agents, creates proposed artifacts, scans for secrets, and queues approvals.
@@ -54,6 +54,10 @@ flowchart TB
 - Artifact generation goes through an intent router before template selection. SaaS prompts use the SaaS production artifact family; game prompts use a playable canvas game artifact family; future artifact families should be added behind the router.
 - After approval gates are resolved, the project lifecycle runner validates generated files, builds the generated Docker Compose stack, starts it on isolated ports, checks API/Web health live, runs API pytest, runs the web production build, requests Qwen unified-diff repairs when failures remain, writes a per-project sandbox manifest, runs security review, and creates a release ZIP.
 - The configurable correction loop records retry history, applies exponential backoff, writes a failure summary, and escalates to a human engineer after the configured limit.
+- Failed test attempts also produce deterministic Skill Evidence Plan and Skill
+  Evidence Decision artifacts. Selection is based on failure facts; execution
+  still goes through the existing permission store, Approval Center, Compose
+  sandbox, and Patch Apply gates.
 - SaaS readiness, compliance, integration status, Stripe billing status, SaaS templates, and requirement refinement are exposed as first-class API modules.
 - Senior review is split into domain quality primitives and application services, then exposed through API/UI contracts.
 - SQLAlchemy models and PostgreSQL schema are included for persistence expansion.
@@ -113,7 +117,7 @@ Security rules:
 | Billing facade | Stripe checkout, portal, webhook handling, and mock mode |
 | Integration facade | Email, payments, analytics, storage, auth, and notifications health/status abstraction |
 | Senior review | Product, requirements, architecture, security, QA, compliance, release gates and scorecards |
-| Engineering skills | Eighty-six typed skills and one hundred sixty-four actions covering repository, contract, dependency, runtime, test, architecture, data, security, release, traceability, history, concurrency, reproducibility, recovery, policy, formal verification, evaluation, diagnostics, resilience, privacy, accessibility, and controlled execution |
+| Engineering skills | One hundred twenty-six typed skills and two hundred forty-five actions covering repository, contract, dependency, runtime, test, architecture, data, security, release, traceability, history, concurrency, reproducibility, recovery, policy, formal verification, evaluation, diagnostics, resilience, privacy, accessibility, language servers, delivery benchmarks, native/mobile evidence, cryptography, SDKs, capacity, consistency, telemetry, identity, time/money, offline sync, binary hardening, web protocols, search, agent tools, messaging, residency, assistive technology, and controlled execution |
 
 ## Clean Architecture Boundaries
 

@@ -93,9 +93,9 @@ if ($useGitInventory) {
 }
 
 if ($useGitInventory) {
-    $tracked = @(git -C $RepositoryRoot ls-files)
+    $tracked = @(git -C $RepositoryRoot ls-files --cached --others --exclude-standard)
     if ($LASTEXITCODE -ne 0) {
-        throw "Unable to enumerate Git-tracked files."
+        throw "Unable to enumerate public source files from Git."
     }
 }
 else {

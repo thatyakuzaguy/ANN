@@ -1171,6 +1171,304 @@ ENGINEERING_SKILL_ACTIONS: dict[str, tuple[EngineeringSkillAction, ...]] = {
             (READ,),
         ),
     ),
+    "language_server_intelligence": (
+        EngineeringSkillAction(
+            "inspect",
+            "Inspect language-server configuration, typed source coverage, and supplied diagnostics.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "run",
+            "Run only an approved Python or web type-analysis recipe inside Docker Compose.",
+            (READ, WRITE, TERMINAL),
+            True,
+            True,
+        ),
+    ),
+    "autonomous_delivery_benchmark": (
+        EngineeringSkillAction(
+            "inspect",
+            "Assess end-to-end delivery stages, model provenance, and benchmark evidence.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "run",
+            "Run only an approved delivery-benchmark recipe inside Docker Compose.",
+            (READ, WRITE, TERMINAL),
+            True,
+            True,
+        ),
+    ),
+    "runtime_failure_lab": (
+        EngineeringSkillAction(
+            "inspect",
+            "Inspect bounded recovery evidence for interruption, resource, Docker, model, and packaging failures.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "run",
+            "Run only approved non-destructive runtime-failure tests inside Docker Compose.",
+            (READ, WRITE, TERMINAL),
+            True,
+            True,
+        ),
+    ),
+    "native_ui_automation": (
+        EngineeringSkillAction(
+            "inspect",
+            "Inspect Windows UI automation configuration and native application test readiness.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "verify",
+            "Verify supplied clean-machine native UI evidence without launching project binaries on the host.",
+            (READ,),
+        ),
+    ),
+    "llm_application_security": (
+        EngineeringSkillAction(
+            "inspect",
+            "Inspect prompt, retrieval, tool, secret, tenant, and output-validation boundaries.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "run",
+            "Run only approved non-destructive LLM application security tests inside Docker Compose.",
+            (READ, WRITE, TERMINAL),
+            True,
+            True,
+        ),
+    ),
+    "privacy_rights_verification": (
+        EngineeringSkillAction(
+            "inspect",
+            "Inspect export, erasure, retention, consent, tenancy, and audit implementation evidence.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "run",
+            "Run only approved privacy-rights verification tests inside Docker Compose.",
+            (READ, WRITE, TERMINAL),
+            True,
+            True,
+        ),
+    ),
+    "cryptographic_protocol_verification": (
+        EngineeringSkillAction(
+            "inspect",
+            "Inspect TLS, JWT, rotation, hashing, randomness, and unsafe cryptographic usage evidence.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "run",
+            "Run only approved cryptographic protocol tests inside Docker Compose.",
+            (READ, WRITE, TERMINAL),
+            True,
+            True,
+        ),
+    ),
+    "sdk_contract_conformance": (
+        EngineeringSkillAction(
+            "analyze",
+            "Compare OpenAPI evidence, generated SDK surfaces, versioning, errors, and contract tests.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "run",
+            "Run only approved SDK contract-conformance tests inside Docker Compose.",
+            (READ, WRITE, TERMINAL),
+            True,
+            True,
+        ),
+    ),
+    "mobile_device_lab": (
+        EngineeringSkillAction(
+            "inspect",
+            "Inspect Android, iOS, Flutter, and React Native device-test readiness.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "verify",
+            "Verify supplied device-lab evidence without starting host emulators or executing project binaries.",
+            (READ,),
+        ),
+    ),
+    "capacity_economics": (
+        EngineeringSkillAction(
+            "analyze",
+            "Analyze supplied throughput, latency, memory, concurrency, and non-binding capacity evidence.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "benchmark",
+            "Run only an approved capacity benchmark inside Docker Compose.",
+            (READ, WRITE, TERMINAL),
+            True,
+            True,
+        ),
+    ),
+    "cross_store_consistency": (
+        EngineeringSkillAction(
+            "inspect",
+            "Inspect database, cache, queue, search, outbox, reconciliation, and idempotency boundaries.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "run",
+            "Run only approved cross-store consistency tests inside Docker Compose.",
+            (READ, WRITE, TERMINAL),
+            True,
+            True,
+        ),
+    ),
+    "product_telemetry_validation": (
+        EngineeringSkillAction(
+            "analyze",
+            "Inspect event taxonomy, identity, consent, PII, funnels, experiments, and telemetry quality.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "run",
+            "Run only approved product telemetry contract tests inside Docker Compose.",
+            (READ, WRITE, TERMINAL),
+            True,
+            True,
+        ),
+    ),
+    "identity_protocol_conformance": (
+        EngineeringSkillAction(
+            "inspect",
+            "Inspect OAuth, OIDC, SAML, SCIM, session, and identity lifecycle conformance evidence.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "run",
+            "Run only approved identity-protocol contract tests inside Docker Compose.",
+            (READ, WRITE, TERMINAL),
+            True,
+            True,
+        ),
+    ),
+    "temporal_monetary_correctness": (
+        EngineeringSkillAction(
+            "inspect",
+            "Inspect timezone, DST, currency, decimal, rounding, and tax correctness evidence.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "run",
+            "Run only approved temporal and monetary correctness tests inside Docker Compose.",
+            (READ, WRITE, TERMINAL),
+            True,
+            True,
+        ),
+    ),
+    "offline_sync_conflict_verification": (
+        EngineeringSkillAction(
+            "inspect",
+            "Inspect offline queues, versions, tombstones, idempotency, and conflict-resolution evidence.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "run",
+            "Run only approved offline synchronization and conflict tests inside Docker Compose.",
+            (READ, WRITE, TERMINAL),
+            True,
+            True,
+        ),
+    ),
+    "binary_hardening_verification": (
+        EngineeringSkillAction(
+            "inspect",
+            "Inspect signing, hashes, SBOM, mitigations, update, and binary release evidence.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "verify",
+            "Verify attested external binary-lab evidence without launching host binaries.",
+            (READ,),
+        ),
+    ),
+    "web_protocol_conformance": (
+        EngineeringSkillAction(
+            "inspect",
+            "Inspect HTTP caching, CORS, streaming, compression, retry, and protocol-boundary evidence.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "run",
+            "Run only approved web-protocol conformance tests inside Docker Compose.",
+            (READ, WRITE, TERMINAL),
+            True,
+            True,
+        ),
+    ),
+    "search_relevance_evaluation": (
+        EngineeringSkillAction(
+            "analyze",
+            "Analyze ranking, filtering, tokenization, golden-query, and relevance-metric evidence.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "run",
+            "Run only approved search relevance evaluations inside Docker Compose.",
+            (READ, WRITE, TERMINAL),
+            True,
+            True,
+        ),
+    ),
+    "agent_tool_contract_verification": (
+        EngineeringSkillAction(
+            "inspect",
+            "Inspect tool schemas, approvals, timeouts, idempotency, error handling, and result validation.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "run",
+            "Run only approved agent-tool contract tests inside Docker Compose.",
+            (READ, WRITE, TERMINAL),
+            True,
+            True,
+        ),
+    ),
+    "messaging_deliverability": (
+        EngineeringSkillAction(
+            "inspect",
+            "Inspect email and notification authentication, bounce, retry, consent, and delivery evidence.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "run",
+            "Run only approved messaging deliverability contract tests inside Docker Compose.",
+            (READ, WRITE, TERMINAL),
+            True,
+            True,
+        ),
+    ),
+    "data_residency_mapping": (
+        EngineeringSkillAction(
+            "analyze",
+            "Map regional storage, processing, backup, transfer, retention, and subprocessor evidence.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "verify",
+            "Verify attested residency evidence while preserving mandatory human legal review.",
+            (READ,),
+        ),
+    ),
+    "assistive_technology_lab": (
+        EngineeringSkillAction(
+            "inspect",
+            "Inspect keyboard, semantics, focus, contrast, and assistive-technology test readiness.",
+            (READ,),
+        ),
+        EngineeringSkillAction(
+            "verify",
+            "Verify attested assistive-technology runner evidence without host UI automation.",
+            (READ,),
+        ),
+    ),
     "repository_intelligence": (
         EngineeringSkillAction(
             "scan", "Index AST symbols, routes, tests, and dependencies.", (READ,)

@@ -8,7 +8,9 @@ from __future__ import annotations
 
 import importlib.metadata
 import json
+import os
 from pathlib import Path
+from pathlib import PureWindowsPath
 import sys
 
 
@@ -21,12 +23,27 @@ from agentic_network.models.llama_cpp_security import load_secure_llama_cpp  # n
 from agentic_network.runtime_engine.windows_dlls import (  # noqa: E402
     configure_windows_runtime_dll_paths,
 )
+from scripts.runtime.run_conversation_llama_cpp import (  # noqa: E402
+    _prepare_cuda_library_path,
+    _preload_cuda_libraries,
+)
 
 
 QWEN25_GGUF = Path("D:/AgenticEngineeringNetwork/models/qwen2.5-coder-7b-q4_k_m.gguf")
 
 
+def _resolve_declared_path(path: Path) -> Path:
+    if os.name == "nt":
+        return path
+    windows_path = PureWindowsPath(str(path))
+    if windows_path.drive and windows_path.drive[0].isalpha():
+        relative = "/".join(windows_path.parts[1:])
+        return Path(f"/mnt/{windows_path.drive[0].lower()}/{relative}")
+    return path
+
+
 def main() -> None:
+    qwen25_path = _resolve_declared_path(QWEN25_GGUF)
     payload = {
         "script": "check_llama_cpp_cuda",
         "read_only": True,
@@ -34,11 +51,14 @@ def main() -> None:
         "downloads": False,
         "model_load": False,
         "qwen25_gguf_path": str(QWEN25_GGUF),
-        "qwen25_gguf_exists": QWEN25_GGUF.is_file(),
+        "qwen25_gguf_resolved_path": str(qwen25_path),
+        "qwen25_gguf_exists": qwen25_path.is_file(),
     }
     configured_dll_paths = configure_windows_runtime_dll_paths()
     payload["configured_dll_paths"] = configured_dll_paths
     try:
+        _prepare_cuda_library_path()
+        _preload_cuda_libraries()
         llama_cpp = load_secure_llama_cpp()
 
         try:

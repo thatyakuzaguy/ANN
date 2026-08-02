@@ -66,12 +66,13 @@ from agentic_network.runtime_engine.local_model_activation import (
 )
 
 try:  # pragma: no cover - covered by manual desktop smoke when Qt is installed.
-    from PySide6.QtWidgets import QLabel, QPlainTextEdit, QVBoxLayout, QWidget
+    from PySide6.QtWidgets import QLabel, QPlainTextEdit, QPushButton, QVBoxLayout, QWidget
 
     PYSIDE6_AVAILABLE = True
 except ModuleNotFoundError:  # pragma: no cover
     QLabel = None
     QPlainTextEdit = None
+    QPushButton = None
     QVBoxLayout = None
     QWidget = object
     PYSIDE6_AVAILABLE = False
@@ -456,13 +457,22 @@ if PYSIDE6_AVAILABLE:
             layout = QVBoxLayout(self)
             title = QLabel("Model Inventory")
             title.setAccessibleName("Model Inventory view title")
-            self.body = QPlainTextEdit(model_inventory_snapshot())
+            self.body = QPlainTextEdit(
+                f"{MODEL_INVENTORY_MESSAGE}\n\nSelect Refresh to inspect local model files."
+            )
             self.body.setReadOnly(True)
             self.body.setAccessibleName("Model Inventory read only status")
+            refresh = QPushButton("Refresh")
+            refresh.setAccessibleName("Refresh local model inventory")
+            refresh.clicked.connect(self._refresh)
             layout.addWidget(title)
             layout.addWidget(self.body, 1)
+            layout.addWidget(refresh)
 
         def set_bundle(self, _bundle: Any, _snapshot: dict[str, Any]) -> None:
+            return
+
+        def _refresh(self) -> None:
             self.body.setPlainText(model_inventory_snapshot())
 
 else:

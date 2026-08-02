@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "success_policy": "all_required_gates_with_runtime_evidence",
+  "required_stages": [
+    "requirements",
+    "architecture",
+    "implementation",
+    "build",
+    "tests",
+    "review",
+    "package",
+    "rollback"
+  ],
+  "cases": [
+    {
+      "id": "python-api-contract",
+      "archetype": "backend_api",
+      "required_evidence": ["openapi", "unit_tests", "integration_tests", "security_review"]
+    },
+    {
+      "id": "typescript-web-workflow",
+      "archetype": "web_application",
+      "required_evidence": ["typecheck", "unit_tests", "e2e_tests", "accessibility"]
+    },
+    {
+      "id": "desktop-install-lifecycle",
+      "archetype": "windows_desktop",
+      "required_evidence": ["installer", "first_run", "uninstall", "rollback"]
+    },
+    {
+      "id": "mobile-offline-sync",
+      "archetype": "mobile_application",
+      "required_evidence": ["device_run", "offline_conflicts", "accessibility", "uninstall"]
+    },
+    {
+      "id": "data-evolution",
+      "archetype": "data_system",
+      "required_evidence": ["migration", "rollback", "integrity", "reconciliation"]
+    },
+    {
+      "id": "agent-tool-safety",
+      "archetype": "ai_application",
+      "required_evidence": ["tool_contracts", "approval_gates", "prompt_security", "runtime_rollback"]
+    }
+  ],
+  "claim_policy": "No benchmark case passes from static markers alone."
+}

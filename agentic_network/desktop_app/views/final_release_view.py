@@ -233,7 +233,9 @@ if PYSIDE6_AVAILABLE:
             layout = QVBoxLayout(self)
             title = QLabel("Final Release Verification")
             title.setAccessibleName("Final Release Verification view title")
-            self.body = QPlainTextEdit(final_release_snapshot())
+            self.body = QPlainTextEdit(
+                f"{FINAL_RELEASE_MESSAGE}\n\nSelect Refresh to run final release diagnostics."
+            )
             self.body.setReadOnly(True)
             self.body.setAccessibleName("Final Release Verification read only status")
             refresh = QPushButton("Refresh")
@@ -244,7 +246,7 @@ if PYSIDE6_AVAILABLE:
             layout.addWidget(refresh)
 
         def set_bundle(self, _bundle: Any, _snapshot: dict[str, Any]) -> None:
-            self._refresh()
+            return
 
         def _refresh(self) -> None:
             self.body.setPlainText(final_release_snapshot())

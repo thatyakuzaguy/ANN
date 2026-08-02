@@ -463,11 +463,15 @@ def test_retry_test_failure_loop_continues_after_failed_retry_tests(tmp_path: Pa
     assert loop.exists()
     assert (run_dir / "37_failure_context_attempt_001.json").exists()
     assert (run_dir / "37_failure_context_attempt_001.md").exists()
+    assert (run_dir / "38_skill_evidence_plan_attempt_001.json").exists()
+    assert (run_dir / "39_skill_evidence_decision_attempt_001.json").exists()
     assert "AssertionError: expected 2 got 1" in analysis.read_text(encoding="utf-8")
     assert "pytest tests/python -q" in analysis.read_text(encoding="utf-8")
     assert summary["autonomous_loop_retry_failure_detected"] is True
     assert summary["autonomous_loop_retry_failure_attempt"] == 1
     assert summary["autonomous_loop_retry_failure_next_action"] == "resolved"
+    assert summary["autonomous_loop_skill_evidence_status"] == "EVIDENCE_REQUIRED"
+    assert summary["autonomous_loop_skill_evidence_next_action"] == "collect_approved_skill_evidence"
 
 
 def test_retry_failure_artifacts_are_included_in_handoff(tmp_path: Path, monkeypatch) -> None:
@@ -493,6 +497,8 @@ def test_retry_failure_artifacts_are_included_in_handoff(tmp_path: Path, monkeyp
     assert "36_retry_failure_loop_attempt_001.md" in handoff.included_artifacts
     assert "37_failure_context_attempt_001.json" in handoff.included_artifacts
     assert "37_failure_context_attempt_001.md" in handoff.included_artifacts
+    assert "38_skill_evidence_plan_attempt_001.json" in handoff.included_artifacts
+    assert "39_skill_evidence_decision_attempt_001.json" in handoff.included_artifacts
 
 
 def test_summary_updated_and_artifacts_written(tmp_path: Path, monkeypatch) -> None:

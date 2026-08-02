@@ -134,6 +134,23 @@ def _advanced_engineering_action(
         ("model_runtime_certification", "benchmark"),
         ("online_migration_rehearsal", "run"),
         ("performance_regression_bisect", "run"),
+        ("autonomous_delivery_benchmark", "run"),
+        ("capacity_economics", "benchmark"),
+        ("cross_store_consistency", "run"),
+        ("cryptographic_protocol_verification", "run"),
+        ("language_server_intelligence", "run"),
+        ("llm_application_security", "run"),
+        ("privacy_rights_verification", "run"),
+        ("product_telemetry_validation", "run"),
+        ("runtime_failure_lab", "run"),
+        ("sdk_contract_conformance", "run"),
+        ("agent_tool_contract_verification", "run"),
+        ("identity_protocol_conformance", "run"),
+        ("messaging_deliverability", "run"),
+        ("offline_sync_conflict_verification", "run"),
+        ("search_relevance_evaluation", "run"),
+        ("temporal_monetary_correctness", "run"),
+        ("web_protocol_conformance", "run"),
     }
     if specialist_execution or (
         skill_name
@@ -166,7 +183,10 @@ def _advanced_engineering_action(
         }
         and action == "run"
     ):
-        return _specialist_test_command(skill_name, payload, workspace, root)
+        result = _specialist_test_command(skill_name, payload, workspace, root)
+        from agentic_network.skills.frontier_runtime import enrich_specialist_execution
+
+        return enrich_specialist_execution(skill_name, workspace, result)
     if skill_name == "release_provenance" and action in {"verify", "sign"}:
         return _release_provenance_command(action, payload, workspace, root)
     if skill_name == "deployment_verification" and action == "smoke":
@@ -987,6 +1007,23 @@ def _specialist_test_command(
         "model_runtime_certification": "python_model_runtime",
         "online_migration_rehearsal": "python_online_migration",
         "performance_regression_bisect": "python_performance_bisect",
+        "autonomous_delivery_benchmark": "python_delivery_benchmark",
+        "capacity_economics": "python_capacity",
+        "cross_store_consistency": "python_cross_store",
+        "cryptographic_protocol_verification": "python_crypto_protocol",
+        "language_server_intelligence": "python_lsp",
+        "llm_application_security": "python_llm_security",
+        "privacy_rights_verification": "python_privacy_rights",
+        "product_telemetry_validation": "python_product_telemetry",
+        "runtime_failure_lab": "python_runtime_failure",
+        "sdk_contract_conformance": "python_sdk_contract",
+        "agent_tool_contract_verification": "python_agent_tool_contract",
+        "identity_protocol_conformance": "python_identity_protocol",
+        "messaging_deliverability": "python_messaging_deliverability",
+        "offline_sync_conflict_verification": "python_offline_sync",
+        "search_relevance_evaluation": "python_search_relevance",
+        "temporal_monetary_correctness": "python_temporal_monetary",
+        "web_protocol_conformance": "python_web_protocol",
     }
     aliases = {
         "accessibility": "web_accessibility",
@@ -1048,6 +1085,38 @@ def _specialist_test_command(
         "model_runtime_certification": {"python_model_runtime"},
         "online_migration_rehearsal": {"python_online_migration"},
         "performance_regression_bisect": {"python_performance_bisect"},
+        "autonomous_delivery_benchmark": {
+            "python_delivery_benchmark",
+            "web_delivery_benchmark",
+        },
+        "capacity_economics": {"python_capacity", "web_capacity"},
+        "cross_store_consistency": {"python_cross_store"},
+        "cryptographic_protocol_verification": {"python_crypto_protocol"},
+        "language_server_intelligence": {"python_lsp", "web_lsp"},
+        "llm_application_security": {"python_llm_security"},
+        "privacy_rights_verification": {"python_privacy_rights"},
+        "product_telemetry_validation": {
+            "python_product_telemetry",
+            "web_product_telemetry",
+        },
+        "runtime_failure_lab": {"python_runtime_failure"},
+        "sdk_contract_conformance": {"python_sdk_contract", "web_sdk_contract"},
+        "agent_tool_contract_verification": {
+            "python_agent_tool_contract",
+            "web_agent_tool_contract",
+        },
+        "identity_protocol_conformance": {"python_identity_protocol"},
+        "messaging_deliverability": {
+            "python_messaging_deliverability",
+            "web_messaging_deliverability",
+        },
+        "offline_sync_conflict_verification": {"python_offline_sync", "web_offline_sync"},
+        "search_relevance_evaluation": {"python_search_relevance", "web_search_relevance"},
+        "temporal_monetary_correctness": {
+            "python_temporal_monetary",
+            "web_temporal_monetary",
+        },
+        "web_protocol_conformance": {"python_web_protocol", "web_web_protocol"},
     }
     if recipe not in allowed_by_skill[skill_name]:
         return {
@@ -1151,6 +1220,11 @@ def _specialist_recipe(
             ["python", "-m", "pytest", "-q", "-m", "api_abuse"],
             None,
         ),
+        "python_agent_tool_contract": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "agent_tool_contract"],
+            None,
+        ),
         "python_authorization": (
             "api",
             ["python", "-m", "pytest", "-q", "-m", "authorization"],
@@ -1159,6 +1233,11 @@ def _specialist_recipe(
         "python_behavioral_oracle": (
             "api",
             ["python", "-m", "pytest", "-q", "-m", "behavioral_oracle"],
+            None,
+        ),
+        "python_capacity": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "capacity"],
             None,
         ),
         "python_checkpoint": (
@@ -1174,6 +1253,16 @@ def _specialist_recipe(
         "python_contract": (
             "api",
             ["python", "-m", "pytest", "-q", "-m", "contract"],
+            None,
+        ),
+        "python_cross_store": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "cross_store"],
+            None,
+        ),
+        "python_crypto_protocol": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "crypto_protocol"],
             None,
         ),
         "python_concurrency": (
@@ -1218,6 +1307,11 @@ def _specialist_recipe(
             ["python", "-m", "pytest", "-q", "-m", "disaster_recovery"],
             None,
         ),
+        "python_delivery_benchmark": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "delivery_benchmark"],
+            None,
+        ),
         "python_formal_model": (
             "api",
             ["python", "-m", "pytest", "-q", "-m", "formal_model"],
@@ -1233,9 +1327,29 @@ def _specialist_recipe(
             ["python", "-m", "pytest", "-q", "-m", "installer_vm_lab"],
             None,
         ),
+        "python_identity_protocol": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "identity_protocol"],
+            None,
+        ),
+        "python_llm_security": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "llm_security"],
+            None,
+        ),
+        "python_lsp": (
+            "api",
+            ["python", "-m", "pyright", "--outputjson"],
+            None,
+        ),
         "python_memory": (
             "api",
             ["python", "-m", "pytest", "-q", "-m", "memory"],
+            None,
+        ),
+        "python_messaging_deliverability": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "messaging_deliverability"],
             None,
         ),
         "python_mutation": (
@@ -1253,9 +1367,24 @@ def _specialist_recipe(
             ["python", "-m", "pytest", "-q", "-m", "online_migration"],
             None,
         ),
+        "python_offline_sync": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "offline_sync"],
+            None,
+        ),
         "python_policy": (
             "api",
             ["python", "-m", "pytest", "-q", "-m", "policy"],
+            None,
+        ),
+        "python_privacy_rights": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "privacy_rights"],
+            None,
+        ),
+        "python_product_telemetry": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "product_telemetry"],
             None,
         ),
         "python_performance_bisect": (
@@ -1278,6 +1407,21 @@ def _specialist_recipe(
             ["python", "-m", "pytest", "-q", "-m", "reproducible_build"],
             None,
         ),
+        "python_runtime_failure": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "runtime_failure"],
+            None,
+        ),
+        "python_sdk_contract": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "sdk_contract"],
+            None,
+        ),
+        "python_search_relevance": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "search_relevance"],
+            None,
+        ),
         "python_schema_drift": (
             "api",
             ["python", "-m", "alembic", "check"],
@@ -1298,15 +1442,30 @@ def _specialist_recipe(
             ["python", "-m", "pytest", "-q", "-m", "telemetry"],
             None,
         ),
+        "python_temporal_monetary": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "temporal_monetary"],
+            None,
+        ),
         "python_upgrade_compatibility": (
             "api",
             ["python", "-m", "pytest", "-q", "-m", "upgrade_compatibility"],
+            None,
+        ),
+        "python_web_protocol": (
+            "api",
+            ["python", "-m", "pytest", "-q", "-m", "web_protocol"],
             None,
         ),
         "web_accessibility": (
             "web",
             ["npm", "run", "test:a11y"],
             "test:a11y",
+        ),
+        "web_agent_tool_contract": (
+            "web",
+            ["npm", "run", "test:agent-tools"],
+            "test:agent-tools",
         ),
         "terraform_plan": (
             "infra",
@@ -1340,6 +1499,11 @@ def _specialist_recipe(
             ["npm", "run", "test:concurrency"],
             "test:concurrency",
         ),
+        "web_delivery_benchmark": (
+            "web",
+            ["npm", "run", "test:delivery"],
+            "test:delivery",
+        ),
         "web_docs": (
             "web",
             ["npm", "run", "test:docs"],
@@ -1360,10 +1524,25 @@ def _specialist_recipe(
             ["npm", "run", "test:memory"],
             "test:memory",
         ),
+        "web_messaging_deliverability": (
+            "web",
+            ["npm", "run", "test:deliverability"],
+            "test:deliverability",
+        ),
+        "web_lsp": (
+            "web",
+            ["npm", "run", "typecheck"],
+            "typecheck",
+        ),
         "web_mutation": (
             "web",
             ["npm", "run", "test:mutation"],
             "test:mutation",
+        ),
+        "web_offline_sync": (
+            "web",
+            ["npm", "run", "test:offline-sync"],
+            "test:offline-sync",
         ),
         "web_policy": (
             "web",
@@ -1381,6 +1560,26 @@ def _specialist_recipe(
             ["npm", "run", "test:reproducible"],
             "test:reproducible",
         ),
+        "web_capacity": (
+            "web",
+            ["npm", "run", "test:capacity"],
+            "test:capacity",
+        ),
+        "web_product_telemetry": (
+            "web",
+            ["npm", "run", "test:product-telemetry"],
+            "test:product-telemetry",
+        ),
+        "web_sdk_contract": (
+            "web",
+            ["npm", "run", "test:sdk-contract"],
+            "test:sdk-contract",
+        ),
+        "web_search_relevance": (
+            "web",
+            ["npm", "run", "test:search-relevance"],
+            "test:search-relevance",
+        ),
         "web_stateful_workflow": (
             "web",
             ["npm", "run", "test:stateful"],
@@ -1391,10 +1590,20 @@ def _specialist_recipe(
             ["npm", "run", "test:telemetry"],
             "test:telemetry",
         ),
+        "web_temporal_monetary": (
+            "web",
+            ["npm", "run", "test:temporal-monetary"],
+            "test:temporal-monetary",
+        ),
         "web_upgrade_compatibility": (
             "web",
             ["npm", "run", "test:upgrade"],
             "test:upgrade",
+        ),
+        "web_web_protocol": (
+            "web",
+            ["npm", "run", "test:web-protocol"],
+            "test:web-protocol",
         ),
         "web_visual": (
             "web",
@@ -1409,22 +1618,33 @@ def _safe_specialist_package_script(root: Path, name: str) -> bool:
     allowed_prefixes = {
         "test": ("jest", "node --test", "vitest"),
         "test:a11y": ("axe", "jest", "playwright test", "vitest"),
+        "test:agent-tools": ("jest", "node --test", "playwright test", "vitest"),
         "test:chaos": ("jest", "node --test", "playwright test", "vitest"),
         "test:compatibility": ("jest", "node --test", "playwright test", "vitest"),
         "test:concurrency": ("jest", "node --test", "playwright test", "vitest"),
         "test:contract": ("jest", "node --test", "pact", "playwright test", "vitest"),
+        "test:capacity": ("jest", "node --test", "playwright test", "vitest"),
+        "test:delivery": ("jest", "node --test", "playwright test", "vitest"),
+        "test:deliverability": ("jest", "node --test", "playwright test", "vitest"),
         "test:docs": ("jest", "node --test", "playwright test", "vitest"),
         "test:formal": ("alloy", "jest", "node --test", "playwright test", "tlc", "vitest"),
         "test:fuzz": ("fast-check", "jest", "node --test", "vitest"),
         "test:memory": ("clinic", "jest", "node --test", "vitest"),
         "test:mutation": ("stryker",),
+        "test:offline-sync": ("jest", "node --test", "playwright test", "vitest"),
         "test:policy": ("conftest", "jest", "node --test", "opa test", "vitest"),
+        "test:product-telemetry": ("jest", "node --test", "playwright test", "vitest"),
         "test:queue": ("jest", "node --test", "playwright test", "vitest"),
         "test:reproducible": ("jest", "node --test", "vitest"),
+        "test:sdk-contract": ("jest", "node --test", "pact", "vitest"),
+        "test:search-relevance": ("jest", "node --test", "playwright test", "vitest"),
         "test:stateful": ("jest", "node --test", "playwright test", "vitest"),
         "test:telemetry": ("jest", "node --test", "playwright test", "vitest"),
+        "test:temporal-monetary": ("jest", "node --test", "playwright test", "vitest"),
         "test:upgrade": ("jest", "node --test", "playwright test", "vitest"),
         "test:visual": ("playwright test",),
+        "test:web-protocol": ("jest", "node --test", "playwright test", "vitest"),
+        "typecheck": ("tsc", "vue-tsc"),
     }
     for package_root in (root, root / "apps" / "web"):
         manifest = _read_json(package_root / "package.json")
@@ -1439,6 +1659,15 @@ def _safe_specialist_package_script(root: Path, name: str) -> bool:
 
 
 def _specialist_recipe_readiness(root: Path, recipe: str) -> str:
+    if recipe == "python_lsp":
+        pyright_config = root / "pyrightconfig.json"
+        pyproject = root / "pyproject.toml"
+        configured = pyright_config.is_file() or (
+            pyproject.is_file()
+            and "pyright" in pyproject.read_text(encoding="utf-8", errors="replace").lower()
+        )
+        if not configured:
+            return "pyright_configuration_missing"
     if recipe == "python_dependency_lock":
         try:
             lock = _project_file(root, "requirements.lock", required=True)

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -159,7 +160,7 @@ def test_desktop_model_routing_view_loads() -> None:
 def test_cli_smoke_generates_artifacts(tmp_path: Path) -> None:
     completed = subprocess.run(
         [
-            "python",
+            sys.executable,
             "-m",
             "agentic_network.model_routing.run",
             "--mode",

@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from agentic_network.skill_evidence_agent.runtime import DEFAULT_EVIDENCE_ROOT
+from agentic_network.skill_evidence_agent.runtime import DEFAULT_EVIDENCE_ROOT, REPO_ROOT
 
 try:  # pragma: no cover - covered by manual desktop smoke.
     from PySide6.QtWidgets import QLabel, QPlainTextEdit, QVBoxLayout, QWidget
@@ -37,7 +37,9 @@ def skill_evidence_snapshot(evidence_root: str | Path | None = None) -> str:
         bundles.insert(0, direct)
     if not bundles:
         lines.append("No skill evidence bundles found.")
-        return "\n".join(lines)
+    run_roots = [root]
+    if evidence_root is None:
+        run_roots.append((REPO_ROOT / "outputs" / "runs").resolve())
     for bundle_path in bundles[-5:]:
         payload = _read_json(bundle_path)
         lines.extend(
@@ -60,6 +62,34 @@ def skill_evidence_snapshot(evidence_root: str | Path | None = None) -> str:
                     f"safe_to_use={item.get('safe_to_use', False)} source={item.get('source_path', '')}"
                 )
         lines.append("")
+    plans: list[Path] = []
+    for run_root in run_roots:
+        if run_root.is_dir():
+            plans.extend(run_root.rglob("38_skill_evidence_plan_attempt_*.json"))
+    if plans:
+        lines.extend(["Correction Loop Evidence", ""])
+    for plan_path in sorted(set(plans))[-10:]:
+        payload = _read_json(plan_path)
+        decision_path = plan_path.with_name(
+            plan_path.name.replace("38_skill_evidence_plan_", "39_skill_evidence_decision_")
+        )
+        decision = _read_json(decision_path) if decision_path.is_file() else {}
+        selected = payload.get("selected_skills", [])
+        lines.extend(
+            [
+                str(plan_path.parent),
+                f"- Plan status: {payload.get('status', 'UNKNOWN')}",
+                f"- Decision: {decision.get('status', 'EVIDENCE_REQUIRED')}",
+                f"- Next action: {decision.get('next_action', payload.get('next_action', ''))}",
+                "- Selected skills:",
+                *[
+                    f"  - {item.get('skill', '')}.{item.get('action', '')}: {item.get('reason', '')}"
+                    for item in selected
+                    if isinstance(item, dict)
+                ],
+                "",
+            ]
+        )
     return "\n".join(lines)
 
 

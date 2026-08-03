@@ -4,6 +4,7 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 
 export type TerminalInputMode = "auto" | "chat" | "command";
+export type ApprovalMode = "full" | "supervised";
 export type InputClassification =
   | "EMPTY"
   | "BUILTIN_COMMAND"
@@ -30,6 +31,7 @@ export type ConversationSession = {
   conversationId: string;
   activeRequestId: string | null;
   activeProject: string | null;
+  approvalMode: ApprovalMode;
   activeTask: string | null;
   currentMode: TerminalInputMode;
   recentMessages: { role: "USER" | "ANN" | "SYSTEM" | "COMMAND" | "ERROR" | "APPROVAL" | "PIPELINE"; text: string; at: string }[];
@@ -70,7 +72,7 @@ type StartPipelineCapability = {
   readOnly: false;
   architect_handoff: string;
   workspace_directory: string;
-  approval_mode: "supervised";
+  approval_mode: ApprovalMode;
   api_base: string;
   run_id?: string;
   run_status?: string;
@@ -153,6 +155,7 @@ export function getOrCreateSession(conversationId?: string | null): Conversation
     conversationId: id,
     activeRequestId: null,
     activeProject: null,
+    approvalMode: "supervised",
     activeTask: null,
     currentMode: "auto",
     recentMessages: [],
@@ -551,7 +554,7 @@ function renderPipelineHandoffMessage(startPipeline?: StartPipelineCapability) {
       `Run ID: ${startPipeline.run_id}`,
       `Estado inicial: ${startPipeline.run_status}`,
       `Workspace: ${startPipeline.workspace_directory}`,
-      "Modo de aprobación: supervisado",
+      `Modo de aprobación: ${startPipeline.approval_mode === "full" ? "total" : "supervisado"}`,
       "",
       "El arquitecto recibirá el input optimizado, lo convertirá en plan técnico y coordinará la pipeline de agentes. Cualquier modificación seguirá pasando por los gates de aprobación.",
     ].join("\n");
@@ -562,6 +565,7 @@ function renderPipelineHandoffMessage(startPipeline?: StartPipelineCapability) {
       "",
       "Modo test: no se ha llamado al backend.",
       `Workspace objetivo: ${startPipeline.workspace_directory}`,
+      `Modo de aprobación: ${startPipeline.approval_mode === "full" ? "total" : "supervisado"}`,
       "El payload contiene intención, restricciones, riesgos, pipeline recomendada e instrucciones para que Architect Agent arranque el trabajo.",
     ].join("\n");
   }
@@ -655,6 +659,7 @@ function buildArchitectHandoff(context: CapabilityContext) {
 
 async function startPipelineFromConversation(context: CapabilityContext): Promise<StartPipelineCapability> {
   const workspace = normalizeWorkspaceDirectory(context.session.activeProject ?? DEFAULT_WORKSPACE_DIRECTORY);
+  const approvalMode = context.session.approvalMode;
   const handoff = buildArchitectHandoff(context);
   const base: StartPipelineCapability = {
     status: "PREPARED_NOT_EXECUTED",
@@ -662,7 +667,7 @@ async function startPipelineFromConversation(context: CapabilityContext): Promis
     readOnly: false,
     architect_handoff: handoff,
     workspace_directory: workspace,
-    approval_mode: "supervised",
+    approval_mode: approvalMode,
     api_base: API_BASE,
   };
 
@@ -683,7 +688,7 @@ async function startPipelineFromConversation(context: CapabilityContext): Promis
       body: JSON.stringify({
         idea: handoff.slice(0, 3900),
         workspace_directory: workspace,
-        approval_mode: "supervised",
+        approval_mode: approvalMode,
       }),
       signal: controller.signal,
     });
@@ -707,9 +712,15 @@ async function startPipelineFromConversation(context: CapabilityContext): Promis
   }
 }
 
-function normalizeWorkspaceDirectory(value: string) {
+export function normalizeWorkspaceDirectory(value: string) {
   const normalized = value.trim().replace(/\//g, "\\");
-  if (/^[DE]:\\/i.test(normalized)) return normalized;
+  if (!/^[DE]:\\/i.test(normalized) || /[<>:\"|?*\r\n]/.test(normalized.slice(3))) {
+    return DEFAULT_WORKSPACE_DIRECTORY;
+  }
+  const segments = normalized.slice(3).split("\\").filter(Boolean);
+  if (segments.length > 0 && segments.every(segment => segment !== "." && segment !== "..")) {
+    return normalized.replace(/\\+$/, "");
+  }
   return DEFAULT_WORKSPACE_DIRECTORY;
 }
 

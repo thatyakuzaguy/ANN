@@ -5,6 +5,7 @@ import {
   getOrCreateSession,
   handleConversationMessage,
   handleModeCommand,
+  normalizeWorkspaceDirectory,
   runSafeTerminalCommand,
 } from "./ann-terminal";
 
@@ -107,5 +108,26 @@ describe("ANN terminal conversation classifier", () => {
     expect(String(startPipeline.architect_handoff)).toContain("ANN CHAT HANDOFF TO ARCHITECT");
     expect(String(startPipeline.architect_handoff)).toContain("Build me a SaaS CRM with auth and billing");
     expect(response.display_message).toContain("Architect Agent");
+  });
+
+  it("preserves the selected workspace and approval mode in the Architect handoff", async () => {
+    const session = getOrCreateSession("test-terminal-custom-run-controls");
+    session.activeProject = "E:/ANN Projects/todo-api";
+    session.approvalMode = "full";
+
+    const response = await handleConversationMessage("Build a FastAPI Todo API with tests", session);
+    const startPipeline = response.capabilities.start_pipeline as Record<string, unknown>;
+
+    expect(startPipeline.workspace_directory).toBe("E:\\ANN Projects\\todo-api");
+    expect(startPipeline.approval_mode).toBe("full");
+    expect(response.display_message).toContain("Modo de aprobación: total");
+  });
+
+  it("normalizes D and E workspaces but blocks C and traversal-like paths", () => {
+    expect(normalizeWorkspaceDirectory("D:/Projects/CRM/")).toBe("D:\\Projects\\CRM");
+    expect(normalizeWorkspaceDirectory("E:\\Projects\\Shop")).toBe("E:\\Projects\\Shop");
+    expect(normalizeWorkspaceDirectory("C:\\Temp\\unsafe")).toBe("D:\\AgenticEngineeringNetwork\\generated-projects");
+    expect(normalizeWorkspaceDirectory("../escape")).toBe("D:\\AgenticEngineeringNetwork\\generated-projects");
+    expect(normalizeWorkspaceDirectory("D:\\Projects\\..\\escape")).toBe("D:\\AgenticEngineeringNetwork\\generated-projects");
   });
 });

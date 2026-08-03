@@ -321,6 +321,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
+  health: () => request<{ status: string; provider?: string; model?: string }>("/health"),
   agents: () => request<Agent[]>("/agents"),
   subagentCatalog: (parentAgent?: string) =>
     request<{

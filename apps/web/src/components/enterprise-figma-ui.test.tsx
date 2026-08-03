@@ -155,4 +155,33 @@ describe("Enterprise Figma UI integration", () => {
     expect(source).toContain("effectiveTaskStatus");
     expect(source).not.toContain('if (["blocked", "skipped"].includes(normalized)) return "skipped";');
   });
+
+  it("persists user controls and passes the selected workspace and approval mode to ANN", () => {
+    const source = readFileSync(
+      join(process.cwd(), "src", "components", "enterprise-figma-ui.tsx"),
+      "utf-8"
+    );
+
+    expect(source).toContain("readUiPreferences");
+    expect(source).toContain("writeUiPreferences");
+    expect(source).toContain("selectWorkspaceDirectory");
+    expect(source).toContain("workspace_directory: workspaceDirectory");
+    expect(source).toContain("approval_mode: approvalMode");
+    expect(source).toContain('aria-label="Project workspace directory"');
+    expect(source).toContain('aria-label="Approval mode"');
+  });
+
+  it("makes backend failure, pending approvals, confirmations, and shortcuts visible", () => {
+    const source = readFileSync(
+      join(process.cwd(), "src", "components", "enterprise-figma-ui.tsx"),
+      "utf-8"
+    );
+
+    expect(source).toContain("BackendConnectionBanner");
+    expect(source).toContain("pendingApprovals > 0");
+    expect(source).toContain("ApprovalDecisionDialog");
+    expect(source).toContain("I reviewed this decision");
+    expect(source).toContain("Ctrl + Shift + A");
+    expect(source).toContain('role="status" aria-live="polite"');
+  });
 });

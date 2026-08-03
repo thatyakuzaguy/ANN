@@ -29,6 +29,9 @@ human rather than looping forever.
 ## What Works Today
 
 - Native Windows desktop shell plus a local Next.js engineering workbench.
+- Native D:/E: project workspace selection, persistent UI/run preferences,
+  supervised or full approval controls, keyboard navigation, backend recovery
+  feedback, and visible pending-approval alerts in the desktop workbench.
 - Natural-language conversation handoff into a real multi-stage run.
 - Product, requirements, planning, architecture, frontend, backend, database,
   DevOps, QA, security, documentation, review, meta-review, and release roles.

@@ -47,3 +47,15 @@ def test_api_allows_desktop_fallback_origin() -> None:
 
     assert "http://localhost:3001" in api_main
     assert "http://127.0.0.1:3001" in api_main
+
+
+def test_electron_workspace_picker_is_native_and_restricted_to_data_drives() -> None:
+    launcher = (REPO_ROOT / "apps" / "desktop" / "src" / "main.js").read_text(encoding="utf-8")
+    preload = (REPO_ROOT / "apps" / "desktop" / "src" / "preload.js").read_text(encoding="utf-8")
+
+    assert 'ipcMain.handle("ann:select-workspace-directory"' in launcher
+    assert 'properties: ["openDirectory", "createDirectory"]' in launcher
+    assert "fs.realpathSync.native(selected)" in launcher
+    assert '/^[DE]:\\\\/i.test(canonical)' in launcher
+    assert "ANN project workspaces must be directories on D: or E:." in launcher
+    assert 'selectWorkspaceDirectory: () => ipcRenderer.invoke("ann:select-workspace-directory")' in preload

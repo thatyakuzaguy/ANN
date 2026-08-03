@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-08-02T14:51:35.7308675Z",
+  "generated_at_utc": "2026-08-03T05:55:56.9316584Z",
   "release_stage": "stable",
   "release_version": "1.0.1",
-  "source_revision": "ce88dc36a307d4f5d3fe25e5aa0c5dfff3eae940",
-  "file_count": 1225,
-  "total_bytes": 6810251,
+  "source_revision": "4bbbced730d71444e60cd88895da73da25acbc89",
+  "file_count": 1227,
+  "total_bytes": 6836926,
   "maximum_file_size_mb": 25,
   "files": [
     {
@@ -3455,18 +3455,18 @@
     },
     {
       "path": "apps/desktop/src/main.js",
-      "bytes": 12938,
-      "sha256": "9805f6bc2015dd65ad4a127df5847b9f0c713423fd1ae23643e97bc01bdc4556"
+      "bytes": 13601,
+      "sha256": "dfc57bf6d9d5e969cc4bb3b84d95dfc953db6ed58b2d878defb9faeb2a0468f5"
     },
     {
       "path": "apps/desktop/src/preload.js",
-      "bytes": 182,
-      "sha256": "41613ceec0831f8ecacffa45726b469107d3b1d9483d55a9dc1220df4b52766f"
+      "bytes": 270,
+      "sha256": "fcd4c11adbc4a36466f44cdb6ab2ba2f527c67e1de09c45483f63cc21cfd7e0d"
     },
     {
       "path": "apps/web/e2e/workbench.spec.ts",
-      "bytes": 502,
-      "sha256": "5c53746726b48637a27068c3aecf84f4de0832cd94ee95a8b959e0411ba45f72"
+      "bytes": 1545,
+      "sha256": "b8229f68e522f5ed385a35392cc2b20b20e0e30edb45fc7e2ec181dee7be37a1"
     },
     {
       "path": "apps/web/next-env.d.ts",
@@ -3505,8 +3505,8 @@
     },
     {
       "path": "apps/web/src/app/api/conversation/message/route.ts",
-      "bytes": 3474,
-      "sha256": "b31ed46a633323b3759e1a0bc2f18520059f207aee34d3401aed050f9f1e3f86"
+      "bytes": 3904,
+      "sha256": "c19cb706521f40f5e6d24a557cfdf844e7190c70eb8be8e760a4abfc7cf2c734"
     },
     {
       "path": "apps/web/src/app/api/runtime-monitor/state/route.ts",
@@ -3560,13 +3560,13 @@
     },
     {
       "path": "apps/web/src/components/enterprise-figma-ui.test.tsx",
-      "bytes": 6982,
-      "sha256": "4ac6fd03f104262a91e9bbe2a2da9cbb9c897538b1a484fa05962c84615249d5"
+      "bytes": 8219,
+      "sha256": "18910003f5494667f01041936bf7b5bdd9c137112adb8cbf0ec5665f47253550"
     },
     {
       "path": "apps/web/src/components/enterprise-figma-ui.tsx",
-      "bytes": 139059,
-      "sha256": "0a3e9291a382d45cd68f2da8f9fd7623a6eafa0b43d5f57164eacd89330f159f"
+      "bytes": 154522,
+      "sha256": "3774485ef7af4dea3813c70ced51c641b15d59d97ef570366905efbd0d142f96"
     },
     {
       "path": "apps/web/src/components/panels.test.tsx",
@@ -3585,23 +3585,33 @@
     },
     {
       "path": "apps/web/src/lib/ann-terminal.test.ts",
-      "bytes": 5876,
-      "sha256": "e9315363d04f78800ac07ccab6f77f110acf549220dd52edc1304b6a4e42bf7a"
+      "bytes": 7215,
+      "sha256": "ec398a0bedf38b3da550004a38f2b77eb3cb5c4cc4f73a12a354139dd2dd6f1e"
     },
     {
       "path": "apps/web/src/lib/ann-terminal.ts",
-      "bytes": 49541,
-      "sha256": "4d870478a5e5d520f8bd48dba2c912928beda87a4058f3a3195e03094fcbd5de"
+      "bytes": 50151,
+      "sha256": "5ac4881b9c82bbc01ae2bb14a821528b88b461ab8a9e09965ae9df224ab7f189"
     },
     {
       "path": "apps/web/src/lib/api.ts",
-      "bytes": 15237,
-      "sha256": "d9f4790b8611eaa82072b2f0f85527941e620cc87b5b0e6dd5a2b6142809f41d"
+      "bytes": 15328,
+      "sha256": "db52af59f7f74750a4b54b63e2207e83213da45554ab3422e8fcb2edc9150640"
     },
     {
       "path": "apps/web/src/lib/query-provider.tsx",
       "bytes": 338,
       "sha256": "32227e56a81d8ef1bdff21458db5b36baf3ca17071131034404c922fbd50c73e"
+    },
+    {
+      "path": "apps/web/src/lib/user-preferences.test.ts",
+      "bytes": 1630,
+      "sha256": "b8b266decad5316e0daa8b753b6a3e84b35bae427582d2ac1379e4d8fca75dff"
+    },
+    {
+      "path": "apps/web/src/lib/user-preferences.ts",
+      "bytes": 2602,
+      "sha256": "d3097e97372694ac7e72f8aef0d03561ef92856769ba060fe2b54c7f2d29b4c8"
     },
     {
       "path": "apps/web/src/store/workbench.ts",
@@ -3635,8 +3645,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "bytes": 18638,
-      "sha256": "b2154ade6b85c13e5f889a63fc10a20f5d8eb6cc97ec6b28fe8754ec2dd4f992"
+      "bytes": 19157,
+      "sha256": "1f902482559c930b12b1a3980ddd3329f72e5826c95eee669376078f4b4a3ee8"
     },
     {
       "path": "CICD_SETUP.md",
@@ -4335,8 +4345,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 12693,
-      "sha256": "0cb18515faa51ec8a6be3b2f25e1fdbcd3fa74f39a39cb527dc3c9769a65ef43"
+      "bytes": 12920,
+      "sha256": "ac915ab18482e9414c4d35984465674bad916b4ab784b0b0f79754cdf98070cf"
     },
     {
       "path": "ROADMAP.md",
@@ -4950,8 +4960,8 @@
     },
     {
       "path": "tests/python/test_electron_desktop_launcher_runtime.py",
-      "bytes": 2051,
-      "sha256": "974e5b0425a7d58c91d823280b54d0eabc0cc3e15bbb44635515f65c3216695b"
+      "bytes": 2784,
+      "sha256": "6ee79bc8faa60aedda67277cacb7e7e8a658b8ca6ba08de6ded5d577c6e00b37"
     },
     {
       "path": "tests/python/test_embedded_model_runtime.py",

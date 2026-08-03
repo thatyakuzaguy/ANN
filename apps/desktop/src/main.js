@@ -121,6 +121,23 @@ ipcMain.handle("ann:select-model-file", async () => {
   return selected;
 });
 
+ipcMain.handle("ann:select-workspace-directory", async () => {
+  const result = await dialog.showOpenDialog(mainWindow, {
+    title: "Select the ANN project workspace",
+    defaultPath: path.join(APP_ROOT, "generated-projects"),
+    properties: ["openDirectory", "createDirectory"]
+  });
+  if (result.canceled || result.filePaths.length !== 1) {
+    return null;
+  }
+  const selected = path.resolve(result.filePaths[0]);
+  const canonical = fs.realpathSync.native(selected);
+  if (!/^[DE]:\\/i.test(canonical) || !fs.statSync(canonical).isDirectory()) {
+    throw new Error("ANN project workspaces must be directories on D: or E:.");
+  }
+  return canonical;
+});
+
 function setAppMenu() {
   const template = [
     {

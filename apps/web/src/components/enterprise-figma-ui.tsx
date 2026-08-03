@@ -11,11 +11,18 @@ import {
   Server, Network, Hash, Filter, Download, Lock, ChevronLeft
 } from "lucide-react";
 import { api, type AgentOfficeAgent, type AgentOfficeEvent, type AgentOfficeState, type Approval, type EngineeringRun, type ModelSetupState, type SkillExecution } from "@/lib/api";
+import {
+  normalizeUserWorkspace,
+  readUiPreferences,
+  writeUiPreferences,
+  type ApprovalMode,
+} from "@/lib/user-preferences";
 
 declare global {
   interface Window {
     annDesktop?: {
       selectModelFile: () => Promise<string | null>;
+      selectWorkspaceDirectory: () => Promise<string | null>;
     };
   }
 }
@@ -708,7 +715,7 @@ function StageConnector({ active }: { active: boolean }) {
   );
 }
 
-function LeftNav({ active, onNav }: { active: PageId; onNav: (p: PageId) => void }) {
+function LeftNav({ active, pendingApprovals, onNav }: { active: PageId; pendingApprovals: number; onNav: (p: PageId) => void }) {
   return (
     <aside className="w-14 flex-shrink-0 flex flex-col border-r"
       style={{ background: "#080e1e", borderColor: "rgba(0,208,255,0.08)" }}>
@@ -724,6 +731,7 @@ function LeftNav({ active, onNav }: { active: PageId; onNav: (p: PageId) => void
           const isActive = active === item.id;
           return (
             <button key={item.id} onClick={() => onNav(item.id as PageId)}
+              aria-label={item.label}
               title={item.label}
               className="relative w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-150 group"
               style={{
@@ -735,6 +743,12 @@ function LeftNav({ active, onNav }: { active: PageId; onNav: (p: PageId) => void
                   style={{ background: "#00d0ff", boxShadow: "0 0 8px #00d0ff" }} />
               )}
               <item.icon size={16} />
+              {item.id === "approvals" && pendingApprovals > 0 && (
+                <span className="absolute -right-0.5 -top-0.5 min-w-4 h-4 px-1 rounded-full flex items-center justify-center text-[8px] font-bold"
+                  style={{ background: "#f5a623", color: "#050810", boxShadow: "0 0 8px rgba(245,166,35,0.55)" }}>
+                  {pendingApprovals > 99 ? "99+" : pendingApprovals}
+                </span>
+              )}
               <div className="absolute left-12 z-50 px-2 py-1 rounded text-xs font-medium pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 whitespace-nowrap"
                 style={{ background: "#0c1221", border: "1px solid rgba(0,208,255,0.2)", color: "#d4dff7" }}>
                 {item.label}
@@ -753,11 +767,12 @@ function LeftNav({ active, onNav }: { active: PageId; onNav: (p: PageId) => void
   );
 }
 
-function TopBar({ page, pipelineRunning, onTogglePipeline, terminalOpen, onToggleTerminal, onNav, onNotice }: {
+function TopBar({ page, pipelineRunning, onTogglePipeline, terminalOpen, onToggleTerminal, onNav, onNotice, onHelp }: {
   page: PageId; pipelineRunning: boolean; onTogglePipeline: () => void;
   terminalOpen: boolean; onToggleTerminal: () => void;
   onNav: (p: PageId) => void;
   onNotice: (notice: AppNotice) => void;
+  onHelp: () => void;
 }) {
   const [command, setCommand] = useState("");
   const commandRef = useRef<HTMLInputElement | null>(null);
@@ -873,6 +888,9 @@ function TopBar({ page, pipelineRunning, onTogglePipeline, terminalOpen, onToggl
         <Bell size={15} />
         <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full" style={{ background: "#00d0ff", boxShadow: "0 0 6px #00d0ff" }} />
       </button>
+      <button aria-label="Show keyboard shortcuts" title="Keyboard shortcuts" onClick={onHelp}
+        className="w-8 h-8 flex items-center justify-center rounded text-xs font-bold transition-colors"
+        style={{ color: "rgba(212,223,247,0.45)" }}>?</button>
       <button aria-label={terminalOpen ? "Hide ANN terminal" : "Show ANN terminal"} onClick={onToggleTerminal}
         className="w-8 h-8 flex items-center justify-center rounded transition-all duration-150"
         style={{ color: terminalOpen ? "#00d0ff" : "rgba(212,223,247,0.4)", background: terminalOpen ? "rgba(0,208,255,0.1)" : "transparent" }}>
@@ -975,7 +993,23 @@ function RuntimePanel({ data, tokenHistory }: { data: RuntimeData; tokenHistory:
   );
 }
 
-function TerminalPanel({ onClose, onRunSelected }: { onClose: () => void; onRunSelected?: (runId: string) => void }) {
+function TerminalPanel({
+  workspaceDirectory,
+  approvalMode,
+  onWorkspaceDirectoryChange,
+  onApprovalModeChange,
+  onClose,
+  onRunSelected,
+  onNotice,
+}: {
+  workspaceDirectory: string;
+  approvalMode: ApprovalMode;
+  onWorkspaceDirectoryChange: (value: string) => void;
+  onApprovalModeChange: (value: ApprovalMode) => void;
+  onClose: () => void;
+  onRunSelected?: (runId: string) => void;
+  onNotice: (notice: AppNotice) => void;
+}) {
   const [input, setInput] = useState("");
   const [lines, setLines] = useState<TerminalLine[]>(TERMINAL_LINES);
   const [busy, setBusy] = useState(false);
@@ -985,6 +1019,7 @@ function TerminalPanel({ onClose, onRunSelected }: { onClose: () => void; onRunS
   const [backendText, setBackendText] = useState("local");
   const [activeRunId, setActiveRunId] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  const workspaceRef = useRef<HTMLInputElement | null>(null);
   const liveKeysRef = useRef<Set<string>>(new Set());
   const lastRunSnapshotRef = useRef<{ status?: string; pending?: number; agents?: number; files?: number } | null>(null);
 
@@ -1008,6 +1043,28 @@ function TerminalPanel({ onClose, onRunSelected }: { onClose: () => void; onRunS
     if (liveKeysRef.current.has(key)) return;
     liveKeysRef.current.add(key);
     setLines(prev => [...prev, line].slice(-240));
+  };
+
+  const chooseWorkspace = async () => {
+    if (!window.annDesktop?.selectWorkspaceDirectory) {
+      workspaceRef.current?.focus();
+      onNotice({
+        title: "Enter workspace path",
+        message: "Native folder selection is available in ANN Desktop. Enter an absolute D: or E: directory here.",
+        tone: "info",
+      });
+      return;
+    }
+    try {
+      const selected = await window.annDesktop.selectWorkspaceDirectory();
+      if (selected) onWorkspaceDirectoryChange(normalizeUserWorkspace(selected));
+    } catch (error) {
+      onNotice({
+        title: "Workspace rejected",
+        message: error instanceof Error ? error.message : "ANN could not select this workspace.",
+        tone: "error",
+      });
+    }
   };
 
   const isActiveRunStatus = (status: string) =>
@@ -1095,6 +1152,8 @@ function TerminalPanel({ onClose, onRunSelected }: { onClose: () => void; onRunS
           conversation_id: "ann-terminal",
           message: trimmed,
           mode,
+          workspace_directory: workspaceDirectory,
+          approval_mode: approvalMode,
           client: "enterprise-figma-terminal",
         }),
       });
@@ -1228,7 +1287,7 @@ function TerminalPanel({ onClose, onRunSelected }: { onClose: () => void; onRunS
   };
 
   return (
-    <div className="flex-shrink-0 border-t flex flex-col" style={{ height: 200, background: "#050810", borderColor: "rgba(0,208,255,0.1)" }}>
+    <div className="flex-shrink-0 border-t flex flex-col" style={{ height: 232, background: "#050810", borderColor: "rgba(0,208,255,0.1)" }}>
       <div className="flex items-center gap-2 px-3 py-1.5 border-b flex-shrink-0"
         style={{ borderColor: "rgba(0,208,255,0.08)", background: "rgba(0,208,255,0.03)" }}>
         <div className="flex gap-1">
@@ -1244,6 +1303,32 @@ function TerminalPanel({ onClose, onRunSelected }: { onClose: () => void; onRunS
           <span style={{ fontFamily: "JetBrains Mono, monospace" }}>backend:{backendText}</span>
           {activeRunId && <span style={{ fontFamily: "JetBrains Mono, monospace", color: "#00d0ff" }}>run:{activeRunId.slice(0, 8)}</span>}
           <button aria-label="Close ANN terminal" onClick={onClose} className="p-1 rounded hover:bg-white/5 transition-colors"><XCircle size={12} /></button>
+        </div>
+      </div>
+      <div className="px-3 py-1.5 border-b flex items-center gap-2 flex-shrink-0" style={{ borderColor: "rgba(0,208,255,0.08)", background: "rgba(0,208,255,0.02)" }}>
+        <button type="button" aria-label="Choose project workspace" title="Choose project workspace"
+          onClick={() => void chooseWorkspace()}
+          className="w-7 h-7 flex items-center justify-center rounded border flex-shrink-0"
+          style={{ color: "#00d0ff", borderColor: "rgba(0,208,255,0.18)", background: "rgba(0,208,255,0.05)" }}>
+          <FolderOpen size={13} />
+        </button>
+        <input ref={workspaceRef} aria-label="Project workspace directory" value={workspaceDirectory}
+          onChange={event => onWorkspaceDirectoryChange(event.target.value)}
+          onBlur={event => onWorkspaceDirectoryChange(normalizeUserWorkspace(event.target.value))}
+          className="min-w-0 flex-1 rounded border bg-transparent px-2 py-1 text-[10px] outline-none"
+          style={{ color: "#d4dff7", borderColor: "rgba(0,208,255,0.12)", fontFamily: "JetBrains Mono, monospace" }} />
+        <div className="flex rounded border overflow-hidden flex-shrink-0" style={{ borderColor: "rgba(0,208,255,0.14)" }} role="group" aria-label="Approval mode">
+          {(["supervised", "full"] as const).map(value => (
+            <button key={value} type="button" onClick={() => onApprovalModeChange(value)}
+              aria-pressed={approvalMode === value}
+              className="px-2.5 py-1 text-[9px] font-semibold"
+              style={{
+                color: approvalMode === value ? (value === "full" ? "#f5a623" : "#00d0ff") : "rgba(212,223,247,0.35)",
+                background: approvalMode === value ? "rgba(0,208,255,0.07)" : "transparent",
+              }}>
+              {value === "full" ? "Full" : "Supervised"}
+            </button>
+          ))}
         </div>
       </div>
       <div className="flex-1 overflow-y-auto px-3 py-2 space-y-0.5"
@@ -1296,6 +1381,74 @@ function StatusBar({ runtime, pipelineRunning }: { runtime: RuntimeData; pipelin
         <span>ANN 1.0.1</span>
       </div>
     </footer>
+  );
+}
+
+type ApprovalDecisionRequest =
+  | { scope: "single"; approved: boolean; approval: Approval }
+  | { scope: "active-run"; approved: boolean; count: number; runId: string };
+
+function ApprovalDecisionDialog({ request, busy, onCancel, onConfirm }: {
+  request: ApprovalDecisionRequest | null;
+  busy: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  const [acknowledged, setAcknowledged] = useState(false);
+
+  useEffect(() => {
+    setAcknowledged(false);
+    if (!request) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !busy) onCancel();
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [request, busy, onCancel]);
+
+  if (!request) return null;
+  const action = request.approved ? "Approve" : "Reject";
+  const title = request.scope === "single" ? request.approval.title : `${request.count} active run approvals`;
+  const detail = request.scope === "single"
+    ? `${request.approval.approval_type} requested by ${request.approval.requested_by}`
+    : `Run ${request.runId}`;
+  const color = request.approved ? "#00c896" : "#ff3757";
+
+  return (
+    <div className="fixed inset-0 z-[80] flex items-center justify-center p-6" role="presentation"
+      style={{ background: "rgba(2,5,12,0.78)", backdropFilter: "blur(4px)" }}>
+      <div role="dialog" aria-modal="true" aria-labelledby="approval-decision-title"
+        className="w-full max-w-lg rounded-xl border p-5 shadow-2xl"
+        style={{ background: "#0c1221", borderColor: `${color}55`, boxShadow: `0 0 40px ${color}18` }}>
+        <div className="flex items-start gap-3">
+          <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+            style={{ color, background: `${color}12`, border: `1px solid ${color}44` }}>
+            {request.approved ? <CheckCircle2 size={17} /> : <XCircle size={17} />}
+          </div>
+          <div className="min-w-0 flex-1">
+            <h3 id="approval-decision-title" className="text-sm font-bold" style={{ color: "#d4dff7" }}>{action} ANN action?</h3>
+            <p className="mt-2 text-xs leading-relaxed break-words" style={{ color: "rgba(212,223,247,0.7)" }}>{title}</p>
+            <p className="mt-1 text-[10px] break-all" style={{ color: "rgba(212,223,247,0.38)", fontFamily: "JetBrains Mono, monospace" }}>{detail}</p>
+          </div>
+        </div>
+        <div className="mt-4 rounded-lg border px-3 py-2 text-[11px] leading-relaxed"
+          style={{ color: "#f5a623", borderColor: "rgba(245,166,35,0.2)", background: "rgba(245,166,35,0.05)" }}>
+          Review the action details before continuing. Approval may permit filesystem, test, package, or deployment work through ANN safety gates.
+        </div>
+        <label className="mt-4 flex items-start gap-2 text-[11px] cursor-pointer" style={{ color: "rgba(212,223,247,0.65)" }}>
+          <input type="checkbox" checked={acknowledged} onChange={event => setAcknowledged(event.target.checked)} className="mt-0.5" />
+          I reviewed this decision and understand its effect on the selected run.
+        </label>
+        <div className="mt-5 flex justify-end gap-2">
+          <button disabled={busy} onClick={onCancel} className="px-3 py-2 rounded-lg border text-[11px] font-semibold disabled:opacity-50"
+            style={{ color: "rgba(212,223,247,0.65)", borderColor: "rgba(212,223,247,0.15)" }}>Cancel</button>
+          <button disabled={!acknowledged || busy} onClick={onConfirm} className="px-3 py-2 rounded-lg border text-[11px] font-bold disabled:opacity-40 flex items-center gap-1.5"
+            style={{ color, borderColor: `${color}55`, background: `${color}12` }}>
+            {busy && <Loader2 size={12} className="animate-spin" />} {busy ? "Submitting..." : `${action} decision`}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -2338,6 +2491,7 @@ function ApprovalCenterPage({
   const [resolvingId, setResolvingId] = useState<string | null>(null);
   const [bulkResolving, setBulkResolving] = useState<"approve" | "reject" | null>(null);
   const [showResolved, setShowResolved] = useState(false);
+  const [decisionRequest, setDecisionRequest] = useState<ApprovalDecisionRequest | null>(null);
 
   const pending = approvals.filter(approval => approval.status.toLowerCase() === "pending");
   const activeRunApprovals = activeRun
@@ -2393,6 +2547,16 @@ function ApprovalCenterPage({
     }
   };
 
+  const confirmDecision = async () => {
+    if (!decisionRequest) return;
+    if (decisionRequest.scope === "single") {
+      await decide(decisionRequest.approval, decisionRequest.approved);
+    } else {
+      await decideActiveRun(decisionRequest.approved);
+    }
+    setDecisionRequest(null);
+  };
+
   return (
     <div className="p-5 h-full flex flex-col gap-4">
       <div className="flex items-start justify-between gap-4">
@@ -2445,14 +2609,14 @@ function ApprovalCenterPage({
           <div className="flex items-center gap-2 flex-shrink-0">
             <button
               disabled={bulkResolving != null}
-              onClick={() => void decideActiveRun(true)}
+              onClick={() => setDecisionRequest({ scope: "active-run", approved: true, count: activeRunApprovals.length, runId: activeRun?.run_id ?? "unknown" })}
               className="px-3 py-2 rounded-lg border text-[11px] font-bold flex items-center gap-1.5 disabled:opacity-50"
               style={{ color: "#00c896", borderColor: "rgba(0,200,150,0.35)", background: "rgba(0,200,150,0.08)" }}>
               <CheckCircle2 size={12} /> {bulkResolving === "approve" ? "Approving..." : "Approve active run"}
             </button>
             <button
               disabled={bulkResolving != null}
-              onClick={() => void decideActiveRun(false)}
+              onClick={() => setDecisionRequest({ scope: "active-run", approved: false, count: activeRunApprovals.length, runId: activeRun?.run_id ?? "unknown" })}
               className="px-3 py-2 rounded-lg border text-[11px] font-bold flex items-center gap-1.5 disabled:opacity-50"
               style={{ color: "#ff3757", borderColor: "rgba(255,55,87,0.35)", background: "rgba(255,55,87,0.08)" }}>
               <XCircle size={12} /> {bulkResolving === "reject" ? "Rejecting..." : "Reject active run"}
@@ -2518,14 +2682,14 @@ function ApprovalCenterPage({
                       <div className="flex items-center gap-2 flex-shrink-0">
                         <button
                           disabled={resolvingId === approval.approval_id}
-                          onClick={() => void decide(approval, true)}
+                          onClick={() => setDecisionRequest({ scope: "single", approved: true, approval })}
                           className="px-3 py-1.5 rounded-lg border text-[11px] font-bold flex items-center gap-1.5 disabled:opacity-50"
                           style={{ color: "#00c896", borderColor: "rgba(0,200,150,0.35)", background: "rgba(0,200,150,0.08)" }}>
                           <CheckCircle2 size={11} /> Approve
                         </button>
                         <button
                           disabled={resolvingId === approval.approval_id}
-                          onClick={() => void decide(approval, false)}
+                          onClick={() => setDecisionRequest({ scope: "single", approved: false, approval })}
                           className="px-3 py-1.5 rounded-lg border text-[11px] font-bold flex items-center gap-1.5 disabled:opacity-50"
                           style={{ color: "#ff3757", borderColor: "rgba(255,55,87,0.35)", background: "rgba(255,55,87,0.08)" }}>
                           <XCircle size={11} /> Reject
@@ -2539,6 +2703,12 @@ function ApprovalCenterPage({
           </div>
         )}
       </div>
+      <ApprovalDecisionDialog
+        request={decisionRequest}
+        busy={resolvingId != null || bulkResolving != null}
+        onCancel={() => setDecisionRequest(null)}
+        onConfirm={() => void confirmDecision()}
+      />
     </div>
   );
 }
@@ -2547,7 +2717,7 @@ function NoticeToast({ notice, onClose }: { notice: AppNotice | null; onClose: (
   if (!notice) return null;
   const color = noticeColor(notice.tone);
   return (
-    <div className="absolute right-72 top-14 z-50 w-80 rounded-xl border p-3 shadow-2xl"
+    <div role="status" aria-live="polite" className="absolute right-72 top-14 z-50 w-80 rounded-xl border p-3 shadow-2xl"
       style={{ background: "rgba(12,18,33,0.96)", borderColor: `${color}55`, boxShadow: `0 0 24px ${color}22` }}>
       <div className="flex items-start gap-3">
         <div className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style={{ background: color, boxShadow: `0 0 8px ${color}` }} />
@@ -2561,9 +2731,71 @@ function NoticeToast({ notice, onClose }: { notice: AppNotice | null; onClose: (
   );
 }
 
+function BackendConnectionBanner({ status, onRetry, onOpenLogs }: {
+  status: "checking" | "online" | "offline";
+  onRetry: () => void;
+  onOpenLogs: () => void;
+}) {
+  if (status !== "offline") return null;
+  return (
+    <div role="alert" className="h-9 px-4 flex-shrink-0 flex items-center gap-2 border-b text-[11px]"
+      style={{ color: "#ff7890", background: "rgba(255,55,87,0.06)", borderColor: "rgba(255,55,87,0.18)" }}>
+      <AlertCircle size={13} />
+      <span className="font-semibold">Local ANN API is unavailable.</span>
+      <span style={{ color: "rgba(212,223,247,0.48)" }}>Read-only screens may be stale; execution and approvals are paused.</span>
+      <div className="ml-auto flex gap-2">
+        <button onClick={onOpenLogs} className="px-2 py-1 rounded border" style={{ borderColor: "rgba(255,55,87,0.22)" }}>Open logs</button>
+        <button onClick={onRetry} className="px-2 py-1 rounded border font-semibold flex items-center gap-1" style={{ borderColor: "rgba(0,208,255,0.3)", color: "#00d0ff" }}>
+          <RefreshCw size={10} /> Retry
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function ShortcutsDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  useEffect(() => {
+    if (!open) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [open, onClose]);
+
+  if (!open) return null;
+  const shortcuts = [
+    ["Ctrl + K", "Focus command search"],
+    ["Ctrl + J", "Show or hide ANN Terminal"],
+    ["Ctrl + Shift + A", "Open Approval Center"],
+    ["Ctrl + Shift + P", "Open Engineering Pipeline"],
+    ["?", "Open this shortcut guide"],
+    ["Esc", "Close dialogs"],
+  ];
+  return (
+    <div className="fixed inset-0 z-[75] flex items-center justify-center p-6" style={{ background: "rgba(2,5,12,0.72)", backdropFilter: "blur(4px)" }}>
+      <div role="dialog" aria-modal="true" aria-labelledby="shortcut-title" className="w-full max-w-md rounded-xl border p-5 shadow-2xl"
+        style={{ background: "#0c1221", borderColor: "rgba(0,208,255,0.25)" }}>
+        <div className="flex items-center justify-between">
+          <h3 id="shortcut-title" className="text-sm font-bold" style={{ color: "#d4dff7" }}>ANN keyboard shortcuts</h3>
+          <button aria-label="Close keyboard shortcuts" onClick={onClose} style={{ color: "rgba(212,223,247,0.45)" }}><XCircle size={15} /></button>
+        </div>
+        <div className="mt-4 divide-y" style={{ borderColor: "rgba(0,208,255,0.07)" }}>
+          {shortcuts.map(([keys, label]) => (
+            <div key={keys} className="flex items-center justify-between py-2.5 text-xs">
+              <span style={{ color: "rgba(212,223,247,0.58)" }}>{label}</span>
+              <kbd className="rounded border px-2 py-1 text-[10px]" style={{ color: "#00d0ff", borderColor: "rgba(0,208,255,0.2)", background: "rgba(0,208,255,0.05)", fontFamily: "JetBrains Mono, monospace" }}>{keys}</kbd>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
-  const [activePage, setActivePage] = useState<PageId>("pipeline");
-  const [terminalOpen, setTerminalOpen] = useState(true);
+  const [activePage, setActivePage] = useState<PageId>(() => readUiPreferences().activePage as PageId);
+  const [terminalOpen, setTerminalOpen] = useState(() => readUiPreferences().terminalOpen);
   const [runtime, setRuntime] = useState<RuntimeData>(INIT_RUNTIME);
   const [uiState, setUiState] = useState<UiState | null>(null);
   const [uiLoadState, setUiLoadState] = useState<UiLoadState>("loading");
@@ -2571,7 +2803,9 @@ export default function App() {
   const [agentEvents, setAgentEvents] = useState<AgentOfficeEvent[]>([]);
   const [remoteLogs, setRemoteLogs] = useState<Array<Record<string, unknown>> | null>(null);
   const [backendRuns, setBackendRuns] = useState<EngineeringRun[]>([]);
-  const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
+  const [selectedRunId, setSelectedRunId] = useState<string | null>(() => readUiPreferences().selectedRunId);
+  const [workspaceDirectory, setWorkspaceDirectory] = useState(() => readUiPreferences().workspaceDirectory);
+  const [approvalMode, setApprovalMode] = useState<ApprovalMode>(() => readUiPreferences().approvalMode);
   const [uiRefreshToken, setUiRefreshToken] = useState(0);
   const [approvals, setApprovals] = useState<Approval[]>([]);
   const [backendLoadState, setBackendLoadState] = useState<UiLoadState>("loading");
@@ -2580,6 +2814,9 @@ export default function App() {
   const [backendSkills, setBackendSkills] = useState<BackendSkills | null>(null);
   const [modelSetup, setModelSetup] = useState<ModelSetupState | null>(null);
   const [notice, setNotice] = useState<AppNotice | null>(null);
+  const [backendConnection, setBackendConnection] = useState<"checking" | "online" | "offline">("checking");
+  const [backendRefreshToken, setBackendRefreshToken] = useState(0);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [tokenHistory, setTokenHistory] = useState(() =>
     Array.from({ length: 30 }, () => 0)
   );
@@ -2588,6 +2825,32 @@ export default function App() {
     setNotice(nextNotice);
     window.setTimeout(() => setNotice(current => current === nextNotice ? null : current), 4500);
   };
+
+  useEffect(() => {
+    writeUiPreferences({ activePage, terminalOpen, selectedRunId, workspaceDirectory, approvalMode });
+  }, [activePage, terminalOpen, selectedRunId, workspaceDirectory, approvalMode]);
+
+  useEffect(() => {
+    const handleShortcut = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      const editable = target?.tagName === "INPUT" || target?.tagName === "TEXTAREA" || target?.tagName === "SELECT" || target?.isContentEditable;
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "j") {
+        event.preventDefault();
+        setTerminalOpen(value => !value);
+      } else if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === "a") {
+        event.preventDefault();
+        setActivePage("approvals");
+      } else if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === "p") {
+        event.preventDefault();
+        setActivePage("pipeline");
+      } else if (!editable && event.key === "?") {
+        event.preventDefault();
+        setShortcutsOpen(true);
+      }
+    };
+    window.addEventListener("keydown", handleShortcut);
+    return () => window.removeEventListener("keydown", handleShortcut);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -2667,7 +2930,8 @@ export default function App() {
     let cancelled = false;
 
     const loadBackendState = async () => {
-      const [officeResult, eventsResult, logsResult, settingsResult, runsResult, approvalsResult, modelsResult, skillsResult] = await Promise.allSettled([
+      const [healthResult, officeResult, eventsResult, logsResult, settingsResult, runsResult, approvalsResult, modelsResult, skillsResult] = await Promise.allSettled([
+        api.health(),
         api.agentOfficeState(),
         api.agentOfficeEvents(20),
         api.logs(),
@@ -2678,6 +2942,7 @@ export default function App() {
         api.skills(),
       ]);
       if (cancelled) return;
+      setBackendConnection(healthResult.status === "fulfilled" ? "online" : "offline");
       if (officeResult.status === "fulfilled") setAgentOffice(officeResult.value);
       if (eventsResult.status === "fulfilled") setAgentEvents(eventsResult.value.events);
       if (logsResult.status === "fulfilled") setRemoteLogs(logsResult.value);
@@ -2704,7 +2969,7 @@ export default function App() {
       cancelled = true;
       clearInterval(interval);
     };
-  }, []);
+  }, [backendRefreshToken]);
 
   const refreshApprovalsAndRuns = async () => {
     const [approvalsResult, runsResult] = await Promise.allSettled([
@@ -2747,6 +3012,7 @@ export default function App() {
   };
 
   const activeRun = backendRuns.find(run => run.run_id === selectedRunId) ?? latestRun(backendRuns);
+  const pendingApprovalCount = approvals.filter(approval => approval.status.toLowerCase() === "pending").length;
   const stages = pipelineStages(agentOffice, activeRun);
   const pipelineRunning = latestRun(backendRuns)?.status === "running";
   const logs = logRows(remoteLogs, uiState);
@@ -2770,7 +3036,7 @@ export default function App() {
   return (
     <div className="w-screen h-screen overflow-hidden flex flex-col bg-background" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
       <div className="flex flex-1 overflow-hidden">
-        <LeftNav active={activePage} onNav={setActivePage} />
+        <LeftNav active={activePage} pendingApprovals={pendingApprovalCount} onNav={setActivePage} />
         <div className="flex-1 flex flex-col overflow-hidden">
           <TopBar
             page={activePage}
@@ -2788,6 +3054,15 @@ export default function App() {
             onToggleTerminal={() => setTerminalOpen(p => !p)}
             onNav={setActivePage}
             onNotice={showNotice}
+            onHelp={() => setShortcutsOpen(true)}
+          />
+          <BackendConnectionBanner
+            status={backendConnection}
+            onRetry={() => {
+              setBackendConnection("checking");
+              setBackendRefreshToken(token => token + 1);
+            }}
+            onOpenLogs={() => setActivePage("logs")}
           />
           <NoticeToast notice={notice} onClose={() => setNotice(null)} />
           <div className="flex-1 flex overflow-hidden">
@@ -2795,7 +3070,22 @@ export default function App() {
               <div className="flex-1 overflow-y-auto">
                 {renderPage()}
               </div>
-              {terminalOpen && <TerminalPanel onClose={() => setTerminalOpen(false)} onRunSelected={(runId) => {
+              {terminalOpen && <TerminalPanel
+                workspaceDirectory={workspaceDirectory}
+                approvalMode={approvalMode}
+                onWorkspaceDirectoryChange={setWorkspaceDirectory}
+                onApprovalModeChange={value => {
+                  setApprovalMode(value);
+                  showNotice({
+                    title: value === "full" ? "Full approval mode" : "Supervised approval mode",
+                    message: value === "full"
+                      ? "ANN may resolve eligible run approvals automatically; protected safety gates still apply."
+                      : "ANN will wait for your decision at each approval gate.",
+                    tone: value === "full" ? "warning" : "info",
+                  });
+                }}
+                onNotice={showNotice}
+                onClose={() => setTerminalOpen(false)} onRunSelected={(runId) => {
                 setSelectedRunId(runId);
                 setActivePage("pipeline");
                 void refreshApprovalsAndRuns();
@@ -2806,6 +3096,7 @@ export default function App() {
         </div>
       </div>
       <StatusBar runtime={runtime} pipelineRunning={pipelineRunning} />
+      <ShortcutsDialog open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
     </div>
   );
 }

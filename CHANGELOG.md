@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Added user-facing desktop workflow controls: native D:/E: workspace selection,
+  persistent page/run/terminal preferences, supervised/full approval selection,
+  pending-approval navigation badges, safe decision confirmation, backend
+  connection recovery, and accessible keyboard shortcuts.
+- Propagated the selected workspace and approval mode through the conversation
+  contract into real Architect pipeline runs, with server-side D:/E: path
+  normalization and no relaxation of approval or execution safety gates.
 - Added ten precision engineering skills for identity protocols, temporal and
   monetary correctness, offline synchronization, binary hardening, web
   protocols, search relevance, agent-tool contracts, messaging delivery, data

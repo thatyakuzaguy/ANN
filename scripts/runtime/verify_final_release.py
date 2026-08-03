@@ -13,17 +13,39 @@ import json
 import sys
 from pathlib import Path
 
-from agentic_network.runtime_engine.local_model_activation import (
+REPO_ROOT = Path(__file__).resolve().parents[2]
+PACKAGE_ROOTS = (
+    "agents",
+    "orchestration",
+    "sandbox",
+    "git",
+    "logs",
+    "shared",
+    "database",
+    "security",
+)
+for package_root in reversed(PACKAGE_ROOTS):
+    candidate = str(REPO_ROOT / "packages" / package_root)
+    if candidate not in sys.path:
+        sys.path.insert(0, candidate)
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from agentic_network.runtime_engine.local_model_activation import (  # noqa: E402
     build_release_signing_plan,
     build_final_release_verification_report,
     write_release_signing_plan_artifacts,
     write_final_release_verification_artifacts,
 )
-from scripts.runtime.verify_external_release_evidence import (
+from agentic_network.runtime_engine.release_assurance import (  # noqa: E402
+    build_release_assurance_report,
+    write_release_assurance_artifacts,
+)
+from scripts.runtime.verify_external_release_evidence import (  # noqa: E402
     build_external_release_evidence_report,
     write_external_release_evidence_artifacts,
 )
-from scripts.runtime.verify_release_operator_environment import (
+from scripts.runtime.verify_release_operator_environment import (  # noqa: E402
     build_release_operator_environment_report,
     write_release_operator_environment_artifacts,
 )
@@ -54,6 +76,11 @@ def _parser() -> argparse.ArgumentParser:
         default="",
         help="Optional trusted Authenticode certificate thumbprint for read-only release-operator preflight.",
     )
+    parser.add_argument(
+        "--assurance-evidence-root",
+        default="outputs/release_assurance/external",
+        help="External production-assurance evidence bundle required for public final release.",
+    )
     parser.add_argument("--output-dir", default=None, help="Optional artifact output directory.")
     parser.add_argument("--json", action="store_true", help="Print the full JSON report.")
     return parser
@@ -78,6 +105,7 @@ def _summary(report: dict[str, object]) -> str:
         f"Signed Installer: {report.get('signed_installer')}",
         f"External Clean Machine: {report.get('external_clean_machine_passed')}",
         f"External Release Evidence: {report.get('external_release_evidence')}",
+        f"Production Assurance: {report.get('production_assurance_status', 'NOT_EVALUATED')}",
         f"External Handoff Hash Match: {_external_pass_fail(report, 'installer_hashes_match_handoff')}",
         f"External Clean-Machine Hash Match: {_external_pass_fail(report, 'installer_hashes_match_clean_machine')}",
         f"External Release Signing Evidence: {_external_pass_fail(report, 'release_signing_evidence_valid')}",
@@ -111,6 +139,7 @@ def build_cli_final_release_report(
     clean_machine_marker: str | Path | None = None,
     signing_evidence: str | Path | None = None,
     certificate_thumbprint: str = "",
+    assurance_evidence_root: str | Path | None = None,
 ) -> dict[str, object]:
     base = build_final_release_verification_report(runtime_root)
     signing_plan = build_release_signing_plan(installer_root)
@@ -125,6 +154,18 @@ def build_cli_final_release_report(
         installer_root=installer_root,
         certificate_thumbprint=certificate_thumbprint,
     )
+    assurance = (
+        build_release_assurance_report(assurance_evidence_root)
+        if assurance_evidence_root is not None
+        else {
+            "status": "NOT_EVALUATED",
+            "ready": False,
+            "blockers": [],
+            "next_step": "Pass an assurance evidence root for public release verification.",
+        }
+    )
+    assurance_required = assurance_evidence_root is not None
+    assurance_ready = not assurance_required or assurance.get("status") == "PRODUCTION_ASSURANCE_READY"
     certificate_thumbprint_format_detail = _certificate_thumbprint_format_detail(certificate_thumbprint)
     path_contract = _final_release_path_contract(
         installer_root=installer_root,
@@ -238,6 +279,15 @@ def build_cli_final_release_report(
                 "detail": _release_evidence_contract_blocker_detail(operator_contract),
             }
         )
+    if assurance_required and not assurance_ready:
+        blockers.append(
+            {
+                "id": "production_assurance",
+                "status": "BLOCKED",
+                "passed": False,
+                "detail": str(assurance.get("status", "UNKNOWN")),
+            }
+        )
     status = (
         "FINAL_RELEASE_READY"
         if (
@@ -251,6 +301,7 @@ def build_cli_final_release_report(
             and operator_safety_ready
             and operator_signing_thumbprint_match
             and contract_ready
+            and assurance_ready
         )
         else "FINAL_RELEASE_BLOCKED"
     )
@@ -287,6 +338,11 @@ def build_cli_final_release_report(
             "certificate_thumbprint_format_detail": certificate_thumbprint_format_detail,
             "release_operator_environment_command": _release_operator_environment_command(certificate_thumbprint),
             "release_operator_evidence_contract": operator_contract,
+            "production_assurance_status": assurance.get("status"),
+            "production_assurance_ready": assurance_ready,
+            "production_assurance_required": assurance_required,
+            "production_assurance_report": assurance,
+            "production_assurance_blockers": assurance.get("blockers", []),
             "no_external_signing": True,
             "no_external_install": True,
         }
@@ -311,6 +367,10 @@ def build_cli_final_release_report(
         report["next_step"] = "Run release signing and final verification with the same trusted certificate thumbprint."
     elif not contract_ready:
         report["next_step"] = "Resolve release evidence contract blockers before final release."
+    elif assurance_required and not assurance_ready:
+        report["next_step"] = assurance.get(
+            "next_step", "Resolve production assurance evidence blockers before final release."
+        )
     return report
 
 
@@ -334,6 +394,7 @@ def main(argv: list[str] | None = None) -> int:
         clean_machine_marker=args.clean_machine_marker,
         signing_evidence=args.signing_evidence,
         certificate_thumbprint=args.certificate_thumbprint,
+        assurance_evidence_root=args.assurance_evidence_root,
     )
     if args.output_dir:
         write_final_release_verification_artifacts(Path(args.output_dir))
@@ -344,6 +405,9 @@ def main(argv: list[str] | None = None) -> int:
         operator_report = report.get("release_operator_environment")
         if isinstance(operator_report, dict):
             write_release_operator_environment_artifacts(operator_report, Path(args.output_dir))
+        assurance_report = report.get("production_assurance_report")
+        if isinstance(assurance_report, dict):
+            write_release_assurance_artifacts(assurance_report, Path(args.output_dir))
         write_cli_final_release_artifacts(report, Path(args.output_dir))
     if args.json:
         print(json.dumps(report, indent=2))
@@ -769,6 +833,7 @@ def _release_operator_evidence_contract(
         "--clean-machine-marker D:\\ANN\\clean_machine_external_validation.json "
         "--signing-evidence installer\\release_signing_evidence.json "
         f"--certificate-thumbprint {_quote_cli_value(certificate_thumbprint.strip() or '<CERT_THUMBPRINT>')} "
+        "--assurance-evidence-root outputs\\release_assurance\\external "
         "--output-dir outputs/runtime_finalization_20260707"
     )
     external_verifier_command = (

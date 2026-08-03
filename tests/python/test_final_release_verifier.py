@@ -978,6 +978,16 @@ def test_verify_final_release_cli_blocks_when_operator_and_signing_thumbprint_di
 def test_verify_final_release_cli_writes_artifacts(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.setattr(
         verify_final_release,
+        "build_release_assurance_report",
+        lambda _root: {
+            "status": "PRODUCTION_ASSURANCE_READY",
+            "ready": True,
+            "blockers": [],
+            "next_step": "preserve evidence",
+        },
+    )
+    monkeypatch.setattr(
+        verify_final_release,
         "build_final_release_verification_report",
         lambda _root=None: {
             "status": "FINAL_RELEASE_READY",
@@ -1085,6 +1095,12 @@ def test_verify_final_release_cli_writes_artifacts(monkeypatch, tmp_path: Path) 
         "write_release_operator_environment_artifacts",
         lambda _report, output_dir: operator_calls.append(Path(output_dir)) or [],
     )
+    assurance_calls: list[Path] = []
+    monkeypatch.setattr(
+        verify_final_release,
+        "write_release_assurance_artifacts",
+        lambda _report, output_dir: assurance_calls.append(Path(output_dir)) or [],
+    )
 
     exit_code = verify_final_release.main(
         [
@@ -1101,6 +1117,7 @@ def test_verify_final_release_cli_writes_artifacts(monkeypatch, tmp_path: Path) 
     assert signing_calls == [(tmp_path, "installer")]
     assert external_calls == [tmp_path]
     assert operator_calls == [tmp_path]
+    assert assurance_calls == [tmp_path]
     assert (tmp_path / "372_final_release_cli_verification.json").is_file()
     assert (tmp_path / "373_final_release_cli_verification.md").is_file()
     markdown = (tmp_path / "373_final_release_cli_verification.md").read_text(encoding="utf-8")
@@ -1142,5 +1159,4 @@ def test_verify_final_release_cli_writes_artifacts(monkeypatch, tmp_path: Path) 
     assert "UNAVAILABLE" not in markdown
     assert "sign_release.ps1" in markdown
     assert "validate_clean_machine.ps1" in markdown
-
 

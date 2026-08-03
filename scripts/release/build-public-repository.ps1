@@ -123,7 +123,11 @@ foreach ($relativeFile in $config.source_files) {
 # Public exports use a portable, inference-disabled config and a concise README.
 Copy-Item -LiteralPath (Join-Path $SourceRoot "config\ann_terminal_conversation_runtime.example.json") `
     -Destination (Join-Path $Destination "config\ann_terminal_conversation_runtime.json") -Force
-Copy-Item -LiteralPath (Join-Path $SourceRoot "docs\public\README.md") `
+$publicReadme = Join-Path $SourceRoot "docs\public\README.md"
+if (-not (Test-Path -LiteralPath $publicReadme -PathType Leaf)) {
+    $publicReadme = Join-Path $SourceRoot "README.md"
+}
+Copy-Item -LiteralPath $publicReadme `
     -Destination (Join-Path $Destination "README.md") -Force
 
 # The release manifest hashes exact exported bytes. Disabling checkout-time EOL

@@ -45,6 +45,11 @@ The **trusted-publisher** channel remains unavailable until setup and uninstall
 binaries are timestamped with a real trusted Authenticode certificate and the
 same artifacts pass validation on an independent clean Windows 11 machine.
 
+The final public gate additionally requires the production assurance contract
+documented in [RELEASE_ASSURANCE.md](RELEASE_ASSURANCE.md). A technically valid
+installer is not treated as proof of prolonged reliability, independent
+security review, legal/model-license clearance, or generated-product quality.
+
 ## Non-Claims
 
 ANN does not guarantee market success, legal compliance, production security,

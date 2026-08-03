@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "max_evidence_age_days": 180,
+  "hardware_matrix": {
+    "minimum_machines": 2,
+    "minimum_distinct_gpu_profiles": 2
+  },
+  "soak_validation": {
+    "minimum_duration_hours": 8,
+    "minimum_attempted_runs": 20,
+    "minimum_project_archetypes": 3,
+    "maximum_failure_rate": 0.02
+  },
+  "required_model_ids": [
+    "qwen2_5_coder_7b_v5",
+    "qwen3_4b_conversation_orchestrator",
+    "qwen3_8b_product_v9_repaired_v2_bullets",
+    "deepseek_r1_distill_qwen_14b"
+  ],
+  "generated_software_acceptance": {
+    "minimum_projects": 3,
+    "minimum_archetypes": 3
+  }
+}

@@ -37,6 +37,7 @@ FINAL_RELEASE_VERIFIER_COMMAND = (
     "--bundle-root outputs/release_candidates/ANN_RC_HANDOFF "
     "--clean-machine-marker D:\\ANN\\clean_machine_external_validation.json "
     "--signing-evidence installer\\release_signing_evidence.json "
+    "--assurance-evidence-root outputs\\release_assurance\\external "
     '--certificate-thumbprint "<CERT_THUMBPRINT>" '
     "--output-dir outputs/runtime_finalization_20260707"
 )
@@ -52,6 +53,7 @@ def final_release_snapshot() -> str:
         clean_machine_marker="D:\\ANN\\clean_machine_external_validation.json",
         signing_evidence="installer\\release_signing_evidence.json",
         certificate_thumbprint="<CERT_THUMBPRINT>",
+        assurance_evidence_root="outputs\\release_assurance\\external",
     )
     external = _dict_item(report, "external_release_evidence_report")
     operator = _dict_item(report, "release_operator_environment")
@@ -93,6 +95,7 @@ def final_release_snapshot() -> str:
         f"Release Signing Plan: {report.get('release_signing_plan_status', 'UNKNOWN')}",
         f"Release Signing Plan Safety: {_pass_fail(report.get('release_signing_plan_safety_ready') is True)}",
         f"External Evidence Safety: {_pass_fail(report.get('external_release_evidence_safety_ready') is True)}",
+        f"Production Assurance: {report.get('production_assurance_status', 'NOT_EVALUATED')}",
         f"Operator Environment Safety: {_pass_fail(report.get('release_operator_environment_safety_ready') is True)}",
         f"Release Evidence Contract: {_pass_fail(report.get('release_evidence_contract_ready') is True)}",
         f"Operator/Signing Thumbprint Match: {_pass_fail(report.get('release_operator_signing_thumbprint_match') is True)}",

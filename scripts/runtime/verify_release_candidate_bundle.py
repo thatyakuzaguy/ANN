@@ -32,6 +32,7 @@ REQUIRED_HANDOFF_FILES = {
     "config/ann_model_policy.json",
     "config/ann_runtime_engine.json",
     "config/ann_runtime_lock.example.json",
+    "config/release-assurance-policy.json",
     "installer/ANN_Setup.exe",
     "installer/ANN_Uninstall.exe",
     "installer/README_INSTALLER.md",
@@ -47,6 +48,8 @@ REQUIRED_HANDOFF_FILES = {
     "scripts/runtime/verify_final_release.py",
     "scripts/runtime/verify_release_candidate_bundle.py",
     "scripts/runtime/verify_release_operator_environment.py",
+    "scripts/runtime/verify_release_assurance.py",
+    "docs/RELEASE_ASSURANCE.md",
     "scripts/release/invoke-windows-sandbox-validation.ps1",
     "scripts/release/run-windows-sandbox-validation.ps1",
 }
@@ -864,6 +867,12 @@ def _verify_handoff_command_policy(manifest: dict[str, Any]) -> list[dict[str, A
         _check(
             "repo_root_final_verifier_command_requires_certificate_thumbprint",
             '--certificate-thumbprint "<CERT_THUMBPRINT>"' in repo_root_final_verifier_command,
+            repo_root_final_verifier_command or "missing",
+        ),
+        _check(
+            "repo_root_final_verifier_command_requires_assurance_evidence",
+            "--assurance-evidence-root outputs\\release_assurance\\external"
+            in repo_root_final_verifier_command,
             repo_root_final_verifier_command or "missing",
         ),
         _check(

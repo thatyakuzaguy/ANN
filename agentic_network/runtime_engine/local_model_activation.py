@@ -2582,12 +2582,15 @@ def build_release_candidate_handoff_manifest(
         REPO_ROOT / "scripts" / "runtime" / "run_autonomous_capability_scenarios.py",
         REPO_ROOT / "scripts" / "runtime" / "verify_release_candidate_bundle.py",
         REPO_ROOT / "scripts" / "runtime" / "verify_external_release_evidence.py",
+        REPO_ROOT / "scripts" / "runtime" / "verify_release_assurance.py",
         REPO_ROOT / "scripts" / "runtime" / "verify_release_operator_environment.py",
         REPO_ROOT / "scripts" / "release" / "invoke-windows-sandbox-validation.ps1",
         REPO_ROOT / "scripts" / "release" / "run-windows-sandbox-validation.ps1",
         REPO_ROOT / "config" / "ann_runtime_lock.example.json",
         REPO_ROOT / "config" / "ann_runtime_engine.json",
         REPO_ROOT / "config" / "ann_model_policy.json",
+        REPO_ROOT / "config" / "release-assurance-policy.json",
+        REPO_ROOT / "docs" / "RELEASE_ASSURANCE.md",
     ]
     entries = [_handoff_file_entry(path, target) for path in source_files]
     missing = [entry["source"] for entry in entries if not entry["exists"]]
@@ -2635,6 +2638,7 @@ def build_release_candidate_handoff_manifest(
             "--clean-machine-marker D:\\ANN\\clean_machine_external_validation.json "
             "--signing-evidence installer\\release_signing_evidence.json "
             '--certificate-thumbprint "<CERT_THUMBPRINT>" '
+            "--assurance-evidence-root release_assurance\\external "
             "--output-dir outputs/runtime_finalization_20260707"
         ),
         "repo_root_final_verifier_command": (
@@ -2644,6 +2648,7 @@ def build_release_candidate_handoff_manifest(
             "--clean-machine-marker D:\\ANN\\clean_machine_external_validation.json "
             "--signing-evidence installer\\release_signing_evidence.json "
             '--certificate-thumbprint "<CERT_THUMBPRINT>" '
+            "--assurance-evidence-root outputs\\release_assurance\\external "
             "--output-dir outputs/runtime_finalization_20260707"
         ),
         "autonomous_capability_verifier_command": "PYTHONPATH=. python scripts/runtime/verify_autonomous_capability.py --output-dir outputs/runtime_finalization_20260707",
@@ -6460,7 +6465,8 @@ def build_final_release_closure_pack(runtime_root: str | Path | None = None) -> 
         "next_step": verification["next_step"],
         "acceptance_rule": (
             "FINAL_RELEASE_READY is allowed only when signed installer evidence and external clean-machine "
-            "validation both pass the existing final release verifier."
+            "validation pass and the production assurance bundle verifies hardware, soak, independent review, "
+            "model licensing, and human acceptance."
         ),
         "no_gate_downgrade": True,
         "no_release_promotion_without_external_evidence": True,

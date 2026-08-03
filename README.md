@@ -11,8 +11,8 @@ control of consequential actions.
 > **Status: v1.0.1 stable source and unsigned Community release.** The source
 > distribution, embedded runtime, GPU model lifecycle, isolated installer, and
 > fresh-clone test matrix have been validated. The trusted-publisher Windows
-> channel still requires a real Authenticode certificate and transferred
-> evidence from a separate clean Windows 11 machine. ANN does not guarantee
+> channel still requires a real Authenticode certificate, transferred clean
+> Windows evidence, and the external production-assurance bundle. ANN does not guarantee
 > that one prompt will produce commercially successful software; generated
 > code still requires qualified review.
 
@@ -250,6 +250,7 @@ manifest.
 - [Dependency security](docs/DEPENDENCY_SECURITY.md)
 - [Known limitations](LIMITATIONS.md)
 - [Public release process](docs/PUBLIC_RELEASE.md)
+- [External release assurance](docs/RELEASE_ASSURANCE.md)
 - [Model backend configuration](README_LOCAL_MODEL_BACKENDS.md)
 - [Storage behavior](docs/STORAGE.md)
 - [Contributing](CONTRIBUTING.md)
@@ -263,6 +264,10 @@ manifest.
   external accounts still require qualified humans.
 - The current desktop distribution is unsigned unless the release maintainer
   supplies a trusted code-signing certificate; Windows may show SmartScreen.
+- Public final release remains blocked until fresh, hashed evidence exists for
+  a multi-machine hardware matrix, prolonged real-project validation,
+  independent security and legal review, model licensing, and qualified human
+  acceptance. The verifier never fabricates those external results.
 - Some project types need additional artifact families and domain-specific
   tools beyond the current SaaS, API, and canvas-game foundations.
 - Autonomy is intentionally bounded. “Infinite correction” would be unsafe and

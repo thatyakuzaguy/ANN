@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Added a fail-closed production assurance gate for multi-machine Windows/GPU
+  validation, prolonged project runs, independent security and legal review,
+  model-license decisions, and human acceptance of generated software.
+- Added hashed, freshness-checked release evidence templates and connected the
+  assurance result to the final release CLI and Desktop release status.
 - Added user-facing desktop workflow controls: native D:/E: workspace selection,
   persistent page/run/terminal preferences, supervised/full approval selection,
   pending-approval navigation badges, safe decision confirmation, backend

@@ -102,11 +102,17 @@ memory. This is evidence of the tested workstation, not a formal minimum or
 recommended hardware requirement.
 
 The source and unsigned portable channels are stable, but ANN must not label
-the Windows installer as a trusted-publisher release until both external gates
+the Windows installer as a trusted-publisher release until all external gates
 have real, matching evidence:
 
 - timestamped Authenticode signatures from a trusted code-signing certificate;
 - transferred validation evidence from a separate clean Windows 11 machine.
+- fresh production-assurance evidence for the required hardware matrix,
+  prolonged real-project runs, independent security and legal review, model
+  licensing, and qualified human acceptance.
+
+See [RELEASE_ASSURANCE.md](RELEASE_ASSURANCE.md) for the fail-closed evidence
+contract and verification command.
 
 Windows may show a SmartScreen warning for the unsigned portable build. The
 user can review the published source, release hashes, and local build evidence

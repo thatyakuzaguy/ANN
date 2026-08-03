@@ -168,7 +168,7 @@ After signing and clean-machine validation, run the aggregate final release veri
 
 ```powershell
 $env:PYTHONPATH="."
-python scripts\runtime\verify_final_release.py --install-root D:\ANN --installer-root installer --bundle-root outputs\release_candidates\ANN_RC_HANDOFF --clean-machine-marker D:\ANN\clean_machine_external_validation.json --signing-evidence installer\release_signing_evidence.json --certificate-thumbprint "<CERT_THUMBPRINT>" --output-dir outputs\runtime_finalization_20260707
+python scripts\runtime\verify_final_release.py --install-root D:\ANN --installer-root installer --bundle-root outputs\release_candidates\ANN_RC_HANDOFF --clean-machine-marker D:\ANN\clean_machine_external_validation.json --signing-evidence installer\release_signing_evidence.json --certificate-thumbprint "<CERT_THUMBPRINT>" --assurance-evidence-root outputs\release_assurance\external --output-dir outputs\runtime_finalization_20260707
 ```
 
 That repo-root command is the canonical final release path contract. The transferred handoff bundle may use `--bundle-root .` only when the current working directory is the handoff bundle root.
@@ -180,6 +180,8 @@ The final release verifier checks:
 - `signing-evidence` is `installer\release_signing_evidence.json`.
 - `clean-machine-marker` is `D:\ANN\clean_machine_external_validation.json`.
 - release signing plan safety, external evidence safety, and operator environment safety remain read-only and non-mutating.
+- production assurance evidence passes the hardware, soak, independent review,
+  licensing, and human acceptance contract in `docs\RELEASE_ASSURANCE.md`.
 
 Exit codes:
 

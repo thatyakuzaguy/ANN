@@ -14,6 +14,7 @@ from urllib.request import Request, urlopen
 from urllib.error import URLError
 import zipfile
 
+from agentic_network.failure_context.runtime import compile_failure_context
 from agentic_engineering_network.logs.audit import AuditLogger
 from agentic_network.project_builder_orchestrator.lifecycle_evidence import (
     REQUIRED_ALGORITHM_VERIFICATION_STEPS,
@@ -146,7 +147,6 @@ class ProjectLifecycleRunner:
             if attempt >= max_attempts:
                 steps.append(self._human_escalation_step(project_root, run_id, idea, steps))
             self._write_fix_plan(project_root, run_id, idea, steps)
-        self._write_sandbox_manifest(project_root, sandbox_id, run_id, idea, steps)
         self._write_retry_history(project_root, run_id, retry_history)
         release_package = self._package_project(project_root, sandbox_dir)
         steps.append(LifecycleStep("release_package", "passed", f"Created {release_package}"))
@@ -162,13 +162,22 @@ class ProjectLifecycleRunner:
             status=status,
             steps=steps,
         )
+        result_payload = {
+            "schema_version": "ann.real-lifecycle-result.v1",
+            "run_id": run_id,
+            "idea": idea,
+            "completed_at": datetime.now(timezone.utc).isoformat(),
+            **result.to_dict(),
+        }
+        self._write_sandbox_manifest(project_root, result_payload)
+        self._write_lifecycle_result(project_root, result_payload)
         self.audit.record(
             "lifecycle.completed",
             "ProjectLifecycleRunner",
             f"Generated project lifecycle completed with status {status}.",
-            {"run_id": run_id, **result.to_dict()},
+            result_payload,
         )
-        return result.to_dict()
+        return result_payload
 
     def _validate(self, project_root: Path, run_id: str) -> list[LifecycleStep]:
         if self._project_profile(project_root) == "algorithm_service":
@@ -407,6 +416,7 @@ class ProjectLifecycleRunner:
             return [LifecycleStep("live_sandbox", "skipped", "Docker Compose is unavailable to run generated project checks.")]
 
         base = compose_command
+        sandbox_host = self._sandbox_host()
         steps: list[LifecycleStep] = []
         try:
             steps.append(LifecycleStep("docker_compose_config", "passed", f"Compose configuration validated with {' '.join(base)}.", [*base, "config"]))
@@ -442,13 +452,37 @@ class ProjectLifecycleRunner:
             if steps[-1].status != "passed":
                 steps.extend(self._collect_compose_logs(base, project_root, env))
                 return steps
-            steps.append(self._wait_for_http("api_health_live", f"http://127.0.0.1:{ports['api']}/health", timeout=90))
-            steps.append(self._wait_for_http("web_health_live", f"http://127.0.0.1:{ports['web']}", timeout=90))
-            steps.append(self._run_command("api_pytest_live", [*base, "run", "--rm", "api", "pytest", "-q"], project_root, env, timeout=180))
+            steps.append(self._wait_for_http("api_health_live", f"http://{sandbox_host}:{ports['api']}/health", timeout=90))
+            if steps[-1].status != "passed":
+                steps.extend(self._collect_compose_logs(base, project_root, env))
+                return steps
+            steps.append(self._wait_for_http("web_health_live", f"http://{sandbox_host}:{ports['web']}", timeout=90))
+            if steps[-1].status != "passed":
+                steps.extend(self._collect_compose_logs(base, project_root, env))
+                return steps
+            steps.append(
+                self._run_command(
+                    "api_pytest_live",
+                    [
+                        *base,
+                        "run",
+                        "--rm",
+                        "--no-deps",
+                        "-e",
+                        "DATABASE_URL=sqlite:////tmp/ann-tests.db",
+                        "api",
+                        "pytest",
+                        "-q",
+                    ],
+                    project_root,
+                    env,
+                    timeout=180,
+                )
+            )
             steps.append(
                 self._run_command(
                     "api_dependency_integrity_live",
-                    [*base, "run", "--rm", "api", "pip", "check"],
+                    [*base, "run", "--rm", "--no-deps", "api", "pip", "check"],
                     project_root,
                     env,
                     timeout=180,
@@ -457,18 +491,53 @@ class ProjectLifecycleRunner:
             steps.append(
                 self._run_command(
                     "api_dependency_audit_live",
-                    [*base, "run", "--rm", "api", "pip-audit", "--local", "--progress-spinner", "off"],
+                    [
+                        *base,
+                        "run",
+                        "--rm",
+                        "--no-deps",
+                        "api",
+                        "pip-audit",
+                        "--local",
+                        "--progress-spinner",
+                        "off",
+                    ],
                     project_root,
                     env,
                     timeout=240,
                 )
             )
-            steps.append(self._run_command("web_unit_live", [*base, "run", "--rm", "web", "npm", "test"], project_root, env, timeout=180))
-            steps.append(self._run_command("web_build_live", [*base, "run", "--rm", "web", "npm", "run", "build"], project_root, env, timeout=240))
+            steps.append(
+                self._run_command(
+                    "web_unit_live",
+                    [*base, "run", "--rm", "--no-deps", "web", "npm", "test"],
+                    project_root,
+                    env,
+                    timeout=180,
+                )
+            )
+            steps.append(
+                self._run_command(
+                    "web_build_live",
+                    [*base, "run", "--rm", "--no-deps", "web", "npm", "run", "build"],
+                    project_root,
+                    env,
+                    timeout=240,
+                )
+            )
             steps.append(
                 self._run_command(
                     "web_dependency_audit_live",
-                    [*base, "run", "--rm", "web", "npm", "audit", "--audit-level=moderate"],
+                    [
+                        *base,
+                        "run",
+                        "--rm",
+                        "--no-deps",
+                        "web",
+                        "npm",
+                        "audit",
+                        "--audit-level=moderate",
+                    ],
                     project_root,
                     env,
                     timeout=180,
@@ -542,6 +611,7 @@ class ProjectLifecycleRunner:
         if compose_command is None:
             return [LifecycleStep("live_sandbox", "skipped", "Docker Compose is unavailable.")]
         base = compose_command
+        sandbox_host = self._sandbox_host()
         steps: list[LifecycleStep] = [
             LifecycleStep(
                 "docker_compose_config",
@@ -558,11 +628,36 @@ class ProjectLifecycleRunner:
             if steps[-1].status != "passed":
                 steps.append(self._run_command("api_logs", [*base, "logs", "--no-color", "--tail=120", "api"], project_root, env, 60))
                 return steps
-            steps.append(self._wait_for_http("api_health_live", f"http://127.0.0.1:{ports['api']}/health", timeout=90))
+            steps.append(self._wait_for_http("api_health_live", f"http://{sandbox_host}:{ports['api']}/health", timeout=90))
+            if steps[-1].status != "passed":
+                steps.append(
+                    self._run_command(
+                        "api_logs",
+                        [*base, "logs", "--no-color", "--tail=120", "api"],
+                        project_root,
+                        env,
+                        60,
+                    )
+                )
+                return steps
             steps.append(
                 self._run_command(
                     "api_pytest_live",
-                    [*base, "run", "--rm", "api", "python", "-m", "pytest", "-q", "-p", "no:cacheprovider"],
+                    [
+                        *base,
+                        "run",
+                        "--rm",
+                        "--no-deps",
+                        "-e",
+                        "DATABASE_URL=sqlite:////tmp/ann-tests.db",
+                        "api",
+                        "python",
+                        "-m",
+                        "pytest",
+                        "-q",
+                        "-p",
+                        "no:cacheprovider",
+                    ],
                     project_root,
                     env,
                     timeout=180,
@@ -657,6 +752,13 @@ class ProjectLifecycleRunner:
                 )
             )
         return steps
+
+    @staticmethod
+    def _sandbox_host() -> str:
+        configured = os.environ.get("AEN_SANDBOX_HOST", "127.0.0.1").strip().lower()
+        if configured in {"127.0.0.1", "localhost", "host.docker.internal"}:
+            return configured
+        return "127.0.0.1"
 
     def _collect_compose_logs(self, base: list[str], project_root: Path, env: dict[str, str]) -> list[LifecycleStep]:
         return [
@@ -868,11 +970,29 @@ class ProjectLifecycleRunner:
             return LifecycleStep("qwen_patch", "skipped", "No failing lifecycle steps need a provider patch.")
 
         prompt_path = project_root / ".aen" / f"repair-prompt-attempt-{attempt}.json"
+        context_path = project_root / ".aen" / f"failure-context-attempt-{attempt}.json"
         raw_path = project_root / ".aen" / f"repair-response-attempt-{attempt}.md"
         diff_path = project_root / ".aen" / f"repair-attempt-{attempt}.diff"
+        diagnostic_steps = [
+            step
+            for step in steps
+            if step.status == "failed" or step.name.endswith("_logs")
+        ]
+        diagnostic_trace = "\n\n".join(
+            f"[{step.name}] {step.detail}" for step in diagnostic_steps
+        )
+        failure_context = compile_failure_context(
+            project_root=project_root,
+            stderr=diagnostic_trace,
+            commands=[step.command for step in diagnostic_steps if step.command],
+            user_request=idea,
+            source="project_lifecycle",
+        )
+        context_path.write_text(json.dumps(failure_context, indent=2), encoding="utf-8")
         prompt_payload = {
             "instruction": (
                 "Patch this generated project so the failing lifecycle checks pass. "
+                "Inspect the ranked cross-domain suspects and captured runtime logs before editing code. "
                 "Return only a unified diff with paths relative to project_root. "
                 "Do not include prose, commands, markdown fences, or absolute paths."
             ),
@@ -881,19 +1001,85 @@ class ProjectLifecycleRunner:
             "project_root": str(project_root),
             "files": self._project_file_inventory(project_root),
             "failures": [asdict(step) for step in failures],
+            "diagnostic_evidence": [asdict(step) for step in diagnostic_steps],
+            "failure_context": failure_context,
+            "fix_policy": {
+                "inspect_ranked_cross_domain_suspects_first": True,
+                "do_not_rewrite_symptom_node_until_cross_domain_suspects_checked": True,
+                "runtime_logs_are_evidence_not_patch_targets": True,
+            },
         }
         prompt_path.write_text(json.dumps(prompt_payload, indent=2), encoding="utf-8")
-        provider = None
         try:
             provider = build_provider(self.settings)
-            response = provider.generate(
-                Prompt(
-                    system="You are the code repair agent for a local autonomous engineering platform.",
-                    user=json.dumps(prompt_payload, indent=2),
-                )
-            )
         except Exception as exc:
             self.audit.record("qwen_patch.unavailable", "ProjectLifecycleRunner", str(exc), {"run_id": run_id})
+            return LifecycleStep(
+                "qwen_patch",
+                "skipped",
+                f"Provider patch request unavailable; continuing with deterministic fix plan and failure evidence: {exc}",
+            )
+
+        validation_detail = ""
+        response = None
+        validated_diff = ""
+        validated_diff_path = diff_path
+        try:
+            for request_number in (1, 2):
+                request_payload = prompt_payload
+                current_raw_path = raw_path
+                current_diff_path = diff_path
+                if request_number == 2:
+                    request_payload = {
+                        **prompt_payload,
+                        "previous_diff_validation_error": validation_detail[-4000:],
+                        "retry_instruction": (
+                            "Regenerate the complete unified diff from scratch. Correct every hunk header and "
+                            "line count. Return no prose or markdown fences."
+                        ),
+                    }
+                    current_raw_path = raw_path.with_name(f"{raw_path.stem}-retry{raw_path.suffix}")
+                    current_diff_path = diff_path.with_name(f"{diff_path.stem}-retry{diff_path.suffix}")
+                    self.audit.record(
+                        "qwen_patch.retry_requested",
+                        "ProjectLifecycleRunner",
+                        "The first provider diff was invalid; requesting one bounded corrected diff.",
+                        {"run_id": run_id, "attempt": attempt, "validation_error": validation_detail[-2000:]},
+                    )
+                response = provider.generate(
+                    Prompt(
+                        system="You are the code repair agent for a local autonomous engineering platform.",
+                        user=json.dumps(request_payload, indent=2),
+                    )
+                )
+                current_raw_path.write_text(response.content, encoding="utf-8")
+                diff = self._extract_unified_diff(response.content)
+                if not diff.strip():
+                    validation_detail = f"Provider returned no unified diff. Raw response: {current_raw_path}"
+                    continue
+                current_diff_path.write_text(diff, encoding="utf-8")
+                check = self._run_git_apply(project_root, diff, check_only=True)
+                if check.status == "passed":
+                    validated_diff = diff
+                    validated_diff_path = current_diff_path
+                    break
+                validation_detail = f"Diff: {current_diff_path}\n{check.detail}"
+            else:
+                return LifecycleStep(
+                    "qwen_patch",
+                    "failed",
+                    f"Provider diff failed validation after one bounded retry. {validation_detail}",
+                    command=check.command if "check" in locals() else None,
+                )
+        except Exception as exc:
+            event_type = "qwen_patch.retry_failed" if validation_detail else "qwen_patch.unavailable"
+            self.audit.record(event_type, "ProjectLifecycleRunner", str(exc), {"run_id": run_id})
+            if validation_detail:
+                return LifecycleStep(
+                    "qwen_patch",
+                    "failed",
+                    f"Provider diff retry failed after initial validation error. {validation_detail}\n{exc}",
+                )
             return LifecycleStep(
                 "qwen_patch",
                 "skipped",
@@ -904,30 +1090,25 @@ class ProjectLifecycleRunner:
             if callable(close):
                 close()
 
-        raw_path.write_text(response.content, encoding="utf-8")
-        diff = self._extract_unified_diff(response.content)
-        if not diff.strip():
-            return LifecycleStep("qwen_patch", "failed", f"Provider returned no unified diff. Raw response: {raw_path}")
-        diff_path.write_text(diff, encoding="utf-8")
-        check = self._run_git_apply(project_root, diff, check_only=True)
-        if check.status != "passed":
-            return LifecycleStep(
-                "qwen_patch",
-                "failed",
-                f"Provider diff failed validation. Diff: {diff_path}\n{check.detail}",
-                command=check.command,
-            )
+        if response is None or not validated_diff:
+            return LifecycleStep("qwen_patch", "failed", "Provider produced no validated repair diff.")
         self.audit.record(
             "qwen_patch.proposed",
             "ProjectLifecycleRunner",
             "Stored a validated provider repair diff for explicit human and patch approval.",
-            {"run_id": run_id, "provider": response.provider, "model": response.model, "diff": str(diff_path)},
+            {
+                "run_id": run_id,
+                "provider": response.provider,
+                "model": response.model,
+                "diff": str(validated_diff_path),
+            },
         )
         return LifecycleStep(
             "qwen_patch",
             "blocked",
             (
-                f"Validated provider repair diff from {response.provider}:{response.model} and stored it at {diff_path}. "
+                f"Validated provider repair diff from {response.provider}:{response.model} and stored it at "
+                f"{validated_diff_path}. "
                 "The lifecycle runner did not modify project files. Explicit Patch Approval and a valid approval token "
                 "are required before Patch Apply may execute it."
             ),
@@ -983,21 +1164,33 @@ class ProjectLifecycleRunner:
     def _write_sandbox_manifest(
         self,
         project_root: Path,
-        sandbox_id: str,
-        run_id: str,
-        idea: str,
-        steps: list[LifecycleStep],
+        lifecycle_result: dict[str, object],
     ) -> None:
         manifest = {
-            "sandbox_id": sandbox_id,
-            "run_id": run_id,
-            "idea": idea,
-            "project_root": str(project_root),
+            "sandbox_id": lifecycle_result["sandbox_id"],
+            "run_id": lifecycle_result["run_id"],
+            "idea": lifecycle_result["idea"],
+            "project_root": lifecycle_result["project_root"],
             "created_at": datetime.now(timezone.utc).isoformat(),
             "execution_boundary": "approval-gated-project-sandbox",
-            "steps": [asdict(step) for step in steps],
+            "status": lifecycle_result["status"],
+            "profile": lifecycle_result["profile"],
+            "attempts": lifecycle_result["attempts"],
+            "release_package": lifecycle_result["release_package"],
+            "steps": lifecycle_result["steps"],
         }
         (project_root / ".aen" / "sandbox.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+
+    @staticmethod
+    def _write_lifecycle_result(project_root: Path, lifecycle_result: dict[str, object]) -> None:
+        result_path = project_root / ".aen" / "real-lifecycle-result.json"
+        serialized = json.dumps(lifecycle_result, indent=2, sort_keys=True)
+        if result_path.exists():
+            existing = result_path.read_text(encoding="utf-8")
+            if existing != serialized:
+                raise RuntimeError(f"Refusing to overwrite immutable lifecycle evidence: {result_path}")
+            return
+        result_path.write_text(serialized, encoding="utf-8")
 
     def _sleep_before_retry(self, attempt: int, max_attempts: int) -> None:
         if attempt >= max_attempts:

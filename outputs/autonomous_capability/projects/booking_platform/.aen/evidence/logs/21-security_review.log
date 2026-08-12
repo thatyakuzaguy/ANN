@@ -1,0 +1,1 @@
+{"findings": [], "notes": ["Shell execution must be approval-gated and run in Docker where possible.", "Secrets belong in environment variables or a local secret store, never source files.", "Authentication code must be reviewed before deployment."], "passed": true}

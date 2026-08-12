@@ -1,0 +1,256 @@
+{
+  "scenario_id": "lms_platform",
+  "status": "COMPLETED_VERIFIED",
+  "completion_quality": "VERIFIED",
+  "project_root": "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982",
+  "generated_project_path": "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982",
+  "artifacts": [
+    "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\.aen\\evidence\\47_project_verification.json",
+    "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\.aen\\evidence\\47_project_verification.md",
+    "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\.aen\\evidence\\security_review.json",
+    "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\.aen\\evidence\\functional_smoke.json",
+    "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\.aen\\real-lifecycle-result.json",
+    "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\docs\\SPEC.md",
+    "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\docs\\ARCHITECTURE.md"
+  ],
+  "commands_executed": [
+    [
+      "/usr/bin/python3",
+      "-m",
+      "py_compile",
+      "/host-e/ANN-Soak/autonomous-capability-projects/lms_platform/20260812_101656_169866/build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982/apps/api/app/__init__.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/lms_platform/20260812_101656_169866/build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982/apps/api/app/billing.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/lms_platform/20260812_101656_169866/build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982/apps/api/app/database.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/lms_platform/20260812_101656_169866/build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982/apps/api/app/domain.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/lms_platform/20260812_101656_169866/build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982/apps/api/app/domain_config.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/lms_platform/20260812_101656_169866/build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982/apps/api/app/domain_models.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/lms_platform/20260812_101656_169866/build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982/apps/api/app/domain_router.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/lms_platform/20260812_101656_169866/build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982/apps/api/app/domain_schemas.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/lms_platform/20260812_101656_169866/build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982/apps/api/app/domain_seed.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/lms_platform/20260812_101656_169866/build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982/apps/api/app/integrations.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/lms_platform/20260812_101656_169866/build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982/apps/api/app/main.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/lms_platform/20260812_101656_169866/build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982/apps/api/app/models.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/lms_platform/20260812_101656_169866/build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982/apps/api/app/rbac.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/lms_platform/20260812_101656_169866/build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982/apps/api/app/schemas.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/lms_platform/20260812_101656_169866/build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982/apps/api/app/security.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/lms_platform/20260812_101656_169866/build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982/apps/api/app/security_headers.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/lms_platform/20260812_101656_169866/build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982/apps/api/app/tenancy.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/lms_platform/20260812_101656_169866/build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982/apps/api/app/workflows.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/lms_platform/20260812_101656_169866/build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982/apps/api/migrations/env.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/lms_platform/20260812_101656_169866/build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982/apps/api/migrations/versions/0001_initial.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/lms_platform/20260812_101656_169866/build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982/apps/api/migrations/versions/0002_domain_records.py"
+    ],
+    [
+      "docker",
+      "compose",
+      "config"
+    ],
+    [
+      "docker",
+      "compose",
+      "--profile",
+      "test",
+      "build"
+    ],
+    [
+      "docker",
+      "compose",
+      "up",
+      "-d",
+      "postgres",
+      "api",
+      "web"
+    ],
+    [
+      "docker",
+      "compose",
+      "run",
+      "--rm",
+      "--no-deps",
+      "-e",
+      "DATABASE_URL=sqlite:////tmp/ann-tests.db",
+      "api",
+      "pytest",
+      "-q"
+    ],
+    [
+      "docker",
+      "compose",
+      "run",
+      "--rm",
+      "--no-deps",
+      "api",
+      "pip",
+      "check"
+    ],
+    [
+      "docker",
+      "compose",
+      "run",
+      "--rm",
+      "--no-deps",
+      "api",
+      "pip-audit",
+      "--local",
+      "--progress-spinner",
+      "off"
+    ],
+    [
+      "docker",
+      "compose",
+      "run",
+      "--rm",
+      "--no-deps",
+      "web",
+      "npm",
+      "test"
+    ],
+    [
+      "docker",
+      "compose",
+      "run",
+      "--rm",
+      "--no-deps",
+      "web",
+      "npm",
+      "run",
+      "build"
+    ],
+    [
+      "docker",
+      "compose",
+      "run",
+      "--rm",
+      "--no-deps",
+      "web",
+      "npm",
+      "audit",
+      "--audit-level=moderate"
+    ],
+    [
+      "docker",
+      "compose",
+      "--profile",
+      "test",
+      "run",
+      "--rm",
+      "e2e"
+    ],
+    [
+      "docker",
+      "compose",
+      "--profile",
+      "test",
+      "down",
+      "-v"
+    ]
+  ],
+  "verification_evidence": {
+    "evidence_level": "STRONG",
+    "source": "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\.aen\\real-lifecycle-result.json",
+    "logs": [
+      "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\.aen\\evidence\\logs\\01-required_files.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\.aen\\evidence\\logs\\02-python_syntax.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\.aen\\evidence\\logs\\03-compose_static.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\.aen\\evidence\\logs\\04-web_static.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\.aen\\evidence\\logs\\05-alembic_migrations.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\.aen\\evidence\\logs\\06-desktop_packaging.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\.aen\\evidence\\logs\\07-docker_compose_config.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\.aen\\evidence\\logs\\08-docker_compose_build.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\.aen\\evidence\\logs\\09-docker_compose_up.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\.aen\\evidence\\logs\\10-api_health_live.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\.aen\\evidence\\logs\\11-web_health_live.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\.aen\\evidence\\logs\\12-api_pytest_live.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\.aen\\evidence\\logs\\13-api_dependency_integrity_live.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\.aen\\evidence\\logs\\14-api_dependency_audit_live.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\.aen\\evidence\\logs\\15-web_unit_live.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\.aen\\evidence\\logs\\16-web_build_live.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\.aen\\evidence\\logs\\17-web_dependency_audit_live.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\.aen\\evidence\\logs\\18-web_e2e_live.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\.aen\\evidence\\logs\\19-docker_compose_down.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\.aen\\evidence\\logs\\20-docker_compose_remove_sandbox_images.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\.aen\\evidence\\logs\\21-security_review.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\.aen\\evidence\\logs\\22-release_package.log"
+    ],
+    "screenshots": [
+      "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\apps\\web\\playwright-report\\data\\2e33a45386e476fb69135d636c2b87d13981f9ee.png",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\apps\\web\\test-results\\workbench-loads-domain-dashboard-and-creates-a-record\\test-finished-1.png"
+    ]
+  },
+  "security_review": "PASSED",
+  "protected_paths_modified": false,
+  "write_boundary": "E:\\ANN-Soak\\autonomous-capability-projects",
+  "compiled_evidence_status": "PASSED",
+  "capability_assessment": {
+    "status": "CAPABILITY_VERIFIED",
+    "passed": true,
+    "scenario_id": "lms_platform",
+    "project_root": "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982",
+    "blockers": [],
+    "self_declared_summary_is_not_evidence": true,
+    "inventory": {
+      "files_inspected": 94,
+      "source_files": 29,
+      "meaningful_loc": 1369,
+      "test_files": 5,
+      "placeholder_source_files": []
+    },
+    "command_kinds": [
+      "build",
+      "e2e",
+      "integration",
+      "node_test",
+      "python_test"
+    ],
+    "security_status": "PASSED",
+    "functional_smoke_status": "PASSED",
+    "visual_evidence": [
+      "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\apps\\web\\playwright-report\\data\\2e33a45386e476fb69135d636c2b87d13981f9ee.png",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\apps\\web\\test-results\\workbench-loads-domain-dashboard-and-creates-a-record\\test-finished-1.png"
+    ],
+    "contract": {
+      "minimum_source_files": 8,
+      "minimum_meaningful_loc": 300,
+      "minimum_test_files": 3,
+      "required_command_kinds": [
+        "python_test",
+        "node_test",
+        "build",
+        "e2e"
+      ]
+    }
+  },
+  "summary_path": "D:\\AgenticEngineeringNetwork\\releases\\github-public\\ANN\\outputs\\autonomous_capability\\lms_platform\\summary.json",
+  "prompt": "Build an LMS with courses, lessons, quizzes, progress tracking, roles, certificates, and analytics.",
+  "api_run_id": "993e2982-427e-4455-b11f-c41858082761",
+  "api_run_status": "completed",
+  "runtime_telemetry": {
+    "peak_active_models": 1,
+    "peak_parallel_llm_loads": 0,
+    "active_models_after": 0,
+    "parallel_llm_loads_after": 0,
+    "unload_failures": 0
+  },
+  "host_visual_verification": {
+    "status": "PASSED",
+    "exit_code": 0,
+    "command": [
+      "docker",
+      "compose",
+      "--profile",
+      "test",
+      "run",
+      "--rm",
+      "--no-deps",
+      "e2e"
+    ],
+    "screenshots": [
+      "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\apps\\web\\playwright-report\\data\\2e33a45386e476fb69135d636c2b87d13981f9ee.png",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\apps\\web\\test-results\\workbench-loads-domain-dashboard-and-creates-a-record\\test-finished-1.png"
+    ],
+    "log": "E:\\ANN-Soak\\autonomous-capability-projects\\lms_platform\\20260812_101656_169866\\build-an-lms-with-courses-lessons-quizzes-progress-tracking--993e2982\\.aen\\host-visual-e2e.log"
+  },
+  "validation_errors": [],
+  "no_fake_success": true,
+  "next_action": "completed_verified"
+}

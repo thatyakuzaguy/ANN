@@ -1,0 +1,194 @@
+{
+  "sandbox_id": "aen-6bfeaf95",
+  "run_id": "6bfeaf95-fb6d-4c16-81cf-69e949ddb4bf",
+  "idea": "Build a service implementing a complex algorithm with correctness tests, benchmarks, and edge cases.",
+  "project_root": "/host-e/ANN-Soak/autonomous-capability-projects/complex_algorithm_service/20260812_095901_040760/build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95",
+  "created_at": "2026-08-12T10:05:23.201224+00:00",
+  "execution_boundary": "approval-gated-project-sandbox",
+  "status": "passed",
+  "profile": "algorithm_service",
+  "attempts": 1,
+  "release_package": "E:\\ANN-Soak\\autonomous-capability-projects\\complex_algorithm_service\\20260812_095901_040760\\build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95\\.aen\\release\\build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95.zip",
+  "steps": [
+    {
+      "name": "required_files",
+      "status": "passed",
+      "detail": "All algorithm service files exist.",
+      "command": null
+    },
+    {
+      "name": "python_syntax",
+      "status": "passed",
+      "detail": "Compiled 7 Python files.",
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "py_compile",
+        "/host-e/ANN-Soak/autonomous-capability-projects/complex_algorithm_service/20260812_095901_040760/build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95/app/__init__.py",
+        "/host-e/ANN-Soak/autonomous-capability-projects/complex_algorithm_service/20260812_095901_040760/build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95/app/algorithm.py",
+        "/host-e/ANN-Soak/autonomous-capability-projects/complex_algorithm_service/20260812_095901_040760/build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95/app/main.py",
+        "/host-e/ANN-Soak/autonomous-capability-projects/complex_algorithm_service/20260812_095901_040760/build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95/app/metrics.py",
+        "/host-e/ANN-Soak/autonomous-capability-projects/complex_algorithm_service/20260812_095901_040760/build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95/app/schemas.py",
+        "/host-e/ANN-Soak/autonomous-capability-projects/complex_algorithm_service/20260812_095901_040760/build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95/app/validation.py",
+        "/host-e/ANN-Soak/autonomous-capability-projects/complex_algorithm_service/20260812_095901_040760/build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95/benchmark.py"
+      ]
+    },
+    {
+      "name": "compose_static",
+      "status": "passed",
+      "detail": "Algorithm sandbox controls are present.",
+      "command": null
+    },
+    {
+      "name": "algorithm_static",
+      "status": "passed",
+      "detail": "Algorithm runtime and test metadata are present.",
+      "command": null
+    },
+    {
+      "name": "docker_compose_config",
+      "status": "passed",
+      "detail": "Compose configuration validated with docker compose.",
+      "command": [
+        "docker",
+        "compose",
+        "config"
+      ]
+    },
+    {
+      "name": "docker_compose_build",
+      "status": "passed",
+      "detail": "Sending build context to Docker daemon  14.14kB\n\nStep 1/11 : FROM python:3.12-slim\n ---> 57cd7c3a7a27\nStep 2/11 : WORKDIR /app\n ---> Using cache\n ---> 9ca2fef811c3\nStep 3/11 : ENV PYTHONPATH=/app\n ---> Using cache\n ---> 6f2f70bdba0f\nStep 4/11 : ENV PYTHONDONTWRITEBYTECODE=1\n ---> Using cache\n ---> 872b56df1929\nStep 5/11 : ENV XDG_CACHE_HOME=/tmp\n ---> Using cache\n ---> 0cc7a3dcd9a0\nStep 6/11 : COPY pyproject.toml ./\n ---> Using cache\n ---> d375cd06cf82\nStep 7/11 : RUN python -m pip install --no-cache-dir --upgrade \"pip>=26.1.2\"     && python -m pip install --no-cache-dir \".[test]\"\n ---> Using cache\n ---> b01ca9b5e2d0\nStep 8/11 : COPY . .\n ---> eaa8d10d74d0\nStep 9/11 : EXPOSE 8000\n ---> Running in e0eda49a2186\n ---> Removed intermediate container e0eda49a2186\n ---> 71d96d9dac96\nStep 10/11 : CMD [\"uvicorn\", \"app.main:app\", \"--host\", \"0.0.0.0\", \"--port\", \"8000\"]\n ---> Running in 5288309e85da\n ---> Removed intermediate container 5288309e85da\n ---> 230fb4f86e6c\nStep 11/11 : LABEL com.docker.compose.image.builder=classic\n ---> Running in c835a26bfccf\n ---> Removed intermediate container c835a26bfccf\n ---> 016bc1ca7a99\nSuccessfully built 016bc1ca7a99\nSuccessfully tagged aen-6bfeaf95-api:latest\n\ntime=\"2026-08-12T10:04:00Z\" level=warning msg=\"Docker Compose requires buildx plugin to be installed\"\n Image aen-6bfeaf95-api Building \n Image aen-6bfeaf95-api Building \n Image aen-6bfeaf95-api Built \n Image aen-6bfeaf95-api Built \n",
+      "command": [
+        "docker",
+        "compose",
+        "build"
+      ]
+    },
+    {
+      "name": "docker_compose_up",
+      "status": "passed",
+      "detail": "\n Network aen-6bfeaf95_default Creating \n Network aen-6bfeaf95_default Created \n Container aen-6bfeaf95-api-1 Creating \n Container aen-6bfeaf95-api-1 Created \n Container aen-6bfeaf95-api-1 Starting \n Container aen-6bfeaf95-api-1 Started \n",
+      "command": [
+        "docker",
+        "compose",
+        "up",
+        "-d",
+        "api"
+      ]
+    },
+    {
+      "name": "api_health_live",
+      "status": "passed",
+      "detail": "http://host.docker.internal:18551/health returned HTTP 200.",
+      "command": null
+    },
+    {
+      "name": "api_pytest_live",
+      "status": "passed",
+      "detail": "........                                                                 [100%]\n=============================== warnings summary ===============================\n../usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1\n  /usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\n    from starlette.testclient import TestClient as TestClient  # noqa\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n8 passed, 1 warning in 0.59s\n\n Container aen-6bfeaf95-api-run-40d60155615e Creating \n Container aen-6bfeaf95-api-run-40d60155615e Created \n",
+      "command": [
+        "docker",
+        "compose",
+        "run",
+        "--rm",
+        "--no-deps",
+        "-e",
+        "DATABASE_URL=sqlite:////tmp/ann-tests.db",
+        "api",
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider"
+      ]
+    },
+    {
+      "name": "algorithm_integration_live",
+      "status": "passed",
+      "detail": ".                                                                        [100%]\n=============================== warnings summary ===============================\n../usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1\n  /usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\n    from starlette.testclient import TestClient as TestClient  # noqa\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n1 passed, 1 warning in 0.56s\n\n Container aen-6bfeaf95-api-run-13539bb529fa Creating \n Container aen-6bfeaf95-api-run-13539bb529fa Created \n",
+      "command": [
+        "docker",
+        "compose",
+        "run",
+        "--rm",
+        "api",
+        "python",
+        "-m",
+        "pytest",
+        "tests/test_integration.py",
+        "-q",
+        "-p",
+        "no:cacheprovider"
+      ]
+    },
+    {
+      "name": "algorithm_benchmark_live",
+      "status": "passed",
+      "detail": "{\n  \"status\": \"PASSED\",\n  \"algorithm\": \"yen-k-shortest-loopless-paths\",\n  \"nodes\": 500,\n  \"edges\": 4000,\n  \"routes_found\": 5,\n  \"elapsed_seconds\": 0.086012,\n  \"complexity\": \"O(K * V * (E log V))\"\n}\n\n Container aen-6bfeaf95-api-run-b3d4e71c8326 Creating \n Container aen-6bfeaf95-api-run-b3d4e71c8326 Created \n",
+      "command": [
+        "docker",
+        "compose",
+        "run",
+        "--rm",
+        "api",
+        "python",
+        "benchmark.py"
+      ]
+    },
+    {
+      "name": "api_dependency_integrity_live",
+      "status": "passed",
+      "detail": "No broken requirements found.\n\n Container aen-6bfeaf95-api-run-603817236d8c Creating \n Container aen-6bfeaf95-api-run-603817236d8c Created \n",
+      "command": [
+        "docker",
+        "compose",
+        "run",
+        "--rm",
+        "api",
+        "pip",
+        "check"
+      ]
+    },
+    {
+      "name": "api_dependency_audit_live",
+      "status": "passed",
+      "detail": "Name                       Skip Reason\n-------------------------- -----------------------------------------------------------------------------------------\nconstraint-route-optimizer Dependency not found on PyPI and could not be audited: constraint-route-optimizer (1.0.0)\n\n Container aen-6bfeaf95-api-run-cfcbc616504a Creating \n Container aen-6bfeaf95-api-run-cfcbc616504a Created \nNo known vulnerabilities found\n",
+      "command": [
+        "docker",
+        "compose",
+        "run",
+        "--rm",
+        "api",
+        "pip-audit",
+        "--local",
+        "--progress-spinner",
+        "off"
+      ]
+    },
+    {
+      "name": "docker_compose_down",
+      "status": "passed",
+      "detail": "\n Container aen-6bfeaf95-api-1 Stopping \n Container aen-6bfeaf95-api-1 Stopped \n Container aen-6bfeaf95-api-1 Removing \n Container aen-6bfeaf95-api-1 Removed \n Network aen-6bfeaf95_default Removing \n Network aen-6bfeaf95_default Removed \n",
+      "command": [
+        "docker",
+        "compose",
+        "down",
+        "-v"
+      ]
+    },
+    {
+      "name": "security_review",
+      "status": "passed",
+      "detail": "{\"findings\": [], \"notes\": [\"Shell execution must be approval-gated and run in Docker where possible.\", \"Secrets belong in environment variables or a local secret store, never source files.\", \"Authentication code must be reviewed before deployment.\"], \"passed\": true}",
+      "command": null
+    },
+    {
+      "name": "release_package",
+      "status": "passed",
+      "detail": "Created /host-e/ANN-Soak/autonomous-capability-projects/complex_algorithm_service/20260812_095901_040760/build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95/.aen/release/build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95.zip",
+      "command": null
+    }
+  ]
+}

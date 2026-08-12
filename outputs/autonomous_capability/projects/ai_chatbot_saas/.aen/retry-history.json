@@ -1,0 +1,17 @@
+{
+  "run_id": "d48edacd-3b01-467b-a81f-8a93190a15f0",
+  "created_at": "2026-08-12T10:59:42.824234+00:00",
+  "max_attempts": 3,
+  "backoff": {
+    "base_seconds": 1.0,
+    "max_seconds": 30.0
+  },
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "passed",
+      "failed_checks": [],
+      "next_action": "completed"
+    }
+  ]
+}

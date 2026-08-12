@@ -89,12 +89,36 @@ CONTRACTS: dict[str, CapabilityContract] = {
 }
 
 
-def evaluate_project_capability(scenario_id: str, summary: dict[str, Any]) -> dict[str, Any]:
+def evaluate_project_capability(
+    scenario_id: str,
+    summary: dict[str, Any],
+    *,
+    summary_path: str | Path | None = None,
+) -> dict[str, Any]:
     """Inspect project files and command artifacts instead of trusting summary labels."""
+
+    try:
+        return _evaluate_project_capability(scenario_id, summary, summary_path=summary_path)
+    except ValueError as exc:
+        return _result(scenario_id, None, [str(exc)])
+
+
+def _evaluate_project_capability(
+    scenario_id: str,
+    summary: dict[str, Any],
+    *,
+    summary_path: str | Path | None = None,
+) -> dict[str, Any]:
 
     contract = CONTRACTS.get(scenario_id)
     blockers: list[str] = []
-    project_root = _project_root(summary)
+    path_base = Path(summary_path).resolve().parent if summary_path is not None else None
+    path_scope = (
+        path_base.parent
+        if path_base is not None and summary.get("portable_paths") is True
+        else None
+    )
+    project_root = _project_root(summary, path_base, path_scope)
     if contract is None:
         return _result(scenario_id, project_root, ["scenario_contract_missing"])
     if project_root is None or not project_root.is_dir():
@@ -115,7 +139,7 @@ def evaluate_project_capability(scenario_id: str, summary: dict[str, Any]) -> di
     if missing_keywords:
         blockers.append("domain_contract_missing:" + ",".join(missing_keywords))
 
-    verification = _verification(summary)
+    verification = _verification(summary, path_base, path_scope)
     command_kinds = _command_kinds(verification.get("commands_executed", []))
     if verification.get("status") != "PASSED":
         blockers.append("verification_not_passed")
@@ -125,18 +149,28 @@ def evaluate_project_capability(scenario_id: str, summary: dict[str, Any]) -> di
     for required in contract.required_command_kinds:
         if required not in command_kinds:
             blockers.append(f"verification_command_missing:{required}")
-    if not _logs_exist(verification):
+    if not _logs_exist(verification, path_base, path_scope):
         blockers.append("verification_logs_missing")
 
-    security = _evidence_document(summary, ("security_review.json", "security_report.json"))
+    security = _evidence_document(
+        summary,
+        ("security_review.json", "security_report.json"),
+        path_base,
+        path_scope,
+    )
     if not _security_passed(security):
         blockers.append("independent_security_review_missing")
 
-    functional = _evidence_document(summary, ("functional_smoke.json",))
+    functional = _evidence_document(
+        summary,
+        ("functional_smoke.json",),
+        path_base,
+        path_scope,
+    )
     if not _functional_smoke_passed(functional):
         blockers.append("functional_smoke_missing")
 
-    visual = _visual_evidence(functional)
+    visual = _visual_evidence(functional, path_base, path_scope)
     if contract.requires_visual_evidence and not visual:
         blockers.append("visual_evidence_missing")
 
@@ -156,11 +190,15 @@ def evaluate_project_capability(scenario_id: str, summary: dict[str, Any]) -> di
     }
 
 
-def _project_root(summary: dict[str, Any]) -> Path | None:
+def _project_root(
+    summary: dict[str, Any],
+    path_base: Path | None = None,
+    path_scope: Path | None = None,
+) -> Path | None:
     raw = str(summary.get("project_root") or "").strip()
     if not raw:
         return None
-    return Path(raw).resolve()
+    return _resolve_evidence_path(raw, path_base, path_scope)
 
 
 def _inventory(root: Path) -> dict[str, Any]:
@@ -209,8 +247,12 @@ def _is_test_file(relative: str) -> bool:
     return "test" in Path(lowered).parts or name.startswith("test_") or any(token in name for token in (".test.", ".spec."))
 
 
-def _verification(summary: dict[str, Any]) -> dict[str, Any]:
-    for artifact in reversed(_artifact_paths(summary)):
+def _verification(
+    summary: dict[str, Any],
+    path_base: Path | None = None,
+    path_scope: Path | None = None,
+) -> dict[str, Any]:
+    for artifact in reversed(_artifact_paths(summary, path_base, path_scope)):
         if artifact.name == "47_project_verification.json" and artifact.is_file():
             return _read_json(artifact)
     return {}
@@ -240,18 +282,31 @@ def _command_kinds(commands: Any) -> set[str]:
     return kinds
 
 
-def _logs_exist(verification: dict[str, Any]) -> bool:
+def _logs_exist(
+    verification: dict[str, Any],
+    path_base: Path | None = None,
+    path_scope: Path | None = None,
+) -> bool:
     stdout = verification.get("stdout_artifacts")
     if not isinstance(stdout, list) or not stdout:
         return False
-    return all(Path(str(path)).is_file() and Path(str(path)).stat().st_size > 0 for path in stdout)
+    return all(
+        _resolve_evidence_path(str(path), path_base, path_scope).is_file()
+        and _resolve_evidence_path(str(path), path_base, path_scope).stat().st_size > 0
+        for path in stdout
+    )
 
 
-def _evidence_document(summary: dict[str, Any], names: tuple[str, ...]) -> dict[str, Any]:
-    for artifact in reversed(_artifact_paths(summary)):
+def _evidence_document(
+    summary: dict[str, Any],
+    names: tuple[str, ...],
+    path_base: Path | None = None,
+    path_scope: Path | None = None,
+) -> dict[str, Any]:
+    for artifact in reversed(_artifact_paths(summary, path_base, path_scope)):
         if artifact.name in names and artifact.is_file():
             return _read_json(artifact)
-    project_root = _project_root(summary)
+    project_root = _project_root(summary, path_base, path_scope)
     if project_root:
         for name in names:
             matches = sorted(project_root.glob(f"**/{name}"))
@@ -276,18 +331,53 @@ def _functional_smoke_passed(payload: dict[str, Any]) -> bool:
     )
 
 
-def _visual_evidence(payload: dict[str, Any]) -> list[str]:
+def _visual_evidence(
+    payload: dict[str, Any],
+    path_base: Path | None = None,
+    path_scope: Path | None = None,
+) -> list[str]:
     screenshots = payload.get("screenshots")
     if not isinstance(screenshots, list):
         return []
-    return [str(path) for path in screenshots if Path(str(path)).is_file() and Path(str(path)).stat().st_size >= 100]
+    return [
+        str(_resolve_evidence_path(str(path), path_base, path_scope))
+        for path in screenshots
+        if _resolve_evidence_path(str(path), path_base, path_scope).is_file()
+        and _resolve_evidence_path(str(path), path_base, path_scope).stat().st_size >= 100
+    ]
 
 
-def _artifact_paths(summary: dict[str, Any]) -> list[Path]:
+def _artifact_paths(
+    summary: dict[str, Any],
+    path_base: Path | None = None,
+    path_scope: Path | None = None,
+) -> list[Path]:
     artifacts = summary.get("artifacts")
     if not isinstance(artifacts, list):
         return []
-    return [Path(str(path)) for path in artifacts if str(path).strip()]
+    return [
+        _resolve_evidence_path(str(path), path_base, path_scope)
+        for path in artifacts
+        if str(path).strip()
+    ]
+
+
+def _resolve_evidence_path(
+    raw: str,
+    path_base: Path | None,
+    path_scope: Path | None = None,
+) -> Path:
+    path = Path(raw)
+    if path.is_absolute() or path_base is None:
+        resolved = path.resolve()
+    else:
+        resolved = (path_base / path).resolve()
+    if path_scope is not None:
+        try:
+            resolved.relative_to(path_scope.resolve())
+        except ValueError as exc:
+            raise ValueError(f"evidence_path_outside_packet:{raw}") from exc
+    return resolved
 
 
 def _read_json(path: Path) -> dict[str, Any]:

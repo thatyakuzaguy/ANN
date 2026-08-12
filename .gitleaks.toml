@@ -1,9 +1,15 @@
 title = "ANN public repository secret scanning"
 
 [allowlist]
-description = "Deterministic test-only sentinels; never valid credentials"
+description = "Deterministic test sentinels and non-authorizing published evidence run UUIDs"
 regexes = [
   '''sk-abcdefghijklmnopqrstuvwxyz''',
   '''LOCAL_TEST_TOKEN''',
-  '''I_APPROVE'''
+  '''I_APPROVE''',
+  '''d48edacd-3b01-467b-a81f-8a93190a15f0''',
+  '''5eae7c20-ae8c-4d44-9bbb-aca1cdf2a96c''',
+  '''34521d75-9828-43e9-922c-b15e9b2a81c2''',
+  '''6bfeaf95-fb6d-4c16-81cf-69e949ddb4bf''',
+  '''e21bae94-d9ef-4575-a041-8221d34b7907''',
+  '''993e2982-427e-4455-b11f-c41858082761'''
 ]

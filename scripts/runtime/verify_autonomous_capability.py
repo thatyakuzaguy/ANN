@@ -11,9 +11,29 @@ import json
 import sys
 from pathlib import Path
 
-from agentic_network.runtime_engine.local_model_activation import (
+REPO_ROOT = Path(__file__).resolve().parents[2]
+for package_root in (
+    ".",
+    "packages/agents",
+    "packages/orchestration",
+    "packages/sandbox",
+    "packages/git",
+    "packages/logs",
+    "packages/shared",
+    "packages/database",
+    "packages/security",
+    "apps/api",
+):
+    candidate = str(REPO_ROOT / package_root)
+    if candidate not in sys.path:
+        sys.path.insert(0, candidate)
+
+from agentic_network.runtime_engine.local_model_activation import (  # noqa: E402
     build_autonomous_complex_capability_gate,
     write_autonomous_complex_capability_artifacts,
+)
+from agentic_network.project_builder_orchestrator.lifecycle_evidence import (  # noqa: E402
+    write_capability_evidence_manifest,
 )
 
 
@@ -22,12 +42,20 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--evidence-root", default=None, help="Evidence root; defaults to outputs/autonomous_capability.")
     parser.add_argument("--output-dir", default=None, help="Optional artifact output directory.")
     parser.add_argument("--json", action="store_true", help="Print full JSON report.")
+    parser.add_argument(
+        "--write-manifest",
+        action="store_true",
+        help="Write deterministic integrity manifest sidecars into the evidence root.",
+    )
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     report = build_autonomous_complex_capability_gate(args.evidence_root)
+    if args.write_manifest:
+        root = Path(report["evidence_root"])
+        report["integrity_manifest"] = write_capability_evidence_manifest(root)
     if args.output_dir:
         write_autonomous_complex_capability_artifacts(Path(args.output_dir))
     if args.json:

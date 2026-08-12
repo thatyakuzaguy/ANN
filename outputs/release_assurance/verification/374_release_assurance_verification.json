@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "status": "PRODUCTION_ASSURANCE_PARTIAL",
+  "ready": false,
+  "exit_code": 2,
+  "evidence_root": "D:\\AgenticEngineeringNetwork\\releases\\github-public\\ANN\\outputs\\release_assurance\\external",
+  "policy_path": "D:\\AgenticEngineeringNetwork\\releases\\github-public\\ANN\\config\\release-assurance-policy.json",
+  "checks": [
+    {
+      "id": "assurance_policy",
+      "passed": true,
+      "status": "PASS",
+      "detail": "valid"
+    },
+    {
+      "id": "hardware_matrix",
+      "passed": false,
+      "status": "BLOCKED",
+      "detail": "minimum_unique_machines:2; minimum_distinct_gpu_profiles:2; machine_gate_failed"
+    },
+    {
+      "id": "soak_validation",
+      "passed": true,
+      "status": "PASS",
+      "detail": "valid"
+    },
+    {
+      "id": "independent_security_review",
+      "passed": false,
+      "status": "BLOCKED",
+      "detail": "independent_reviewer_missing; security_decision_not_approved"
+    },
+    {
+      "id": "legal_review",
+      "passed": false,
+      "status": "BLOCKED",
+      "detail": "qualified_human_review_missing; legal_decision_not_approved"
+    },
+    {
+      "id": "model_license_review",
+      "passed": false,
+      "status": "BLOCKED",
+      "detail": "model_license_invalid:deepseek_r1_distill_qwen_14b; model_license_invalid:qwen2_5_coder_7b_v5; model_license_invalid:qwen3_4b_conversation_orchestrator; model_license_invalid:qwen3_8b_product_v9_repaired_v2_bullets"
+    },
+    {
+      "id": "generated_software_acceptance",
+      "passed": false,
+      "status": "BLOCKED",
+      "detail": "project_acceptance_gate_failed"
+    }
+  ],
+  "blockers": [
+    {
+      "id": "hardware_matrix",
+      "passed": false,
+      "status": "BLOCKED",
+      "detail": "minimum_unique_machines:2; minimum_distinct_gpu_profiles:2; machine_gate_failed"
+    },
+    {
+      "id": "independent_security_review",
+      "passed": false,
+      "status": "BLOCKED",
+      "detail": "independent_reviewer_missing; security_decision_not_approved"
+    },
+    {
+      "id": "legal_review",
+      "passed": false,
+      "status": "BLOCKED",
+      "detail": "qualified_human_review_missing; legal_decision_not_approved"
+    },
+    {
+      "id": "model_license_review",
+      "passed": false,
+      "status": "BLOCKED",
+      "detail": "model_license_invalid:deepseek_r1_distill_qwen_14b; model_license_invalid:qwen2_5_coder_7b_v5; model_license_invalid:qwen3_4b_conversation_orchestrator; model_license_invalid:qwen3_8b_product_v9_repaired_v2_bullets"
+    },
+    {
+      "id": "generated_software_acceptance",
+      "passed": false,
+      "status": "BLOCKED",
+      "detail": "project_acceptance_gate_failed"
+    }
+  ],
+  "evidence": {
+    "hardware_matrix": {
+      "path": "D:\\AgenticEngineeringNetwork\\releases\\github-public\\ANN\\outputs\\release_assurance\\external\\hardware_matrix.json",
+      "status": "REJECTED",
+      "sha256": "e42313fc2134c0f521de340a11d0db5a81eb7ae0cbff0e3407c9a17a6eef6bd5",
+      "collected_at": "2026-08-12T12:02:27.8331790Z",
+      "detail": "minimum_unique_machines:2; minimum_distinct_gpu_profiles:2; machine_gate_failed"
+    },
+    "soak_validation": {
+      "path": "D:\\AgenticEngineeringNetwork\\releases\\github-public\\ANN\\outputs\\release_assurance\\external\\soak_validation.json",
+      "status": "VERIFIED",
+      "sha256": "43ce231a86576e30923514c26ba59c0373e326d170766d3ddcffeaf10dede2fb",
+      "collected_at": "2026-08-10T19:51:07.641904+00:00",
+      "detail": "valid"
+    },
+    "independent_security_review": {
+      "path": "D:\\AgenticEngineeringNetwork\\releases\\github-public\\ANN\\outputs\\release_assurance\\external\\independent_security_review.json",
+      "status": "REJECTED",
+      "sha256": "64e5f53f0616e0892a2fb19e4a67826759be1fde17c7ca24abae6b211f3a1ef2",
+      "collected_at": "2026-08-12T12:02:27.8331790Z",
+      "detail": "independent_reviewer_missing; security_decision_not_approved"
+    },
+    "legal_review": {
+      "path": "D:\\AgenticEngineeringNetwork\\releases\\github-public\\ANN\\outputs\\release_assurance\\external\\legal_review.json",
+      "status": "REJECTED",
+      "sha256": "c44f98e3ed757dcb8300d804621d1cc6790eb473790bad6c0ff8469bfea20996",
+      "collected_at": "2026-08-12T12:02:27.8331790Z",
+      "detail": "qualified_human_review_missing; legal_decision_not_approved"
+    },
+    "model_license_review": {
+      "path": "D:\\AgenticEngineeringNetwork\\releases\\github-public\\ANN\\outputs\\release_assurance\\external\\model_license_review.json",
+      "status": "REJECTED",
+      "sha256": "914bc0478f82ecc7a18eb7ac817f7911e80d5548f8b29c3aee30475a958d62dd",
+      "collected_at": "2026-08-12T12:02:27.8331790Z",
+      "detail": "model_license_invalid:deepseek_r1_distill_qwen_14b; model_license_invalid:qwen2_5_coder_7b_v5; model_license_invalid:qwen3_4b_conversation_orchestrator; model_license_invalid:qwen3_8b_product_v9_repaired_v2_bullets"
+    },
+    "generated_software_acceptance": {
+      "path": "D:\\AgenticEngineeringNetwork\\releases\\github-public\\ANN\\outputs\\release_assurance\\external\\generated_software_acceptance.json",
+      "status": "REJECTED",
+      "sha256": "ed72f82d7c2b0fe08d0b2fb2bd8e79e0739793f0a03e5757b211b1f00aed6aa0",
+      "collected_at": "2026-08-12T12:02:27.8331790Z",
+      "detail": "project_acceptance_gate_failed"
+    }
+  },
+  "evidence_files_found": 6,
+  "evidence_files_required": 6,
+  "next_step": "Resolve hardware_matrix: minimum_unique_machines:2; minimum_distinct_gpu_profiles:2; machine_gate_failed.",
+  "claims": {
+    "legal_compliance_guaranteed": false,
+    "security_guaranteed": false,
+    "automatic_sellability_guaranteed": false,
+    "external_work_fabricated": false
+  },
+  "safety": {
+    "read_only": true,
+    "network_used": false,
+    "downloads_performed": false,
+    "installs_performed": false,
+    "model_load_performed": false,
+    "inference_performed": false,
+    "shell_used": false
+  }
+}

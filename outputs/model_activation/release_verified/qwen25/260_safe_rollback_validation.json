@@ -1,0 +1,28 @@
+{
+  "version": "18.3",
+  "generated_at": "2026-07-14T03:53:58.750006+00:00",
+  "status": "SAFE_ROLLBACK_PASSED",
+  "loaded_model_object_released": true,
+  "safe_mode_final": true,
+  "active_models_after": 0,
+  "parallel_llm_loads_after": 0,
+  "loaded_models_after": [],
+  "qwen3_touched": false,
+  "deepseek_touched": false,
+  "powerful_activated": false,
+  "safety": {
+    "local_only": true,
+    "internet": false,
+    "downloads": false,
+    "dependency_install": false,
+    "model_load": false,
+    "inference": false,
+    "training": false,
+    "modify_models": false,
+    "move_models": false,
+    "quantize_models": false,
+    "convert_models": false,
+    "write_adapters": false,
+    "write_datasets": false
+  }
+}

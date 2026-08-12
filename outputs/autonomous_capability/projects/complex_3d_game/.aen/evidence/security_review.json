@@ -1,0 +1,35 @@
+{
+  "checks": [
+    {
+      "name": "api_dependency_audit_live",
+      "passed": true
+    },
+    {
+      "name": "api_dependency_integrity_live",
+      "passed": true
+    },
+    {
+      "name": "security_review",
+      "passed": true
+    },
+    {
+      "name": "web_dependency_audit_live",
+      "passed": true
+    }
+  ],
+  "failed_steps": [],
+  "findings": [],
+  "notes": [
+    "Shell execution must be approval-gated and run in Docker where possible.",
+    "Secrets belong in environment variables or a local secret store, never source files.",
+    "Authentication code must be reviewed before deployment."
+  ],
+  "scanners": [
+    "ann-static-security-review",
+    "pip-check",
+    "pip-audit",
+    "npm-audit"
+  ],
+  "source": "../projects/complex_3d_game/.aen/real-lifecycle-result.json",
+  "status": "PASSED"
+}

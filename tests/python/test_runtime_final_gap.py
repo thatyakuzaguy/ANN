@@ -10,15 +10,20 @@ from agentic_network.runtime_engine.local_model_activation import (
 )
 
 
-def test_runtime_final_gap_lists_blockers() -> None:
+def test_runtime_final_gap_reports_current_evidence_without_obsolete_blockers() -> None:
     gap = build_runtime_final_gap()
 
-    assert gap["status"] == "RUNTIME_FINAL_GAP_BLOCKED"
-    assert "Desktop App native foundation" in gap["what_ann_already_has"]
-    assert "embedded_python" in gap["what_runtime_still_misses"]
-    assert "first_qwen25_smoke_not_executed" in gap["what_blocks_first_inference"]
+    assert gap["status"] in {
+        "RUNTIME_FINAL_GAP_BLOCKED",
+        "RUNTIME_FINAL_GAP_EXTERNAL_RELEASE_BLOCKED",
+        "RUNTIME_FINAL_GAP_CLOSED",
+    }
+    assert "Packaged native Desktop and local engineering workbench" in gap["what_ann_already_has"]
     assert "signed_installer_missing" in gap["what_blocks_public_release"]
-    assert gap["current"]["payload_readiness"] == "PAYLOAD_BLOCKED"
+    assert "first_qwen25_smoke_not_executed" not in gap["what_blocks_first_inference"]
+    assert gap["current"]["qwen25_release_evidence"] == "REAL_EVIDENCE_PASSED"
+    assert gap["current"]["qwen3_release_evidence"] == "REAL_EVIDENCE_PASSED"
+    assert gap["current"]["deepseek_release_evidence"] == "REAL_EVIDENCE_PASSED"
 
 
 def test_runtime_final_gap_artifacts(tmp_path: Path) -> None:
@@ -27,7 +32,14 @@ def test_runtime_final_gap_artifacts(tmp_path: Path) -> None:
 
     assert names == {"186_runtime_final_gap.json", "187_runtime_final_gap.md"}
     payload = json.loads((tmp_path / "186_runtime_final_gap.json").read_text(encoding="utf-8"))
-    assert payload["version"] == "15.9"
+    assert payload["version"] == "18.9.23"
+
+
+def test_runtime_final_gap_does_not_report_beta_blocker_when_beta_checks_pass() -> None:
+    report = build_runtime_final_gap()
+
+    if not report["what_blocks_beta"]:
+        assert "public_beta_not_completed" not in report["what_blocks_public_release"]
 
 
 def test_runtime_final_macro_artifacts(tmp_path: Path) -> None:

@@ -1,0 +1,222 @@
+{
+  "artifacts": [
+    "../projects/crm_saas_multitenant/.aen/evidence/47_project_verification.json",
+    "../projects/crm_saas_multitenant/.aen/evidence/47_project_verification.md",
+    "../projects/crm_saas_multitenant/.aen/evidence/security_review.json",
+    "../projects/crm_saas_multitenant/.aen/evidence/functional_smoke.json",
+    "../projects/crm_saas_multitenant/.aen/real-lifecycle-result.json",
+    "../projects/crm_saas_multitenant/docs/SPEC.md",
+    "../projects/crm_saas_multitenant/docs/ARCHITECTURE.md"
+  ],
+  "capability_assessment": {
+    "blockers": [],
+    "command_kinds": [
+      "build",
+      "e2e",
+      "integration",
+      "node_test",
+      "python_test"
+    ],
+    "contract": {
+      "minimum_meaningful_loc": 300,
+      "minimum_source_files": 8,
+      "minimum_test_files": 3,
+      "required_command_kinds": [
+        "python_test",
+        "node_test",
+        "build",
+        "e2e"
+      ]
+    },
+    "functional_smoke_status": "PASSED",
+    "inventory": {
+      "files_inspected": 91,
+      "meaningful_loc": 1356,
+      "placeholder_source_files": [],
+      "source_files": 29,
+      "test_files": 5
+    },
+    "passed": true,
+    "project_root": "../projects/crm_saas_multitenant",
+    "scenario_id": "crm_saas_multitenant",
+    "security_status": "PASSED",
+    "self_declared_summary_is_not_evidence": true,
+    "status": "CAPABILITY_VERIFIED",
+    "visual_evidence": [
+      "../projects/crm_saas_multitenant/apps/web/test-results/workbench-loads-domain-dashboard-and-creates-a-record/test-finished-1.png"
+    ]
+  },
+  "commands_executed": [
+    [
+      "/usr/bin/python3",
+      "-m",
+      "py_compile",
+      "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/__init__.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/billing.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/database.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/domain.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/domain_config.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/domain_models.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/domain_router.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/domain_schemas.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/domain_seed.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/integrations.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/main.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/models.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/rbac.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/schemas.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/security.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/security_headers.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/tenancy.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/workflows.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/migrations/env.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/migrations/versions/0001_initial.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/migrations/versions/0002_domain_records.py"
+    ],
+    [
+      "docker",
+      "compose",
+      "config"
+    ],
+    [
+      "docker",
+      "compose",
+      "--profile",
+      "test",
+      "build"
+    ],
+    [
+      "docker",
+      "compose",
+      "up",
+      "-d",
+      "postgres",
+      "api",
+      "web"
+    ],
+    [
+      "docker",
+      "compose",
+      "run",
+      "--rm",
+      "--no-deps",
+      "-e",
+      "DATABASE_URL=sqlite:////tmp/ann-tests.db",
+      "api",
+      "pytest",
+      "-q"
+    ],
+    [
+      "docker",
+      "compose",
+      "run",
+      "--rm",
+      "--no-deps",
+      "api",
+      "pip",
+      "check"
+    ],
+    [
+      "docker",
+      "compose",
+      "run",
+      "--rm",
+      "--no-deps",
+      "api",
+      "pip-audit",
+      "--local",
+      "--progress-spinner",
+      "off"
+    ],
+    [
+      "docker",
+      "compose",
+      "run",
+      "--rm",
+      "--no-deps",
+      "web",
+      "npm",
+      "test"
+    ],
+    [
+      "docker",
+      "compose",
+      "run",
+      "--rm",
+      "--no-deps",
+      "web",
+      "npm",
+      "run",
+      "build"
+    ],
+    [
+      "docker",
+      "compose",
+      "run",
+      "--rm",
+      "--no-deps",
+      "web",
+      "npm",
+      "audit",
+      "--audit-level=moderate"
+    ],
+    [
+      "docker",
+      "compose",
+      "--profile",
+      "test",
+      "run",
+      "--rm",
+      "e2e"
+    ],
+    [
+      "docker",
+      "compose",
+      "--profile",
+      "test",
+      "down",
+      "-v"
+    ]
+  ],
+  "compiled_evidence_status": "PASSED",
+  "completion_quality": "VERIFIED",
+  "generated_project_path": "../projects/crm_saas_multitenant",
+  "portable_paths": true,
+  "project_root": "../projects/crm_saas_multitenant",
+  "protected_paths_modified": false,
+  "scenario_id": "crm_saas_multitenant",
+  "security_review": "PASSED",
+  "status": "COMPLETED_VERIFIED",
+  "verification_evidence": {
+    "evidence_level": "STRONG",
+    "logs": [
+      "../projects/crm_saas_multitenant/.aen/evidence/logs/01-required_files.log",
+      "../projects/crm_saas_multitenant/.aen/evidence/logs/02-python_syntax.log",
+      "../projects/crm_saas_multitenant/.aen/evidence/logs/03-compose_static.log",
+      "../projects/crm_saas_multitenant/.aen/evidence/logs/04-web_static.log",
+      "../projects/crm_saas_multitenant/.aen/evidence/logs/05-alembic_migrations.log",
+      "../projects/crm_saas_multitenant/.aen/evidence/logs/06-desktop_packaging.log",
+      "../projects/crm_saas_multitenant/.aen/evidence/logs/07-docker_compose_config.log",
+      "../projects/crm_saas_multitenant/.aen/evidence/logs/08-docker_compose_build.log",
+      "../projects/crm_saas_multitenant/.aen/evidence/logs/09-docker_compose_up.log",
+      "../projects/crm_saas_multitenant/.aen/evidence/logs/10-api_health_live.log",
+      "../projects/crm_saas_multitenant/.aen/evidence/logs/11-web_health_live.log",
+      "../projects/crm_saas_multitenant/.aen/evidence/logs/12-api_pytest_live.log",
+      "../projects/crm_saas_multitenant/.aen/evidence/logs/13-api_dependency_integrity_live.log",
+      "../projects/crm_saas_multitenant/.aen/evidence/logs/14-api_dependency_audit_live.log",
+      "../projects/crm_saas_multitenant/.aen/evidence/logs/15-web_unit_live.log",
+      "../projects/crm_saas_multitenant/.aen/evidence/logs/16-web_build_live.log",
+      "../projects/crm_saas_multitenant/.aen/evidence/logs/17-web_dependency_audit_live.log",
+      "../projects/crm_saas_multitenant/.aen/evidence/logs/18-web_e2e_live.log",
+      "../projects/crm_saas_multitenant/.aen/evidence/logs/19-docker_compose_down.log",
+      "../projects/crm_saas_multitenant/.aen/evidence/logs/20-docker_compose_remove_sandbox_images.log",
+      "../projects/crm_saas_multitenant/.aen/evidence/logs/21-security_review.log",
+      "../projects/crm_saas_multitenant/.aen/evidence/logs/22-release_package.log"
+    ],
+    "screenshots": [
+      "../projects/crm_saas_multitenant/apps/web/test-results/workbench-loads-domain-dashboard-and-creates-a-record/test-finished-1.png"
+    ],
+    "source": "../projects/crm_saas_multitenant/.aen/real-lifecycle-result.json"
+  },
+  "write_boundary": "../projects"
+}

@@ -1,0 +1,130 @@
+{
+  "aggregate_sha256": "44434cac1ecfb108f4f4f8bda6f70687c7fb864f29cbc6c318a0dceffadc93b0",
+  "canonical_scope": "files(relative_path,size_bytes,sha256)",
+  "claims": {
+    "content_approved": false,
+    "human_review_inferred": false,
+    "integrity_only": true
+  },
+  "file_count": 23,
+  "files": [
+    {
+      "relative_path": "attempt_001.json",
+      "sha256": "a3146904d487b9d7dc4dcd44e17c23f4bb5b41c23f26cecd541f12f6b099aba6",
+      "size_bytes": 2089
+    },
+    {
+      "relative_path": "attempt_002.json",
+      "sha256": "d03fb2d61164cb9aa62add12cccd9e557000c36223cbe0c8e8498bbd2c963729",
+      "size_bytes": 2109
+    },
+    {
+      "relative_path": "attempt_003.json",
+      "sha256": "dcfb473f567475f25a54973afe4703b6d0c398563c659cfd7a9e60280b6ba515",
+      "size_bytes": 1926
+    },
+    {
+      "relative_path": "attempt_004.json",
+      "sha256": "12c37e6aba719891d904782d91cba48c868dea6dd2540d0814dce822436eaf11",
+      "size_bytes": 2092
+    },
+    {
+      "relative_path": "attempt_005.json",
+      "sha256": "ce2050f68c41caebc7db491123e8e58be51fe5e9321afe0b9e32147d68dd6536",
+      "size_bytes": 2111
+    },
+    {
+      "relative_path": "attempt_006.json",
+      "sha256": "a802e3746eed5982d1941d83a09f6904cff19ea9e5b250835dd560e89548b297",
+      "size_bytes": 1928
+    },
+    {
+      "relative_path": "attempt_007.json",
+      "sha256": "20333bccf436f8a95c95ee9c59e402f36c024461f331b4545bdbd206376f0417",
+      "size_bytes": 2092
+    },
+    {
+      "relative_path": "attempt_008.json",
+      "sha256": "bdb7381441fd6802f53e31905ef875f28c3574a6ece42070fdbe1a0e5e20764a",
+      "size_bytes": 2111
+    },
+    {
+      "relative_path": "attempt_009.json",
+      "sha256": "edfe1ba36550b65944b92ad9553ebbefc9f6446490ee0310fd730fe5484e0786",
+      "size_bytes": 1928
+    },
+    {
+      "relative_path": "attempt_010.json",
+      "sha256": "71431b6d85c39ea76c5dd8f6bca843b4f173b3701f6ba0605c6e6a88bf03ed3c",
+      "size_bytes": 2093
+    },
+    {
+      "relative_path": "attempt_011.json",
+      "sha256": "8d45ecf704bc44a5643f55e1887b7739e19a815a370df7905cea66a6c32ba625",
+      "size_bytes": 2112
+    },
+    {
+      "relative_path": "attempt_012.json",
+      "sha256": "833cba004a7e91a14bdd6df8958cbabc9421e7376a32abeb668336301863d1c2",
+      "size_bytes": 1929
+    },
+    {
+      "relative_path": "attempt_013.json",
+      "sha256": "8b8dc73fb16242066ca026e1c7c305938e6c75db9bee507a7f2c95b63f4796c4",
+      "size_bytes": 2092
+    },
+    {
+      "relative_path": "attempt_014.json",
+      "sha256": "f679cd3266fe3a55cb6961fe2f667b3eba53bba98ed23d2aa20f92ab709475c3",
+      "size_bytes": 2112
+    },
+    {
+      "relative_path": "attempt_015.json",
+      "sha256": "aa8873f373b13dad1acec522c6f60d557b01afbed390ded05e09e612dd6e7032",
+      "size_bytes": 1929
+    },
+    {
+      "relative_path": "attempt_016.json",
+      "sha256": "10f4421fa33e79e0948034d3f048d56cd9e5ea6819f023f6b6eed21ef268a6ea",
+      "size_bytes": 2093
+    },
+    {
+      "relative_path": "attempt_017.json",
+      "sha256": "8b0c5bac42d9bdc6eafd81fdab3224e87fceedaf433a6d21cbeb2a1b8e8c2744",
+      "size_bytes": 2112
+    },
+    {
+      "relative_path": "attempt_018.json",
+      "sha256": "86da5620a0eae5cc8369866432f6431081a6838459d1aba4ac9a83faffe5c7a1",
+      "size_bytes": 1929
+    },
+    {
+      "relative_path": "attempt_019.json",
+      "sha256": "be89c75e20b4ac8cae561a5b8b027e17c7e586626b32ab9aca111d52290e7de2",
+      "size_bytes": 2093
+    },
+    {
+      "relative_path": "attempt_020.json",
+      "sha256": "b97d6915471cc2a5192fe142f9c435cc19b7313b9b27c6eb95b24c3bdc128213",
+      "size_bytes": 2112
+    },
+    {
+      "relative_path": "campaign_state.json",
+      "sha256": "4f794bdb7c84ab72e95979c95cbb008ce106e9abe19d5eae60c662a8194712f0",
+      "size_bytes": 45884
+    },
+    {
+      "relative_path": "soak_validation.json",
+      "sha256": "43ce231a86576e30923514c26ba59c0373e326d170766d3ddcffeaf10dede2fb",
+      "size_bytes": 603
+    },
+    {
+      "relative_path": "soak_validation_report.md",
+      "sha256": "7ced199e39db320ac08c84be94b6018433a049eb3837bcf398ad865252614ed3",
+      "size_bytes": 2392
+    }
+  ],
+  "schema_version": "ann.release-evidence-integrity.v1",
+  "status": "INTEGRITY_MANIFEST_READY",
+  "total_size_bytes": 89871
+}

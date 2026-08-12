@@ -13,7 +13,11 @@ import json
 import sys
 from pathlib import Path
 
-from agentic_network.runtime_engine.local_model_activation import (
+REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from agentic_network.runtime_engine.local_model_activation import (  # noqa: E402
     build_release_candidate_handoff_manifest,
 )
 

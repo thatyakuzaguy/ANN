@@ -1,0 +1,190 @@
+{
+  "scenario_id": "complex_algorithm_service",
+  "status": "COMPLETED_VERIFIED",
+  "completion_quality": "VERIFIED",
+  "project_root": "E:\\ANN-Soak\\autonomous-capability-projects\\complex_algorithm_service\\20260812_095901_040760\\build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95",
+  "generated_project_path": "E:\\ANN-Soak\\autonomous-capability-projects\\complex_algorithm_service\\20260812_095901_040760\\build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95",
+  "artifacts": [
+    "E:\\ANN-Soak\\autonomous-capability-projects\\complex_algorithm_service\\20260812_095901_040760\\build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95\\.aen\\evidence\\47_project_verification.json",
+    "E:\\ANN-Soak\\autonomous-capability-projects\\complex_algorithm_service\\20260812_095901_040760\\build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95\\.aen\\evidence\\47_project_verification.md",
+    "E:\\ANN-Soak\\autonomous-capability-projects\\complex_algorithm_service\\20260812_095901_040760\\build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95\\.aen\\evidence\\security_review.json",
+    "E:\\ANN-Soak\\autonomous-capability-projects\\complex_algorithm_service\\20260812_095901_040760\\build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95\\.aen\\evidence\\functional_smoke.json",
+    "E:\\ANN-Soak\\autonomous-capability-projects\\complex_algorithm_service\\20260812_095901_040760\\build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95\\.aen\\real-lifecycle-result.json"
+  ],
+  "commands_executed": [
+    [
+      "/usr/bin/python3",
+      "-m",
+      "py_compile",
+      "/host-e/ANN-Soak/autonomous-capability-projects/complex_algorithm_service/20260812_095901_040760/build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95/app/__init__.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/complex_algorithm_service/20260812_095901_040760/build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95/app/algorithm.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/complex_algorithm_service/20260812_095901_040760/build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95/app/main.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/complex_algorithm_service/20260812_095901_040760/build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95/app/metrics.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/complex_algorithm_service/20260812_095901_040760/build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95/app/schemas.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/complex_algorithm_service/20260812_095901_040760/build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95/app/validation.py",
+      "/host-e/ANN-Soak/autonomous-capability-projects/complex_algorithm_service/20260812_095901_040760/build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95/benchmark.py"
+    ],
+    [
+      "docker",
+      "compose",
+      "config"
+    ],
+    [
+      "docker",
+      "compose",
+      "build"
+    ],
+    [
+      "docker",
+      "compose",
+      "up",
+      "-d",
+      "api"
+    ],
+    [
+      "docker",
+      "compose",
+      "run",
+      "--rm",
+      "--no-deps",
+      "-e",
+      "DATABASE_URL=sqlite:////tmp/ann-tests.db",
+      "api",
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider"
+    ],
+    [
+      "docker",
+      "compose",
+      "run",
+      "--rm",
+      "api",
+      "python",
+      "-m",
+      "pytest",
+      "tests/test_integration.py",
+      "-q",
+      "-p",
+      "no:cacheprovider"
+    ],
+    [
+      "docker",
+      "compose",
+      "run",
+      "--rm",
+      "api",
+      "python",
+      "benchmark.py"
+    ],
+    [
+      "docker",
+      "compose",
+      "run",
+      "--rm",
+      "api",
+      "pip",
+      "check"
+    ],
+    [
+      "docker",
+      "compose",
+      "run",
+      "--rm",
+      "api",
+      "pip-audit",
+      "--local",
+      "--progress-spinner",
+      "off"
+    ],
+    [
+      "docker",
+      "compose",
+      "down",
+      "-v"
+    ]
+  ],
+  "verification_evidence": {
+    "evidence_level": "STRONG",
+    "source": "E:\\ANN-Soak\\autonomous-capability-projects\\complex_algorithm_service\\20260812_095901_040760\\build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95\\.aen\\real-lifecycle-result.json",
+    "logs": [
+      "E:\\ANN-Soak\\autonomous-capability-projects\\complex_algorithm_service\\20260812_095901_040760\\build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95\\.aen\\evidence\\logs\\01-required_files.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\complex_algorithm_service\\20260812_095901_040760\\build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95\\.aen\\evidence\\logs\\02-python_syntax.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\complex_algorithm_service\\20260812_095901_040760\\build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95\\.aen\\evidence\\logs\\03-compose_static.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\complex_algorithm_service\\20260812_095901_040760\\build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95\\.aen\\evidence\\logs\\04-algorithm_static.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\complex_algorithm_service\\20260812_095901_040760\\build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95\\.aen\\evidence\\logs\\05-docker_compose_config.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\complex_algorithm_service\\20260812_095901_040760\\build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95\\.aen\\evidence\\logs\\06-docker_compose_build.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\complex_algorithm_service\\20260812_095901_040760\\build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95\\.aen\\evidence\\logs\\07-docker_compose_up.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\complex_algorithm_service\\20260812_095901_040760\\build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95\\.aen\\evidence\\logs\\08-api_health_live.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\complex_algorithm_service\\20260812_095901_040760\\build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95\\.aen\\evidence\\logs\\09-api_pytest_live.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\complex_algorithm_service\\20260812_095901_040760\\build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95\\.aen\\evidence\\logs\\10-algorithm_integration_live.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\complex_algorithm_service\\20260812_095901_040760\\build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95\\.aen\\evidence\\logs\\11-algorithm_benchmark_live.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\complex_algorithm_service\\20260812_095901_040760\\build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95\\.aen\\evidence\\logs\\12-api_dependency_integrity_live.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\complex_algorithm_service\\20260812_095901_040760\\build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95\\.aen\\evidence\\logs\\13-api_dependency_audit_live.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\complex_algorithm_service\\20260812_095901_040760\\build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95\\.aen\\evidence\\logs\\14-docker_compose_down.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\complex_algorithm_service\\20260812_095901_040760\\build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95\\.aen\\evidence\\logs\\15-security_review.log",
+      "E:\\ANN-Soak\\autonomous-capability-projects\\complex_algorithm_service\\20260812_095901_040760\\build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95\\.aen\\evidence\\logs\\16-release_package.log"
+    ],
+    "screenshots": []
+  },
+  "security_review": "PASSED",
+  "protected_paths_modified": false,
+  "write_boundary": "E:\\ANN-Soak\\autonomous-capability-projects",
+  "compiled_evidence_status": "PASSED",
+  "capability_assessment": {
+    "status": "CAPABILITY_VERIFIED",
+    "passed": true,
+    "scenario_id": "complex_algorithm_service",
+    "project_root": "E:\\ANN-Soak\\autonomous-capability-projects\\complex_algorithm_service\\20260812_095901_040760\\build-a-service-implementing-a-complex-algorithm-with-correc-6bfeaf95",
+    "blockers": [],
+    "self_declared_summary_is_not_evidence": true,
+    "inventory": {
+      "files_inspected": 45,
+      "source_files": 7,
+      "meaningful_loc": 258,
+      "test_files": 4,
+      "placeholder_source_files": []
+    },
+    "command_kinds": [
+      "benchmark",
+      "e2e",
+      "integration",
+      "python_test"
+    ],
+    "security_status": "PASSED",
+    "functional_smoke_status": "PASSED",
+    "visual_evidence": [],
+    "contract": {
+      "minimum_source_files": 4,
+      "minimum_meaningful_loc": 220,
+      "minimum_test_files": 3,
+      "required_command_kinds": [
+        "python_test",
+        "integration",
+        "benchmark"
+      ]
+    }
+  },
+  "summary_path": "D:\\AgenticEngineeringNetwork\\releases\\github-public\\ANN\\outputs\\autonomous_capability\\complex_algorithm_service\\summary.json",
+  "prompt": "Build a service implementing a complex algorithm with correctness tests, benchmarks, and edge cases.",
+  "api_run_id": "6bfeaf95-fb6d-4c16-81cf-69e949ddb4bf",
+  "api_run_status": "completed",
+  "runtime_telemetry": {
+    "peak_active_models": 1,
+    "peak_parallel_llm_loads": 0,
+    "active_models_after": 0,
+    "parallel_llm_loads_after": 0,
+    "unload_failures": 0
+  },
+  "host_visual_verification": {
+    "status": "NOT_REQUIRED",
+    "screenshots": [],
+    "log": null
+  },
+  "validation_errors": [],
+  "no_fake_success": true,
+  "next_action": "completed_verified"
+}

@@ -1,0 +1,9 @@
+{
+  "name": "generated-3d-pong-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/main.js",
+  "scripts": {
+    "package": "echo Desktop wrapper scaffold for 3D Pong Arena"
+  }
+}

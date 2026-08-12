@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import hashlib
 import json
+import os
 from pathlib import Path
 import re
 from typing import Any
@@ -54,6 +56,13 @@ FUNCTIONAL_STEPS = frozenset(
         "web_unit_live",
     }
 )
+CAPABILITY_MANIFEST_FILES = frozenset(
+    {
+        "EVIDENCE_MANIFEST.json",
+        "EVIDENCE_MANIFEST.sha256",
+        "EVIDENCE_MANIFEST.md",
+    }
+)
 
 
 def compile_lifecycle_evidence(
@@ -99,9 +108,15 @@ def compile_lifecycle_evidence(
             log_path.write_text(detail + "\n", encoding="utf-8")
             stdout_artifacts.append(str(log_path))
         command = step.get("command")
-        if isinstance(command, list) and command and all(isinstance(part, str) for part in command):
+        command_status = str(step.get("status") or "").lower()
+        if (
+            command_status in {"passed", "failed"}
+            and isinstance(command, list)
+            and command
+            and all(isinstance(part, str) for part in command)
+        ):
             commands.append(command)
-            exit_codes.append(0 if step.get("status") == "passed" else 1)
+            exit_codes.append(0 if command_status == "passed" else 1)
 
     missing = sorted(required_steps.difference(by_name))
     failed_required = sorted(name for name in required_steps if by_name.get(name, {}).get("status") != "passed")
@@ -249,6 +264,212 @@ def write_lifecycle_capability_summary(
     return {**summary, "summary_path": str(summary_path)}
 
 
+def make_capability_evidence_portable(summary_path: str | Path) -> dict[str, Any]:
+    """Rewrite derived evidence paths relative to its summary without touching lifecycle truth."""
+
+    from agentic_network.project_builder_orchestrator.capability_evidence import evaluate_project_capability
+
+    target = Path(summary_path).resolve()
+    summary = _read_json(target)
+    if not summary:
+        raise ValueError(f"Capability summary is missing or invalid: {target}")
+    base = target.parent
+    packet_project_path = Path(str(summary.get("project_root") or ""))
+    packet_project_root = (
+        packet_project_path.resolve()
+        if packet_project_path.is_absolute()
+        else (base / packet_project_path).resolve()
+    )
+    verification_summary = summary.get("verification_evidence")
+    summary_source_root = _source_project_root(
+        verification_summary.get("source")
+        if isinstance(verification_summary, dict)
+        else None
+    )
+    original_artifacts = []
+    for value in summary.get("artifacts", []):
+        artifact = Path(str(value))
+        original_artifacts.append(
+            artifact.resolve() if artifact.is_absolute() else (base / artifact).resolve()
+        )
+    for artifact in original_artifacts:
+        if not artifact.is_file() or artifact.name not in {
+            "47_project_verification.json",
+            "security_review.json",
+            "functional_smoke.json",
+        }:
+            continue
+        payload = _read_json(artifact)
+        source_root = _source_project_root(payload.get("source")) or summary_source_root
+        if artifact.name == "47_project_verification.json":
+            payload["source"] = _portable_relocated_path(
+                payload.get("source"), base, source_root, packet_project_root
+            )
+            payload["stdout_artifacts"] = _portable_relocated_paths(
+                payload.get("stdout_artifacts"), base, source_root, packet_project_root
+            )
+        elif artifact.name == "security_review.json":
+            payload["source"] = _portable_relocated_path(
+                payload.get("source"), base, source_root, packet_project_root
+            )
+        else:
+            payload["source"] = _portable_relocated_path(
+                payload.get("source"), base, source_root, packet_project_root
+            )
+            payload["screenshots"] = _portable_relocated_paths(
+                payload.get("screenshots"), base, source_root, packet_project_root
+            )
+            checks = payload.get("checks")
+            if isinstance(checks, list):
+                for check in checks:
+                    if isinstance(check, dict) and check.get("log"):
+                        check["log"] = _portable_relocated_path(
+                            check["log"], base, source_root, packet_project_root
+                        )
+        _write_json(artifact, payload)
+
+    for key in ("project_root", "generated_project_path", "write_boundary", "summary_path"):
+        if summary.get(key):
+            summary[key] = _portable_path(summary[key], base)
+    summary["artifacts"] = _portable_paths(summary.get("artifacts"), base)
+    verification = summary.get("verification_evidence")
+    if isinstance(verification, dict):
+        verification["source"] = _portable_relocated_path(
+            verification.get("source"),
+            base,
+            summary_source_root,
+            packet_project_root,
+        )
+        verification["logs"] = _portable_relocated_paths(
+            verification.get("logs"),
+            base,
+            summary_source_root,
+            packet_project_root,
+        )
+        verification["screenshots"] = _portable_relocated_paths(
+            verification.get("screenshots"),
+            base,
+            summary_source_root,
+            packet_project_root,
+        )
+    summary["portable_paths"] = True
+    assessment = evaluate_project_capability(
+        str(summary.get("scenario_id") or ""),
+        summary,
+        summary_path=target,
+    )
+    if assessment.get("project_root"):
+        assessment["project_root"] = _portable_path(assessment["project_root"], base)
+    assessment["visual_evidence"] = _portable_paths(
+        assessment.get("visual_evidence"),
+        base,
+    )
+    summary["capability_assessment"] = assessment
+    _write_json(target, summary)
+    markdown_path = target.with_suffix(".md")
+    if markdown_path.is_file():
+        markdown_path.write_text(_portable_summary_markdown(summary), encoding="utf-8")
+    return summary
+
+
+def build_capability_evidence_manifest(evidence_root: str | Path) -> dict[str, Any]:
+    """Build a deterministic integrity manifest for a portable capability packet."""
+
+    from agentic_network.project_builder_orchestrator.capability_evidence import evaluate_project_capability
+
+    root = Path(evidence_root).resolve()
+    if not root.is_dir():
+        raise ValueError(f"Capability evidence root does not exist: {root}")
+    files = []
+    for path in sorted(root.rglob("*"), key=lambda item: item.as_posix().lower()):
+        if not path.is_file() or path.name in CAPABILITY_MANIFEST_FILES:
+            continue
+        relative_path = path.relative_to(root).as_posix()
+        files.append(
+            {
+                "relative_path": relative_path,
+                "size_bytes": path.stat().st_size,
+                "sha256": _sha256(path),
+            }
+        )
+
+    scenarios = []
+    for summary_path in sorted(root.glob("*/summary.json"), key=lambda item: item.as_posix().lower()):
+        summary = _read_json(summary_path)
+        assessment = evaluate_project_capability(
+            str(summary.get("scenario_id") or summary_path.parent.name),
+            summary,
+            summary_path=summary_path,
+        )
+        scenarios.append(
+            {
+                "scenario_id": str(summary.get("scenario_id") or summary_path.parent.name),
+                "status": str(summary.get("status") or "MISSING"),
+                "completion_quality": str(summary.get("completion_quality") or "MISSING"),
+                "portable_paths": summary.get("portable_paths") is True,
+                "capability_passed": isinstance(assessment, dict) and assessment.get("passed") is True,
+                "summary_path": summary_path.relative_to(root).as_posix(),
+                "summary_sha256": _sha256(summary_path),
+            }
+        )
+    packet_ready = bool(scenarios) and all(
+        scenario["status"] == "COMPLETED_VERIFIED"
+        and scenario["completion_quality"] == "VERIFIED"
+        and scenario["portable_paths"]
+        and scenario["capability_passed"]
+        for scenario in scenarios
+    )
+    canonical_payload = {"files": files, "scenarios": scenarios}
+    aggregate_sha256 = hashlib.sha256(
+        json.dumps(canonical_payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+    return {
+        "schema_version": "ann.autonomous-capability-evidence.v1",
+        "status": "PORTABLE_EVIDENCE_READY" if packet_ready else "PORTABLE_EVIDENCE_BLOCKED",
+        "portable": packet_ready,
+        "scenario_count": len(scenarios),
+        "file_count": len(files),
+        "total_size_bytes": sum(entry["size_bytes"] for entry in files),
+        "aggregate_sha256": aggregate_sha256,
+        "canonical_scope": "files(relative_path,size_bytes,sha256),scenarios",
+        "scenarios": scenarios,
+        "files": files,
+    }
+
+
+def write_capability_evidence_manifest(evidence_root: str | Path) -> dict[str, Any]:
+    """Write the portable evidence manifest and independently verifiable sidecars."""
+
+    root = Path(evidence_root).resolve()
+    manifest = build_capability_evidence_manifest(root)
+    manifest_path = root / "EVIDENCE_MANIFEST.json"
+    _write_json(manifest_path, manifest)
+    manifest_sha256 = _sha256(manifest_path)
+    (root / "EVIDENCE_MANIFEST.sha256").write_text(
+        f"{manifest_sha256}  EVIDENCE_MANIFEST.json\n",
+        encoding="utf-8",
+    )
+    (root / "EVIDENCE_MANIFEST.md").write_text(
+        "\n".join(
+            [
+                "# ANN Autonomous Capability Evidence",
+                "",
+                f"- Status: **{manifest['status']}**",
+                f"- Scenarios: **{manifest['scenario_count']}**",
+                f"- Files: **{manifest['file_count']}**",
+                f"- Bytes: **{manifest['total_size_bytes']}**",
+                f"- Aggregate SHA-256: `{manifest['aggregate_sha256']}`",
+                f"- Manifest SHA-256: `{manifest_sha256}`",
+                "",
+                "Verification-relevant paths in project summaries are relative to this evidence packet. Original lifecycle records and command transcripts are preserved unchanged as provenance.",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    return {**manifest, "manifest_sha256": manifest_sha256}
+
+
 def _security_payload(step: dict[str, Any]) -> dict[str, Any]:
     try:
         payload = json.loads(str(step.get("detail") or "{}"))
@@ -267,6 +488,92 @@ def _read_json(path: Path) -> dict[str, Any]:
 
 def _write_json(path: Path, payload: dict[str, Any]) -> None:
     path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
+
+
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _portable_path(value: Any, base: Path) -> str:
+    raw = str(value or "").strip()
+    if not raw:
+        return ""
+    path = Path(raw)
+    if not path.is_absolute():
+        return path.as_posix()
+    return Path(os.path.relpath(path.resolve(), base)).as_posix()
+
+
+def _portable_paths(values: Any, base: Path) -> list[str]:
+    if not isinstance(values, list):
+        return []
+    return [_portable_path(value, base) for value in values if str(value or "").strip()]
+
+
+def _source_project_root(value: Any) -> Path | None:
+    raw = str(value or "").strip()
+    if not raw:
+        return None
+    source = Path(raw)
+    if not source.is_absolute():
+        return None
+    for parent in source.parents:
+        if parent.name == ".aen":
+            return parent.parent.resolve()
+    return None
+
+
+def _portable_relocated_path(
+    value: Any,
+    base: Path,
+    source_root: Path | None,
+    packet_root: Path,
+) -> str:
+    raw = str(value or "").strip()
+    if not raw:
+        return ""
+    path = Path(raw)
+    if path.is_absolute() and source_root is not None:
+        try:
+            path = packet_root / path.resolve().relative_to(source_root)
+        except ValueError:
+            pass
+    return _portable_path(path, base)
+
+
+def _portable_relocated_paths(
+    values: Any,
+    base: Path,
+    source_root: Path | None,
+    packet_root: Path,
+) -> list[str]:
+    if not isinstance(values, list):
+        return []
+    return [
+        _portable_relocated_path(value, base, source_root, packet_root)
+        for value in values
+        if str(value or "").strip()
+    ]
+
+
+def _portable_summary_markdown(summary: dict[str, Any]) -> str:
+    return "\n".join(
+        [
+            f"# {summary.get('scenario_id', 'scenario')}",
+            "",
+            f"- Status: {summary.get('status', 'UNKNOWN')}",
+            f"- Completion quality: {summary.get('completion_quality', 'UNKNOWN')}",
+            f"- Security review: {summary.get('security_review', 'UNKNOWN')}",
+            f"- Commands executed: {len(summary.get('commands_executed', []))}",
+            f"- Project root: {summary.get('project_root', '')}",
+            f"- Next action: {summary.get('next_action', '')}",
+            "",
+        ]
+    )
 
 
 def _safe_name(value: str) -> str:

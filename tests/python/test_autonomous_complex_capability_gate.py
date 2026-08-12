@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import subprocess
 
 from agentic_network.runtime_engine import local_model_activation as activation
 from scripts.runtime import plan_autonomous_capability_evidence
@@ -266,3 +267,111 @@ def test_run_autonomous_capability_scenarios_keeps_unverified_blocking(
     payload = json.loads((evidence / "crm_saas_multitenant" / "summary.json").read_text(encoding="utf-8"))
     assert payload["status"] == "NEEDS_TESTS"
     assert payload["security_review"] == "REVIEW_REQUIRED"
+
+
+def test_api_scenario_requires_and_compiles_immutable_lifecycle_evidence(tmp_path: Path, monkeypatch) -> None:
+    target_root = tmp_path / "targets"
+    workspace = target_root / "crm_saas_multitenant" / "run-1"
+    project_root = workspace / "generated-project"
+    lifecycle_path = project_root / ".aen" / "real-lifecycle-result.json"
+    lifecycle_path.parent.mkdir(parents=True)
+    lifecycle_path.write_text('{"status":"passed"}', encoding="utf-8")
+    scenario_dir = tmp_path / "evidence" / "crm_saas_multitenant"
+    scenario_dir.mkdir(parents=True)
+    scenario = {
+        "id": "crm_saas_multitenant",
+        "prompt": "Build a multi-tenant CRM SaaS",
+    }
+    monkeypatch.setattr(
+        run_autonomous_capability_scenarios,
+        "_post_json",
+        lambda url, payload: {"run_id": "real-api-run"},
+    )
+    monkeypatch.setattr(
+        run_autonomous_capability_scenarios,
+        "_wait_for_api_run",
+        lambda *args, **kwargs: (
+            {
+                "status": "completed",
+                "execution_results": {
+                    "status": "passed",
+                    "profile": "algorithm_service",
+                    "display_root": str(project_root),
+                    "sandbox_id": "aen-real-api",
+                },
+            },
+            {
+                "peak_active_models": 1,
+                "peak_parallel_llm_loads": 0,
+                "active_models_after": 0,
+                "parallel_llm_loads_after": 0,
+                "unload_failures": 0,
+            },
+        ),
+    )
+    compiled: list[Path] = []
+
+    def fake_compile(scenario_id, root, output, **kwargs):  # noqa: ANN001
+        compiled.append(Path(kwargs["lifecycle_result_path"]))
+        return {
+            "scenario_id": scenario_id,
+            "status": "COMPLETED_VERIFIED",
+            "completion_quality": "VERIFIED",
+            "project_root": str(root),
+            "commands_executed": [["python", "-m", "pytest", "-q"]],
+            "verification_evidence": {"evidence_level": "STRONG"},
+            "security_review": "PASSED",
+            "protected_paths_modified": False,
+            "artifacts": [],
+        }
+
+    monkeypatch.setattr(run_autonomous_capability_scenarios, "write_lifecycle_capability_summary", fake_compile)
+
+    summary = run_autonomous_capability_scenarios._run_api_scenario(  # noqa: SLF001
+        scenario,
+        api_base="http://127.0.0.1:18000/api",
+        workspace=workspace,
+        scenario_dir=scenario_dir,
+        allowed_workspace_root=target_root,
+        poll_seconds=0.25,
+        max_run_seconds=10,
+    )
+
+    assert summary["status"] == "COMPLETED_VERIFIED"
+    assert summary["api_run_id"] == "real-api-run"
+    assert summary["validation_errors"] == []
+    assert compiled == [lifecycle_path]
+
+
+def test_visual_evidence_uses_fixed_compose_recipe_and_requires_fresh_screenshot(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    web_root = tmp_path / "apps" / "web"
+    web_root.mkdir(parents=True)
+    (tmp_path / ".aen").mkdir()
+    (tmp_path / "docker-compose.yml").write_text("services:\n  e2e:\n    image: local\n", encoding="utf-8")
+    calls: list[tuple[list[str], str | None]] = []
+
+    def fake_run(command, **kwargs):  # noqa: ANN001
+        calls.append((command, kwargs["env"].get("COMPOSE_PROJECT_NAME")))
+        if "run" in command:
+            screenshot = web_root / "test-results" / "case" / "test-finished-1.png"
+            screenshot.parent.mkdir(parents=True)
+            screenshot.write_bytes(b"\x89PNG\r\n\x1a\n" + b"0" * 256)
+        return subprocess.CompletedProcess(command, 0, stdout="passed", stderr="")
+
+    monkeypatch.setattr(run_autonomous_capability_scenarios.subprocess, "run", fake_run)
+
+    result = run_autonomous_capability_scenarios._capture_visual_evidence(  # noqa: SLF001
+        tmp_path,
+        "aen-real-api",
+    )
+
+    assert result["status"] == "PASSED"
+    assert len(result["screenshots"]) == 1
+    assert calls[0] == (
+        ["docker", "compose", "--profile", "test", "run", "--rm", "--no-deps", "e2e"],
+        "aen-real-api",
+    )
+    assert calls[1][0] == ["docker", "compose", "--profile", "test", "down", "-v"]

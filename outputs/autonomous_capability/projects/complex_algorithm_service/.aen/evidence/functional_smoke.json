@@ -1,0 +1,27 @@
+{
+  "checks": [
+    {
+      "log": "../projects/complex_algorithm_service/.aen/evidence/logs/11-algorithm_benchmark_live.log",
+      "name": "algorithm_benchmark_live",
+      "passed": true
+    },
+    {
+      "log": "../projects/complex_algorithm_service/.aen/evidence/logs/10-algorithm_integration_live.log",
+      "name": "algorithm_integration_live",
+      "passed": true
+    },
+    {
+      "log": "../projects/complex_algorithm_service/.aen/evidence/logs/08-api_health_live.log",
+      "name": "api_health_live",
+      "passed": true
+    },
+    {
+      "log": "../projects/complex_algorithm_service/.aen/evidence/logs/09-api_pytest_live.log",
+      "name": "api_pytest_live",
+      "passed": true
+    }
+  ],
+  "screenshots": [],
+  "source": "../projects/complex_algorithm_service/.aen/real-lifecycle-result.json",
+  "status": "PASSED"
+}

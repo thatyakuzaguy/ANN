@@ -1,0 +1,14 @@
+> generated-crm-web@0.1.0 e2e
+> playwright test
+
+
+
+Running 1 test using 1 worker
+
+[1A[2K[1/1] tests/workbench.spec.ts:3:5 › loads domain dashboard and creates a record
+[1A[2K  1 passed (15.5s)
+
+ Container aen-d48edacd-e2e-run-ad394881ae6d Creating 
+ Container aen-d48edacd-e2e-run-ad394881ae6d Created 
+[1A[2K[WebServer] [33m[1m⚠[22m[39m Slow filesystem detected. The benchmark took 227ms. If /app/.next/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development

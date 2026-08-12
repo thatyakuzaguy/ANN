@@ -1,0 +1,16 @@
+Container aen-993e2982-web-1 Stopping 
+ Container aen-993e2982-web-1 Stopped 
+ Container aen-993e2982-web-1 Removing 
+ Container aen-993e2982-web-1 Removed 
+ Container aen-993e2982-api-1 Stopping 
+ Container aen-993e2982-api-1 Stopped 
+ Container aen-993e2982-api-1 Removing 
+ Container aen-993e2982-api-1 Removed 
+ Container aen-993e2982-postgres-1 Stopping 
+ Container aen-993e2982-postgres-1 Stopped 
+ Container aen-993e2982-postgres-1 Removing 
+ Container aen-993e2982-postgres-1 Removed 
+ Volume aen-993e2982_postgres-data Removing 
+ Network aen-993e2982_default Removing 
+ Volume aen-993e2982_postgres-data Removed 
+ Network aen-993e2982_default Removed

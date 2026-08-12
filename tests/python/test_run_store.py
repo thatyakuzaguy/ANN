@@ -1,7 +1,7 @@
 from pathlib import Path
 import json
 import os
-from threading import Event
+from threading import Event, Thread
 import time
 from uuid import uuid4
 
@@ -10,7 +10,7 @@ from agentic_engineering_network.orchestration.engine import AgenticEngineeringN
 from agentic_engineering_network.security.approvals import ApprovalCenter, ApprovalType
 from agentic_engineering_network.shared.config import Settings
 
-from app.core.run_store import RunStore
+from app.core.run_store import RunRecord, RunStore
 
 
 def test_run_store_lists_runs_by_created_at_not_file_mtime() -> None:
@@ -385,6 +385,58 @@ def test_run_store_supervised_waits_then_continues_after_approvals() -> None:
 
     assert latest["status"] == "completed"
     assert latest["pending_approvals"] == 0
+
+
+def test_run_store_starts_only_one_resume_worker_for_concurrent_approval_callbacks(
+    monkeypatch,
+) -> None:
+    scratch = Path(r"D:\AgenticEngineeringNetwork\tests\.tmp\run-store-resume-race") / uuid4().hex
+    settings = Settings(
+        ai_provider="deterministic",
+        audit_log_path=scratch / "audit.jsonl",
+        run_state_path=scratch / "runs",
+        generated_projects_path=scratch / "generated-projects",
+    )
+    audit = AuditLogger(settings.audit_log_path)
+    approvals = ApprovalCenter(audit)
+    store = RunStore(settings, AgenticEngineeringNetwork(settings, audit, approvals))
+    timestamp = "2026-08-09T00:00:00+00:00"
+    record = RunRecord(
+        run_id="resume-race",
+        idea="test atomic resume",
+        workspace_directory=str(scratch / "project"),
+        approval_mode="supervised",
+        status="waiting_for_approval",
+        created_at=timestamp,
+        updated_at=timestamp,
+        result={"status": "waiting_for_approval", "pending_approvals": 0},
+    )
+    with store._lock:  # noqa: SLF001
+        store._records[record.run_id] = record  # noqa: SLF001
+        store._persist_locked(record)  # noqa: SLF001
+
+    workers: list[str] = []
+    worker_started = Event()
+    release_worker = Event()
+
+    def fake_complete(run_id: str, actor: str = "orchestrator") -> None:
+        workers.append(run_id)
+        worker_started.set()
+        release_worker.wait(timeout=2)
+
+    monkeypatch.setattr(store, "_complete_after_approvals", fake_complete)
+    callbacks = [
+        Thread(target=store._resume_after_approvals, args=(record.run_id,))  # noqa: SLF001
+        for _ in range(8)
+    ]
+    for callback in callbacks:
+        callback.start()
+    assert worker_started.wait(timeout=2)
+    for callback in callbacks:
+        callback.join(timeout=2)
+    release_worker.set()
+
+    assert workers == [record.run_id]
 
 
 def test_run_store_full_mode_auto_approves_run_gates() -> None:

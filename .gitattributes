@@ -1,2 +1,5 @@
 # Public release checkouts use canonical LF endings on every platform.
 * text=auto eol=lf
+
+# Collected release evidence is byte-addressed and must retain original bytes.
+outputs/** binary

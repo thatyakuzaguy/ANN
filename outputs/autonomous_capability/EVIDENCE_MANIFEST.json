@@ -1,0 +1,3022 @@
+{
+  "aggregate_sha256": "76c2cd8be184c8c065a2bee96f356dcd5e9a64b5b40ff8ee19399885bdad37a7",
+  "canonical_scope": "files(relative_path,size_bytes,sha256),scenarios",
+  "file_count": 589,
+  "files": [
+    {
+      "relative_path": "ai_chatbot_saas/source-run.json",
+      "sha256": "40c437a5ef8c525f67cfee2053bb8521b9ae810d6d6973540819e7b52294f001",
+      "size_bytes": 16619
+    },
+    {
+      "relative_path": "ai_chatbot_saas/summary.json",
+      "sha256": "0471faaf673c2ca33fc3607bbf9e962f2c693eb2be55e88db94c3616d2cfc20f",
+      "size_bytes": 9852
+    },
+    {
+      "relative_path": "ai_chatbot_saas/summary.md",
+      "sha256": "5d976fbee93208d3e6ba89f2458f918f322a8f6163b0ca6a06084f9215e5f73c",
+      "size_bytes": 197
+    },
+    {
+      "relative_path": "booking_platform/source-run.json",
+      "sha256": "ce2859c0bc20c58095525fe5c0743bb8337e09fd791a7f05e2e127325b3031c2",
+      "size_bytes": 16678
+    },
+    {
+      "relative_path": "booking_platform/summary.json",
+      "sha256": "71ca3dcee979685b6dcda38e5f2fb2f6bb22da5dc2f5075bfde04ac281513939",
+      "size_bytes": 9910
+    },
+    {
+      "relative_path": "booking_platform/summary.md",
+      "sha256": "69893e2ae14aacddb259e9567a606477b175ae36d018b80c6153394a46fe83ac",
+      "size_bytes": 199
+    },
+    {
+      "relative_path": "complex_3d_game/source-run.json",
+      "sha256": "ccc92f9344a6bad8027594b68153a981da56d1a2c57c28a309cabcb1ccfac6c1",
+      "size_bytes": 13216
+    },
+    {
+      "relative_path": "complex_3d_game/summary.json",
+      "sha256": "64463598e38be45540447ffc334a65afb59a5e1a3cd6ba03378b0af91f38d6bd",
+      "size_bytes": 6474
+    },
+    {
+      "relative_path": "complex_3d_game/summary.md",
+      "sha256": "67450ff4b49c3146908cc5cf32141c105acbe984a507c93310a8cfc34b277851",
+      "size_bytes": 197
+    },
+    {
+      "relative_path": "complex_algorithm_service/source-run.json",
+      "sha256": "1d3ac228c85c1cbd8108ea110dcb3227d99e479112bb7a69dc34ee030cfe85d5",
+      "size_bytes": 10227
+    },
+    {
+      "relative_path": "complex_algorithm_service/summary.json",
+      "sha256": "40945905502a1b35dc97ebea796ddbb5033a6cb5665a47996130c9b5030d16ce",
+      "size_bytes": 6156
+    },
+    {
+      "relative_path": "complex_algorithm_service/summary.md",
+      "sha256": "54f3fefca4ff3ab9b7c0265e04d52a6e42e7f4f8807234fa2b2721f0bff0bb05",
+      "size_bytes": 217
+    },
+    {
+      "relative_path": "crm_saas_multitenant/source-run.json",
+      "sha256": "f3039f2dfea4b517b166de405bc8de26e9effa134d50d9c7e95d8f4bc66da889",
+      "size_bytes": 15289
+    },
+    {
+      "relative_path": "crm_saas_multitenant/summary.json",
+      "sha256": "f23ef5b1920e4ad42b04793eb8e115389625806f88779969fb4fd48d9840f13b",
+      "size_bytes": 10142
+    },
+    {
+      "relative_path": "crm_saas_multitenant/summary.md",
+      "sha256": "8147782169d73e1056cf3d26fcd3fc67fe00ccc3cd6e54ce144a1ba67d18dc19",
+      "size_bytes": 207
+    },
+    {
+      "relative_path": "ecommerce_marketplace/source-run.json",
+      "sha256": "e47af1f2f773cd2e8cfb200eef994b803d4fcf4e200224a4fc974ff3a4fe67bc",
+      "size_bytes": 16998
+    },
+    {
+      "relative_path": "ecommerce_marketplace/summary.json",
+      "sha256": "9847d2e7f4d8b9e2ac140091fbf9be89b2d55130ee592d28ae2b7269c1672a3c",
+      "size_bytes": 10200
+    },
+    {
+      "relative_path": "ecommerce_marketplace/summary.md",
+      "sha256": "95909d1f01b747d700df88819405dcb51ad8b6531a3e95b571059cea570c3de2",
+      "size_bytes": 209
+    },
+    {
+      "relative_path": "lms_platform/source-run.json",
+      "sha256": "d45cb7dc9e0837c8ec48896209029edd5bb2235245b5aedaec152df9ae685e05",
+      "size_bytes": 16422
+    },
+    {
+      "relative_path": "lms_platform/summary.json",
+      "sha256": "deb296c4cf4944d2c4237abd9100699fb7f0aa65a31cb5fd25420475e17d66b2",
+      "size_bytes": 9678
+    },
+    {
+      "relative_path": "lms_platform/summary.md",
+      "sha256": "5ccca1860a98fd798f1d3c5c8c032482c4a9df7d8731a83a08e39203d2c2e5c5",
+      "size_bytes": 191
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/.aen/evidence/47_project_verification.json",
+      "sha256": "413d3af5a15e289e112a2cf576b9a68383414463fe6c9794c45a659ab04015ce",
+      "size_bytes": 8274
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/.aen/evidence/47_project_verification.md",
+      "sha256": "d2c0dfa8a40e693c89a258ff88dc4d9dd18276c73968e3a809a01ded197196e8",
+      "size_bytes": 315
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/.aen/evidence/functional_smoke.json",
+      "sha256": "85d97277b571fe49ab585f7ef346af12349080c8b2f211c65a37f33413374eb6",
+      "size_bytes": 1215
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/.aen/evidence/logs/01-required_files.log",
+      "sha256": "d88d2442c999f97455ab336dd9ec89cf350b9c130754b65abce4cc8459fddefa",
+      "size_bytes": 35
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/.aen/evidence/logs/02-python_syntax.log",
+      "sha256": "0cfabb544422c9e5c4763495d63628b544510688ef9c12e59773c61fede27796",
+      "size_bytes": 27
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/.aen/evidence/logs/03-compose_static.log",
+      "sha256": "7fae90fd2880b41c3d85cedc1cbe03d79e571d361ef8d60cffb4ea1ae9167218",
+      "size_bytes": 60
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/.aen/evidence/logs/04-web_static.log",
+      "sha256": "8dad8d321bee8fe99982267296a3e634b2013cffdfbaf0145d3a6174568f8577",
+      "size_bytes": 57
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/.aen/evidence/logs/05-alembic_migrations.log",
+      "sha256": "262a7442d7a3437bf904b8850a410c9520d8b733ed7ffc705c0bbeaabe1a893a",
+      "size_bytes": 39
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/.aen/evidence/logs/06-desktop_packaging.log",
+      "sha256": "ab23833ca9c844696a07d650f4980b4c17d5156ddbe0fcb64a7f19b0ad8e3975",
+      "size_bytes": 46
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/.aen/evidence/logs/07-docker_compose_config.log",
+      "sha256": "e3128b82fc45f2956ea8c47568898e8c53ce8da8a5ff23f4af08473abe8f08e7",
+      "size_bytes": 54
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/.aen/evidence/logs/08-docker_compose_build.log",
+      "sha256": "dd24e968fe6b25762c0b4878a442892caa4920509afebaeccaecefc7f0dc82f3",
+      "size_bytes": 3933
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/.aen/evidence/logs/09-docker_compose_up.log",
+      "sha256": "482685e4bb28b67e4ccda3f66dcfcc3a31f56eed8779b7eecbd5616d4b41d3fa",
+      "size_bytes": 766
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/.aen/evidence/logs/10-api_health_live.log",
+      "sha256": "bda0c93f584fb44e02f2a62f959475d177ae3a67bcff32dd660bf63fbd16a091",
+      "size_bytes": 61
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/.aen/evidence/logs/11-web_health_live.log",
+      "sha256": "b6e52d845f7680f2284b96fe4cd21e06e461c6f6d9a9deffb1e1722568a6547b",
+      "size_bytes": 54
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/.aen/evidence/logs/12-api_pytest_live.log",
+      "sha256": "5eab0a2de399e2d9b8c5937ddb7ce562f526a466f19259c6cf867e7f92422852",
+      "size_bytes": 698
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/.aen/evidence/logs/13-api_dependency_integrity_live.log",
+      "sha256": "83b41b81348ba8a145583b7d6236c7e2dd124cc555b436a23fafa20ac84b11b1",
+      "size_bytes": 143
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/.aen/evidence/logs/14-api_dependency_audit_live.log",
+      "sha256": "9daf6b6052bb4819784109adf84bf64179680139bb8c8709bd3de21cdd1adff1",
+      "size_bytes": 142
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/.aen/evidence/logs/15-web_unit_live.log",
+      "sha256": "9b9072fea888ccde8d76a8aa836df83148758dbacd9ce4ff1fd153f66b7763af",
+      "size_bytes": 412
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/.aen/evidence/logs/16-web_build_live.log",
+      "sha256": "a68fbc86673edc7f95057e7ee4e315289eb325fe5de38b1cd8d2232c6eeae868",
+      "size_bytes": 1054
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/.aen/evidence/logs/17-web_dependency_audit_live.log",
+      "sha256": "8c390116c19bf07258a80c8f7e149db3c4b115251c1d5af859f32e29c52bf73c",
+      "size_bytes": 137
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/.aen/evidence/logs/18-web_e2e_live.log",
+      "sha256": "33445bc0183fcba87c642053c299ebde9b682378fb64e5fc5d6b27d4b5eee33e",
+      "size_bytes": 569
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/.aen/evidence/logs/19-docker_compose_down.log",
+      "sha256": "f01161dc8b4fa7463128912fbf1a1ec859a9561566b3b5c5913fdcd8b67f662b",
+      "size_bytes": 676
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/.aen/evidence/logs/20-docker_compose_remove_sandbox_images.log",
+      "sha256": "9eb136db88d2f1b9dc68b4e3e4cb709dbaa2ddf2474b88517fa709dc13dde269",
+      "size_bytes": 132
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/.aen/evidence/logs/21-security_review.log",
+      "sha256": "43de3d7955a524d1b034425a966176083a530508bb2453d3dc11023c333f75e7",
+      "size_bytes": 268
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/.aen/evidence/logs/22-release_package.log",
+      "sha256": "f690e13df688b485276ba68ce8ef7fa5243156be70bb25a1d1be9299f91f0c27",
+      "size_bytes": 253
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/.aen/evidence/security_review.json",
+      "sha256": "20523891d4e805aa388ad016e707dfe16be22dd8d84129b6b53edc670d54026a",
+      "size_bytes": 850
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/.aen/host-visual-e2e.log",
+      "sha256": "9433417828c160db4fb6036a50d889c4f0b9d934120ccc4abb03aed975ed1b50",
+      "size_bytes": 457
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/.aen/real-lifecycle-result.json",
+      "sha256": "14e3973e0b982b58a20a58a6e9902fe5fe7a29d4def0f33f769dfc515794e804",
+      "size_bytes": 19126
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/.aen/retry-history.json",
+      "sha256": "f6921adf6424bfcd4c17c2ae19b8d4472b5ad351328bfb17fe9582be5be645cf",
+      "size_bytes": 335
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/.aen/sandbox.json",
+      "sha256": "cac1ee3156963c2e597c643027b0797171936c5c04ba5c8ba2f808659fa4353d",
+      "size_bytes": 18952
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/.env.example",
+      "sha256": "c7a1756f52f5fb874fb9f00893f75c50fefc8666f9c5d6daaba868043cf92263",
+      "size_bytes": 558
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/.github/workflows/ci.yml",
+      "sha256": "3b5a61e2a39fe076eab5bc3bcdbb0f39686848efd35f812cc19455493bff3063",
+      "size_bytes": 1468
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/api/alembic.ini",
+      "sha256": "34063b62b40cab8d64e96866ea5aae21bd7ee1aedc7c7ad176053a86ca63c025",
+      "size_bytes": 561
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/api/app/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/api/app/billing.py",
+      "sha256": "714885e1792795e63b9c50629378764c8966f6c3827c6ff0bb1b4c67b629221d",
+      "size_bytes": 3231
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/api/app/database.py",
+      "sha256": "89ef4b8eae77d2d0a0c8daee9417cbf47ed13574f3d90371f2fdd210c231f5ee",
+      "size_bytes": 679
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/api/app/domain.py",
+      "sha256": "4aa1957c0e1a0eb8a7f607d8bddba847f7ccef224bc02345d3a4075721b43d3f",
+      "size_bytes": 1177
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/api/app/domain_config.py",
+      "sha256": "0c0f2c5597519d9631cdf28986c22497b2a1f517cea7f401043a73ed7070229a",
+      "size_bytes": 582
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/api/app/domain_models.py",
+      "sha256": "5d8c8aac04bae3e67a42bbcc4f4737b606e2cde8dd17564b0e94465c9248db70",
+      "size_bytes": 1476
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/api/app/domain_router.py",
+      "sha256": "c1e93650d66c9b355aa7bd38fd9f4d1f03177d4cc39ce7ba8f5f3f634673cbff",
+      "size_bytes": 6460
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/api/app/domain_schemas.py",
+      "sha256": "aca090092ad651a1f3cc570979c0708de3532f3809ed0d27a6bbdf53886fd52b",
+      "size_bytes": 941
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/api/app/domain_seed.py",
+      "sha256": "a162c4304a42a32e5aaa0efcc2525a9a213dd959bad0a2da89979e6d1898b44a",
+      "size_bytes": 977
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/api/app/integrations.py",
+      "sha256": "e6dadccfd161e1928a7caccdfea87f90b0e890cdb3871a5a954c50682e149211",
+      "size_bytes": 1849
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/api/app/main.py",
+      "sha256": "e197cb4160ed6a14c0b405f73a7127b5f36ce299604a64f26e20dc9b762de9fe",
+      "size_bytes": 8353
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/api/app/models.py",
+      "sha256": "8c8ccbe24818d50a76d2b4dea19f14d9ba04b781f135e503d8267d06d2f24b59",
+      "size_bytes": 4476
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/api/app/rbac.py",
+      "sha256": "73274aee2ece3e08af0e67b94a89ddff767c05f21f5c0fe4bbc81854e37cfd30",
+      "size_bytes": 2971
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/api/app/schemas.py",
+      "sha256": "c6988bb1e02ca5e3f57ef085620c08b12b44c2c1d5ca21cae9824be3b50b8270",
+      "size_bytes": 1319
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/api/app/security.py",
+      "sha256": "1711089f4cf8a51e9753e99615fa99a2d6f767a39e17a60aa6c1a0457726945e",
+      "size_bytes": 3397
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/api/app/security_headers.py",
+      "sha256": "b1bc984efc21463a5f1f06ee33304bb8f0dacda1e47e8a5411375dcaab9e1c03",
+      "size_bytes": 879
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/api/app/tenancy.py",
+      "sha256": "28f61a22dd78f5d3be200aeb2b1de06fa009a2717c1947b1f1bb8e7c994cdb7a",
+      "size_bytes": 711
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/api/app/workflows.py",
+      "sha256": "4d5a64c189812a23300783dd068cbf7e3661f19ba44832334e6f2125753788b1",
+      "size_bytes": 2583
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/api/Dockerfile",
+      "sha256": "3be06ca8f2718aefb4a9591d6f2f37f987613302e0aff663c2b7f96bda4cd471",
+      "size_bytes": 462
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/api/migrations/env.py",
+      "sha256": "4a3164ef7ddab2ec2fcc0fa05d1790aad0e2477318c64ca82c25beb1c45afb30",
+      "size_bytes": 1270
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/api/migrations/script.py.mako",
+      "sha256": "969a2de2c4edbc9af1bb6f64c3ca4d59beed4ab00fb1fde44b52e9e154ebc147",
+      "size_bytes": 469
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/api/migrations/versions/0001_initial.py",
+      "sha256": "c7b6b7b6ba9a529cbe96e2e7f708863985c3497d7f6e9eb1a2347f5dacf84aa5",
+      "size_bytes": 8593
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/api/migrations/versions/0002_domain_records.py",
+      "sha256": "bad9857fa3bb5c852d848c1544a07a6d93a7397ff47f0b6696e5d4cde1198ec2",
+      "size_bytes": 1389
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/api/requirements.txt",
+      "sha256": "53b0df782dcbb50f876db89859110c57c301f1e9ae04c65d5e64467efa0dafb5",
+      "size_bytes": 233
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/api/tests/test_domain_api.py",
+      "sha256": "9f3624c417350a14c3ea736ad2e3a3bce96b0bed2d18aa42d1ffda7202fbeadc",
+      "size_bytes": 3070
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/api/tests/test_domain_contract.py",
+      "sha256": "7b0f6e57229ac48b65f825d1a6ce8063969fb24258e155971c8b6835198074ce",
+      "size_bytes": 428
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/api/tests/test_health.py",
+      "sha256": "47e9f3756101d4a3b24c1aadaab43bfd9b195b96b7ab7f7b3c6daae50c1a4586",
+      "size_bytes": 227
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/desktop/package.json",
+      "sha256": "5650915536d434a754e9de468de184e1fc37e7078e52f1833cc18679499693a5",
+      "size_bytes": 385
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/desktop/src/main.js",
+      "sha256": "3e6aadc73d2230d84726f518db41570cebf19609dbcf1383458486bb60340fbe",
+      "size_bytes": 1753
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/web/Dockerfile",
+      "sha256": "934425cb096801e74092ffbd8d2656d70a00596bc86972d627596b3363edf98c",
+      "size_bytes": 137
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/web/Dockerfile.e2e",
+      "sha256": "84c5f773de315f51c23be9305b453942180203dd9b2c2b0fc286f46e630e020f",
+      "size_bytes": 227
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/web/next.config.ts",
+      "sha256": "ed816c9ee69dcfb886586bb5b398a351c4da5ed521d7e850ac9857812ba2f8a0",
+      "size_bytes": 138
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/web/package.json",
+      "sha256": "1a85e496f16861cff0cf77a07bf94cddac3a775e01617c241c411eeb1140ed56",
+      "size_bytes": 635
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/web/playwright.config.ts",
+      "sha256": "1d79a031d5f904aa05695aef259f3a14d57ec3cec42d22169fcca4c3927d0250",
+      "size_bytes": 465
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/web/src/app/globals.css",
+      "sha256": "5398ee82c4296a44874fa4465b4810a7c8dbd465e763b427d6ca3af79d666403",
+      "size_bytes": 1781
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/web/src/app/layout.tsx",
+      "sha256": "4f629d06c8ba0600d58c1f978cf6bc8753d070fd93340771dd4c2d36d2c1c91d",
+      "size_bytes": 353
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/web/src/app/page.tsx",
+      "sha256": "6a55b4da8c45835bde69d4e9197166cc725b0279928814701516b0ad8a80ce1d",
+      "size_bytes": 4418
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/web/src/lib/api.ts",
+      "sha256": "7938e1b80754c1974467f397fe0829c3312ea52693cb92003f059f8f7271be0c",
+      "size_bytes": 288
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/web/src/lib/domain.test.ts",
+      "sha256": "6433b0f97ac26b587a5c3eb24103339d27c8460dbdb50e017ff3e9da1d7901a9",
+      "size_bytes": 629
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/web/src/lib/domain.ts",
+      "sha256": "dba636085838e857ffd7a21b565ec378cdd44c59d721a0e751b4206bea190fa7",
+      "size_bytes": 704
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/web/test-results/.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "size_bytes": 45
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/web/test-results/workbench-loads-domain-dashboard-and-creates-a-record/test-finished-1.png",
+      "sha256": "37af995d850f0943e11fbc9230e9eb988d9dc427700f0789a32aab8a07afe6c0",
+      "size_bytes": 102334
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/web/tests/workbench.spec.ts",
+      "sha256": "a856f4d722f7773655f2660974681f43d7b2e54d24bdb40669c2ac5ce9a0ba8b",
+      "size_bytes": 444
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/web/tsconfig.json",
+      "sha256": "b4d436133ed7a04989f18f2756158d48982a80453782d867c8be91e7f7ca5aef",
+      "size_bytes": 471
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/apps/web/vitest.config.ts",
+      "sha256": "e47853969e8d6d0adc11d43cd95e028cad227ad3e9422871e9af2cb04f6d5e4c",
+      "size_bytes": 210
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/database/schema.sql",
+      "sha256": "b8bc1f0d3a3ac13dfa3cc7dcc6464df076ec64d6a23b9491270c1aba4e163106",
+      "size_bytes": 4710
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/docker-compose.yml",
+      "sha256": "b2a7a9faf8578a0e1f84743e7ef1160a57d794493823068adfe09e285be80477",
+      "size_bytes": 1998
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/docs/ARCHITECTURE.md",
+      "sha256": "0b2cde284a77d1443a74fa22b9b74158a1a801090a849e6388118db5b95115af",
+      "size_bytes": 450
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/docs/COMPLIANCE.md",
+      "sha256": "87b1a20fc6c281d513a93dd102bb68ab431087de2a28762bacddd188bacede3e",
+      "size_bytes": 922
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/docs/DOMAIN_MODEL.md",
+      "sha256": "34b2348428c23d22785b53b298cea843a3cc826f9116196b15ee7076678a499b",
+      "size_bytes": 815
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/docs/PRODUCTION_HARDENING.md",
+      "sha256": "447469bf2cd66ef8e6239eeb06851281d74385c705762b78186d4b8f62943eef",
+      "size_bytes": 889
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/docs/ROADMAP.md",
+      "sha256": "0309d4af46cd0f881ea21c8dec88912ffeb34779e81398a86e462dce395e4c97",
+      "size_bytes": 403
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/docs/SECURITY.md",
+      "sha256": "56bb574b341bf0174c1c44684064128065de927896c9d2639f0159eee7b1346e",
+      "size_bytes": 400
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/docs/SPEC.md",
+      "sha256": "5b1b4de63f88284fbd7d9197dc0fd335ebbd8013da0db79634ce23cd5c51af0f",
+      "size_bytes": 733
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/README.md",
+      "sha256": "0208bf5b8453452ffbbc8df4e49bba701ba4181c89152d5115a107f32ded52e1",
+      "size_bytes": 1138
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/scripts/package-windows.ps1",
+      "sha256": "27f76dc7da7f78b4bb1e82222a18625e165bbf43d320fb5778f9adb1ba773c2b",
+      "size_bytes": 638
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/scripts/start.ps1",
+      "sha256": "ef5652b151cfb196f645fe05bf11fe3cb247a9329496aa5ead433ae87e504294",
+      "size_bytes": 88
+    },
+    {
+      "relative_path": "projects/ai_chatbot_saas/scripts/test.ps1",
+      "sha256": "16ac5f5a54b9f8e8bfd8e77c72ee614cdf7421e1b35e27e051a59f7080467e05",
+      "size_bytes": 137
+    },
+    {
+      "relative_path": "projects/booking_platform/.aen/evidence/47_project_verification.json",
+      "sha256": "5f3ba648ee5b61a3b9b1bd9dd6f0d7f594d8fef07aeefd685dcb001a29efc49a",
+      "size_bytes": 8318
+    },
+    {
+      "relative_path": "projects/booking_platform/.aen/evidence/47_project_verification.md",
+      "sha256": "d2c0dfa8a40e693c89a258ff88dc4d9dd18276c73968e3a809a01ded197196e8",
+      "size_bytes": 315
+    },
+    {
+      "relative_path": "projects/booking_platform/.aen/evidence/functional_smoke.json",
+      "sha256": "07d2acd64db6976a2c892af2c341143fda89cae5912c5ab9a47fb970e7aa5ddd",
+      "size_bytes": 1223
+    },
+    {
+      "relative_path": "projects/booking_platform/.aen/evidence/logs/01-required_files.log",
+      "sha256": "d88d2442c999f97455ab336dd9ec89cf350b9c130754b65abce4cc8459fddefa",
+      "size_bytes": 35
+    },
+    {
+      "relative_path": "projects/booking_platform/.aen/evidence/logs/02-python_syntax.log",
+      "sha256": "0cfabb544422c9e5c4763495d63628b544510688ef9c12e59773c61fede27796",
+      "size_bytes": 27
+    },
+    {
+      "relative_path": "projects/booking_platform/.aen/evidence/logs/03-compose_static.log",
+      "sha256": "7fae90fd2880b41c3d85cedc1cbe03d79e571d361ef8d60cffb4ea1ae9167218",
+      "size_bytes": 60
+    },
+    {
+      "relative_path": "projects/booking_platform/.aen/evidence/logs/04-web_static.log",
+      "sha256": "8dad8d321bee8fe99982267296a3e634b2013cffdfbaf0145d3a6174568f8577",
+      "size_bytes": 57
+    },
+    {
+      "relative_path": "projects/booking_platform/.aen/evidence/logs/05-alembic_migrations.log",
+      "sha256": "262a7442d7a3437bf904b8850a410c9520d8b733ed7ffc705c0bbeaabe1a893a",
+      "size_bytes": 39
+    },
+    {
+      "relative_path": "projects/booking_platform/.aen/evidence/logs/06-desktop_packaging.log",
+      "sha256": "ab23833ca9c844696a07d650f4980b4c17d5156ddbe0fcb64a7f19b0ad8e3975",
+      "size_bytes": 46
+    },
+    {
+      "relative_path": "projects/booking_platform/.aen/evidence/logs/07-docker_compose_config.log",
+      "sha256": "e3128b82fc45f2956ea8c47568898e8c53ce8da8a5ff23f4af08473abe8f08e7",
+      "size_bytes": 54
+    },
+    {
+      "relative_path": "projects/booking_platform/.aen/evidence/logs/08-docker_compose_build.log",
+      "sha256": "8a52e3aa7da1329feecb3f1da3c1812d71e7ba98b4e10eef55744e18c21d21e4",
+      "size_bytes": 3933
+    },
+    {
+      "relative_path": "projects/booking_platform/.aen/evidence/logs/09-docker_compose_up.log",
+      "sha256": "ae63201815a8dd213afac25f257e4bfc26d9cc48ed86578bee11e9f7a375e7b4",
+      "size_bytes": 766
+    },
+    {
+      "relative_path": "projects/booking_platform/.aen/evidence/logs/10-api_health_live.log",
+      "sha256": "9e272957a3f6a41bc16b2b4b87ec3ac1dbff9cf225900ab9696fc52c043c4922",
+      "size_bytes": 61
+    },
+    {
+      "relative_path": "projects/booking_platform/.aen/evidence/logs/11-web_health_live.log",
+      "sha256": "d2cc467751c08d3139708a985707e1315265ad9f8ec1bd501c6c1e4ddfdb6828",
+      "size_bytes": 54
+    },
+    {
+      "relative_path": "projects/booking_platform/.aen/evidence/logs/12-api_pytest_live.log",
+      "sha256": "632876b6b7baae7b2bfa1e528b92ca8541764b2722660d2b18e1f5ba20c3c5ba",
+      "size_bytes": 698
+    },
+    {
+      "relative_path": "projects/booking_platform/.aen/evidence/logs/13-api_dependency_integrity_live.log",
+      "sha256": "f311022e0178fddee65a400a8367caf6cfccd59efdad7f8a12258252799860de",
+      "size_bytes": 143
+    },
+    {
+      "relative_path": "projects/booking_platform/.aen/evidence/logs/14-api_dependency_audit_live.log",
+      "sha256": "dbc8f297fba7378f0038ecb12f8c2c30c0cf3412a6a5aad1787c4e1c50b552c9",
+      "size_bytes": 142
+    },
+    {
+      "relative_path": "projects/booking_platform/.aen/evidence/logs/15-web_unit_live.log",
+      "sha256": "49e2e54f1069118fdd4d0b1bf5e9bad9e0d1eb082d02274dbf52e2e2c44416f1",
+      "size_bytes": 412
+    },
+    {
+      "relative_path": "projects/booking_platform/.aen/evidence/logs/16-web_build_live.log",
+      "sha256": "8664ff8d8e951b628348dd1665914a002f711fba7c6dabeb63de147566df3783",
+      "size_bytes": 1054
+    },
+    {
+      "relative_path": "projects/booking_platform/.aen/evidence/logs/17-web_dependency_audit_live.log",
+      "sha256": "8a257372e506ca29fd5ea9e766d333c26cd21880b93c3e9f0ad13139e4350083",
+      "size_bytes": 137
+    },
+    {
+      "relative_path": "projects/booking_platform/.aen/evidence/logs/18-web_e2e_live.log",
+      "sha256": "0c18753e6ec92bb3537c78af0436b962cf72c8c707990a324d2232e920172922",
+      "size_bytes": 569
+    },
+    {
+      "relative_path": "projects/booking_platform/.aen/evidence/logs/19-docker_compose_down.log",
+      "sha256": "7c8ce658187aa426a16d2b682b78d6300d407dd76881145550b245e0b6e5dbcf",
+      "size_bytes": 676
+    },
+    {
+      "relative_path": "projects/booking_platform/.aen/evidence/logs/20-docker_compose_remove_sandbox_images.log",
+      "sha256": "9eb136db88d2f1b9dc68b4e3e4cb709dbaa2ddf2474b88517fa709dc13dde269",
+      "size_bytes": 132
+    },
+    {
+      "relative_path": "projects/booking_platform/.aen/evidence/logs/21-security_review.log",
+      "sha256": "43de3d7955a524d1b034425a966176083a530508bb2453d3dc11023c333f75e7",
+      "size_bytes": 268
+    },
+    {
+      "relative_path": "projects/booking_platform/.aen/evidence/logs/22-release_package.log",
+      "sha256": "1c1351945c7e22c1748d9c07eb4fa9996c2590c0f7a8d68e8d6e28fb62867b14",
+      "size_bytes": 254
+    },
+    {
+      "relative_path": "projects/booking_platform/.aen/evidence/security_review.json",
+      "sha256": "e7bb36150d9f509bbb2f22d5918a5d638428e7c111d974039c57f569fc212a55",
+      "size_bytes": 851
+    },
+    {
+      "relative_path": "projects/booking_platform/.aen/host-visual-e2e.log",
+      "sha256": "2585b3e25b2b9feaa975a1d0bca879e7cba902777d9fb7253c8afc73b7bfdfd9",
+      "size_bytes": 708
+    },
+    {
+      "relative_path": "projects/booking_platform/.aen/real-lifecycle-result.json",
+      "sha256": "bbe83d8d01bb83aa6eb834305b5f2fdf341309fbbe8f13ae4fa10e0e79120598",
+      "size_bytes": 19146
+    },
+    {
+      "relative_path": "projects/booking_platform/.aen/retry-history.json",
+      "sha256": "1b959e8f8e0a150e4737d52edd1aa674aa8daa8a473b878ddc6803a656029e4d",
+      "size_bytes": 335
+    },
+    {
+      "relative_path": "projects/booking_platform/.aen/sandbox.json",
+      "sha256": "0d2dd8f30f4433fa5959c02a5c55085fe07d5720c67c3cf2944e738a6a201d06",
+      "size_bytes": 18971
+    },
+    {
+      "relative_path": "projects/booking_platform/.env.example",
+      "sha256": "c7a1756f52f5fb874fb9f00893f75c50fefc8666f9c5d6daaba868043cf92263",
+      "size_bytes": 558
+    },
+    {
+      "relative_path": "projects/booking_platform/.github/workflows/ci.yml",
+      "sha256": "3b5a61e2a39fe076eab5bc3bcdbb0f39686848efd35f812cc19455493bff3063",
+      "size_bytes": 1468
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/api/alembic.ini",
+      "sha256": "34063b62b40cab8d64e96866ea5aae21bd7ee1aedc7c7ad176053a86ca63c025",
+      "size_bytes": 561
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/api/app/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/api/app/billing.py",
+      "sha256": "714885e1792795e63b9c50629378764c8966f6c3827c6ff0bb1b4c67b629221d",
+      "size_bytes": 3231
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/api/app/database.py",
+      "sha256": "89ef4b8eae77d2d0a0c8daee9417cbf47ed13574f3d90371f2fdd210c231f5ee",
+      "size_bytes": 679
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/api/app/domain.py",
+      "sha256": "f16d212a3eb9b0ff2cbcb534a819b537bd877bd886e501decb124670804e880e",
+      "size_bytes": 1174
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/api/app/domain_config.py",
+      "sha256": "12320613e970cbd866932b664e7d549351d0ff7d69b33b8eb7c6b9f852db7eb7",
+      "size_bytes": 580
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/api/app/domain_models.py",
+      "sha256": "5d8c8aac04bae3e67a42bbcc4f4737b606e2cde8dd17564b0e94465c9248db70",
+      "size_bytes": 1476
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/api/app/domain_router.py",
+      "sha256": "a245f4c9852efaf6df8bf093c26e673b287bb5c825611c70f74f0f84f125ac82",
+      "size_bytes": 6457
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/api/app/domain_schemas.py",
+      "sha256": "aca090092ad651a1f3cc570979c0708de3532f3809ed0d27a6bbdf53886fd52b",
+      "size_bytes": 941
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/api/app/domain_seed.py",
+      "sha256": "9e7edba827883ad2b272ccf2f89562e13a99a67a454989a3968f01ecbcc5ce2d",
+      "size_bytes": 1079
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/api/app/integrations.py",
+      "sha256": "e6dadccfd161e1928a7caccdfea87f90b0e890cdb3871a5a954c50682e149211",
+      "size_bytes": 1849
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/api/app/main.py",
+      "sha256": "9810da7deb55c7c68eba15f76f318da24eecf6cd2541e92a19c3e8de8a1a8fb8",
+      "size_bytes": 8347
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/api/app/models.py",
+      "sha256": "8c8ccbe24818d50a76d2b4dea19f14d9ba04b781f135e503d8267d06d2f24b59",
+      "size_bytes": 4476
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/api/app/rbac.py",
+      "sha256": "73274aee2ece3e08af0e67b94a89ddff767c05f21f5c0fe4bbc81854e37cfd30",
+      "size_bytes": 2971
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/api/app/schemas.py",
+      "sha256": "c6988bb1e02ca5e3f57ef085620c08b12b44c2c1d5ca21cae9824be3b50b8270",
+      "size_bytes": 1319
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/api/app/security.py",
+      "sha256": "1711089f4cf8a51e9753e99615fa99a2d6f767a39e17a60aa6c1a0457726945e",
+      "size_bytes": 3397
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/api/app/security_headers.py",
+      "sha256": "b1bc984efc21463a5f1f06ee33304bb8f0dacda1e47e8a5411375dcaab9e1c03",
+      "size_bytes": 879
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/api/app/tenancy.py",
+      "sha256": "28f61a22dd78f5d3be200aeb2b1de06fa009a2717c1947b1f1bb8e7c994cdb7a",
+      "size_bytes": 711
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/api/app/workflows.py",
+      "sha256": "4d5a64c189812a23300783dd068cbf7e3661f19ba44832334e6f2125753788b1",
+      "size_bytes": 2583
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/api/Dockerfile",
+      "sha256": "3be06ca8f2718aefb4a9591d6f2f37f987613302e0aff663c2b7f96bda4cd471",
+      "size_bytes": 462
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/api/migrations/env.py",
+      "sha256": "4a3164ef7ddab2ec2fcc0fa05d1790aad0e2477318c64ca82c25beb1c45afb30",
+      "size_bytes": 1270
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/api/migrations/script.py.mako",
+      "sha256": "969a2de2c4edbc9af1bb6f64c3ca4d59beed4ab00fb1fde44b52e9e154ebc147",
+      "size_bytes": 469
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/api/migrations/versions/0001_initial.py",
+      "sha256": "c7b6b7b6ba9a529cbe96e2e7f708863985c3497d7f6e9eb1a2347f5dacf84aa5",
+      "size_bytes": 8593
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/api/migrations/versions/0002_domain_records.py",
+      "sha256": "bad9857fa3bb5c852d848c1544a07a6d93a7397ff47f0b6696e5d4cde1198ec2",
+      "size_bytes": 1389
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/api/requirements.txt",
+      "sha256": "53b0df782dcbb50f876db89859110c57c301f1e9ae04c65d5e64467efa0dafb5",
+      "size_bytes": 233
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/api/tests/test_domain_api.py",
+      "sha256": "f287f169da283c393c14bb6013872d4c0860a4af8035cf01a4e956a06682a28c",
+      "size_bytes": 3071
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/api/tests/test_domain_contract.py",
+      "sha256": "d196badd40c4017dfbf7823ac9f964a92d9c66ec708b5f8fd44936511ce45146",
+      "size_bytes": 425
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/api/tests/test_health.py",
+      "sha256": "47e9f3756101d4a3b24c1aadaab43bfd9b195b96b7ab7f7b3c6daae50c1a4586",
+      "size_bytes": 227
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/desktop/package.json",
+      "sha256": "72319da810dd25bea198c5ff501aaf120360465703d6d1b41ce3911c0b6a39f1",
+      "size_bytes": 379
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/desktop/src/main.js",
+      "sha256": "c193917e6b6b565396cd7780b3bc56eeef4da00f00f5d7b5a78360a558971991",
+      "size_bytes": 1747
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/web/Dockerfile",
+      "sha256": "934425cb096801e74092ffbd8d2656d70a00596bc86972d627596b3363edf98c",
+      "size_bytes": 137
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/web/Dockerfile.e2e",
+      "sha256": "84c5f773de315f51c23be9305b453942180203dd9b2c2b0fc286f46e630e020f",
+      "size_bytes": 227
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/web/next.config.ts",
+      "sha256": "ed816c9ee69dcfb886586bb5b398a351c4da5ed521d7e850ac9857812ba2f8a0",
+      "size_bytes": 138
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/web/package.json",
+      "sha256": "1a85e496f16861cff0cf77a07bf94cddac3a775e01617c241c411eeb1140ed56",
+      "size_bytes": 635
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/web/playwright.config.ts",
+      "sha256": "1d79a031d5f904aa05695aef259f3a14d57ec3cec42d22169fcca4c3927d0250",
+      "size_bytes": 465
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/web/src/app/globals.css",
+      "sha256": "5398ee82c4296a44874fa4465b4810a7c8dbd465e763b427d6ca3af79d666403",
+      "size_bytes": 1781
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/web/src/app/layout.tsx",
+      "sha256": "29b048940d464be43c2adc607370e7426bfdd2fd448d24556950735804a33194",
+      "size_bytes": 331
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/web/src/app/page.tsx",
+      "sha256": "1d92336a25a6284be4748fe1e38ed0690fff43b273c9a704283c90015527289a",
+      "size_bytes": 4416
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/web/src/lib/api.ts",
+      "sha256": "7938e1b80754c1974467f397fe0829c3312ea52693cb92003f059f8f7271be0c",
+      "size_bytes": 288
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/web/src/lib/domain.test.ts",
+      "sha256": "6433b0f97ac26b587a5c3eb24103339d27c8460dbdb50e017ff3e9da1d7901a9",
+      "size_bytes": 629
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/web/src/lib/domain.ts",
+      "sha256": "dba636085838e857ffd7a21b565ec378cdd44c59d721a0e751b4206bea190fa7",
+      "size_bytes": 704
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/web/test-results/.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "size_bytes": 45
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/web/test-results/workbench-loads-domain-dashboard-and-creates-a-record/test-finished-1.png",
+      "sha256": "c41d4e783c803a0b298c2307083e8f6889d1d2b72483c08bcd0f8a713a3fa84e",
+      "size_bytes": 103854
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/web/tests/workbench.spec.ts",
+      "sha256": "08cb0441455a45d9a7c990501634fecb6e016c75a4a670154104c8fa5402d4cc",
+      "size_bytes": 449
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/web/tsconfig.json",
+      "sha256": "b4d436133ed7a04989f18f2756158d48982a80453782d867c8be91e7f7ca5aef",
+      "size_bytes": 471
+    },
+    {
+      "relative_path": "projects/booking_platform/apps/web/vitest.config.ts",
+      "sha256": "e47853969e8d6d0adc11d43cd95e028cad227ad3e9422871e9af2cb04f6d5e4c",
+      "size_bytes": 210
+    },
+    {
+      "relative_path": "projects/booking_platform/database/schema.sql",
+      "sha256": "b8bc1f0d3a3ac13dfa3cc7dcc6464df076ec64d6a23b9491270c1aba4e163106",
+      "size_bytes": 4710
+    },
+    {
+      "relative_path": "projects/booking_platform/docker-compose.yml",
+      "sha256": "b2a7a9faf8578a0e1f84743e7ef1160a57d794493823068adfe09e285be80477",
+      "size_bytes": 1998
+    },
+    {
+      "relative_path": "projects/booking_platform/docs/ARCHITECTURE.md",
+      "sha256": "415228a652873a4ab4a89a8def270ff5ee02c6015a9a8ee7404f8dede77f2384",
+      "size_bytes": 447
+    },
+    {
+      "relative_path": "projects/booking_platform/docs/COMPLIANCE.md",
+      "sha256": "87b1a20fc6c281d513a93dd102bb68ab431087de2a28762bacddd188bacede3e",
+      "size_bytes": 922
+    },
+    {
+      "relative_path": "projects/booking_platform/docs/DOMAIN_MODEL.md",
+      "sha256": "d3ff8593ec2414b28f028fb690838068e1dbd1d4d8596658a7eb63e010200b18",
+      "size_bytes": 812
+    },
+    {
+      "relative_path": "projects/booking_platform/docs/PRODUCTION_HARDENING.md",
+      "sha256": "447469bf2cd66ef8e6239eeb06851281d74385c705762b78186d4b8f62943eef",
+      "size_bytes": 889
+    },
+    {
+      "relative_path": "projects/booking_platform/docs/ROADMAP.md",
+      "sha256": "0309d4af46cd0f881ea21c8dec88912ffeb34779e81398a86e462dce395e4c97",
+      "size_bytes": 403
+    },
+    {
+      "relative_path": "projects/booking_platform/docs/SECURITY.md",
+      "sha256": "56bb574b341bf0174c1c44684064128065de927896c9d2639f0159eee7b1346e",
+      "size_bytes": 400
+    },
+    {
+      "relative_path": "projects/booking_platform/docs/SPEC.md",
+      "sha256": "41c59c56fc6e564038d46f4af98a9709309eb70471b9a217cb125bcb781190f5",
+      "size_bytes": 725
+    },
+    {
+      "relative_path": "projects/booking_platform/README.md",
+      "sha256": "dd0c68c2c3bf361f7c2ba9371cac24580deae75c1cb511ef385b76e17f6308d4",
+      "size_bytes": 1130
+    },
+    {
+      "relative_path": "projects/booking_platform/scripts/package-windows.ps1",
+      "sha256": "27f76dc7da7f78b4bb1e82222a18625e165bbf43d320fb5778f9adb1ba773c2b",
+      "size_bytes": 638
+    },
+    {
+      "relative_path": "projects/booking_platform/scripts/start.ps1",
+      "sha256": "ef5652b151cfb196f645fe05bf11fe3cb247a9329496aa5ead433ae87e504294",
+      "size_bytes": 88
+    },
+    {
+      "relative_path": "projects/booking_platform/scripts/test.ps1",
+      "sha256": "16ac5f5a54b9f8e8bfd8e77c72ee614cdf7421e1b35e27e051a59f7080467e05",
+      "size_bytes": 137
+    },
+    {
+      "relative_path": "projects/complex_3d_game/.aen/evidence/47_project_verification.json",
+      "sha256": "17330ea5cd236c1cc3a2f29709cf55755030ef086bba405357d92e3ee0b00a8e",
+      "size_bytes": 4957
+    },
+    {
+      "relative_path": "projects/complex_3d_game/.aen/evidence/47_project_verification.md",
+      "sha256": "d2c0dfa8a40e693c89a258ff88dc4d9dd18276c73968e3a809a01ded197196e8",
+      "size_bytes": 315
+    },
+    {
+      "relative_path": "projects/complex_3d_game/.aen/evidence/functional_smoke.json",
+      "sha256": "61d145c83773b7d300539d3e8f8dec5c9092e63ebc5f4cdeb796480f876366bf",
+      "size_bytes": 1197
+    },
+    {
+      "relative_path": "projects/complex_3d_game/.aen/evidence/logs/01-required_files.log",
+      "sha256": "d88d2442c999f97455ab336dd9ec89cf350b9c130754b65abce4cc8459fddefa",
+      "size_bytes": 35
+    },
+    {
+      "relative_path": "projects/complex_3d_game/.aen/evidence/logs/02-python_syntax.log",
+      "sha256": "145c378bd8b5c2ef77f747c385645dae06e8a68a3d659286c64b48c37ce97e88",
+      "size_bytes": 26
+    },
+    {
+      "relative_path": "projects/complex_3d_game/.aen/evidence/logs/03-compose_static.log",
+      "sha256": "7fae90fd2880b41c3d85cedc1cbe03d79e571d361ef8d60cffb4ea1ae9167218",
+      "size_bytes": 60
+    },
+    {
+      "relative_path": "projects/complex_3d_game/.aen/evidence/logs/04-web_static.log",
+      "sha256": "8dad8d321bee8fe99982267296a3e634b2013cffdfbaf0145d3a6174568f8577",
+      "size_bytes": 57
+    },
+    {
+      "relative_path": "projects/complex_3d_game/.aen/evidence/logs/05-alembic_migrations.log",
+      "sha256": "262a7442d7a3437bf904b8850a410c9520d8b733ed7ffc705c0bbeaabe1a893a",
+      "size_bytes": 39
+    },
+    {
+      "relative_path": "projects/complex_3d_game/.aen/evidence/logs/06-desktop_packaging.log",
+      "sha256": "ab23833ca9c844696a07d650f4980b4c17d5156ddbe0fcb64a7f19b0ad8e3975",
+      "size_bytes": 46
+    },
+    {
+      "relative_path": "projects/complex_3d_game/.aen/evidence/logs/07-docker_compose_config.log",
+      "sha256": "e3128b82fc45f2956ea8c47568898e8c53ce8da8a5ff23f4af08473abe8f08e7",
+      "size_bytes": 54
+    },
+    {
+      "relative_path": "projects/complex_3d_game/.aen/evidence/logs/08-docker_compose_build.log",
+      "sha256": "576575860adce916638f067aa4304e319362ac878f0c86725351b26b1b365d9b",
+      "size_bytes": 8471
+    },
+    {
+      "relative_path": "projects/complex_3d_game/.aen/evidence/logs/09-docker_compose_up.log",
+      "sha256": "20d14e52c1718a0e46dc39dc8c251266f5d0ea6bd95a48a28682dce44877c08a",
+      "size_bytes": 755
+    },
+    {
+      "relative_path": "projects/complex_3d_game/.aen/evidence/logs/10-api_health_live.log",
+      "sha256": "2c4119f09647bc663f60897e807a1e24ca96d8ae7b1e3eec18924527285c81b7",
+      "size_bytes": 61
+    },
+    {
+      "relative_path": "projects/complex_3d_game/.aen/evidence/logs/11-web_health_live.log",
+      "sha256": "5eef4dcb3413b308e231176dcc22aeb2b2edfb82f45bcf9e57666ee406e1f607",
+      "size_bytes": 54
+    },
+    {
+      "relative_path": "projects/complex_3d_game/.aen/evidence/logs/12-api_pytest_live.log",
+      "sha256": "0bf329c981ec4c676b77b1d5643db738a61430210c68a161a668ef53650ba8db",
+      "size_bytes": 698
+    },
+    {
+      "relative_path": "projects/complex_3d_game/.aen/evidence/logs/13-api_dependency_integrity_live.log",
+      "sha256": "ca7b57448c0287220e3ef973bf09ded15e95e3b08f68afb9403edfc75a3bf27e",
+      "size_bytes": 143
+    },
+    {
+      "relative_path": "projects/complex_3d_game/.aen/evidence/logs/14-api_dependency_audit_live.log",
+      "sha256": "5c5c89bc54b722bdcd50057b26c5706fcc93c3be8f0e346411b69043a3216b32",
+      "size_bytes": 142
+    },
+    {
+      "relative_path": "projects/complex_3d_game/.aen/evidence/logs/15-web_unit_live.log",
+      "sha256": "7d31644c9afed49dfe8200a80424b38c1b86f076406ea3f59a1801b08c85b59e",
+      "size_bytes": 418
+    },
+    {
+      "relative_path": "projects/complex_3d_game/.aen/evidence/logs/16-web_build_live.log",
+      "sha256": "1b05a5652bcdbcfeabd93645d5d5e1c0883b71b7c2e11c0b6622a72f74efcea4",
+      "size_bytes": 953
+    },
+    {
+      "relative_path": "projects/complex_3d_game/.aen/evidence/logs/17-web_dependency_audit_live.log",
+      "sha256": "c21902b54ca7c054d9ba54373e687c143201bfdb601cb75f82d6e8bf699b780e",
+      "size_bytes": 137
+    },
+    {
+      "relative_path": "projects/complex_3d_game/.aen/evidence/logs/18-web_e2e_live.log",
+      "sha256": "f3d2b6b9890c3db98d0eb2e8da648d9083d62d48b570662834df2cc3731629c6",
+      "size_bytes": 555
+    },
+    {
+      "relative_path": "projects/complex_3d_game/.aen/evidence/logs/19-docker_compose_down.log",
+      "sha256": "e965ec3b9bbd4a1e93c3874f6817a3abe563287bcd39565d45ec06f7b484498a",
+      "size_bytes": 585
+    },
+    {
+      "relative_path": "projects/complex_3d_game/.aen/evidence/logs/20-docker_compose_remove_sandbox_images.log",
+      "sha256": "9eb136db88d2f1b9dc68b4e3e4cb709dbaa2ddf2474b88517fa709dc13dde269",
+      "size_bytes": 132
+    },
+    {
+      "relative_path": "projects/complex_3d_game/.aen/evidence/logs/21-security_review.log",
+      "sha256": "43de3d7955a524d1b034425a966176083a530508bb2453d3dc11023c333f75e7",
+      "size_bytes": 268
+    },
+    {
+      "relative_path": "projects/complex_3d_game/.aen/evidence/logs/22-release_package.log",
+      "sha256": "e98aa154a5fcec77a8fc3206a674d064ff4d0cbed8e0d3a16a4769e68ac1f8db",
+      "size_bytes": 253
+    },
+    {
+      "relative_path": "projects/complex_3d_game/.aen/evidence/security_review.json",
+      "sha256": "d0a0a9bc0457096a3da4b3a66dd624f9b315c25280814479fdd8059a7b221b63",
+      "size_bytes": 850
+    },
+    {
+      "relative_path": "projects/complex_3d_game/.aen/host-visual-e2e.log",
+      "sha256": "d5c3ed506cad8c66808f31e84b61148ddfa09c209c9ab1de576a76ac0edf2e10",
+      "size_bytes": 694
+    },
+    {
+      "relative_path": "projects/complex_3d_game/.aen/real-lifecycle-result.json",
+      "sha256": "1810b05b15726925d29a9ab818e970540c1eaa4ed8d2d542848fde05824b6089",
+      "size_bytes": 20623
+    },
+    {
+      "relative_path": "projects/complex_3d_game/.aen/retry-history.json",
+      "sha256": "c6c242fe35ffb26f336badf95e6c7c04f392ef57f174b1055d3f82fe271d43bf",
+      "size_bytes": 335
+    },
+    {
+      "relative_path": "projects/complex_3d_game/.aen/sandbox.json",
+      "sha256": "b105c767e19fe1a497c9162cd99777680b288f5322ff82a5a01b9eb8bca18f7f",
+      "size_bytes": 20449
+    },
+    {
+      "relative_path": "projects/complex_3d_game/.env.example",
+      "sha256": "1e70cdf71566a32ec2eefde59c095ffc9e58025a76623bbeaace9c90f2549461",
+      "size_bytes": 73
+    },
+    {
+      "relative_path": "projects/complex_3d_game/apps/api/alembic.ini",
+      "sha256": "d782927bef789de87cbf84ad93dd715cfdd6b189b9b7e40ae2f47d91073cc46b",
+      "size_bytes": 76
+    },
+    {
+      "relative_path": "projects/complex_3d_game/apps/api/app/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "relative_path": "projects/complex_3d_game/apps/api/app/main.py",
+      "sha256": "1b19984018eea0faac776bd35af50bd2a2ce37b9cab93374b502fd4879eefbcd",
+      "size_bytes": 180
+    },
+    {
+      "relative_path": "projects/complex_3d_game/apps/api/Dockerfile",
+      "sha256": "7cc992045d703c125c9358a195561105485cb426271dad7ce65d9dadbddd04f3",
+      "size_bytes": 385
+    },
+    {
+      "relative_path": "projects/complex_3d_game/apps/api/migrations/env.py",
+      "sha256": "63eb90b3c4aa8d52295f24b336490979a48c89c9c66c8802e5ba4d3ba4729944",
+      "size_bytes": 282
+    },
+    {
+      "relative_path": "projects/complex_3d_game/apps/api/migrations/script.py.mako",
+      "sha256": "b208f49958f0fd2fdddb6236de5619286dddfb5b2671a5cfa3d5f7cd0885e8a7",
+      "size_bytes": 83
+    },
+    {
+      "relative_path": "projects/complex_3d_game/apps/api/migrations/versions/0001_initial.py",
+      "sha256": "c59eb227616ea07dae22b0b6896e0e733ea92d00518854c3a41d4586c66db0de",
+      "size_bytes": 510
+    },
+    {
+      "relative_path": "projects/complex_3d_game/apps/api/requirements.txt",
+      "sha256": "f0bd8d3480e8583541efaa07968f4488bf01af038788b8a418ac54174edc00f7",
+      "size_bytes": 88
+    },
+    {
+      "relative_path": "projects/complex_3d_game/apps/api/tests/test_health.py",
+      "sha256": "604f74773e8488b75bbe02c5bd1819dee06e289ba9fee3614267b074c82ad0da",
+      "size_bytes": 164
+    },
+    {
+      "relative_path": "projects/complex_3d_game/apps/desktop/package.json",
+      "sha256": "802df0faa1f8a50fd4e9b42af0ab6cb8f93440e9bf060e13aeeed77f18f67819",
+      "size_bytes": 193
+    },
+    {
+      "relative_path": "projects/complex_3d_game/apps/desktop/src/main.js",
+      "sha256": "0193537821c4af51a5331bc9d1fceb4083fa879979034995912889ef6c0582e0",
+      "size_bytes": 55
+    },
+    {
+      "relative_path": "projects/complex_3d_game/apps/web/Dockerfile",
+      "sha256": "ca47a7dbe14681ccb452b0af691a3bebd5c4fe9ff4bdb60fa70e38e4e9a957af",
+      "size_bytes": 136
+    },
+    {
+      "relative_path": "projects/complex_3d_game/apps/web/Dockerfile.e2e",
+      "sha256": "392d017f954c9a3a3099c2edca9607c400c601f69c4ec8fb166b92e865fcb3d4",
+      "size_bytes": 226
+    },
+    {
+      "relative_path": "projects/complex_3d_game/apps/web/next.config.ts",
+      "sha256": "4a9add6f1365bce1b5a57c27e44ea090176f1fc50d30d863cd9e6b7b24725cbd",
+      "size_bytes": 137
+    },
+    {
+      "relative_path": "projects/complex_3d_game/apps/web/package.json",
+      "sha256": "21ac1995de8b1cf662160190f8120f22917a6404bad3edfdbbb6a4e90758262b",
+      "size_bytes": 664
+    },
+    {
+      "relative_path": "projects/complex_3d_game/apps/web/playwright.config.ts",
+      "sha256": "1d79a031d5f904aa05695aef259f3a14d57ec3cec42d22169fcca4c3927d0250",
+      "size_bytes": 465
+    },
+    {
+      "relative_path": "projects/complex_3d_game/apps/web/src/app/globals.css",
+      "sha256": "2e9bde8fe749de5412b984bd8c7fadf561505a42b93f505ef63d0fae7dc5a38d",
+      "size_bytes": 1817
+    },
+    {
+      "relative_path": "projects/complex_3d_game/apps/web/src/app/layout.tsx",
+      "sha256": "034effdfa959c39f7aee6c703b4e09e958fc8bb26a7332c87df4ed16d8779d11",
+      "size_bytes": 310
+    },
+    {
+      "relative_path": "projects/complex_3d_game/apps/web/src/app/page.tsx",
+      "sha256": "4f005c4ec7928b9080e1a5c9a0be38500771a65c8537a2bfe4ed798388163842",
+      "size_bytes": 3010
+    },
+    {
+      "relative_path": "projects/complex_3d_game/apps/web/src/game/controls.ts",
+      "sha256": "97b211bad7c1a4635eed1e75480d792fae87a34a1a3e96d27273359cbdbdce9e",
+      "size_bytes": 1377
+    },
+    {
+      "relative_path": "projects/complex_3d_game/apps/web/src/game/physics.test.ts",
+      "sha256": "da6a4667e8b3641553bcb0434a0ab772890e06da6b890c2bfa4df6ac80f9ffb7",
+      "size_bytes": 853
+    },
+    {
+      "relative_path": "projects/complex_3d_game/apps/web/src/game/physics.ts",
+      "sha256": "ddb256382abc9f2ab0fee10db95b393a7467f24560b6c3689a4c3cb8ad4e70ab",
+      "size_bytes": 2987
+    },
+    {
+      "relative_path": "projects/complex_3d_game/apps/web/src/game/scene.ts",
+      "sha256": "7b8ae4273014da011adbfa372c3f87147ebce06d8b057f46c5e45bc02ce62109",
+      "size_bytes": 3000
+    },
+    {
+      "relative_path": "projects/complex_3d_game/apps/web/test-results/.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "size_bytes": 45
+    },
+    {
+      "relative_path": "projects/complex_3d_game/apps/web/test-results/workbench-loads-playable-pong-arena/test-finished-1.png",
+      "sha256": "a601e4a86f7903b3d1bf673041f15349a5767b4b5ba7ffba385ebcdb965cbbf6",
+      "size_bytes": 78793
+    },
+    {
+      "relative_path": "projects/complex_3d_game/apps/web/tests/workbench.spec.ts",
+      "sha256": "23edbc5fae28bf3640b15b1346d4dc99950ad02849042afd30729e97e80688bf",
+      "size_bytes": 388
+    },
+    {
+      "relative_path": "projects/complex_3d_game/apps/web/tsconfig.json",
+      "sha256": "cf55e65a149377ce2c4dceacdb1508c3020754a204913826a96dcbfdc4807fba",
+      "size_bytes": 531
+    },
+    {
+      "relative_path": "projects/complex_3d_game/apps/web/vitest.config.ts",
+      "sha256": "e47853969e8d6d0adc11d43cd95e028cad227ad3e9422871e9af2cb04f6d5e4c",
+      "size_bytes": 210
+    },
+    {
+      "relative_path": "projects/complex_3d_game/database/schema.sql",
+      "sha256": "883249d071931984cf482c0ec5dc01cb3119b635a62d1096911ccdfc4290a882",
+      "size_bytes": 189
+    },
+    {
+      "relative_path": "projects/complex_3d_game/docker-compose.yml",
+      "sha256": "2f9c7d83cecacf18105f4eb21bb1882e5087379e17d3114cbc2a04419fde24e2",
+      "size_bytes": 1257
+    },
+    {
+      "relative_path": "projects/complex_3d_game/docs/ARCHITECTURE.md",
+      "sha256": "6e3b618295ec56c45bf179eaba64732830b37c301a6c42654f2ec0711cb333de",
+      "size_bytes": 227
+    },
+    {
+      "relative_path": "projects/complex_3d_game/docs/PROJECT_KIND.md",
+      "sha256": "0cce2548fe6b9f8ad2b84e6dc09e1ff7f2a1397cc4900f952164652d61e1fba4",
+      "size_bytes": 56
+    },
+    {
+      "relative_path": "projects/complex_3d_game/docs/SECURITY.md",
+      "sha256": "9e6c1a990b10a5eee8726daceca9b3ea2e4e770b339107f65e56a6fbffb338b1",
+      "size_bytes": 103
+    },
+    {
+      "relative_path": "projects/complex_3d_game/docs/SPEC.md",
+      "sha256": "18caeefa8ab44e389c26d823052e7e56bd1ca316ab8056c49e3c0c010f414b02",
+      "size_bytes": 377
+    },
+    {
+      "relative_path": "projects/complex_3d_game/README.md",
+      "sha256": "5bb066f64dcceba8d308133b040a680fd985735c4d6837bda46438ac928efe45",
+      "size_bytes": 591
+    },
+    {
+      "relative_path": "projects/complex_3d_game/scripts/package-windows.ps1",
+      "sha256": "6068847e09849fef6abdc0905b8259b6a4065e96fd1bc1c54b6acb9d0780144c",
+      "size_bytes": 123
+    },
+    {
+      "relative_path": "projects/complex_3d_game/scripts/start.ps1",
+      "sha256": "ef5652b151cfb196f645fe05bf11fe3cb247a9329496aa5ead433ae87e504294",
+      "size_bytes": 88
+    },
+    {
+      "relative_path": "projects/complex_3d_game/scripts/test.ps1",
+      "sha256": "f085cb55f2b572117fc28f03c7485345986729ffddd018ffc35da6922d7727bc",
+      "size_bytes": 142
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/.aen/evidence/47_project_verification.json",
+      "sha256": "9c03cfc339ebcbb7db56d6e11d8639af1fb8c13f01aaa742cd62f42caf1ef81b",
+      "size_bytes": 4837
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/.aen/evidence/47_project_verification.md",
+      "sha256": "d3007b8f1e0344e1468c48666d7adbc4fb909b59be827b4a3b12877a029b35cb",
+      "size_bytes": 315
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/.aen/evidence/functional_smoke.json",
+      "sha256": "b59c1ede5b2894cd6ae3948c7c54b3da8c64bfe1bc59db5816698d1a450b5950",
+      "size_bytes": 866
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/.aen/evidence/logs/01-required_files.log",
+      "sha256": "819eb2540628be1b53ba0ac67ac267914dd1ba9392232c88fc7c555a06661ff1",
+      "size_bytes": 36
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/.aen/evidence/logs/02-python_syntax.log",
+      "sha256": "09851a61215f38845986d4215f2057285285284d5132833689c923a22533ad2f",
+      "size_bytes": 26
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/.aen/evidence/logs/03-compose_static.log",
+      "sha256": "f5f97ee4ad94479e2697077677f8861700f2536fcfc18b546d2350b1e06d7116",
+      "size_bytes": 41
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/.aen/evidence/logs/04-algorithm_static.log",
+      "sha256": "ff705f716a08d182e3e023d9802c82c944fbd9abc1a7e3a9ef38e141e79d2eb2",
+      "size_bytes": 50
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/.aen/evidence/logs/05-docker_compose_config.log",
+      "sha256": "e3128b82fc45f2956ea8c47568898e8c53ce8da8a5ff23f4af08473abe8f08e7",
+      "size_bytes": 54
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/.aen/evidence/logs/06-docker_compose_build.log",
+      "sha256": "789fb37931a6490aae44a308b4412fac741f10ebf59952da05c6317efcac558b",
+      "size_bytes": 1482
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/.aen/evidence/logs/07-docker_compose_up.log",
+      "sha256": "20b37e9931b01bbf68e3687eadd576c56eec6ea5256359043b1c10b72ff6176b",
+      "size_bytes": 241
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/.aen/evidence/logs/08-api_health_live.log",
+      "sha256": "915dd6531be66692f9cdab55efba8d73cb5ae32c344956ac5226210943fb3e65",
+      "size_bytes": 61
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/.aen/evidence/logs/09-api_pytest_live.log",
+      "sha256": "eaf0b17c32f606d9c0264f7ae56ab07d961b48a9675bd15787af89ca2f2b64c9",
+      "size_bytes": 698
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/.aen/evidence/logs/10-algorithm_integration_live.log",
+      "sha256": "8168d5f4e6e38d29a124a7d87114c2b7d6a906645269eaa17363f9a2cde2546d",
+      "size_bytes": 698
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/.aen/evidence/logs/11-algorithm_benchmark_live.log",
+      "sha256": "9cac376975351d0d0b7f8592888771d7386d67dc401e6e66684f7413482a26e9",
+      "size_bytes": 319
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/.aen/evidence/logs/12-api_dependency_integrity_live.log",
+      "sha256": "bd0dbd53031278f223b90aac45894ff150dc48a633e6e965d549afd280ee917c",
+      "size_bytes": 143
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/.aen/evidence/logs/13-api_dependency_audit_live.log",
+      "sha256": "7a0e4ad86378a99e37d94f95fc2223fce3f1a0e4ca4574f9bcefff86830dcc7f",
+      "size_bytes": 421
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/.aen/evidence/logs/14-docker_compose_down.log",
+      "sha256": "9b38a1a6bc0d5df8610e9cc89df9f065ce68d47e2d633843d52e80375d4e3cdc",
+      "size_bytes": 241
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/.aen/evidence/logs/15-security_review.log",
+      "sha256": "43de3d7955a524d1b034425a966176083a530508bb2453d3dc11023c333f75e7",
+      "size_bytes": 268
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/.aen/evidence/logs/16-release_package.log",
+      "sha256": "4800d385891936eda70f6f89665427717a359dd504a95a8318cd5346c2f3bfa9",
+      "size_bytes": 263
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/.aen/evidence/security_review.json",
+      "sha256": "d34d38b9171080d3e02496e90fe7a0250a1c28065badf016676993da063376eb",
+      "size_bytes": 779
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/.aen/real-lifecycle-result.json",
+      "sha256": "9bf9df6516731970d9ed3fc58986b7d1bb61e59e849b77cbe50b98f266fe7550",
+      "size_bytes": 10648
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/.aen/retry-history.json",
+      "sha256": "a3c5e4ddbfed4fd09c9be7c2c5f8c4978a567ab522cf3b869271559eaf31a592",
+      "size_bytes": 335
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/.aen/sandbox.json",
+      "sha256": "e777c306b5a36af9cef68aef837c9a5eb506266e72189dbc71cf70a6389de564",
+      "size_bytes": 10464
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/.dockerignore",
+      "sha256": "1f00fde13f289f2b46991f208acde2a4fad0a28855c2ce59f16512ada5324936",
+      "size_bytes": 50
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/.env.example",
+      "sha256": "4e584b138a03f8c2290bf416590bf29ce62a89d351a47e9b72146979f0798dc5",
+      "size_bytes": 28
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/app/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/app/algorithm.py",
+      "sha256": "94a259d70760544abdf28b8e449008ad5ef54fd63097ae035b28d6aa800f9a58",
+      "size_bytes": 5099
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/app/main.py",
+      "sha256": "ccc267d711b8be63bab9e1b6a82f1ed9c6b8de6db27306f0aba0c3be347f8e42",
+      "size_bytes": 1401
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/app/metrics.py",
+      "sha256": "434813844ce4d4874a2dc3c8665b92168aea948bf6c3001a2500edebfaaa9faf",
+      "size_bytes": 425
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/app/schemas.py",
+      "sha256": "036077ca7449267fea545d935c9582cf955e3251918bd7bc5d7037bdae1b2b4c",
+      "size_bytes": 1697
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/app/validation.py",
+      "sha256": "9f2611dbb73cb1bf3bd84256004f509138fde5f5a73a002b4ae941fdbde38ffd",
+      "size_bytes": 644
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/benchmark.py",
+      "sha256": "60446131339df5d51fa2e6a645f144f76929b20e688b14acff6bc6c5c8ab5a0c",
+      "size_bytes": 1196
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/docker-compose.yml",
+      "sha256": "ba466206961531bfa4f6ffe671106e8fd5bf79840fcdf334e657fb16ad6abe3c",
+      "size_bytes": 459
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/Dockerfile",
+      "sha256": "4669a2f3452be9f04f1016d1d17f68598e55228dd9ceb4fdf5de4955bcb425e3",
+      "size_bytes": 343
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/docs/ALGORITHM.md",
+      "sha256": "2c7331ead54f248d25443ec11ae429f763e3776cae380341794678060eb0f89d",
+      "size_bytes": 451
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/docs/API.md",
+      "sha256": "549659e82319feaccbf9e2e2c5120291bc3834dafacd49adcfcc5b11d9be55c0",
+      "size_bytes": 237
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/docs/SECURITY.md",
+      "sha256": "9d7387bab871a27df4cbd9aa700e6b907ccff316745d372b6c6da8ae0e19f6d1",
+      "size_bytes": 312
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/pyproject.toml",
+      "sha256": "6a9060f7af2d56e0983a3b8282ce9e18226da21d49f22884f2b4b2771cab3201",
+      "size_bytes": 392
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/README.md",
+      "sha256": "2c6a0bb2c735b06cdff82352a806aafd37174f5b9dafc8c5f90af815e5847309",
+      "size_bytes": 568
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/scripts/test.ps1",
+      "sha256": "68d88eb3e2b0ebfd99930cc1d50bc17c51be43567979d3b8956493369381dc45",
+      "size_bytes": 137
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/tests/test_algorithm.py",
+      "sha256": "252285826030cf6dd802469e6e20b6a0b16796851a5019b4f0944661b5a50921",
+      "size_bytes": 744
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/tests/test_edge_cases.py",
+      "sha256": "2b7f85573c9da4561fd04a335b506c43602279e264658e839afec4537fc401a5",
+      "size_bytes": 699
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/tests/test_integration.py",
+      "sha256": "6265f341e77db912430a0931ab2172ab5a5761942b07445c838984ccc8f26e02",
+      "size_bytes": 755
+    },
+    {
+      "relative_path": "projects/complex_algorithm_service/tests/test_validation.py",
+      "sha256": "bc9ffba6e0e0d62773b607e781f339610a57867d22c33938b0dd97455d6483d0",
+      "size_bytes": 750
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/.aen/evidence/47_project_verification.json",
+      "sha256": "3fd1b3c9b096d107fd7af70690f87c9e7d34ee527abb97d473484d59dee6d93b",
+      "size_bytes": 8494
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/.aen/evidence/47_project_verification.md",
+      "sha256": "d2c0dfa8a40e693c89a258ff88dc4d9dd18276c73968e3a809a01ded197196e8",
+      "size_bytes": 315
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/.aen/evidence/functional_smoke.json",
+      "sha256": "143953c48b2e1e21ab7c92243876fc9bc5ffea50ab523a166371ceb2cb342c59",
+      "size_bytes": 1255
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/.aen/evidence/logs/01-required_files.log",
+      "sha256": "d88d2442c999f97455ab336dd9ec89cf350b9c130754b65abce4cc8459fddefa",
+      "size_bytes": 35
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/.aen/evidence/logs/02-python_syntax.log",
+      "sha256": "0cfabb544422c9e5c4763495d63628b544510688ef9c12e59773c61fede27796",
+      "size_bytes": 27
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/.aen/evidence/logs/03-compose_static.log",
+      "sha256": "7fae90fd2880b41c3d85cedc1cbe03d79e571d361ef8d60cffb4ea1ae9167218",
+      "size_bytes": 60
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/.aen/evidence/logs/04-web_static.log",
+      "sha256": "8dad8d321bee8fe99982267296a3e634b2013cffdfbaf0145d3a6174568f8577",
+      "size_bytes": 57
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/.aen/evidence/logs/05-alembic_migrations.log",
+      "sha256": "262a7442d7a3437bf904b8850a410c9520d8b733ed7ffc705c0bbeaabe1a893a",
+      "size_bytes": 39
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/.aen/evidence/logs/06-desktop_packaging.log",
+      "sha256": "ab23833ca9c844696a07d650f4980b4c17d5156ddbe0fcb64a7f19b0ad8e3975",
+      "size_bytes": 46
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/.aen/evidence/logs/07-docker_compose_config.log",
+      "sha256": "e3128b82fc45f2956ea8c47568898e8c53ce8da8a5ff23f4af08473abe8f08e7",
+      "size_bytes": 54
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/.aen/evidence/logs/08-docker_compose_build.log",
+      "sha256": "f76532414a0b80e819b3f786b825aa8795a886817b202eb111f4655f39206bf0",
+      "size_bytes": 3530
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/.aen/evidence/logs/09-docker_compose_up.log",
+      "sha256": "df54342b5d38414d88933e726140a9f46097c2116c14e6f676216d287b224021",
+      "size_bytes": 766
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/.aen/evidence/logs/10-api_health_live.log",
+      "sha256": "f8dce828bd6188cca05144c28850799ce6236abd78a5d574679c80e4f494e15c",
+      "size_bytes": 61
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/.aen/evidence/logs/11-web_health_live.log",
+      "sha256": "a7ac3971a4144b48a034b2f6b8a77fadb3a6758603153008e5aafefec42dc9b7",
+      "size_bytes": 54
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/.aen/evidence/logs/12-api_pytest_live.log",
+      "sha256": "d68dfbb184d2ba3f8bc8f65270d2bae0bd175508317c25b585ac119e93a6f82b",
+      "size_bytes": 698
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/.aen/evidence/logs/13-api_dependency_integrity_live.log",
+      "sha256": "30261f8c565a25cd683c099cb8b4dcc4e80f9f025fd23a32fd02548cfc4b71eb",
+      "size_bytes": 143
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/.aen/evidence/logs/14-api_dependency_audit_live.log",
+      "sha256": "07e7dd37942badf0a46cba7d5544dd9bb17e5f76f9d363fd6e623298c83ce3f8",
+      "size_bytes": 142
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/.aen/evidence/logs/15-web_unit_live.log",
+      "sha256": "9629f725c55d8040ef9588a101350e29ec6d76701cff928eb93dfb5d0bc1c52b",
+      "size_bytes": 415
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/.aen/evidence/logs/16-web_build_live.log",
+      "sha256": "b27565b39c44747678e61399db66dfd065720d4b1156093394a8dff760f01d38",
+      "size_bytes": 1055
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/.aen/evidence/logs/17-web_dependency_audit_live.log",
+      "sha256": "0204cd61d037f46132c1a6bfe20b96049a0b21ee338890fd2b325777b901b0fd",
+      "size_bytes": 137
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/.aen/evidence/logs/18-web_e2e_live.log",
+      "sha256": "4c2544474a2233629baa3e7f368ea111b7ae583b7eb32c08a6aa793b4794038e",
+      "size_bytes": 570
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/.aen/evidence/logs/19-docker_compose_down.log",
+      "sha256": "f21d8296a2e251b796d535a7928177d7591e595e9d89b4ad70824c5dba3a6073",
+      "size_bytes": 676
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/.aen/evidence/logs/20-docker_compose_remove_sandbox_images.log",
+      "sha256": "9eb136db88d2f1b9dc68b4e3e4cb709dbaa2ddf2474b88517fa709dc13dde269",
+      "size_bytes": 132
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/.aen/evidence/logs/21-security_review.log",
+      "sha256": "43de3d7955a524d1b034425a966176083a530508bb2453d3dc11023c333f75e7",
+      "size_bytes": 268
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/.aen/evidence/logs/22-release_package.log",
+      "sha256": "97b16d9167a8348f8f71cebe6b368333001a8cd139b02c03b959e332ca95f05f",
+      "size_bytes": 258
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/.aen/evidence/security_review.json",
+      "sha256": "fb4522f3e1176eaa3233f988821f015bc8d8510e55dd60e0430eec643fbc6bd7",
+      "size_bytes": 855
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/.aen/host-visual-e2e.log",
+      "sha256": "56177f567819f6e3154235f4dd24734ee1e22825c4f7940c015bba7f7fa753a4",
+      "size_bytes": 708
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/.aen/real-lifecycle-result.json",
+      "sha256": "770b6cdce731ba789172a8e445f8c8208d761a21800180703c73fc4e67d0f9df",
+      "size_bytes": 18845
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/.aen/retry-history.json",
+      "sha256": "3eaa471a7c92ed107d59ada3ecdef49d760a08dbc69c603f5f8f933701d2aa71",
+      "size_bytes": 335
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/.aen/sandbox.json",
+      "sha256": "12488d07e74bd62f3ae1c4856b7b0adb5f916145998605fc453f23136d8f84dd",
+      "size_bytes": 18666
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/.env.example",
+      "sha256": "c7a1756f52f5fb874fb9f00893f75c50fefc8666f9c5d6daaba868043cf92263",
+      "size_bytes": 558
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/.github/workflows/ci.yml",
+      "sha256": "3b5a61e2a39fe076eab5bc3bcdbb0f39686848efd35f812cc19455493bff3063",
+      "size_bytes": 1468
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/api/alembic.ini",
+      "sha256": "34063b62b40cab8d64e96866ea5aae21bd7ee1aedc7c7ad176053a86ca63c025",
+      "size_bytes": 561
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/api/app/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/api/app/billing.py",
+      "sha256": "714885e1792795e63b9c50629378764c8966f6c3827c6ff0bb1b4c67b629221d",
+      "size_bytes": 3231
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/api/app/database.py",
+      "sha256": "89ef4b8eae77d2d0a0c8daee9417cbf47ed13574f3d90371f2fdd210c231f5ee",
+      "size_bytes": 679
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/api/app/domain.py",
+      "sha256": "457686b9804fe8acecb8b577107974107adf8c9f017bf0cea67a0a424f789737",
+      "size_bytes": 1170
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/api/app/domain_config.py",
+      "sha256": "7ea67dc9afa70977be3973fa1bbd8ff91625c64d500e03bde24cd8cffcb0807d",
+      "size_bytes": 484
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/api/app/domain_models.py",
+      "sha256": "5d8c8aac04bae3e67a42bbcc4f4737b606e2cde8dd17564b0e94465c9248db70",
+      "size_bytes": 1476
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/api/app/domain_router.py",
+      "sha256": "fd7168eaedeaad1e3d85b59abef5e4e552c85ac33271912f41f9150ba67b3a80",
+      "size_bytes": 6453
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/api/app/domain_schemas.py",
+      "sha256": "aca090092ad651a1f3cc570979c0708de3532f3809ed0d27a6bbdf53886fd52b",
+      "size_bytes": 941
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/api/app/domain_seed.py",
+      "sha256": "bc4a19cea69f5c42e5ebffc919cb1c2bf7cce16d23837ea2d24a1faaa2b6a96b",
+      "size_bytes": 735
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/api/app/integrations.py",
+      "sha256": "e6dadccfd161e1928a7caccdfea87f90b0e890cdb3871a5a954c50682e149211",
+      "size_bytes": 1849
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/api/app/main.py",
+      "sha256": "268f024bbed35166af122c9da323bc7cb5840fc548398464039dedbbb2244d1e",
+      "size_bytes": 8339
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/api/app/models.py",
+      "sha256": "8c8ccbe24818d50a76d2b4dea19f14d9ba04b781f135e503d8267d06d2f24b59",
+      "size_bytes": 4476
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/api/app/rbac.py",
+      "sha256": "73274aee2ece3e08af0e67b94a89ddff767c05f21f5c0fe4bbc81854e37cfd30",
+      "size_bytes": 2971
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/api/app/schemas.py",
+      "sha256": "c6988bb1e02ca5e3f57ef085620c08b12b44c2c1d5ca21cae9824be3b50b8270",
+      "size_bytes": 1319
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/api/app/security.py",
+      "sha256": "1711089f4cf8a51e9753e99615fa99a2d6f767a39e17a60aa6c1a0457726945e",
+      "size_bytes": 3397
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/api/app/security_headers.py",
+      "sha256": "b1bc984efc21463a5f1f06ee33304bb8f0dacda1e47e8a5411375dcaab9e1c03",
+      "size_bytes": 879
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/api/app/tenancy.py",
+      "sha256": "28f61a22dd78f5d3be200aeb2b1de06fa009a2717c1947b1f1bb8e7c994cdb7a",
+      "size_bytes": 711
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/api/app/workflows.py",
+      "sha256": "4d5a64c189812a23300783dd068cbf7e3661f19ba44832334e6f2125753788b1",
+      "size_bytes": 2583
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/api/Dockerfile",
+      "sha256": "3be06ca8f2718aefb4a9591d6f2f37f987613302e0aff663c2b7f96bda4cd471",
+      "size_bytes": 462
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/api/migrations/env.py",
+      "sha256": "4a3164ef7ddab2ec2fcc0fa05d1790aad0e2477318c64ca82c25beb1c45afb30",
+      "size_bytes": 1270
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/api/migrations/script.py.mako",
+      "sha256": "969a2de2c4edbc9af1bb6f64c3ca4d59beed4ab00fb1fde44b52e9e154ebc147",
+      "size_bytes": 469
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/api/migrations/versions/0001_initial.py",
+      "sha256": "c7b6b7b6ba9a529cbe96e2e7f708863985c3497d7f6e9eb1a2347f5dacf84aa5",
+      "size_bytes": 8593
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/api/migrations/versions/0002_domain_records.py",
+      "sha256": "bad9857fa3bb5c852d848c1544a07a6d93a7397ff47f0b6696e5d4cde1198ec2",
+      "size_bytes": 1389
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/api/requirements.txt",
+      "sha256": "53b0df782dcbb50f876db89859110c57c301f1e9ae04c65d5e64467efa0dafb5",
+      "size_bytes": 233
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/api/tests/test_domain_api.py",
+      "sha256": "e39f455593058c09b8c8a8a52bc713a9e4b9b7020dd4edcb6b7d4ddb4b016bdb",
+      "size_bytes": 3065
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/api/tests/test_domain_contract.py",
+      "sha256": "3065a6f10b134a2f97a25f06c7d82f9751ff42badd0cc9315f9904113f66a068",
+      "size_bytes": 421
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/api/tests/test_health.py",
+      "sha256": "47e9f3756101d4a3b24c1aadaab43bfd9b195b96b7ab7f7b3c6daae50c1a4586",
+      "size_bytes": 227
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/desktop/package.json",
+      "sha256": "1b4762c0b5ae0adba03b37988ae7f18405d488bff85a21ec4a9ebadb451b6ef4",
+      "size_bytes": 371
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/desktop/src/main.js",
+      "sha256": "230eadf22d6644f9ca198bb4a7701da096635b32855c54a50228248e116f00cf",
+      "size_bytes": 1739
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/web/Dockerfile",
+      "sha256": "934425cb096801e74092ffbd8d2656d70a00596bc86972d627596b3363edf98c",
+      "size_bytes": 137
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/web/Dockerfile.e2e",
+      "sha256": "84c5f773de315f51c23be9305b453942180203dd9b2c2b0fc286f46e630e020f",
+      "size_bytes": 227
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/web/next.config.ts",
+      "sha256": "ed816c9ee69dcfb886586bb5b398a351c4da5ed521d7e850ac9857812ba2f8a0",
+      "size_bytes": 138
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/web/package.json",
+      "sha256": "1a85e496f16861cff0cf77a07bf94cddac3a775e01617c241c411eeb1140ed56",
+      "size_bytes": 635
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/web/playwright.config.ts",
+      "sha256": "1d79a031d5f904aa05695aef259f3a14d57ec3cec42d22169fcca4c3927d0250",
+      "size_bytes": 465
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/web/src/app/globals.css",
+      "sha256": "5398ee82c4296a44874fa4465b4810a7c8dbd465e763b427d6ca3af79d666403",
+      "size_bytes": 1781
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/web/src/app/layout.tsx",
+      "sha256": "933131146ab6f489e180f15a743a97dab311106df0a6a07d1f403b6aaca85fa4",
+      "size_bytes": 334
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/web/src/app/page.tsx",
+      "sha256": "8fd61a66f06fe9a479eb04543a2ec5efa03aac8bc66df4b16a3e04877aeee50b",
+      "size_bytes": 4332
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/web/src/lib/api.ts",
+      "sha256": "7938e1b80754c1974467f397fe0829c3312ea52693cb92003f059f8f7271be0c",
+      "size_bytes": 288
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/web/src/lib/domain.test.ts",
+      "sha256": "6433b0f97ac26b587a5c3eb24103339d27c8460dbdb50e017ff3e9da1d7901a9",
+      "size_bytes": 629
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/web/src/lib/domain.ts",
+      "sha256": "dba636085838e857ffd7a21b565ec378cdd44c59d721a0e751b4206bea190fa7",
+      "size_bytes": 704
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/web/test-results/.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "size_bytes": 45
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/web/test-results/workbench-loads-domain-dashboard-and-creates-a-record/test-finished-1.png",
+      "sha256": "a2687b1f559e9af1c06559a37e41cb6eee40209095155df0c334d2e80fa265e9",
+      "size_bytes": 91024
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/web/tests/workbench.spec.ts",
+      "sha256": "6429a69f281439160af85cd929f591d6bb22a24bf31ba520bf4823536d3a87c2",
+      "size_bytes": 437
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/web/tsconfig.json",
+      "sha256": "b4d436133ed7a04989f18f2756158d48982a80453782d867c8be91e7f7ca5aef",
+      "size_bytes": 471
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/apps/web/vitest.config.ts",
+      "sha256": "e47853969e8d6d0adc11d43cd95e028cad227ad3e9422871e9af2cb04f6d5e4c",
+      "size_bytes": 210
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/database/schema.sql",
+      "sha256": "b8bc1f0d3a3ac13dfa3cc7dcc6464df076ec64d6a23b9491270c1aba4e163106",
+      "size_bytes": 4710
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/docker-compose.yml",
+      "sha256": "b2a7a9faf8578a0e1f84743e7ef1160a57d794493823068adfe09e285be80477",
+      "size_bytes": 1998
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/docs/ARCHITECTURE.md",
+      "sha256": "4b886adfa23935cf8e7a4362692128b534ff42113513d13ab4076d91f78f7fb0",
+      "size_bytes": 443
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/docs/COMPLIANCE.md",
+      "sha256": "87b1a20fc6c281d513a93dd102bb68ab431087de2a28762bacddd188bacede3e",
+      "size_bytes": 922
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/docs/DOMAIN_MODEL.md",
+      "sha256": "c1d54ac1c167f3ac662eb5f52e5603dfa1606428c009e9618d1c9e2314e9aadb",
+      "size_bytes": 808
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/docs/PRODUCTION_HARDENING.md",
+      "sha256": "447469bf2cd66ef8e6239eeb06851281d74385c705762b78186d4b8f62943eef",
+      "size_bytes": 889
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/docs/ROADMAP.md",
+      "sha256": "0309d4af46cd0f881ea21c8dec88912ffeb34779e81398a86e462dce395e4c97",
+      "size_bytes": 403
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/docs/SECURITY.md",
+      "sha256": "56bb574b341bf0174c1c44684064128065de927896c9d2639f0159eee7b1346e",
+      "size_bytes": 400
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/docs/SPEC.md",
+      "sha256": "e7a03c144768af88e49def3f84b5040c6299743c0d9ff9b08f4e14896abd8a70",
+      "size_bytes": 718
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/README.md",
+      "sha256": "f0d450f75195887b0125243853fd2903cddcee95a539aa14ac908a661c48b4d6",
+      "size_bytes": 1123
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/scripts/package-windows.ps1",
+      "sha256": "27f76dc7da7f78b4bb1e82222a18625e165bbf43d320fb5778f9adb1ba773c2b",
+      "size_bytes": 638
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/scripts/start.ps1",
+      "sha256": "ef5652b151cfb196f645fe05bf11fe3cb247a9329496aa5ead433ae87e504294",
+      "size_bytes": 88
+    },
+    {
+      "relative_path": "projects/crm_saas_multitenant/scripts/test.ps1",
+      "sha256": "16ac5f5a54b9f8e8bfd8e77c72ee614cdf7421e1b35e27e051a59f7080467e05",
+      "size_bytes": 137
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/.aen/evidence/47_project_verification.json",
+      "sha256": "471523c90ad347dd51f5b9e030268640a3f1ec11980dbfad178efcbaa5180de0",
+      "size_bytes": 8538
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/.aen/evidence/47_project_verification.md",
+      "sha256": "d2c0dfa8a40e693c89a258ff88dc4d9dd18276c73968e3a809a01ded197196e8",
+      "size_bytes": 315
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/.aen/evidence/functional_smoke.json",
+      "sha256": "2d21ff901917afacf9575bcc6756a9d51522d96cd42179fc3933ad2fa9f6dbee",
+      "size_bytes": 1263
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/.aen/evidence/logs/01-required_files.log",
+      "sha256": "d88d2442c999f97455ab336dd9ec89cf350b9c130754b65abce4cc8459fddefa",
+      "size_bytes": 35
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/.aen/evidence/logs/02-python_syntax.log",
+      "sha256": "0cfabb544422c9e5c4763495d63628b544510688ef9c12e59773c61fede27796",
+      "size_bytes": 27
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/.aen/evidence/logs/03-compose_static.log",
+      "sha256": "7fae90fd2880b41c3d85cedc1cbe03d79e571d361ef8d60cffb4ea1ae9167218",
+      "size_bytes": 60
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/.aen/evidence/logs/04-web_static.log",
+      "sha256": "8dad8d321bee8fe99982267296a3e634b2013cffdfbaf0145d3a6174568f8577",
+      "size_bytes": 57
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/.aen/evidence/logs/05-alembic_migrations.log",
+      "sha256": "262a7442d7a3437bf904b8850a410c9520d8b733ed7ffc705c0bbeaabe1a893a",
+      "size_bytes": 39
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/.aen/evidence/logs/06-desktop_packaging.log",
+      "sha256": "ab23833ca9c844696a07d650f4980b4c17d5156ddbe0fcb64a7f19b0ad8e3975",
+      "size_bytes": 46
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/.aen/evidence/logs/07-docker_compose_config.log",
+      "sha256": "e3128b82fc45f2956ea8c47568898e8c53ce8da8a5ff23f4af08473abe8f08e7",
+      "size_bytes": 54
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/.aen/evidence/logs/08-docker_compose_build.log",
+      "sha256": "d41a822f7aa82df9c6195fd8d4e0fcdc76e23639598ef2bf403daca0f3ba6c32",
+      "size_bytes": 3933
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/.aen/evidence/logs/09-docker_compose_up.log",
+      "sha256": "8b863d8680fe56337ef8834d660c943749f94742ebd2b835d6f016dc13d22aab",
+      "size_bytes": 766
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/.aen/evidence/logs/10-api_health_live.log",
+      "sha256": "12dc8a3f5ec2ffba75a08e73d7fb7d15a594b6ee08f38faee70ab35b2d981ae7",
+      "size_bytes": 61
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/.aen/evidence/logs/11-web_health_live.log",
+      "sha256": "c7d0d474c8e0c1ced58f07b7854aa63b38dc7813b68f826e8bf30cff62fce574",
+      "size_bytes": 54
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/.aen/evidence/logs/12-api_pytest_live.log",
+      "sha256": "56a92a886b4008c0dc8645ec122aeb60b8b20cce403a30e54c011fe72c3eed24",
+      "size_bytes": 698
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/.aen/evidence/logs/13-api_dependency_integrity_live.log",
+      "sha256": "1733886066ca949fe00fb77014077fdf07ed7d74f3f3f513969d6fe76de8843c",
+      "size_bytes": 143
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/.aen/evidence/logs/14-api_dependency_audit_live.log",
+      "sha256": "95d01c1432ae523e01a8fdbc06c0bbbb2a8570e567392e9925057a72184436a4",
+      "size_bytes": 142
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/.aen/evidence/logs/15-web_unit_live.log",
+      "sha256": "dea520335a121691588d5260cfb2d016374c3c567aec55ac973fdf967464ea45",
+      "size_bytes": 414
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/.aen/evidence/logs/16-web_build_live.log",
+      "sha256": "a1c5e0cfb7b90acd960c631d242834474e1ac112f30bcfe219532caa97a0d084",
+      "size_bytes": 1055
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/.aen/evidence/logs/17-web_dependency_audit_live.log",
+      "sha256": "a9026b6fb7a36f625cefa7b08b1e0bf9d75c2f244a6f1b1d27e410b8f5c12aae",
+      "size_bytes": 137
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/.aen/evidence/logs/18-web_e2e_live.log",
+      "sha256": "dd50be60172522828c1216a97a79f94a7bb95c271633969c5c13abdb92bf7e86",
+      "size_bytes": 569
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/.aen/evidence/logs/19-docker_compose_down.log",
+      "sha256": "c52d79c4a064c1315c5d9ca049868606d7c737b12c105057cee216a6a659a8f3",
+      "size_bytes": 676
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/.aen/evidence/logs/20-docker_compose_remove_sandbox_images.log",
+      "sha256": "9eb136db88d2f1b9dc68b4e3e4cb709dbaa2ddf2474b88517fa709dc13dde269",
+      "size_bytes": 132
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/.aen/evidence/logs/21-security_review.log",
+      "sha256": "43de3d7955a524d1b034425a966176083a530508bb2453d3dc11023c333f75e7",
+      "size_bytes": 268
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/.aen/evidence/logs/22-release_package.log",
+      "sha256": "f5f5f2a5775753a60f3179642e80970b1f229835aa66d48d95b0e953c17e5190",
+      "size_bytes": 259
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/.aen/evidence/security_review.json",
+      "sha256": "22da582a79da6d918271e5dd285e68a3e27c109bdb2c2e3dfc8e5653d6ff47a3",
+      "size_bytes": 856
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/.aen/host-visual-e2e.log",
+      "sha256": "e93ef41340ecbd6fb5b81932155eaeeac11e7927d69716e63d34779500292a43",
+      "size_bytes": 708
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/.aen/real-lifecycle-result.json",
+      "sha256": "732bf365314bae016973e31929215cb5d46751ac4e9e22cd74ccca42aab1a253",
+      "size_bytes": 19274
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/.aen/retry-history.json",
+      "sha256": "4e106d683ce8b545e4ffa899b95e4018d3f62b0a07beb285091cb7af073e107d",
+      "size_bytes": 335
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/.aen/sandbox.json",
+      "sha256": "a4749c2b12c52ab968348861dd48f2aa969325f34e92d79cb1b3ab1cf359c841",
+      "size_bytes": 19094
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/.env.example",
+      "sha256": "c7a1756f52f5fb874fb9f00893f75c50fefc8666f9c5d6daaba868043cf92263",
+      "size_bytes": 558
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/.github/workflows/ci.yml",
+      "sha256": "3b5a61e2a39fe076eab5bc3bcdbb0f39686848efd35f812cc19455493bff3063",
+      "size_bytes": 1468
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/api/alembic.ini",
+      "sha256": "34063b62b40cab8d64e96866ea5aae21bd7ee1aedc7c7ad176053a86ca63c025",
+      "size_bytes": 561
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/api/app/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/api/app/billing.py",
+      "sha256": "714885e1792795e63b9c50629378764c8966f6c3827c6ff0bb1b4c67b629221d",
+      "size_bytes": 3231
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/api/app/database.py",
+      "sha256": "89ef4b8eae77d2d0a0c8daee9417cbf47ed13574f3d90371f2fdd210c231f5ee",
+      "size_bytes": 679
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/api/app/domain.py",
+      "sha256": "e1e83c3a7968698d6e6d39cd27a812e8f6cd5d6c948d3dbcb936524a0fba8cb5",
+      "size_bytes": 1178
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/api/app/domain_config.py",
+      "sha256": "a3bd9a64967e6ef0881856cafdc8a22407a895cb19b800b2912b2e60c5c6c995",
+      "size_bytes": 574
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/api/app/domain_models.py",
+      "sha256": "5d8c8aac04bae3e67a42bbcc4f4737b606e2cde8dd17564b0e94465c9248db70",
+      "size_bytes": 1476
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/api/app/domain_router.py",
+      "sha256": "34b69323177f10b491e6fdcb757ac6dc07f6ccab855bd8607698f0bb86e71dd0",
+      "size_bytes": 6461
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/api/app/domain_schemas.py",
+      "sha256": "aca090092ad651a1f3cc570979c0708de3532f3809ed0d27a6bbdf53886fd52b",
+      "size_bytes": 941
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/api/app/domain_seed.py",
+      "sha256": "eec96727ab9fc42cc7431f3eb908e37eab20033b0bab823c7e582ab7ce19f641",
+      "size_bytes": 1145
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/api/app/integrations.py",
+      "sha256": "e6dadccfd161e1928a7caccdfea87f90b0e890cdb3871a5a954c50682e149211",
+      "size_bytes": 1849
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/api/app/main.py",
+      "sha256": "ca495ff68e4ce1d143088e5d5e8eafd68f78e76778607075a7ef703efb57c1ee",
+      "size_bytes": 8355
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/api/app/models.py",
+      "sha256": "8c8ccbe24818d50a76d2b4dea19f14d9ba04b781f135e503d8267d06d2f24b59",
+      "size_bytes": 4476
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/api/app/rbac.py",
+      "sha256": "73274aee2ece3e08af0e67b94a89ddff767c05f21f5c0fe4bbc81854e37cfd30",
+      "size_bytes": 2971
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/api/app/schemas.py",
+      "sha256": "c6988bb1e02ca5e3f57ef085620c08b12b44c2c1d5ca21cae9824be3b50b8270",
+      "size_bytes": 1319
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/api/app/security.py",
+      "sha256": "1711089f4cf8a51e9753e99615fa99a2d6f767a39e17a60aa6c1a0457726945e",
+      "size_bytes": 3397
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/api/app/security_headers.py",
+      "sha256": "b1bc984efc21463a5f1f06ee33304bb8f0dacda1e47e8a5411375dcaab9e1c03",
+      "size_bytes": 879
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/api/app/tenancy.py",
+      "sha256": "28f61a22dd78f5d3be200aeb2b1de06fa009a2717c1947b1f1bb8e7c994cdb7a",
+      "size_bytes": 711
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/api/app/workflows.py",
+      "sha256": "4d5a64c189812a23300783dd068cbf7e3661f19ba44832334e6f2125753788b1",
+      "size_bytes": 2583
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/api/Dockerfile",
+      "sha256": "3be06ca8f2718aefb4a9591d6f2f37f987613302e0aff663c2b7f96bda4cd471",
+      "size_bytes": 462
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/api/migrations/env.py",
+      "sha256": "4a3164ef7ddab2ec2fcc0fa05d1790aad0e2477318c64ca82c25beb1c45afb30",
+      "size_bytes": 1270
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/api/migrations/script.py.mako",
+      "sha256": "969a2de2c4edbc9af1bb6f64c3ca4d59beed4ab00fb1fde44b52e9e154ebc147",
+      "size_bytes": 469
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/api/migrations/versions/0001_initial.py",
+      "sha256": "c7b6b7b6ba9a529cbe96e2e7f708863985c3497d7f6e9eb1a2347f5dacf84aa5",
+      "size_bytes": 8593
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/api/migrations/versions/0002_domain_records.py",
+      "sha256": "bad9857fa3bb5c852d848c1544a07a6d93a7397ff47f0b6696e5d4cde1198ec2",
+      "size_bytes": 1389
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/api/requirements.txt",
+      "sha256": "53b0df782dcbb50f876db89859110c57c301f1e9ae04c65d5e64467efa0dafb5",
+      "size_bytes": 233
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/api/tests/test_domain_api.py",
+      "sha256": "b90449e7919ebc9cda61394bb3835949679b001547a818e40fbb78339cdcd232",
+      "size_bytes": 3074
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/api/tests/test_domain_contract.py",
+      "sha256": "7157649db116a5addcf22a434e447011e7e05ca6c02a9a8392736cde27832dc4",
+      "size_bytes": 429
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/api/tests/test_health.py",
+      "sha256": "47e9f3756101d4a3b24c1aadaab43bfd9b195b96b7ab7f7b3c6daae50c1a4586",
+      "size_bytes": 227
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/desktop/package.json",
+      "sha256": "3e5742d773bf6b0cd0922d0b65994d7b663a8c0275b91ab752127c7fb1919431",
+      "size_bytes": 387
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/desktop/src/main.js",
+      "sha256": "84c989c1bdad98e950dc90916ac458c14b10f65bec6334c65d3d2f31dff07b4c",
+      "size_bytes": 1755
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/web/Dockerfile",
+      "sha256": "934425cb096801e74092ffbd8d2656d70a00596bc86972d627596b3363edf98c",
+      "size_bytes": 137
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/web/Dockerfile.e2e",
+      "sha256": "84c5f773de315f51c23be9305b453942180203dd9b2c2b0fc286f46e630e020f",
+      "size_bytes": 227
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/web/next.config.ts",
+      "sha256": "ed816c9ee69dcfb886586bb5b398a351c4da5ed521d7e850ac9857812ba2f8a0",
+      "size_bytes": 138
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/web/package.json",
+      "sha256": "1a85e496f16861cff0cf77a07bf94cddac3a775e01617c241c411eeb1140ed56",
+      "size_bytes": 635
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/web/playwright.config.ts",
+      "sha256": "1d79a031d5f904aa05695aef259f3a14d57ec3cec42d22169fcca4c3927d0250",
+      "size_bytes": 465
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/web/src/app/globals.css",
+      "sha256": "5398ee82c4296a44874fa4465b4810a7c8dbd465e763b427d6ca3af79d666403",
+      "size_bytes": 1781
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/web/src/app/layout.tsx",
+      "sha256": "0bf29185158861fd78b95cdc05d6b603ce68e672f0a9d2e9e00fa93623d13508",
+      "size_bytes": 348
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/web/src/app/page.tsx",
+      "sha256": "b7a7392955eb1767e97ffd29a13c277d8c040a009777ef59632a60c3e7ee7cd5",
+      "size_bytes": 4408
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/web/src/lib/api.ts",
+      "sha256": "7938e1b80754c1974467f397fe0829c3312ea52693cb92003f059f8f7271be0c",
+      "size_bytes": 288
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/web/src/lib/domain.test.ts",
+      "sha256": "6433b0f97ac26b587a5c3eb24103339d27c8460dbdb50e017ff3e9da1d7901a9",
+      "size_bytes": 629
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/web/src/lib/domain.ts",
+      "sha256": "dba636085838e857ffd7a21b565ec378cdd44c59d721a0e751b4206bea190fa7",
+      "size_bytes": 704
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/web/test-results/.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "size_bytes": 45
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/web/test-results/workbench-loads-domain-dashboard-and-creates-a-record/test-finished-1.png",
+      "sha256": "e6f269342fcc93b37d2a04b9a2ef630a0adcfdcb4d73f6d79de2e79f1dea480c",
+      "size_bytes": 97736
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/web/tests/workbench.spec.ts",
+      "sha256": "0c95280db1b3be5ce16f9ff1815765185eb45cd5028dbe9438c416c29dcdc838",
+      "size_bytes": 451
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/web/tsconfig.json",
+      "sha256": "b4d436133ed7a04989f18f2756158d48982a80453782d867c8be91e7f7ca5aef",
+      "size_bytes": 471
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/apps/web/vitest.config.ts",
+      "sha256": "e47853969e8d6d0adc11d43cd95e028cad227ad3e9422871e9af2cb04f6d5e4c",
+      "size_bytes": 210
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/database/schema.sql",
+      "sha256": "b8bc1f0d3a3ac13dfa3cc7dcc6464df076ec64d6a23b9491270c1aba4e163106",
+      "size_bytes": 4710
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/docker-compose.yml",
+      "sha256": "b2a7a9faf8578a0e1f84743e7ef1160a57d794493823068adfe09e285be80477",
+      "size_bytes": 1998
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/docs/ARCHITECTURE.md",
+      "sha256": "6da554e0a06e067103a18ff9c45175fac2e11212cdf56c7b741ec9d4e8f255be",
+      "size_bytes": 451
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/docs/COMPLIANCE.md",
+      "sha256": "87b1a20fc6c281d513a93dd102bb68ab431087de2a28762bacddd188bacede3e",
+      "size_bytes": 922
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/docs/DOMAIN_MODEL.md",
+      "sha256": "c19855405b5a2e4dc91997c4a0b28a794ab8acb020a2deecf19805eb5b566ef1",
+      "size_bytes": 816
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/docs/PRODUCTION_HARDENING.md",
+      "sha256": "447469bf2cd66ef8e6239eeb06851281d74385c705762b78186d4b8f62943eef",
+      "size_bytes": 889
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/docs/ROADMAP.md",
+      "sha256": "0309d4af46cd0f881ea21c8dec88912ffeb34779e81398a86e462dce395e4c97",
+      "size_bytes": 403
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/docs/SECURITY.md",
+      "sha256": "56bb574b341bf0174c1c44684064128065de927896c9d2639f0159eee7b1346e",
+      "size_bytes": 400
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/docs/SPEC.md",
+      "sha256": "a00c4cf5cbf6cb523a73879f50fe8f65d919e595c77f78a27f891bb208a08188",
+      "size_bytes": 729
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/README.md",
+      "sha256": "1845369767dbba57fdf0f57cc008804f7f0d5567d9b1c01645c66da88020d5a4",
+      "size_bytes": 1134
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/scripts/package-windows.ps1",
+      "sha256": "27f76dc7da7f78b4bb1e82222a18625e165bbf43d320fb5778f9adb1ba773c2b",
+      "size_bytes": 638
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/scripts/start.ps1",
+      "sha256": "ef5652b151cfb196f645fe05bf11fe3cb247a9329496aa5ead433ae87e504294",
+      "size_bytes": 88
+    },
+    {
+      "relative_path": "projects/ecommerce_marketplace/scripts/test.ps1",
+      "sha256": "16ac5f5a54b9f8e8bfd8e77c72ee614cdf7421e1b35e27e051a59f7080467e05",
+      "size_bytes": 137
+    },
+    {
+      "relative_path": "projects/lms_platform/.aen/evidence/47_project_verification.json",
+      "sha256": "36ab7e26db29b3d7f8f764dc928e1a41538bcbfc7c267bff697a7e0417e6822b",
+      "size_bytes": 8142
+    },
+    {
+      "relative_path": "projects/lms_platform/.aen/evidence/47_project_verification.md",
+      "sha256": "d2c0dfa8a40e693c89a258ff88dc4d9dd18276c73968e3a809a01ded197196e8",
+      "size_bytes": 315
+    },
+    {
+      "relative_path": "projects/lms_platform/.aen/evidence/functional_smoke.json",
+      "sha256": "4cc6f90d69bd7b7a466ca8fc2f8c17544b37bd1aa2d0899f8debc6dba2c1a470",
+      "size_bytes": 1191
+    },
+    {
+      "relative_path": "projects/lms_platform/.aen/evidence/logs/01-required_files.log",
+      "sha256": "d88d2442c999f97455ab336dd9ec89cf350b9c130754b65abce4cc8459fddefa",
+      "size_bytes": 35
+    },
+    {
+      "relative_path": "projects/lms_platform/.aen/evidence/logs/02-python_syntax.log",
+      "sha256": "0cfabb544422c9e5c4763495d63628b544510688ef9c12e59773c61fede27796",
+      "size_bytes": 27
+    },
+    {
+      "relative_path": "projects/lms_platform/.aen/evidence/logs/03-compose_static.log",
+      "sha256": "7fae90fd2880b41c3d85cedc1cbe03d79e571d361ef8d60cffb4ea1ae9167218",
+      "size_bytes": 60
+    },
+    {
+      "relative_path": "projects/lms_platform/.aen/evidence/logs/04-web_static.log",
+      "sha256": "8dad8d321bee8fe99982267296a3e634b2013cffdfbaf0145d3a6174568f8577",
+      "size_bytes": 57
+    },
+    {
+      "relative_path": "projects/lms_platform/.aen/evidence/logs/05-alembic_migrations.log",
+      "sha256": "262a7442d7a3437bf904b8850a410c9520d8b733ed7ffc705c0bbeaabe1a893a",
+      "size_bytes": 39
+    },
+    {
+      "relative_path": "projects/lms_platform/.aen/evidence/logs/06-desktop_packaging.log",
+      "sha256": "ab23833ca9c844696a07d650f4980b4c17d5156ddbe0fcb64a7f19b0ad8e3975",
+      "size_bytes": 46
+    },
+    {
+      "relative_path": "projects/lms_platform/.aen/evidence/logs/07-docker_compose_config.log",
+      "sha256": "e3128b82fc45f2956ea8c47568898e8c53ce8da8a5ff23f4af08473abe8f08e7",
+      "size_bytes": 54
+    },
+    {
+      "relative_path": "projects/lms_platform/.aen/evidence/logs/08-docker_compose_build.log",
+      "sha256": "d7b49b5f2f7f0387020bdf6866b9c7c54af3ee533ca7822d039adbaa7662b75e",
+      "size_bytes": 3933
+    },
+    {
+      "relative_path": "projects/lms_platform/.aen/evidence/logs/09-docker_compose_up.log",
+      "sha256": "bbfd5675aa9a6a7ec1ca029de4ee823253519e3bc1aeb63943feeb0b178742e4",
+      "size_bytes": 766
+    },
+    {
+      "relative_path": "projects/lms_platform/.aen/evidence/logs/10-api_health_live.log",
+      "sha256": "467dd4f25f8a97726dfa15bdff85a86acd529c5ae277343d529c0e410d3fc420",
+      "size_bytes": 61
+    },
+    {
+      "relative_path": "projects/lms_platform/.aen/evidence/logs/11-web_health_live.log",
+      "sha256": "9f8163d4dcb85f3b1bf9f07cfd533846b0bf224ed9068031d8479b3d2cee7d36",
+      "size_bytes": 54
+    },
+    {
+      "relative_path": "projects/lms_platform/.aen/evidence/logs/12-api_pytest_live.log",
+      "sha256": "dd4cafeb54bdeb37d85096097ab9d754af279802cb1550b94eed0f0dd01647ae",
+      "size_bytes": 698
+    },
+    {
+      "relative_path": "projects/lms_platform/.aen/evidence/logs/13-api_dependency_integrity_live.log",
+      "sha256": "bce17cc4f1f5c968661a167a2d336ae859f194305c7aedb3e14c524aea3d27ef",
+      "size_bytes": 143
+    },
+    {
+      "relative_path": "projects/lms_platform/.aen/evidence/logs/14-api_dependency_audit_live.log",
+      "sha256": "bf3fe5bb021021e5a176d284a9227e80a9192ff2146b7630b8732c0fcf178935",
+      "size_bytes": 142
+    },
+    {
+      "relative_path": "projects/lms_platform/.aen/evidence/logs/15-web_unit_live.log",
+      "sha256": "1af7fbd3216c5d01002d973a47f022d3d701a59030c5e8d59ed863dc8adff2e9",
+      "size_bytes": 412
+    },
+    {
+      "relative_path": "projects/lms_platform/.aen/evidence/logs/16-web_build_live.log",
+      "sha256": "83d6734bc4f2664049ce1e36311a791a9bfd29655e715dc0935e2853f731657c",
+      "size_bytes": 1054
+    },
+    {
+      "relative_path": "projects/lms_platform/.aen/evidence/logs/17-web_dependency_audit_live.log",
+      "sha256": "0f5c5572e915a652ba870c061207d6e381222126249cde237d5b109f0907afd7",
+      "size_bytes": 137
+    },
+    {
+      "relative_path": "projects/lms_platform/.aen/evidence/logs/18-web_e2e_live.log",
+      "sha256": "2a960339aec19f993aaf765f3e9639db56989ea9b1252abd769400c986a11811",
+      "size_bytes": 569
+    },
+    {
+      "relative_path": "projects/lms_platform/.aen/evidence/logs/19-docker_compose_down.log",
+      "sha256": "169c596af3094b33242d630ee228ce3e762a4b58a924e39e699d5785c03e453c",
+      "size_bytes": 676
+    },
+    {
+      "relative_path": "projects/lms_platform/.aen/evidence/logs/20-docker_compose_remove_sandbox_images.log",
+      "sha256": "9eb136db88d2f1b9dc68b4e3e4cb709dbaa2ddf2474b88517fa709dc13dde269",
+      "size_bytes": 132
+    },
+    {
+      "relative_path": "projects/lms_platform/.aen/evidence/logs/21-security_review.log",
+      "sha256": "43de3d7955a524d1b034425a966176083a530508bb2453d3dc11023c333f75e7",
+      "size_bytes": 268
+    },
+    {
+      "relative_path": "projects/lms_platform/.aen/evidence/logs/22-release_package.log",
+      "sha256": "71034253efd0514798ae4ddea4113413a9d72750e35256e13e60518933d1468d",
+      "size_bytes": 250
+    },
+    {
+      "relative_path": "projects/lms_platform/.aen/evidence/security_review.json",
+      "sha256": "84d113f6fd095e3a61fbd2d587413577443b1b2192cbb331ec6d91f912b1d88b",
+      "size_bytes": 847
+    },
+    {
+      "relative_path": "projects/lms_platform/.aen/host-visual-e2e.log",
+      "sha256": "656f406000595e9188360e941441283649b60a6256614db723d231d6a3dec14b",
+      "size_bytes": 457
+    },
+    {
+      "relative_path": "projects/lms_platform/.aen/real-lifecycle-result.json",
+      "sha256": "443852e8c7f654d2ddf4a90ab3d64b0661904318d69e2c12e6b6e6ee2e096818",
+      "size_bytes": 19046
+    },
+    {
+      "relative_path": "projects/lms_platform/.aen/retry-history.json",
+      "sha256": "c5c50d440ed6356936e063158f828d58dd13825788d3f9285059a31ce1b0004a",
+      "size_bytes": 335
+    },
+    {
+      "relative_path": "projects/lms_platform/.aen/sandbox.json",
+      "sha256": "4c0f7005de839ad0b31c60702a5182c43bf28099d9c55d441263896c61844ba2",
+      "size_bytes": 18875
+    },
+    {
+      "relative_path": "projects/lms_platform/.env.example",
+      "sha256": "c7a1756f52f5fb874fb9f00893f75c50fefc8666f9c5d6daaba868043cf92263",
+      "size_bytes": 558
+    },
+    {
+      "relative_path": "projects/lms_platform/.github/workflows/ci.yml",
+      "sha256": "3b5a61e2a39fe076eab5bc3bcdbb0f39686848efd35f812cc19455493bff3063",
+      "size_bytes": 1468
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/api/alembic.ini",
+      "sha256": "34063b62b40cab8d64e96866ea5aae21bd7ee1aedc7c7ad176053a86ca63c025",
+      "size_bytes": 561
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/api/app/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/api/app/billing.py",
+      "sha256": "714885e1792795e63b9c50629378764c8966f6c3827c6ff0bb1b4c67b629221d",
+      "size_bytes": 3231
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/api/app/database.py",
+      "sha256": "89ef4b8eae77d2d0a0c8daee9417cbf47ed13574f3d90371f2fdd210c231f5ee",
+      "size_bytes": 679
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/api/app/domain.py",
+      "sha256": "f4c05cb2a976b4886cc71a1e4b0d714d2894dafe59bcd121e5fb9098d52fc375",
+      "size_bytes": 1170
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/api/app/domain_config.py",
+      "sha256": "8117376b28fccffc21de73a9e4d709b7d60abba1c431629dbd17c397e93fb571",
+      "size_bytes": 555
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/api/app/domain_models.py",
+      "sha256": "5d8c8aac04bae3e67a42bbcc4f4737b606e2cde8dd17564b0e94465c9248db70",
+      "size_bytes": 1476
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/api/app/domain_router.py",
+      "sha256": "7451fb22fc04d3bc4fc00f3c18d65076c0d0d7e5f89010559ff589e9e7d08789",
+      "size_bytes": 6453
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/api/app/domain_schemas.py",
+      "sha256": "aca090092ad651a1f3cc570979c0708de3532f3809ed0d27a6bbdf53886fd52b",
+      "size_bytes": 941
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/api/app/domain_seed.py",
+      "sha256": "fb26dde41126aa31640b235a66d91047ccc54e2d0c45f6a87c011a7ff6b9e844",
+      "size_bytes": 963
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/api/app/integrations.py",
+      "sha256": "e6dadccfd161e1928a7caccdfea87f90b0e890cdb3871a5a954c50682e149211",
+      "size_bytes": 1849
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/api/app/main.py",
+      "sha256": "93efb7c22bd579770bbc42b1f4d8297c2a8a7eec314c578f44d1714465202c94",
+      "size_bytes": 8339
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/api/app/models.py",
+      "sha256": "8c8ccbe24818d50a76d2b4dea19f14d9ba04b781f135e503d8267d06d2f24b59",
+      "size_bytes": 4476
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/api/app/rbac.py",
+      "sha256": "73274aee2ece3e08af0e67b94a89ddff767c05f21f5c0fe4bbc81854e37cfd30",
+      "size_bytes": 2971
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/api/app/schemas.py",
+      "sha256": "c6988bb1e02ca5e3f57ef085620c08b12b44c2c1d5ca21cae9824be3b50b8270",
+      "size_bytes": 1319
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/api/app/security.py",
+      "sha256": "1711089f4cf8a51e9753e99615fa99a2d6f767a39e17a60aa6c1a0457726945e",
+      "size_bytes": 3397
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/api/app/security_headers.py",
+      "sha256": "b1bc984efc21463a5f1f06ee33304bb8f0dacda1e47e8a5411375dcaab9e1c03",
+      "size_bytes": 879
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/api/app/tenancy.py",
+      "sha256": "28f61a22dd78f5d3be200aeb2b1de06fa009a2717c1947b1f1bb8e7c994cdb7a",
+      "size_bytes": 711
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/api/app/workflows.py",
+      "sha256": "4d5a64c189812a23300783dd068cbf7e3661f19ba44832334e6f2125753788b1",
+      "size_bytes": 2583
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/api/Dockerfile",
+      "sha256": "3be06ca8f2718aefb4a9591d6f2f37f987613302e0aff663c2b7f96bda4cd471",
+      "size_bytes": 462
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/api/migrations/env.py",
+      "sha256": "4a3164ef7ddab2ec2fcc0fa05d1790aad0e2477318c64ca82c25beb1c45afb30",
+      "size_bytes": 1270
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/api/migrations/script.py.mako",
+      "sha256": "969a2de2c4edbc9af1bb6f64c3ca4d59beed4ab00fb1fde44b52e9e154ebc147",
+      "size_bytes": 469
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/api/migrations/versions/0001_initial.py",
+      "sha256": "c7b6b7b6ba9a529cbe96e2e7f708863985c3497d7f6e9eb1a2347f5dacf84aa5",
+      "size_bytes": 8593
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/api/migrations/versions/0002_domain_records.py",
+      "sha256": "bad9857fa3bb5c852d848c1544a07a6d93a7397ff47f0b6696e5d4cde1198ec2",
+      "size_bytes": 1389
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/api/requirements.txt",
+      "sha256": "53b0df782dcbb50f876db89859110c57c301f1e9ae04c65d5e64467efa0dafb5",
+      "size_bytes": 233
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/api/tests/test_domain_api.py",
+      "sha256": "3dc4db5b06799bea63d2b5f1ea514274cf22dbd4137650418334fb4a9fa23d8e",
+      "size_bytes": 3065
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/api/tests/test_domain_contract.py",
+      "sha256": "2bf4bac72ba7672e532e31ddaba6e3134fe636a31e77ad0cbf8b427fb3806c4c",
+      "size_bytes": 421
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/api/tests/test_health.py",
+      "sha256": "47e9f3756101d4a3b24c1aadaab43bfd9b195b96b7ab7f7b3c6daae50c1a4586",
+      "size_bytes": 227
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/desktop/package.json",
+      "sha256": "9d8e728d811940d4e519daada6a86eccb7f8db51c56e7aa6d549e26f9a19a3ad",
+      "size_bytes": 371
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/desktop/src/main.js",
+      "sha256": "9109f1c82657b59dabd040e0df0ba52c07a90b744a3658e0bf4a3b769b569dd1",
+      "size_bytes": 1739
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/web/Dockerfile",
+      "sha256": "934425cb096801e74092ffbd8d2656d70a00596bc86972d627596b3363edf98c",
+      "size_bytes": 137
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/web/Dockerfile.e2e",
+      "sha256": "84c5f773de315f51c23be9305b453942180203dd9b2c2b0fc286f46e630e020f",
+      "size_bytes": 227
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/web/next.config.ts",
+      "sha256": "ed816c9ee69dcfb886586bb5b398a351c4da5ed521d7e850ac9857812ba2f8a0",
+      "size_bytes": 138
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/web/package.json",
+      "sha256": "1a85e496f16861cff0cf77a07bf94cddac3a775e01617c241c411eeb1140ed56",
+      "size_bytes": 635
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/web/playwright.config.ts",
+      "sha256": "1d79a031d5f904aa05695aef259f3a14d57ec3cec42d22169fcca4c3927d0250",
+      "size_bytes": 465
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/web/src/app/globals.css",
+      "sha256": "5398ee82c4296a44874fa4465b4810a7c8dbd465e763b427d6ca3af79d666403",
+      "size_bytes": 1781
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/web/src/app/layout.tsx",
+      "sha256": "503d861cab8a5a5c8bee660db0f4ec4ea2ce67402054f2056cba05615ba487ae",
+      "size_bytes": 341
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/web/src/app/page.tsx",
+      "sha256": "00bd12dc89cbeda769271f40f7f08813ed43e5857481772fa57336f5e5fbba7c",
+      "size_bytes": 4395
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/web/src/lib/api.ts",
+      "sha256": "7938e1b80754c1974467f397fe0829c3312ea52693cb92003f059f8f7271be0c",
+      "size_bytes": 288
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/web/src/lib/domain.test.ts",
+      "sha256": "6433b0f97ac26b587a5c3eb24103339d27c8460dbdb50e017ff3e9da1d7901a9",
+      "size_bytes": 629
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/web/src/lib/domain.ts",
+      "sha256": "dba636085838e857ffd7a21b565ec378cdd44c59d721a0e751b4206bea190fa7",
+      "size_bytes": 704
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/web/test-results/.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "size_bytes": 45
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/web/test-results/workbench-loads-domain-dashboard-and-creates-a-record/test-finished-1.png",
+      "sha256": "c3fdaedbbee6c8bb14ef3b252c1e27384057c4c1141faa4d0d171fae272cb389",
+      "size_bytes": 94886
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/web/tests/workbench.spec.ts",
+      "sha256": "66f2cbd14f429fe5b1fbc3bda00cbf72ec80362e488d8ccecc0a8ff450cbbfd5",
+      "size_bytes": 441
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/web/tsconfig.json",
+      "sha256": "b4d436133ed7a04989f18f2756158d48982a80453782d867c8be91e7f7ca5aef",
+      "size_bytes": 471
+    },
+    {
+      "relative_path": "projects/lms_platform/apps/web/vitest.config.ts",
+      "sha256": "e47853969e8d6d0adc11d43cd95e028cad227ad3e9422871e9af2cb04f6d5e4c",
+      "size_bytes": 210
+    },
+    {
+      "relative_path": "projects/lms_platform/database/schema.sql",
+      "sha256": "b8bc1f0d3a3ac13dfa3cc7dcc6464df076ec64d6a23b9491270c1aba4e163106",
+      "size_bytes": 4710
+    },
+    {
+      "relative_path": "projects/lms_platform/docker-compose.yml",
+      "sha256": "b2a7a9faf8578a0e1f84743e7ef1160a57d794493823068adfe09e285be80477",
+      "size_bytes": 1998
+    },
+    {
+      "relative_path": "projects/lms_platform/docs/ARCHITECTURE.md",
+      "sha256": "b50c25487d90589caa6d066b0fb301091a2538b95dc35ae3bed7b363fd228e37",
+      "size_bytes": 443
+    },
+    {
+      "relative_path": "projects/lms_platform/docs/COMPLIANCE.md",
+      "sha256": "87b1a20fc6c281d513a93dd102bb68ab431087de2a28762bacddd188bacede3e",
+      "size_bytes": 922
+    },
+    {
+      "relative_path": "projects/lms_platform/docs/DOMAIN_MODEL.md",
+      "sha256": "6b84516d3c41f1a6f225407d1edc9b6ff75315477015c9ea260b89f1f6bdb5f8",
+      "size_bytes": 808
+    },
+    {
+      "relative_path": "projects/lms_platform/docs/PRODUCTION_HARDENING.md",
+      "sha256": "447469bf2cd66ef8e6239eeb06851281d74385c705762b78186d4b8f62943eef",
+      "size_bytes": 889
+    },
+    {
+      "relative_path": "projects/lms_platform/docs/ROADMAP.md",
+      "sha256": "0309d4af46cd0f881ea21c8dec88912ffeb34779e81398a86e462dce395e4c97",
+      "size_bytes": 403
+    },
+    {
+      "relative_path": "projects/lms_platform/docs/SECURITY.md",
+      "sha256": "56bb574b341bf0174c1c44684064128065de927896c9d2639f0159eee7b1346e",
+      "size_bytes": 400
+    },
+    {
+      "relative_path": "projects/lms_platform/docs/SPEC.md",
+      "sha256": "014d177b3348980dd27faad532238bbbeebc6aa12f428d5cf8852bd9a38f167f",
+      "size_bytes": 721
+    },
+    {
+      "relative_path": "projects/lms_platform/README.md",
+      "sha256": "6bd8f520bc8cef9d29bf5b8956d69bf2d72f728105ef63600d2ecdc1b2c8bfd8",
+      "size_bytes": 1126
+    },
+    {
+      "relative_path": "projects/lms_platform/scripts/package-windows.ps1",
+      "sha256": "27f76dc7da7f78b4bb1e82222a18625e165bbf43d320fb5778f9adb1ba773c2b",
+      "size_bytes": 638
+    },
+    {
+      "relative_path": "projects/lms_platform/scripts/start.ps1",
+      "sha256": "ef5652b151cfb196f645fe05bf11fe3cb247a9329496aa5ead433ae87e504294",
+      "size_bytes": 88
+    },
+    {
+      "relative_path": "projects/lms_platform/scripts/test.ps1",
+      "sha256": "16ac5f5a54b9f8e8bfd8e77c72ee614cdf7421e1b35e27e051a59f7080467e05",
+      "size_bytes": 137
+    }
+  ],
+  "portable": true,
+  "scenario_count": 7,
+  "scenarios": [
+    {
+      "capability_passed": true,
+      "completion_quality": "VERIFIED",
+      "portable_paths": true,
+      "scenario_id": "ai_chatbot_saas",
+      "status": "COMPLETED_VERIFIED",
+      "summary_path": "ai_chatbot_saas/summary.json",
+      "summary_sha256": "0471faaf673c2ca33fc3607bbf9e962f2c693eb2be55e88db94c3616d2cfc20f"
+    },
+    {
+      "capability_passed": true,
+      "completion_quality": "VERIFIED",
+      "portable_paths": true,
+      "scenario_id": "booking_platform",
+      "status": "COMPLETED_VERIFIED",
+      "summary_path": "booking_platform/summary.json",
+      "summary_sha256": "71ca3dcee979685b6dcda38e5f2fb2f6bb22da5dc2f5075bfde04ac281513939"
+    },
+    {
+      "capability_passed": true,
+      "completion_quality": "VERIFIED",
+      "portable_paths": true,
+      "scenario_id": "complex_3d_game",
+      "status": "COMPLETED_VERIFIED",
+      "summary_path": "complex_3d_game/summary.json",
+      "summary_sha256": "64463598e38be45540447ffc334a65afb59a5e1a3cd6ba03378b0af91f38d6bd"
+    },
+    {
+      "capability_passed": true,
+      "completion_quality": "VERIFIED",
+      "portable_paths": true,
+      "scenario_id": "complex_algorithm_service",
+      "status": "COMPLETED_VERIFIED",
+      "summary_path": "complex_algorithm_service/summary.json",
+      "summary_sha256": "40945905502a1b35dc97ebea796ddbb5033a6cb5665a47996130c9b5030d16ce"
+    },
+    {
+      "capability_passed": true,
+      "completion_quality": "VERIFIED",
+      "portable_paths": true,
+      "scenario_id": "crm_saas_multitenant",
+      "status": "COMPLETED_VERIFIED",
+      "summary_path": "crm_saas_multitenant/summary.json",
+      "summary_sha256": "f23ef5b1920e4ad42b04793eb8e115389625806f88779969fb4fd48d9840f13b"
+    },
+    {
+      "capability_passed": true,
+      "completion_quality": "VERIFIED",
+      "portable_paths": true,
+      "scenario_id": "ecommerce_marketplace",
+      "status": "COMPLETED_VERIFIED",
+      "summary_path": "ecommerce_marketplace/summary.json",
+      "summary_sha256": "9847d2e7f4d8b9e2ac140091fbf9be89b2d55130ee592d28ae2b7269c1672a3c"
+    },
+    {
+      "capability_passed": true,
+      "completion_quality": "VERIFIED",
+      "portable_paths": true,
+      "scenario_id": "lms_platform",
+      "status": "COMPLETED_VERIFIED",
+      "summary_path": "lms_platform/summary.json",
+      "summary_sha256": "deb296c4cf4944d2c4237abd9100699fb7f0aa65a31cb5fd25420475e17d66b2"
+    }
+  ],
+  "schema_version": "ann.autonomous-capability-evidence.v1",
+  "status": "PORTABLE_EVIDENCE_READY",
+  "total_size_bytes": 1603895
+}

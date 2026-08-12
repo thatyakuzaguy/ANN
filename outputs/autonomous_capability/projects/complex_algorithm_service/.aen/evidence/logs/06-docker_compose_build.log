@@ -1,0 +1,44 @@
+Sending build context to Docker daemon  14.14kB
+
+Step 1/11 : FROM python:3.12-slim
+ ---> 57cd7c3a7a27
+Step 2/11 : WORKDIR /app
+ ---> Using cache
+ ---> 9ca2fef811c3
+Step 3/11 : ENV PYTHONPATH=/app
+ ---> Using cache
+ ---> 6f2f70bdba0f
+Step 4/11 : ENV PYTHONDONTWRITEBYTECODE=1
+ ---> Using cache
+ ---> 872b56df1929
+Step 5/11 : ENV XDG_CACHE_HOME=/tmp
+ ---> Using cache
+ ---> 0cc7a3dcd9a0
+Step 6/11 : COPY pyproject.toml ./
+ ---> Using cache
+ ---> d375cd06cf82
+Step 7/11 : RUN python -m pip install --no-cache-dir --upgrade "pip>=26.1.2"     && python -m pip install --no-cache-dir ".[test]"
+ ---> Using cache
+ ---> b01ca9b5e2d0
+Step 8/11 : COPY . .
+ ---> eaa8d10d74d0
+Step 9/11 : EXPOSE 8000
+ ---> Running in e0eda49a2186
+ ---> Removed intermediate container e0eda49a2186
+ ---> 71d96d9dac96
+Step 10/11 : CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ ---> Running in 5288309e85da
+ ---> Removed intermediate container 5288309e85da
+ ---> 230fb4f86e6c
+Step 11/11 : LABEL com.docker.compose.image.builder=classic
+ ---> Running in c835a26bfccf
+ ---> Removed intermediate container c835a26bfccf
+ ---> 016bc1ca7a99
+Successfully built 016bc1ca7a99
+Successfully tagged aen-6bfeaf95-api:latest
+
+time="2026-08-12T10:04:00Z" level=warning msg="Docker Compose requires buildx plugin to be installed"
+ Image aen-6bfeaf95-api Building 
+ Image aen-6bfeaf95-api Building 
+ Image aen-6bfeaf95-api Built 
+ Image aen-6bfeaf95-api Built

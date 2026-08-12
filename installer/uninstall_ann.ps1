@@ -35,8 +35,10 @@ foreach ($name in $remove) {
 }
 
 $installerTarget = Join-Path $root "installer"
+$cleanupDeferred = $false
 if (Test-Path -LiteralPath $installerTarget) {
   if ($env:ANN_LAUNCHER_PID -match '^\d+$') {
+    $cleanupDeferred = $true
     $launcherPid = [int]$env:ANN_LAUNCHER_PID
     $escapedInstaller = $installerTarget.Replace("'", "''")
     $escapedRoot = $root.Replace("'", "''")
@@ -54,5 +56,8 @@ if ((Test-Path -LiteralPath '$escapedRoot') -and @(Get-ChildItem -LiteralPath '$
   } else {
     Remove-Item -LiteralPath $installerTarget -Recurse -Force
   }
+}
+if (-not $cleanupDeferred -and (Test-Path -LiteralPath $root) -and @(Get-ChildItem -LiteralPath $root -Force).Count -eq 0) {
+  Remove-Item -LiteralPath $root -Force
 }
 Write-Host "ANN application removed. Projects, models, outputs, data, and logs were preserved unless explicitly selected."

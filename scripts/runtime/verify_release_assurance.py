@@ -13,6 +13,7 @@ if str(REPO_ROOT) not in sys.path:
 
 from agentic_network.runtime_engine.release_assurance import (  # noqa: E402
     build_release_assurance_report,
+    write_release_evidence_integrity_manifest,
     write_release_assurance_artifacts,
     write_release_assurance_templates,
 )
@@ -25,6 +26,12 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--output-dir", default="outputs/release_assurance/verification")
     parser.add_argument("--init-evidence", action="store_true")
     parser.add_argument("--json", action="store_true")
+    parser.add_argument(
+        "--integrity-root",
+        action="append",
+        default=[],
+        help="Write integrity-only sidecars for an evidence directory; may be repeated.",
+    )
     return parser
 
 
@@ -35,6 +42,9 @@ def main(argv: list[str] | None = None) -> int:
         print("\n".join(paths))
         return 0
     report = build_release_assurance_report(args.evidence_root, policy_path=args.policy)
+    integrity = [write_release_evidence_integrity_manifest(path) for path in args.integrity_root]
+    if integrity:
+        report["integrity_manifests"] = integrity
     write_release_assurance_artifacts(report, args.output_dir)
     if args.json:
         print(json.dumps(report, indent=2))

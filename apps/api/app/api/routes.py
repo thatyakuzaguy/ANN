@@ -63,6 +63,7 @@ from agentic_engineering_network.security.compliance_evidence import collect_com
 from agentic_engineering_network.security.threat_model import build_threat_model
 from agentic_engineering_network.shared.billing import StripeBillingService
 from agentic_engineering_network.shared.integrations import get_integration_statuses
+from agentic_engineering_network.shared.providers import get_provider_runtime_metrics
 from agentic_network.runtime_engine.model_setup import (
     configure_real_model_runtime,
     get_model_setup_state,
@@ -145,6 +146,25 @@ def readinessz() -> dict[str, object]:
             "generated_projects_path": settings.generated_projects_path.exists(),
             "audit_log_parent": settings.audit_log_path.parent.exists(),
         },
+    }
+
+
+@router.get("/runtime/provider-metrics")
+def provider_runtime_metrics() -> dict[str, object]:
+    """Expose process-local model lifecycle counters for runtime verification."""
+
+    metrics = get_provider_runtime_metrics()
+    return {
+        key: metrics[key]
+        for key in (
+            "active_models",
+            "peak_active_models",
+            "parallel_llm_loads",
+            "peak_parallel_llm_loads",
+            "total_loads",
+            "total_unloads",
+            "unload_failures",
+        )
     }
 
 

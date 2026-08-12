@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "evidence_type": "soak_validation",
+  "collected_at": "2026-08-10T19:51:07.641904+00:00",
+  "report_path": "soak_validation_report.md",
+  "report_sha256": "7ced199e39db320ac08c84be94b6018433a049eb3837bcf398ad865252614ed3",
+  "decision": "PASSED",
+  "duration_hours": 8.000001,
+  "attempted_runs": 20,
+  "successful_runs": 20,
+  "failed_runs": 0,
+  "project_archetypes": [
+    "algorithm_service",
+    "saas",
+    "web_application"
+  ],
+  "active_models_peak": 1,
+  "parallel_llm_loads_peak": 0,
+  "models_loaded_after": 0,
+  "rollback_status": "PASSED"
+}

@@ -15,6 +15,7 @@ from agentic_network.runtime_engine.backends.qwen_local_backend import QwenLocal
 from agentic_network.runtime_engine.executor import execute_agent_runtime
 from agentic_network.runtime_engine.loader import get_runtime_metrics, reset_runtime_state
 from agentic_network.runtime_engine.model_inventory import (
+    _resolve_inventory_path,
     load_model_inventory,
     resolve_model_record,
 )
@@ -31,6 +32,16 @@ def test_model_inventory_loads() -> None:
 
     assert inventory.version == 2
     assert any(record.name == "qwen3_8b_product_v9_repaired_v2_bullets" for record in inventory.models)
+
+
+def test_windows_model_path_maps_to_mnt_drive_on_posix(tmp_path: Path) -> None:
+    resolved = _resolve_inventory_path(
+        "D:/Models/qwen/model.gguf",
+        tmp_path / "inventory.json",
+        platform_name="posix",
+    )
+
+    assert resolved == "/mnt/d/Models/qwen/model.gguf"
 
 
 def test_model_inventory_detects_powerful_model_but_keeps_policy_gate() -> None:

@@ -25,6 +25,15 @@ def test_native_uninstaller_defers_self_cleanup_until_launcher_exits() -> None:
     assert '"config", "installer", "desktop"' not in script
 
 
+def test_direct_full_uninstall_removes_empty_install_root() -> None:
+    script = (REPO_ROOT / "installer" / "uninstall_ann.ps1").read_text(encoding="utf-8")
+
+    assert "$cleanupDeferred = $false" in script
+    assert "if (-not $cleanupDeferred" in script
+    assert "Get-ChildItem -LiteralPath $root -Force" in script
+    assert "Remove-Item -LiteralPath $root -Force" in script
+
+
 def test_install_manifest_declares_generated_projects_preserved_by_default() -> None:
     script = (REPO_ROOT / "installer" / "install_ann.ps1").read_text(encoding="utf-8")
 

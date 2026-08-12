@@ -1,5 +1,121 @@
 # Test Results
 
+Date: 2026-08-12
+
+## Final 1.0.1 Release-Candidate Validation
+
+The release-candidate source tree was validated on Windows with Python 3.11,
+Node.js 24, Docker Desktop 29.5.2, and the pinned npm lockfile. The exact final
+results were:
+
+```text
+D:\AgenticEngineeringNetwork\outputs\ci-python311\Scripts\python.exe -m pytest tests/python -q --basetemp D:\ANN-CI-Tmp\pytest-final-confirmed
+1958 passed, 55 skipped, 1 warning in 614.85s (0:10:14)
+
+python -m ruff check agentic_network apps packages tests/python scripts
+All checks passed!
+
+npm ci
+added 274 packages; found 0 vulnerabilities
+
+npm --workspace apps/web run lint
+TypeScript passed
+
+npm --workspace apps/web run test
+6 test files passed, 29 tests passed
+
+npm --workspace apps/web run build
+Next.js 16.3.0 production build passed
+
+npm --workspace apps/web run e2e
+2 passed
+
+npm --workspace apps/desktop run package
+Wrote new app to apps/desktop/dist/ANN-win32-x64
+```
+
+The one Python warning is Starlette's upstream deprecation notice for using
+`httpx` through `starlette.testclient`; it does not fail a test. A first clean
+Python 3.11 run caught a stale assertion that still required ANN's removed
+PostCSS override. The test was corrected to require Next.js 16.3.0's direct
+patched PostCSS 8.5.23 dependency, and the complete suite above was rerun.
+The final post-audit suite also includes regressions for cross-provider model
+load serialization, private-path redaction, per-attempt soak lifecycle metrics,
+portable evidence confinement, cached-assessment recomputation, and public
+release allowlist enforcement.
+
+Dependency and repository security gates passed:
+
+```text
+npm audit --audit-level=moderate
+found 0 vulnerabilities
+
+npm audit --omit=dev --audit-level=moderate
+found 0 vulnerabilities
+
+pip-audit -r apps/api/requirements.txt
+No known vulnerabilities found
+
+pip-audit -r apps/api/requirements-models.txt
+No known vulnerabilities found
+
+pip-audit --disable-pip --no-deps -r apps/api/requirements-llama-cpp.txt
+No known vulnerabilities found
+
+Gitleaks Git-history scan
+67 commits scanned, 8.10 MB, no leaks found
+```
+
+Both `ann-api:latest` and `ann-web:latest` built successfully from the release
+source. Docker Desktop's BuildKit content store contained a missing historical
+blob, so the final local build used Docker's classic builder; the source and
+images themselves completed successfully. `docker compose config --quiet`
+also passed. The post-audit images are API
+`sha256:19346b865b09d330458be2dc70a42f39153151fe1a27b64aa259141cae89d87a`
+and web
+`sha256:e81f32c3e368444ffadc8479875f0f6b8417e5a6b1973d2663322b0ddb3dc3a0`.
+
+The autonomous-capability verifier passed all seven scenarios and regenerated
+the portable 589-file evidence manifest. The official soak remains
+hash-verified at 8.000001 active hours, 20 of 20 runs, zero counted failures,
+all three required archetypes, `active_models <= 1`, and
+`parallel_llm_loads = 0`. The release-candidate handoff verified 23 files with
+no protected content, and the Git/source gate returned
+`GIT_SOURCE_RELEASE_READY`.
+
+The final offline bundle was rebuilt from the installed runtime and the latest
+Desktop package, then independently re-read and verified:
+
+```text
+E:\ANN-Release-Bundles\ANN-1.0.1-final-post-audit-20260812
+17,330 payload files
+4,380,271,817 archive bytes
+3 split parts
+SHA-256 7db8b030a0100d5085cab61efdf7eef6717f03b4cd35209d7fad442eeeabb109
+OFFLINE_RELEASE_BUNDLE_VERIFIED
+```
+
+The post-audit parts were then assembled and installed into a new isolated
+`E:` root. The embedded verifier reported Python 3.11.9, PySide6 6.11.1,
+Desktop importable, and status `VALID`. Launching the installed `ANN.exe`
+returned HTTP 200 from both the local API and standalone web UI. Closing the
+Desktop left zero listeners on ports 8000 and 3001. The default uninstaller
+correctly preserved user data; a second invocation with the explicit project,
+model, and output removal switches removed the test root with zero residual
+entries.
+
+Production assurance intentionally returns exit code `2` and
+`PRODUCTION_ASSURANCE_PARTIAL`: a second independent machine/GPU, independent
+security review, qualified legal and model-license decisions, human acceptance
+of three generated projects, and trusted Authenticode signing are external
+gates that ANN does not fabricate. They do not block the source/unsigned
+Community channel.
+
+Strict mypy is configured but is not a release or GitHub Actions gate. An
+exploratory run still reports substantial gradual-typing debt, including
+optional GPU/UI dependencies without stubs; this release does not claim a
+clean strict-mypy result.
+
 Date: 2026-07-28
 
 ## Controlled Subagent Validation

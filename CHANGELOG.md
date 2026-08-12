@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- Completed and preserved the corrected official eight-hour release soak with
+  20/20 successful runs across SaaS, web-application, and algorithm-service
+  archetypes, one-model-at-a-time routing, and clean rollback.
+- Added seven portable autonomous capability packets for algorithm, CRM,
+  ecommerce, booking, LMS, AI chatbot, and 3D game projects, plus deterministic
+  evidence and release-assurance integrity manifests.
+- Updated runtime readiness to consume preserved real Qwen2.5, Qwen3, and
+  DeepSeek activation evidence instead of obsolete alpha-phase assumptions.
+
 - Added a fail-closed production assurance gate for multi-machine Windows/GPU
   validation, prolonged project runs, independent security and legal review,
   model-license decisions, and human acceptance of generated software.

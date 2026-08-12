@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "collected_at": "2026-08-12T12:02:27.8331790Z",
+  "report_path": "model_license_review_report.md",
+  "report_sha256": "7462cf461470c8a5b5b236c8b4eda709653d688abdc83fe37df4386c3236cadc",
+  "decision": "PENDING",
+  "evidence_type": "model_license_review",
+  "models": [
+    {
+      "model_id": "qwen2_5_coder_7b_v5",
+      "license_name": "Apache-2.0",
+      "license_source": "https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct/blob/main/LICENSE",
+      "reviewed_by": "",
+      "decision": "PENDING",
+      "weights_in_public_repository": false,
+      "distribution_mode": "user_supplied"
+    },
+    {
+      "model_id": "qwen3_4b_conversation_orchestrator",
+      "license_name": "Apache-2.0",
+      "license_source": "https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507/blob/main/LICENSE",
+      "reviewed_by": "",
+      "decision": "PENDING",
+      "weights_in_public_repository": false,
+      "distribution_mode": "user_supplied"
+    },
+    {
+      "model_id": "qwen3_8b_product_v9_repaired_v2_bullets",
+      "license_name": "Apache-2.0",
+      "license_source": "https://huggingface.co/Qwen/Qwen3-8B/blob/main/LICENSE",
+      "reviewed_by": "",
+      "decision": "PENDING",
+      "weights_in_public_repository": false,
+      "distribution_mode": "user_supplied"
+    },
+    {
+      "model_id": "deepseek_r1_distill_qwen_14b",
+      "license_name": "MIT",
+      "license_source": "https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-14B/blob/main/LICENSE",
+      "reviewed_by": "",
+      "decision": "PENDING",
+      "weights_in_public_repository": false,
+      "distribution_mode": "user_supplied"
+    }
+  ]
+}

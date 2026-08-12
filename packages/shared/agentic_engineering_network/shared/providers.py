@@ -6,12 +6,97 @@ import os
 from pathlib import Path
 import urllib.error
 import urllib.request
+from threading import Lock
 
-from agentic_engineering_network.shared.config import Settings, ensure_inside_root
+from agentic_engineering_network.shared.config import Settings, ensure_model_read_path
 from agentic_network.models.gpu_policy import llama_cpp_supports_gpu_offload
 from agentic_network.models.llama_cpp_security import load_secure_llama_cpp
 from agentic_network.models.deepseek_gguf import clean_deepseek_output
 from agentic_network.runtime_engine.windows_dlls import configure_windows_runtime_dll_paths
+
+
+_PROVIDER_RUNTIME_LOCK = Lock()
+_PROVIDER_LOAD_GATE = Lock()
+_PROVIDER_RUNTIME_STATE: dict[str, object] = {
+    "active_models": 0,
+    "peak_active_models": 0,
+    "parallel_llm_loads": 0,
+    "peak_parallel_llm_loads": 0,
+    "total_loads": 0,
+    "total_unloads": 0,
+    "unload_failures": 0,
+    "loaded_models": [],
+}
+
+
+def get_provider_runtime_metrics() -> dict[str, object]:
+    """Return process-local telemetry for canonical llama.cpp providers."""
+
+    with _PROVIDER_RUNTIME_LOCK:
+        return {
+            **_PROVIDER_RUNTIME_STATE,
+            "loaded_models": list(_PROVIDER_RUNTIME_STATE["loaded_models"]),
+        }
+
+
+def reset_provider_runtime_metrics() -> None:
+    """Reset telemetry only when no provider model is currently loaded."""
+
+    with _PROVIDER_RUNTIME_LOCK:
+        if int(_PROVIDER_RUNTIME_STATE["active_models"]) != 0:
+            raise RuntimeError("Cannot reset provider telemetry while a model is loaded.")
+        _PROVIDER_RUNTIME_STATE.update(
+            {
+                "active_models": 0,
+                "peak_active_models": 0,
+                "parallel_llm_loads": 0,
+                "peak_parallel_llm_loads": 0,
+                "total_loads": 0,
+                "total_unloads": 0,
+                "unload_failures": 0,
+                "loaded_models": [],
+            }
+        )
+
+
+def _record_provider_load(model_path: Path) -> None:
+    with _PROVIDER_RUNTIME_LOCK:
+        loaded = list(_PROVIDER_RUNTIME_STATE["loaded_models"])
+        loaded.append(model_path.name)
+        active = len(loaded)
+        parallel = max(0, active - 1)
+        _PROVIDER_RUNTIME_STATE.update(
+            {
+                "active_models": active,
+                "peak_active_models": max(
+                    int(_PROVIDER_RUNTIME_STATE["peak_active_models"]), active
+                ),
+                "parallel_llm_loads": parallel,
+                "peak_parallel_llm_loads": max(
+                    int(_PROVIDER_RUNTIME_STATE["peak_parallel_llm_loads"]), parallel
+                ),
+                "total_loads": int(_PROVIDER_RUNTIME_STATE["total_loads"]) + 1,
+                "loaded_models": loaded,
+            }
+        )
+
+
+def _record_provider_unload(model_path: Path, *, failed: bool) -> None:
+    with _PROVIDER_RUNTIME_LOCK:
+        loaded = list(_PROVIDER_RUNTIME_STATE["loaded_models"])
+        model = model_path.name
+        if model in loaded:
+            loaded.remove(model)
+        _PROVIDER_RUNTIME_STATE.update(
+            {
+                "active_models": len(loaded),
+                "parallel_llm_loads": max(0, len(loaded) - 1),
+                "total_unloads": int(_PROVIDER_RUNTIME_STATE["total_unloads"]) + 1,
+                "unload_failures": int(_PROVIDER_RUNTIME_STATE["unload_failures"])
+                + int(failed),
+                "loaded_models": loaded,
+            }
+        )
 
 
 @dataclass(frozen=True)
@@ -112,7 +197,9 @@ class LlamaCppProvider(AIProvider):
         gpu_layers: int,
         main_gpu: int,
     ) -> None:
-        self.model_path = ensure_inside_root(model_path)
+        self.model_path = ensure_model_read_path(model_path)
+        if self.model_path.suffix.lower() != ".gguf":
+            raise ValueError(f"Local llama.cpp model must be a GGUF file: {self.model_path}")
         self.model = self.model_path.name
         self.context_size = context_size
         self.max_tokens = max_tokens
@@ -120,6 +207,7 @@ class LlamaCppProvider(AIProvider):
         self.gpu_layers = gpu_layers
         self.main_gpu = main_gpu
         self._llm: object | None = None
+        self._load_gate_held = False
 
     def _load(self) -> object:
         if not self.model_path.exists():
@@ -130,27 +218,62 @@ class LlamaCppProvider(AIProvider):
                 "require GPU offload; use -1 or a positive layer count."
             )
         if self._llm is None:
-            configure_windows_runtime_dll_paths()
             try:
-                llama_cpp = load_secure_llama_cpp()
-            except ImportError as exc:
+                load_timeout = max(
+                    1.0,
+                    float(os.environ.get("AEN_MODEL_LOAD_GATE_TIMEOUT_SECONDS", "600")),
+                )
+            except ValueError:
+                load_timeout = 600.0
+            if not _PROVIDER_LOAD_GATE.acquire(timeout=load_timeout):
                 raise RuntimeError(
-                    "llama-cpp-python is not installed. Run setup.ps1 or rebuild the API image."
-                ) from exc
-            if llama_cpp_supports_gpu_offload(llama_cpp) is not True:
-                raise RuntimeError("llama-cpp-python was built without GPU offload support.")
-            self._llm = llama_cpp.Llama(
-                model_path=str(self.model_path),
-                n_ctx=self.context_size,
-                n_threads=max(1, (os.cpu_count() or 4) - 1),
-                n_gpu_layers=self.gpu_layers,
-                main_gpu=self.main_gpu,
-                verbose=False,
-            )
+                    "Timed out waiting for the sequential local-model load gate."
+                )
+            self._load_gate_held = True
+            try:
+                configure_windows_runtime_dll_paths()
+                try:
+                    llama_cpp = load_secure_llama_cpp()
+                except ImportError as exc:
+                    raise RuntimeError(
+                        "llama-cpp-python is not installed. Run setup.ps1 or rebuild the API image."
+                    ) from exc
+                if llama_cpp_supports_gpu_offload(llama_cpp) is not True:
+                    raise RuntimeError("llama-cpp-python was built without GPU offload support.")
+                self._llm = llama_cpp.Llama(
+                    model_path=str(self.model_path),
+                    n_ctx=self.context_size,
+                    n_threads=max(1, (os.cpu_count() or 4) - 1),
+                    n_gpu_layers=self.gpu_layers,
+                    main_gpu=self.main_gpu,
+                    verbose=False,
+                )
+                _record_provider_load(self.model_path)
+            except Exception:
+                self._load_gate_held = False
+                _PROVIDER_LOAD_GATE.release()
+                raise
         return self._llm
 
-    def generate(self, prompt: Prompt) -> ProviderResponse:
-        llm = self._load()
+    def _final_answer_prompt(self, prompt: Prompt, *, retry: bool) -> Prompt:
+        directive = (
+            "Return only the final answer. Do not emit analysis, hidden reasoning, or "
+            "<think> blocks."
+        )
+        if retry:
+            directive += " A previous response contained no usable final answer."
+        user = prompt.user
+        if "qwen3" in self.model.lower() and "/no_think" not in user.lower():
+            user = f"{user.rstrip()}\n\n/no_think"
+        return Prompt(system=f"{prompt.system.rstrip()}\n\n{directive}", user=user)
+
+    def _generate_once(
+        self,
+        llm: object,
+        prompt: Prompt,
+        *,
+        temperature: float,
+    ) -> str:
         create_chat_completion = getattr(llm, "create_chat_completion", None)
         if callable(create_chat_completion):
             result = create_chat_completion(
@@ -159,7 +282,7 @@ class LlamaCppProvider(AIProvider):
                     {"role": "user", "content": prompt.user},
                 ],
                 max_tokens=self.max_tokens,
-                temperature=self.temperature,
+                temperature=temperature,
             )
             first = result["choices"][0]
             message = first.get("message", {}) if isinstance(first, dict) else {}
@@ -177,13 +300,29 @@ class LlamaCppProvider(AIProvider):
             result = llm(  # type: ignore[operator]
                 text_prompt,
                 max_tokens=self.max_tokens,
-                temperature=self.temperature,
+                temperature=temperature,
                 stop=["<|im_end|>", "<|im_start|>"],
             )
             raw_content = str(result["choices"][0]["text"])
-        content = clean_deepseek_output(raw_content).strip()
+        return clean_deepseek_output(raw_content).strip()
+
+    def generate(self, prompt: Prompt) -> ProviderResponse:
+        llm = self._load()
+        content = self._generate_once(
+            llm,
+            self._final_answer_prompt(prompt, retry=False),
+            temperature=self.temperature,
+        )
         if not content:
-            raise RuntimeError("Local model returned no final answer after reasoning cleanup.")
+            content = self._generate_once(
+                llm,
+                self._final_answer_prompt(prompt, retry=True),
+                temperature=0.0,
+            )
+        if not content:
+            raise RuntimeError(
+                "Local model returned no final answer after one deterministic final-only retry."
+            )
         return ProviderResponse(provider=self.name, model=self.model, content=content)
 
     def close(self) -> None:
@@ -192,8 +331,18 @@ class LlamaCppProvider(AIProvider):
         if llm is None:
             return
         close = getattr(llm, "close", None)
-        if callable(close):
-            close()
+        failed = False
+        try:
+            if callable(close):
+                close()
+        except Exception:
+            failed = True
+            raise
+        finally:
+            _record_provider_unload(self.model_path, failed=failed)
+            if self._load_gate_held:
+                self._load_gate_held = False
+                _PROVIDER_LOAD_GATE.release()
 
 
 class DeterministicLocalProvider(AIProvider):

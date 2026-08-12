@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const REQUIRED_VERSION = "8.5.20";
+const REQUIRED_VERSION = "8.5.23";
 const FIRST_PATCHED_VERSION = "8.5.10";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -36,8 +36,12 @@ const lock = readJson(resolve(root, "package-lock.json"));
 const packages = lock.packages ?? {};
 
 assert(
-  rootPackage.overrides?.postcss === REQUIRED_VERSION,
-  `Root override must pin postcss ${REQUIRED_VERSION}.`,
+  rootPackage.overrides?.postcss === undefined,
+  "The temporary root PostCSS override must stay removed.",
+);
+assert(
+  rootPackage.overrides?.next?.postcss === undefined,
+  "The temporary Next.js PostCSS override must stay removed.",
 );
 assert(
   webPackage.devDependencies?.postcss === REQUIRED_VERSION,
@@ -65,8 +69,8 @@ assert(
 
 const nextPostcssPin = packages["node_modules/next"]?.dependencies?.postcss;
 assert(
-  nextPostcssPin === "8.4.31",
-  "Next.js changed its PostCSS pin; reassess and remove the temporary override.",
+  typeof nextPostcssPin === "string" && versionAtLeast(nextPostcssPin, FIRST_PATCHED_VERSION),
+  `Next.js must declare PostCSS ${FIRST_PATCHED_VERSION} or newer.`,
 );
 
 const installedPostcss = resolve(root, "node_modules", "postcss", "package.json");

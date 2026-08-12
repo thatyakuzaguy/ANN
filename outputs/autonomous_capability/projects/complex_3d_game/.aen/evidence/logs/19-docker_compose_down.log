@@ -1,0 +1,14 @@
+Container aen-34521d75-web-1 Stopping 
+ Container aen-34521d75-web-1 Stopped 
+ Container aen-34521d75-web-1 Removing 
+ Container aen-34521d75-web-1 Removed 
+ Container aen-34521d75-api-1 Stopping 
+ Container aen-34521d75-api-1 Stopped 
+ Container aen-34521d75-api-1 Removing 
+ Container aen-34521d75-api-1 Removed 
+ Container aen-34521d75-postgres-1 Stopping 
+ Container aen-34521d75-postgres-1 Stopped 
+ Container aen-34521d75-postgres-1 Removing 
+ Container aen-34521d75-postgres-1 Removed 
+ Network aen-34521d75_default Removing 
+ Network aen-34521d75_default Removed

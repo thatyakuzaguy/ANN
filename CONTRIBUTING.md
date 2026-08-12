@@ -17,7 +17,7 @@ small changes, and explicit safety boundaries.
 Run:
 
 ```powershell
-python -m ruff check agentic_network packages tests/python scripts
+python -m ruff check agentic_network apps packages tests/python scripts
 python -m pytest tests/python -q
 npm --workspace apps/web run lint
 npm --workspace apps/web run test

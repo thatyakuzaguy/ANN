@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import os
-from pathlib import Path, PureWindowsPath
+from pathlib import Path, PurePosixPath, PureWindowsPath
 
 
 ROOT = Path(os.environ.get("AEN_ROOT", r"D:\AgenticEngineeringNetwork")).resolve()
@@ -93,6 +93,47 @@ def ensure_inside_root(path: Path) -> Path:
     except ValueError as exc:
         raise ValueError(f"Path must stay inside {ROOT}: {resolved}") from exc
     return resolved
+
+
+def ensure_model_read_path(path: Path) -> Path:
+    """Resolve a GGUF path against explicit read-only model roots.
+
+    Model weights may live outside the writable ANN workspace, but only roots
+    declared through ``AEN_MODEL_READ_ROOTS`` are accepted. The system drive
+    remains blocked even when it is accidentally listed.
+    """
+
+    raw_path = str(path)
+    normalized = raw_path.replace("\\", "/").lower()
+    drive = PureWindowsPath(raw_path).drive.lower()
+    posix_parts = PurePosixPath(normalized).parts
+    if drive == "c:" or (
+        len(posix_parts) > 2
+        and posix_parts[:2] == ("/", "mnt")
+        and posix_parts[2] == "c"
+    ):
+        raise ValueError(f"Model path on the system drive is blocked: {raw_path}")
+
+    resolved = path.resolve()
+    configured = os.environ.get("AEN_MODEL_READ_ROOTS", "").strip()
+    separator = ";" if ";" in configured else os.pathsep
+    external_roots = [
+        Path(value.strip()).resolve()
+        for value in configured.split(separator)
+        if value.strip()
+    ]
+    allowed_roots = [(ROOT / "models").resolve(), *external_roots]
+    for root in allowed_roots:
+        try:
+            resolved.relative_to(root)
+            return resolved
+        except ValueError:
+            continue
+    rendered_roots = ", ".join(str(root) for root in allowed_roots)
+    raise ValueError(
+        f"Model path must stay inside an explicit read-only model root "
+        f"({rendered_roots}): {resolved}"
+    )
 
 
 def resolve_workspace_directory(settings: Settings, raw_path: str | None) -> Path:

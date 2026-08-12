@@ -1,0 +1,16 @@
+Container aen-d48edacd-web-1 Stopping 
+ Container aen-d48edacd-web-1 Stopped 
+ Container aen-d48edacd-web-1 Removing 
+ Container aen-d48edacd-web-1 Removed 
+ Container aen-d48edacd-api-1 Stopping 
+ Container aen-d48edacd-api-1 Stopped 
+ Container aen-d48edacd-api-1 Removing 
+ Container aen-d48edacd-api-1 Removed 
+ Container aen-d48edacd-postgres-1 Stopping 
+ Container aen-d48edacd-postgres-1 Stopped 
+ Container aen-d48edacd-postgres-1 Removing 
+ Container aen-d48edacd-postgres-1 Removed 
+ Volume aen-d48edacd_postgres-data Removing 
+ Network aen-d48edacd_default Removing 
+ Volume aen-d48edacd_postgres-data Removed 
+ Network aen-d48edacd_default Removed

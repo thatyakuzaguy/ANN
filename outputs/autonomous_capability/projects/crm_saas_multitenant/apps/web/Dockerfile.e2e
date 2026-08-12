@@ -1,0 +1,9 @@
+FROM mcr.microsoft.com/playwright:v1.57.0-noble
+
+WORKDIR /app
+COPY package.json package-lock.json* ./
+RUN npm install
+COPY . .
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+ENV NEXT_TELEMETRY_DISABLED=1
+CMD ["npm", "run", "e2e"]

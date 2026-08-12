@@ -1,0 +1,6 @@
+.aen
+.git
+__pycache__
+.pytest_cache
+*.pyc
+release

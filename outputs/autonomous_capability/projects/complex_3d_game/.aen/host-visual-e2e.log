@@ -1,0 +1,18 @@
+$ docker compose --profile test run --rm --no-deps e2e
+
+> generated-3d-pong-web@0.1.0 e2e
+> playwright test
+
+
+
+Running 1 test using 1 worker
+
+[1A[2K[1/1] tests/workbench.spec.ts:3:5 › loads playable pong arena
+[1A[2K  1 passed (13.2s)
+
+ Network aen-34521d75_default Creating 
+ Network aen-34521d75_default Created 
+ Container aen-34521d75-e2e-run-7f1895b892b3 Creating 
+ Container aen-34521d75-e2e-run-7f1895b892b3 Created 
+[1A[2K[WebServer] [33m[1m⚠[22m[39m Slow filesystem detected. The benchmark took 204ms. If /app/.next/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development

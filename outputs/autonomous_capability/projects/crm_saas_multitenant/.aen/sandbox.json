@@ -1,0 +1,270 @@
+{
+  "sandbox_id": "aen-edf67ea0",
+  "run_id": "edf67ea0-c7c1-46c2-89b8-e607411636fb",
+  "idea": "Build a production CRM SaaS with auth, tenancy, billing, workflows, RBAC, tests, and deployment.",
+  "project_root": "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0",
+  "created_at": "2026-08-12T10:14:53.597828+00:00",
+  "execution_boundary": "approval-gated-project-sandbox",
+  "status": "passed",
+  "profile": "full_stack",
+  "attempts": 1,
+  "release_package": "E:\\ANN-Soak\\autonomous-capability-projects\\crm_saas_multitenant\\20260812_100631_211508\\build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0\\.aen\\release\\build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0.zip",
+  "steps": [
+    {
+      "name": "required_files",
+      "status": "passed",
+      "detail": "All required project files exist.",
+      "command": null
+    },
+    {
+      "name": "python_syntax",
+      "status": "passed",
+      "detail": "Compiled 21 Python files.",
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "py_compile",
+        "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/__init__.py",
+        "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/billing.py",
+        "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/database.py",
+        "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/domain.py",
+        "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/domain_config.py",
+        "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/domain_models.py",
+        "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/domain_router.py",
+        "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/domain_schemas.py",
+        "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/domain_seed.py",
+        "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/integrations.py",
+        "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/main.py",
+        "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/models.py",
+        "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/rbac.py",
+        "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/schemas.py",
+        "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/security.py",
+        "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/security_headers.py",
+        "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/tenancy.py",
+        "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/app/workflows.py",
+        "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/migrations/env.py",
+        "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/migrations/versions/0001_initial.py",
+        "/host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/apps/api/migrations/versions/0002_domain_records.py"
+      ]
+    },
+    {
+      "name": "compose_static",
+      "status": "passed",
+      "detail": "Compose file contains required services and health checks.",
+      "command": null
+    },
+    {
+      "name": "web_static",
+      "status": "passed",
+      "detail": "Web package contains build, E2E, and core dependencies.",
+      "command": null
+    },
+    {
+      "name": "alembic_migrations",
+      "status": "passed",
+      "detail": "Initial Alembic migration is present.",
+      "command": null
+    },
+    {
+      "name": "desktop_packaging",
+      "status": "passed",
+      "detail": "Desktop Windows packaging script is present.",
+      "command": null
+    },
+    {
+      "name": "docker_compose_config",
+      "status": "passed",
+      "detail": "Compose configuration validated with docker compose.",
+      "command": [
+        "docker",
+        "compose",
+        "config"
+      ]
+    },
+    {
+      "name": "docker_compose_build",
+      "status": "passed",
+      "detail": "Sending build context to Docker daemon  4.496kB\n\nStep 1/9 : FROM mcr.microsoft.com/playwright:v1.57.0-noble\n ---> 3bed4b1a12f2\nStep 2/9 : WORKDIR /app\n ---> Using cache\n ---> 055883977853\nStep 3/9 : COPY package.json package-lock.json* ./\n ---> Using cache\n ---> 6373c832c9a6\nStep 4/9 : RUN npm install\n ---> Using cache\n ---> df217c4478c4\nStep 5/9 : COPY . .\n ---> Using cache\n ---> af7777a9261c\nStep 6/9 : ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright\n ---> Using cache\n ---> ebedd5d4d2ba\nStep 7/9 : ENV NEXT_TELEMETRY_DISABLED=1\n ---> Using cache\n ---> e3327d6943e9\nStep 8/9 : CMD [\"npm\", \"run\", \"e2e\"]\n ---> Using cache\n ---> 1308a8cca5d3\nStep 9/9 : LABEL com.docker.compose.image.builder=classic\nSending build context to Docker daemon   48.3kB\n\nStep 1/14 : FROM python:3.12-slim\n ---> Using cache\n ---> f500e8c4e6df\nSuccessfully built f500e8c4e6df\n ---> 57cd7c3a7a27\nStep 2/14 : WORKDIR /app\n ---> Using cache\n ---> 9ca2fef811c3\nStep 3/14 : ENV PYTHONDONTWRITEBYTECODE=1\n ---> Using cache\n ---> 412e48333689\nStep 4/14 : ENV PYTHONUNBUFFERED=1\nSuccessfully tagged aen-edf67ea0-e2e:latest\n ---> Using cache\n ---> 2bdc88fce28c\nStep 5/14 : ENV PYTHONPATH=/app\n ---> Using cache\n ---> f716d36c9d9a\nStep 6/14 : COPY requirements.txt .\n ---> Using cache\n ---> 2d8b3ab4631c\nStep 7/14 : RUN python -m pip install --no-cache-dir --upgrade \"pip>=26.1.2\"     && python -m pip install --no-cache-dir -r requirements.txt\n ---> Using cache\n ---> 6b6466ca8e7f\nStep 8/14 : COPY alembic.ini ./alembic.ini\n ---> Using cache\n ---> 951198e0c8cc\nStep 9/14 : COPY migrations ./migrations\n ---> e198b5bf2e97\nStep 10/14 : COPY app ./app\n ---> 6295dce633ee\nStep 11/14 : COPY tests ./tests\n ---> 5934ec3ca33a\nStep 12/14 : EXPOSE 8000\n ---> Running in 3aedd1c004bf\n ---> Removed intermediate container 3aedd1c004bf\n ---> 6a6e5d3286ec\nStep 13/14 : CMD [\"sh\", \"-c\", \"alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000\"]\n ---> Running in 0fb24a7c6d4a\n ---> Removed intermediate container 0fb24a7c6d4a\n ---> 0b4d131af8e4\nStep 14/14 : LABEL com.docker.compose.image.builder=classic\n ---> Running in 42a2ce4c8980\n ---> Removed intermediate container 42a2ce4c8980\n ---> 68c5f7ef94e0\nSuccessfully built 68c5f7ef94e0\nSuccessfully tagged aen-edf67ea0-api:latest\nSending build context to Docker daemon  4.496kB\n\nStep 1/8 : FROM node:22-alpine\n ---> c610fcdfb1d5\nStep 2/8 : WORKDIR /app\n ---> Using cache\n ---> bd17f2175e29\nStep 3/8 : COPY package.json package-lock.json* ./\n ---> Using cache\n ---> cc2bc4bf937c\nStep 4/8 : RUN npm install\n ---> Using cache\n ---> 609996f262d5\nStep 5/8 : COPY . .\n ---> Using cache\n ---> 7d749b1b977e\nStep 6/8 : EXPOSE 3000\n ---> Using cache\n ---> 51b97af6c1b2\nStep 7/8 : CMD [\"npm\", \"run\", \"dev\"]\n ---> Using cache\n ---> 5c4777cbba17\nStep 8/8 : LABEL com.docker.compose.image.builder=classic\n ---> Using cache\n ---> 68ce69476c23\nSuccessfully built 68ce69476c23\nSuccessfully tagged aen-edf67ea0-web:latest\n\ntime=\"2026-08-12T10:11:16Z\" level=warning msg=\"Docker Compose requires buildx plugin to be installed\"\n Image aen-edf67ea0-e2e Building \n Image aen-edf67ea0-api Building \n Image aen-edf67ea0-e2e Building \n Image aen-edf67ea0-api Building \n Image aen-edf67ea0-e2e Built \n Image aen-edf67ea0-e2e Built \n Image aen-edf67ea0-api Built \n Image aen-edf67ea0-api Built \n Image aen-edf67ea0-web Building \n Image aen-edf67ea0-web Building \n Image aen-edf67ea0-web Built \n Image aen-edf67ea0-web Built \n",
+      "command": [
+        "docker",
+        "compose",
+        "--profile",
+        "test",
+        "build"
+      ]
+    },
+    {
+      "name": "docker_compose_up",
+      "status": "passed",
+      "detail": "\n Network aen-edf67ea0_default Creating \n Network aen-edf67ea0_default Created \n Volume aen-edf67ea0_postgres-data Creating \n Volume aen-edf67ea0_postgres-data Created \n Container aen-edf67ea0-postgres-1 Creating \n Container aen-edf67ea0-postgres-1 Created \n Container aen-edf67ea0-api-1 Creating \n Container aen-edf67ea0-api-1 Created \n Container aen-edf67ea0-web-1 Creating \n Container aen-edf67ea0-web-1 Created \n Container aen-edf67ea0-postgres-1 Starting \n Container aen-edf67ea0-postgres-1 Started \n Container aen-edf67ea0-postgres-1 Waiting \n Container aen-edf67ea0-postgres-1 Healthy \n Container aen-edf67ea0-api-1 Starting \n Container aen-edf67ea0-api-1 Started \n Container aen-edf67ea0-web-1 Starting \n Container aen-edf67ea0-web-1 Started \n",
+      "command": [
+        "docker",
+        "compose",
+        "up",
+        "-d",
+        "postgres",
+        "api",
+        "web"
+      ]
+    },
+    {
+      "name": "api_health_live",
+      "status": "passed",
+      "detail": "http://host.docker.internal:18134/health returned HTTP 200.",
+      "command": null
+    },
+    {
+      "name": "web_health_live",
+      "status": "passed",
+      "detail": "http://host.docker.internal:13134 returned HTTP 200.",
+      "command": null
+    },
+    {
+      "name": "api_pytest_live",
+      "status": "passed",
+      "detail": "....                                                                     [100%]\n=============================== warnings summary ===============================\n../usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1\n  /usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\n    from starlette.testclient import TestClient as TestClient  # noqa\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n4 passed, 1 warning in 6.31s\n\n Container aen-edf67ea0-api-run-26c20035477e Creating \n Container aen-edf67ea0-api-run-26c20035477e Created \n",
+      "command": [
+        "docker",
+        "compose",
+        "run",
+        "--rm",
+        "--no-deps",
+        "-e",
+        "DATABASE_URL=sqlite:////tmp/ann-tests.db",
+        "api",
+        "pytest",
+        "-q"
+      ]
+    },
+    {
+      "name": "api_dependency_integrity_live",
+      "status": "passed",
+      "detail": "No broken requirements found.\n\n Container aen-edf67ea0-api-run-39db9c3e7ea3 Creating \n Container aen-edf67ea0-api-run-39db9c3e7ea3 Created \n",
+      "command": [
+        "docker",
+        "compose",
+        "run",
+        "--rm",
+        "--no-deps",
+        "api",
+        "pip",
+        "check"
+      ]
+    },
+    {
+      "name": "api_dependency_audit_live",
+      "status": "passed",
+      "detail": "\n Container aen-edf67ea0-api-run-33cc11966628 Creating \n Container aen-edf67ea0-api-run-33cc11966628 Created \nNo known vulnerabilities found\n",
+      "command": [
+        "docker",
+        "compose",
+        "run",
+        "--rm",
+        "--no-deps",
+        "api",
+        "pip-audit",
+        "--local",
+        "--progress-spinner",
+        "off"
+      ]
+    },
+    {
+      "name": "web_unit_live",
+      "status": "passed",
+      "detail": "\n> generated-crm-web@0.1.0 test\n> vitest run\n\n\n RUN  v3.2.7 /app\n\n \u2713 src/lib/domain.test.ts (3 tests) 10ms\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  10:13:14\n   Duration  830ms (transform 133ms, setup 0ms, collect 52ms, tests 10ms, environment 0ms, prepare 250ms)\n\n\n Container aen-edf67ea0-web-run-54b39f48edc9 Creating \n Container aen-edf67ea0-web-run-54b39f48edc9 Created \n",
+      "command": [
+        "docker",
+        "compose",
+        "run",
+        "--rm",
+        "--no-deps",
+        "web",
+        "npm",
+        "test"
+      ]
+    },
+    {
+      "name": "web_build_live",
+      "status": "passed",
+      "detail": "\n> generated-crm-web@0.1.0 build\n> next build\n\n\u25b2 Next.js 16.3.0 (Turbopack)\n\u2713 Running next.config.ts took 67ms\n\n  Creating an optimized production build ...\n\u2713 Compiled successfully in 6.1s\n  Running TypeScript ...\n\n  We detected TypeScript in your project and reconfigured your tsconfig.json file for you.\n  The following suggested values were added to your tsconfig.json. These values can be changed to fit your project's needs:\n\n  \t- include was updated to add '.next/types/**/*.ts'\n  \t- include was updated to add '.next/dev/types/**/*.ts'\n  \t- plugins was updated to add { name: 'next' }\n\n  Finished TypeScript in 11.4s ...\n  Collecting page data using 4 workers ...\n  Generating static pages using 4 workers (0/3) ...\n\u2713 Generating static pages using 4 workers (3/3) in 880ms\n  Finalizing page optimization ...\n\nRoute (app)\n\u250c \u25cb /\n\u2514 \u25cb /_not-found\n\n\n\u25cb  (Static)  prerendered as static content\n\n\n Container aen-edf67ea0-web-run-14ec8625ec32 Creating \n Container aen-edf67ea0-web-run-14ec8625ec32 Created \n",
+      "command": [
+        "docker",
+        "compose",
+        "run",
+        "--rm",
+        "--no-deps",
+        "web",
+        "npm",
+        "run",
+        "build"
+      ]
+    },
+    {
+      "name": "web_dependency_audit_live",
+      "status": "passed",
+      "detail": "found 0 vulnerabilities\n\n Container aen-edf67ea0-web-run-49fb09d068f6 Creating \n Container aen-edf67ea0-web-run-49fb09d068f6 Created \n",
+      "command": [
+        "docker",
+        "compose",
+        "run",
+        "--rm",
+        "--no-deps",
+        "web",
+        "npm",
+        "audit",
+        "--audit-level=moderate"
+      ]
+    },
+    {
+      "name": "web_e2e_live",
+      "status": "passed",
+      "detail": "\n> generated-crm-web@0.1.0 e2e\n> playwright test\n\n\n\nRunning 1 test using 1 worker\n\n\u001b[1A\u001b[2K[1/1] tests/workbench.spec.ts:3:5 \u203a loads domain dashboard and creates a record\n\u001b[1A\u001b[2K  1 passed (19.9s)\n\n Container aen-edf67ea0-e2e-run-d1d5649419ef Creating \n Container aen-edf67ea0-e2e-run-d1d5649419ef Created \n\u001b[1A\u001b[2K[WebServer] \u001b[33m\u001b[1m\u26a0\u001b[22m\u001b[39m Slow filesystem detected. The benchmark took 1036ms. If /app/.next/dev is a network drive, consider moving it to a local folder.\n[WebServer] See more: https://nextjs.org/docs/app/guides/local-development\n",
+      "command": [
+        "docker",
+        "compose",
+        "--profile",
+        "test",
+        "run",
+        "--rm",
+        "e2e"
+      ]
+    },
+    {
+      "name": "docker_compose_down",
+      "status": "passed",
+      "detail": "\n Container aen-edf67ea0-web-1 Stopping \n Container aen-edf67ea0-web-1 Stopped \n Container aen-edf67ea0-web-1 Removing \n Container aen-edf67ea0-web-1 Removed \n Container aen-edf67ea0-api-1 Stopping \n Container aen-edf67ea0-api-1 Stopped \n Container aen-edf67ea0-api-1 Removing \n Container aen-edf67ea0-api-1 Removed \n Container aen-edf67ea0-postgres-1 Stopping \n Container aen-edf67ea0-postgres-1 Stopped \n Container aen-edf67ea0-postgres-1 Removing \n Container aen-edf67ea0-postgres-1 Removed \n Volume aen-edf67ea0_postgres-data Removing \n Network aen-edf67ea0_default Removing \n Volume aen-edf67ea0_postgres-data Removed \n Network aen-edf67ea0_default Removed \n",
+      "command": [
+        "docker",
+        "compose",
+        "--profile",
+        "test",
+        "down",
+        "-v"
+      ]
+    },
+    {
+      "name": "docker_compose_remove_sandbox_images",
+      "status": "skipped",
+      "detail": "Sandbox image cleanup is skipped for Docker Compose CLI compatibility; containers and volumes were removed by docker_compose_down.",
+      "command": [
+        "docker",
+        "compose",
+        "down",
+        "--rmi",
+        "local"
+      ]
+    },
+    {
+      "name": "security_review",
+      "status": "passed",
+      "detail": "{\"findings\": [], \"notes\": [\"Shell execution must be approval-gated and run in Docker where possible.\", \"Secrets belong in environment variables or a local secret store, never source files.\", \"Authentication code must be reviewed before deployment.\"], \"passed\": true}",
+      "command": null
+    },
+    {
+      "name": "release_package",
+      "status": "passed",
+      "detail": "Created /host-e/ANN-Soak/autonomous-capability-projects/crm_saas_multitenant/20260812_100631_211508/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0/.aen/release/build-a-production-crm-saas-with-auth-tenancy-billing-workfl-edf67ea0.zip",
+      "command": null
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "collected_at": "2026-08-12T12:02:27.8331790Z",
+  "report_path": "hardware_matrix_report.md",
+  "report_sha256": "61eba755b585c2efb12b98dda3c1bc5f90c83b64d25eed6ac3e7ed691e90fdca",
+  "decision": "PENDING",
+  "evidence_type": "hardware_matrix",
+  "machines": [
+    {
+      "machine_id": "primary-validation-workstation",
+      "os": "Windows 11 Pro",
+      "gpu_vendor": "NVIDIA",
+      "gpu_model": "GeForce RTX 3060 Ti 8GB",
+      "cpu_model": "AMD Ryzen 5 2600",
+      "memory_gb": 32,
+      "clean_install": false,
+      "installer_status": "PASSED",
+      "uninstaller_status": "PASSED",
+      "inference_status": "PASSED",
+      "project_smoke_status": "PASSED"
+    }
+  ]
+}

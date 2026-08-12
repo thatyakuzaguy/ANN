@@ -1,0 +1,39 @@
+{
+  "checks": [
+    {
+      "log": "../projects/complex_3d_game/.aen/evidence/logs/10-api_health_live.log",
+      "name": "api_health_live",
+      "passed": true
+    },
+    {
+      "log": "../projects/complex_3d_game/.aen/evidence/logs/12-api_pytest_live.log",
+      "name": "api_pytest_live",
+      "passed": true
+    },
+    {
+      "log": "../projects/complex_3d_game/.aen/evidence/logs/16-web_build_live.log",
+      "name": "web_build_live",
+      "passed": true
+    },
+    {
+      "log": "../projects/complex_3d_game/.aen/evidence/logs/18-web_e2e_live.log",
+      "name": "web_e2e_live",
+      "passed": true
+    },
+    {
+      "log": "../projects/complex_3d_game/.aen/evidence/logs/11-web_health_live.log",
+      "name": "web_health_live",
+      "passed": true
+    },
+    {
+      "log": "../projects/complex_3d_game/.aen/evidence/logs/15-web_unit_live.log",
+      "name": "web_unit_live",
+      "passed": true
+    }
+  ],
+  "screenshots": [
+    "../projects/complex_3d_game/apps/web/test-results/workbench-loads-playable-pong-arena/test-finished-1.png"
+  ],
+  "source": "../projects/complex_3d_game/.aen/real-lifecycle-result.json",
+  "status": "PASSED"
+}

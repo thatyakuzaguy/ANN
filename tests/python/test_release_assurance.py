@@ -9,9 +9,11 @@ import pytest
 
 from agentic_network.runtime_engine.release_assurance import (
     EVIDENCE_FILES,
+    build_release_evidence_integrity_manifest,
     build_release_assurance_report,
     write_release_assurance_artifacts,
     write_release_assurance_templates,
+    write_release_evidence_integrity_manifest,
 )
 from scripts.runtime import verify_release_assurance
 
@@ -21,6 +23,35 @@ NOW = datetime(2026, 8, 3, tzinfo=timezone.utc)
 
 def _write_json(path: Path, payload: dict[str, object]) -> None:
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+
+def test_integrity_manifest_is_deterministic_and_does_not_claim_approval(tmp_path: Path) -> None:
+    evidence = tmp_path / "evidence"
+    evidence.mkdir()
+    (evidence / "result.json").write_text('{"status":"PASSED"}\n', encoding="utf-8")
+
+    first = build_release_evidence_integrity_manifest(evidence)
+    second = build_release_evidence_integrity_manifest(evidence)
+
+    assert first["aggregate_sha256"] == second["aggregate_sha256"]
+    assert first["file_count"] == 1
+    assert first["claims"]["integrity_only"] is True
+    assert first["claims"]["content_approved"] is False
+
+
+def test_integrity_manifest_sidecar_hashes_actual_manifest(tmp_path: Path) -> None:
+    evidence = tmp_path / "evidence"
+    evidence.mkdir()
+    (evidence / "report.md").write_text("real report\n", encoding="utf-8")
+
+    result = write_release_evidence_integrity_manifest(evidence)
+    manifest = evidence / "INTEGRITY_MANIFEST.json"
+    actual = hashlib.sha256(manifest.read_bytes()).hexdigest()
+
+    assert result["manifest_sha256"] == actual
+    assert (evidence / "INTEGRITY_MANIFEST.sha256").read_text(encoding="utf-8") == (
+        f"{actual}  INTEGRITY_MANIFEST.json\n"
+    )
 
 
 def _policy(path: Path) -> Path:

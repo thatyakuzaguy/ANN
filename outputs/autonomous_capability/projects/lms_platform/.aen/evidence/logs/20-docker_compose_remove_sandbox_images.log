@@ -1,0 +1,1 @@
+Sandbox image cleanup is skipped for Docker Compose CLI compatibility; containers and volumes were removed by docker_compose_down.

@@ -1,0 +1,121 @@
+Sending build context to Docker daemon  4.539kB
+
+Step 1/9 : FROM mcr.microsoft.com/playwright:v1.57.0-noble
+ ---> 3bed4b1a12f2
+Step 2/9 : WORKDIR /app
+ ---> Using cache
+ ---> 055883977853
+Step 3/9 : COPY package.json package-lock.json* ./
+ ---> Using cache
+ ---> 6373c832c9a6
+Step 4/9 : RUN npm install
+ ---> Using cache
+ ---> df217c4478c4
+Step 5/9 : COPY . .
+Sending build context to Docker daemon  48.51kB
+
+Step 1/14 : FROM python:3.12-slim
+ ---> 57cd7c3a7a27
+Step 2/14 : WORKDIR /app
+ ---> Using cache
+ ---> 9ca2fef811c3
+Step 3/14 : ENV PYTHONDONTWRITEBYTECODE=1
+ ---> Using cache
+ ---> 412e48333689
+Step 4/14 : ENV PYTHONUNBUFFERED=1
+ ---> Using cache
+ ---> 2bdc88fce28c
+Step 5/14 : ENV PYTHONPATH=/app
+ ---> Using cache
+ ---> f716d36c9d9a
+Step 6/14 : COPY requirements.txt .
+ ---> Using cache
+ ---> 2d8b3ab4631c
+Step 7/14 : RUN python -m pip install --no-cache-dir --upgrade "pip>=26.1.2"     && python -m pip install --no-cache-dir -r requirements.txt
+ ---> Using cache
+ ---> 6b6466ca8e7f
+Step 8/14 : COPY alembic.ini ./alembic.ini
+ ---> Using cache
+ ---> 951198e0c8cc
+Step 9/14 : COPY migrations ./migrations
+ ---> e43fa7b73c26
+Step 10/14 : COPY app ./app
+ ---> adce1aaaddca
+Step 11/14 : COPY tests ./tests
+ ---> d7d901ec0898
+Step 12/14 : EXPOSE 8000
+ ---> Running in 7f95fa7e07ab
+ ---> Removed intermediate container 7f95fa7e07ab
+ ---> efb5276d7b90
+Step 13/14 : CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
+ ---> Running in d6eda698bf92
+ ---> Removed intermediate container d6eda698bf92
+ ---> 36194fc26d1a
+Step 14/14 : LABEL com.docker.compose.image.builder=classic
+ ---> Running in d505e14afb75
+ ---> Removed intermediate container d505e14afb75
+ ---> ed43d5fe50f3
+Successfully built ed43d5fe50f3
+Successfully tagged aen-d48edacd-api:latest
+Sending build context to Docker daemon  4.539kB
+
+Step 1/8 : FROM node:22-alpine
+ ---> c610fcdfb1d5
+Step 2/8 : WORKDIR /app
+ ---> Using cache
+ ---> bd17f2175e29
+Step 3/8 : COPY package.json package-lock.json* ./
+ ---> Using cache
+ ---> cc2bc4bf937c
+Step 4/8 : RUN npm install
+ ---> Using cache
+ ---> 609996f262d5
+Step 5/8 : COPY . .
+ ---> e2c161f9db36
+Step 6/8 : EXPOSE 3000
+ ---> b2526f3f198f
+Step 6/9 : ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+ ---> Running in eb2ddacbf902
+ ---> Running in 78327140d21d
+ ---> Removed intermediate container eb2ddacbf902
+ ---> 13eecb8cb15b
+Step 7/8 : CMD ["npm", "run", "dev"]
+ ---> Running in 0bdfb4bad556
+ ---> Removed intermediate container 78327140d21d
+ ---> fb7ac90b76c1
+Step 7/9 : ENV NEXT_TELEMETRY_DISABLED=1
+ ---> Running in af59fe055e64
+ ---> Removed intermediate container 0bdfb4bad556
+ ---> 287c10ac297b
+Step 8/8 : LABEL com.docker.compose.image.builder=classic
+ ---> Running in f0a0d2aa944b
+ ---> Removed intermediate container f0a0d2aa944b
+ ---> 54f5ff6d2fe6
+Successfully built 54f5ff6d2fe6
+Successfully tagged aen-d48edacd-web:latest
+ ---> Removed intermediate container af59fe055e64
+ ---> 258f7c9312ee
+Step 8/9 : CMD ["npm", "run", "e2e"]
+ ---> Running in 2e02f0e07740
+ ---> Removed intermediate container 2e02f0e07740
+ ---> 80514c311fa6
+Step 9/9 : LABEL com.docker.compose.image.builder=classic
+ ---> Running in 031bfd458ced
+ ---> Removed intermediate container 031bfd458ced
+ ---> 4c436348217b
+Successfully built 4c436348217b
+Successfully tagged aen-d48edacd-e2e:latest
+
+time="2026-08-12T10:55:22Z" level=warning msg="Docker Compose requires buildx plugin to be installed"
+ Image aen-d48edacd-e2e Building 
+ Image aen-d48edacd-api Building 
+ Image aen-d48edacd-e2e Building 
+ Image aen-d48edacd-api Building 
+ Image aen-d48edacd-api Built 
+ Image aen-d48edacd-api Built 
+ Image aen-d48edacd-web Building 
+ Image aen-d48edacd-web Building 
+ Image aen-d48edacd-web Built 
+ Image aen-d48edacd-web Built 
+ Image aen-d48edacd-e2e Built 
+ Image aen-d48edacd-e2e Built

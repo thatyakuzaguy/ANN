@@ -227,6 +227,12 @@ def test_public_repository_verifier_supports_windows_powershell_51() -> None:
     assert "Get-AnnRelativePath" in source
     assert "[IO.Path]::GetRelativePath" not in source
     assert "ls-files --cached --others --exclude-standard" in source
+    assert "[switch]$UpdateManifest" in source
+    assert "Public release manifest updated" in source
+    assert "maximum_file_size_mb" in source
+    assert "Test-AnnPublicPathAllowed" in source
+    assert "File is outside the public release allowlist" in source
+    assert "Private key material found in public source" in source
 
 
 def test_git_source_release_script_bootstraps_monorepo_packages() -> None:

@@ -227,7 +227,7 @@ cache by default; `LlamaRAMCache` remains available for trusted in-memory use.
 ## Development Verification
 
 ```powershell
-python -m ruff check agentic_network packages tests/python scripts
+python -m ruff check agentic_network apps packages tests/python scripts
 python -m pytest tests/python -q
 npm ci
 npm --workspace apps/web run lint
@@ -264,10 +264,11 @@ manifest.
   external accounts still require qualified humans.
 - The current desktop distribution is unsigned unless the release maintainer
   supplies a trusted code-signing certificate; Windows may show SmartScreen.
-- Public final release remains blocked until fresh, hashed evidence exists for
-  a multi-machine hardware matrix, prolonged real-project validation,
-  independent security and legal review, model licensing, and qualified human
-  acceptance. The verifier never fabricates those external results.
+- The eight-hour/20-run soak and seven-scenario autonomous capability packet
+  are complete. The trusted-publisher channel remains blocked on a second
+  machine/GPU profile, independent security and legal review, model-license
+  decisions, qualified human acceptance, and Authenticode signing. The
+  verifier never fabricates those external results.
 - Some project types need additional artifact families and domain-specific
   tools beyond the current SaaS, API, and canvas-game foundations.
 - Autonomy is intentionally bounded. “Infinite correction” would be unsafe and

@@ -1,0 +1,14 @@
+{
+  "name": "ai-chatbot-saas-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "package": "electron-packager . \"AI Chatbot SaaS\" --platform=win32 --arch=x64 --electron-version=42.3.3 --out=dist --overwrite --asar"
+  },
+  "devDependencies": {
+    "@electron/packager": "^19.0.1",
+    "electron": "^42.3.0"
+  }
+}

@@ -1,0 +1,15 @@
+$ docker compose --profile test run --rm --no-deps e2e
+
+> generated-crm-web@0.1.0 e2e
+> playwright test
+
+
+Running 1 test using 1 worker
+
+[1A[2K[1/1] tests/workbench.spec.ts:3:5 › loads domain dashboard and creates a record
+[1A[2K  1 passed (12.3s)
+
+ Network aen-d48edacd_default Creating 
+ Network aen-d48edacd_default Created 
+ Container aen-d48edacd-e2e-run-da2957ba3c27 Creating 
+ Container aen-d48edacd-e2e-run-da2957ba3c27 Created

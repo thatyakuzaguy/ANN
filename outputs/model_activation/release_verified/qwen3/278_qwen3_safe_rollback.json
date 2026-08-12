@@ -1,0 +1,23 @@
+{
+  "version": "18.7",
+  "generated_at": "2026-07-14T03:59:37.334691+00:00",
+  "status": "SAFE_ROLLBACK_PASSED",
+  "active_models_after": 0,
+  "parallel_llm_loads_after": 0,
+  "safe_mode_final": true,
+  "safety": {
+    "local_only": true,
+    "internet": false,
+    "downloads": false,
+    "dependency_install": false,
+    "model_load": false,
+    "inference": false,
+    "training": false,
+    "modify_models": false,
+    "move_models": false,
+    "quantize_models": false,
+    "convert_models": false,
+    "write_adapters": false,
+    "write_datasets": false
+  }
+}

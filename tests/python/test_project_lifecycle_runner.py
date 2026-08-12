@@ -1,4 +1,7 @@
+import json
 from pathlib import Path
+
+import pytest
 
 from agentic_engineering_network.logs.audit import AuditLogger
 from agentic_engineering_network.orchestration.artifact_router import build_project_artifacts
@@ -6,6 +9,46 @@ from agentic_engineering_network.shared.config import Settings
 
 from app.services import project_lifecycle
 from app.services.project_lifecycle import LifecycleStep, ProjectLifecycleRunner
+
+
+def test_lifecycle_result_is_persisted_for_capability_evidence_and_cannot_be_overwritten(tmp_path) -> None:
+    evidence_dir = tmp_path / ".aen"
+    evidence_dir.mkdir()
+    runner = ProjectLifecycleRunner(Settings(), AuditLogger(tmp_path / "audit.jsonl"))
+    payload = {
+        "schema_version": "ann.real-lifecycle-result.v1",
+        "run_id": "run-evidence-1",
+        "idea": "Build a verified service",
+        "completed_at": "2026-08-12T00:00:00+00:00",
+        "project_root": str(tmp_path),
+        "display_root": str(tmp_path),
+        "sandbox_id": "aen-run-evid",
+        "profile": "algorithm_service",
+        "release_package": str(tmp_path / "release.zip"),
+        "attempts": 1,
+        "status": "passed",
+        "steps": [
+            {
+                "name": "api_pytest_live",
+                "status": "passed",
+                "detail": "12 passed",
+                "command": ["python", "-m", "pytest", "-q"],
+            }
+        ],
+    }
+
+    runner._write_sandbox_manifest(tmp_path, payload)  # noqa: SLF001
+    runner._write_lifecycle_result(tmp_path, payload)  # noqa: SLF001
+    runner._write_lifecycle_result(tmp_path, payload)  # noqa: SLF001
+
+    stored = json.loads((evidence_dir / "real-lifecycle-result.json").read_text(encoding="utf-8"))
+    sandbox = json.loads((evidence_dir / "sandbox.json").read_text(encoding="utf-8"))
+    assert stored == payload
+    assert sandbox["status"] == "passed"
+    assert sandbox["profile"] == "algorithm_service"
+
+    with pytest.raises(RuntimeError, match="Refusing to overwrite immutable lifecycle evidence"):
+        runner._write_lifecycle_result(tmp_path, {**payload, "status": "failed"})  # noqa: SLF001
 
 
 def test_live_sandbox_uses_compose_project_env_instead_of_dash_p(monkeypatch) -> None:
@@ -160,6 +203,71 @@ def test_live_sandbox_runs_web_unit_audit_and_browser_gates(monkeypatch) -> None
     assert ProjectLifecycleRunner._lifecycle_status(steps) == "passed"  # noqa: SLF001
 
 
+def test_live_sandbox_uses_allowlisted_container_host(monkeypatch) -> None:
+    scratch = Path(r"D:\AgenticEngineeringNetwork\tests\.tmp\project-lifecycle-container-host")
+    settings = Settings(
+        ai_provider="deterministic",
+        audit_log_path=scratch / "audit.jsonl",
+        generated_projects_path=scratch / "generated-projects",
+    )
+    runner = ProjectLifecycleRunner(settings, AuditLogger(settings.audit_log_path))
+    urls: list[str] = []
+    monkeypatch.setenv("AEN_SANDBOX_HOST", "host.docker.internal")
+    monkeypatch.setattr(
+        runner, "_compose_command", lambda project_root=None, env=None: ["docker", "compose"]
+    )
+    monkeypatch.setattr(
+        runner,
+        "_run_command",
+        lambda name, command, cwd, env, timeout: LifecycleStep(name, "passed", "ok", command),
+    )
+
+    def fake_wait(name, url, timeout):  # noqa: ANN001, ARG001
+        urls.append(url)
+        return LifecycleStep(name, "passed", "ready")
+
+    monkeypatch.setattr(runner, "_wait_for_http", fake_wait)
+
+    runner._run_live_sandbox(scratch, "beef0006-0000-4000-8000-000000000006")  # noqa: SLF001
+
+    assert urls
+    assert all("host.docker.internal" in url for url in urls)
+    monkeypatch.setenv("AEN_SANDBOX_HOST", "attacker.example")
+    assert runner._sandbox_host() == "127.0.0.1"  # noqa: SLF001
+
+
+def test_live_sandbox_stops_after_api_health_failure_before_tests(monkeypatch) -> None:
+    scratch = Path(r"D:\AgenticEngineeringNetwork\tests\.tmp\project-lifecycle-health-failure")
+    settings = Settings(
+        ai_provider="deterministic",
+        audit_log_path=scratch / "audit.jsonl",
+        generated_projects_path=scratch / "generated-projects",
+    )
+    runner = ProjectLifecycleRunner(settings, AuditLogger(settings.audit_log_path))
+    commands: list[str] = []
+    monkeypatch.setattr(
+        runner, "_compose_command", lambda project_root=None, env=None: ["docker", "compose"]
+    )
+
+    def fake_run(name, command, cwd, env, timeout):  # noqa: ANN001, ARG001
+        commands.append(name)
+        return LifecycleStep(name, "passed", "ok", command)
+
+    monkeypatch.setattr(runner, "_run_command", fake_run)
+    monkeypatch.setattr(
+        runner,
+        "_wait_for_http",
+        lambda name, url, timeout: LifecycleStep(name, "failed", "connection refused"),
+    )
+
+    steps = runner._run_live_sandbox(scratch, "beef0007-0000-4000-8000-000000000007")  # noqa: SLF001
+
+    assert next(step for step in steps if step.name == "api_health_live").status == "failed"
+    assert "api_pytest_live" not in commands
+    assert "api_logs" in commands
+    assert commands[-1] == "docker_compose_down"
+
+
 def test_compose_command_prefers_project_validated_compose_plugin(monkeypatch) -> None:
     scratch = Path(r"D:\AgenticEngineeringNetwork\tests\.tmp\project-lifecycle-compose-detect")
     scratch.mkdir(parents=True, exist_ok=True)
@@ -276,6 +384,145 @@ def test_provider_patch_is_proposed_but_never_applied_without_patch_approval(tmp
     assert source.read_text(encoding="utf-8") == "answer = 1\n"
     assert (project_root / ".aen" / "repair-attempt-1.diff").is_file()
     assert "Explicit Patch Approval" in step.detail
+
+
+def test_provider_patch_retries_one_invalid_diff_and_preserves_both_responses(tmp_path, monkeypatch) -> None:
+    project_root = tmp_path / "generated"
+    (project_root / ".aen").mkdir(parents=True)
+    (project_root / "app.py").write_text("answer = 1\n", encoding="utf-8")
+    settings = Settings(
+        ai_provider="local-test",
+        audit_log_path=tmp_path / "audit.jsonl",
+        generated_projects_path=tmp_path / "generated-projects",
+    )
+    runner = ProjectLifecycleRunner(settings, AuditLogger(settings.audit_log_path))
+
+    class Provider:
+        def __init__(self) -> None:
+            self.calls = 0
+
+        def generate(self, prompt):  # noqa: ANN001, ARG002
+            self.calls += 1
+            content = (
+                "--- a/app.py\n+++ b/app.py\n@@ -1 +1 @@\n-answer = 1\n"
+                if self.calls == 1
+                else "--- a/app.py\n+++ b/app.py\n@@ -1 +1 @@\n-answer = 1\n+answer = 2\n"
+            )
+            return type(
+                "Response",
+                (),
+                {"content": content, "provider": "local-test", "model": "repair-model"},
+            )()
+
+        def close(self) -> None:
+            return None
+
+    provider = Provider()
+    checks = 0
+
+    def fake_git_apply(project_root, diff, check_only):  # noqa: ANN001, ARG001
+        nonlocal checks
+        checks += 1
+        status = "failed" if checks == 1 else "passed"
+        return LifecycleStep(
+            "git_apply_check",
+            status,
+            "error: corrupt patch" if status == "failed" else "valid",
+            ["git", "apply", "--check", "-"],
+        )
+
+    monkeypatch.setattr(project_lifecycle, "build_provider", lambda settings: provider)
+    monkeypatch.setattr(runner, "_run_git_apply", fake_git_apply)
+
+    step = runner._apply_provider_patch(  # noqa: SLF001
+        project_root,
+        "run-retry",
+        "Fix the generated app",
+        [LifecycleStep("api_health_live", "failed", "connection refused")],
+        1,
+    )
+
+    assert step.status == "blocked"
+    assert provider.calls == 2
+    assert checks == 2
+    assert (project_root / ".aen" / "repair-response-attempt-1.md").is_file()
+    assert (project_root / ".aen" / "repair-response-attempt-1-retry.md").is_file()
+    assert (project_root / ".aen" / "repair-attempt-1-retry.diff").is_file()
+    assert (project_root / "app.py").read_text(encoding="utf-8") == "answer = 1\n"
+
+
+def test_provider_patch_receives_cross_domain_logs_and_fix_policy(tmp_path, monkeypatch) -> None:
+    project_root = tmp_path / "generated"
+    (project_root / ".aen").mkdir(parents=True)
+    (project_root / "docker-compose.yml").write_text("services:\n  postgres:\n", encoding="utf-8")
+    (project_root / "app.py").write_text("answer = 1\n", encoding="utf-8")
+    settings = Settings(
+        ai_provider="local-test",
+        audit_log_path=tmp_path / "audit.jsonl",
+        generated_projects_path=tmp_path / "generated-projects",
+    )
+    runner = ProjectLifecycleRunner(settings, AuditLogger(settings.audit_log_path))
+    payloads: list[dict[str, object]] = []
+
+    class Provider:
+        def generate(self, prompt):  # noqa: ANN001
+            payloads.append(json.loads(prompt.user))
+            return type(
+                "Response",
+                (),
+                {
+                    "content": "--- a/app.py\n+++ b/app.py\n@@ -1 +1 @@\n-answer = 1\n+answer = 2\n",
+                    "provider": "local-test",
+                    "model": "repair-model",
+                },
+            )()
+
+        def close(self) -> None:
+            return None
+
+    monkeypatch.setattr(project_lifecycle, "build_provider", lambda settings: Provider())
+    monkeypatch.setattr(
+        runner,
+        "_run_git_apply",
+        lambda project_root, diff, check_only: LifecycleStep(
+            "git_apply_check", "passed", "valid", ["git", "apply", "--check", "-"]
+        ),
+    )
+
+    step = runner._apply_provider_patch(  # noqa: SLF001
+        project_root,
+        "run-cross-domain",
+        "Build a web application",
+        [
+            LifecycleStep("api_health_live", "failed", "connection refused"),
+            LifecycleStep(
+                "postgres_logs",
+                "passed",
+                "PostgreSQL init process complete; ready for start up.",
+            ),
+            LifecycleStep(
+                "api_logs",
+                "passed",
+                "psycopg.OperationalError: connection to postgres failed: Connection refused",
+            ),
+        ],
+        1,
+    )
+
+    assert step.status == "blocked"
+    assert payloads
+    payload = payloads[0]
+    assert payload["fix_policy"][  # type: ignore[index]
+        "do_not_rewrite_symptom_node_until_cross_domain_suspects_checked"
+    ] is True
+    assert {item["name"] for item in payload["diagnostic_evidence"]} == {  # type: ignore[index]
+        "api_health_live",
+        "postgres_logs",
+        "api_logs",
+    }
+    context = payload["failure_context"]  # type: ignore[assignment]
+    assert context["source"] == "project_lifecycle"  # type: ignore[index]
+    assert (project_root / ".aen" / "failure-context-attempt-1.json").is_file()
 
 
 def test_lifecycle_status_blocks_on_docker_registry_timeout() -> None:
@@ -412,6 +659,7 @@ def test_algorithm_live_sandbox_runs_tests_integration_benchmark_and_audits(tmp_
     assert commands["docker_compose_up"][-1] == "api"
     assert "web" not in commands["docker_compose_up"]
     assert "tests/test_integration.py" in commands["algorithm_integration_live"]
-    assert commands["api_pytest_live"][5:8] == ["python", "-m", "pytest"]
+    api_index = commands["api_pytest_live"].index("api")
+    assert commands["api_pytest_live"][api_index + 1 : api_index + 4] == ["python", "-m", "pytest"]
     assert commands["algorithm_benchmark_live"][-2:] == ["python", "benchmark.py"]
     assert "pip-audit" in commands["api_dependency_audit_live"]

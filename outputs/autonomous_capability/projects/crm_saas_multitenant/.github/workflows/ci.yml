@@ -1,0 +1,53 @@
+name: Generated App CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Compose config
+        run: docker compose config --quiet
+      - name: API tests
+        working-directory: apps/api
+        run: |
+          pip install -r requirements.txt
+          pytest -q
+      - name: Web build
+        working-directory: apps/web
+        run: |
+          npm install
+          npm run build
+      - name: Docker Compose build
+        run: docker compose build
+
+  deploy:
+    needs: validate
+    if: github.ref == 'refs/heads/main' && vars.ENABLE_CLOUD_DEPLOY == 'true'
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy placeholder
+        run: |
+          echo "Connect this step to AWS ECS, Azure Container Apps, Fly.io, Render, or your preferred platform."
+          echo "Required secrets: REGISTRY_URL, REGISTRY_USERNAME, REGISTRY_PASSWORD, DATABASE_URL, JWT_SECRET, STRIPE_SECRET_KEY."

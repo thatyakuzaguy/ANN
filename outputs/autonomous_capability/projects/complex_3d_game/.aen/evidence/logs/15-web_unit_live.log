@@ -1,0 +1,16 @@
+> generated-3d-pong-web@0.1.0 test
+> vitest run
+
+
+ RUN  v3.2.7 /app
+
+ ✓ src/game/physics.test.ts (3 tests) 9ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  11:12:09
+   Duration  839ms (transform 97ms, setup 0ms, collect 75ms, tests 9ms, environment 0ms, prepare 218ms)
+
+
+ Container aen-34521d75-web-run-3ca8176b7ac3 Creating 
+ Container aen-34521d75-web-run-3ca8176b7ac3 Created

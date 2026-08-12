@@ -1,0 +1,19 @@
+services:
+  api:
+    build: .
+    ports:
+      - "${API_PORT:-18000}:8000"
+    environment:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONPATH: /app
+      XDG_CACHE_HOME: /tmp
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 20

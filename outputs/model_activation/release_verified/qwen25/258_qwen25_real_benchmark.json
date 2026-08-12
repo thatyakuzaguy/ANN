@@ -1,0 +1,74 @@
+{
+  "version": "18.3",
+  "generated_at": "2026-07-14T03:53:58.750045+00:00",
+  "status": "FIRST_REAL_INFERENCE_PASSED",
+  "gpu_name": "NVIDIA GeForce RTX 3060 Ti",
+  "peak_vram_mb": 6390.0,
+  "vram_samples": [
+    {
+      "label": "before_load",
+      "memory_used_mb": 1739.0,
+      "gpu_name": "NVIDIA GeForce RTX 3060 Ti",
+      "vram_total_mb": 8191.38,
+      "source": "nvidia-smi"
+    },
+    {
+      "label": "child_before_load",
+      "memory_used_mb": 1739.0,
+      "source": "nvidia-smi"
+    },
+    {
+      "label": "child_after_load",
+      "memory_used_mb": 6361.0,
+      "source": "nvidia-smi"
+    },
+    {
+      "label": "child_after_inference",
+      "memory_used_mb": 6390.0,
+      "source": "nvidia-smi"
+    },
+    {
+      "label": "child_after_rollback",
+      "memory_used_mb": 1886.0,
+      "source": "nvidia-smi"
+    },
+    {
+      "label": "after_child_process",
+      "memory_used_mb": 1733.0,
+      "gpu_name": "NVIDIA GeForce RTX 3060 Ti",
+      "vram_total_mb": 8191.38,
+      "source": "nvidia-smi"
+    },
+    {
+      "label": "after_rollback",
+      "memory_used_mb": 1733.0,
+      "gpu_name": "NVIDIA GeForce RTX 3060 Ti",
+      "vram_total_mb": 8191.38,
+      "source": "nvidia-smi"
+    }
+  ],
+  "load_time_seconds": 77.08741700999963,
+  "inference_time_seconds": 0.8517952099937247,
+  "total_time_seconds": 83.00208850999479,
+  "tokens_generated": 32,
+  "prompt_tokens": 1,
+  "tokens_per_second": 37.568,
+  "active_models_after": 0,
+  "parallel_llm_loads_after": 0,
+  "safe_mode_final": true,
+  "safety": {
+    "local_only": true,
+    "internet": false,
+    "downloads": false,
+    "dependency_install": false,
+    "model_load": false,
+    "inference": false,
+    "training": false,
+    "modify_models": false,
+    "move_models": false,
+    "quantize_models": false,
+    "convert_models": false,
+    "write_adapters": false,
+    "write_datasets": false
+  }
+}

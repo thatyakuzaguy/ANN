@@ -3419,8 +3419,18 @@ def build_beta_readiness_gate(install_root: str | Path | None = None) -> dict[st
     clean_machine = build_clean_machine_emulator(root)
     installer_rc = build_installer_rc_readiness()
     launch_guard = build_real_inference_launch_guard(confirm=True, approval_token=LOCAL_TEST_TOKEN, experimental=True)
+    qwen25_evidence = build_qwen25_release_evidence()
+    qwen3_evidence = build_qwen3_release_evidence()
+    deepseek_evidence = build_deepseek_powerful_release_evidence()
+    qwen25_ready = launch_guard["status"] == "PASSED" or qwen25_evidence["passed"]
     alpha = build_public_alpha_readiness()
-    release_docs = (REPO_ROOT / "README_ALPHA_RELEASE_NOTES.md").is_file() and (REPO_ROOT / "README_FAQ.md").is_file()
+    release_docs_paths = (
+        REPO_ROOT / "README.md",
+        REPO_ROOT / "docs" / "PUBLIC_RELEASE.md",
+        REPO_ROOT / "LIMITATIONS.md",
+        REPO_ROOT / "README_RELEASE_CANDIDATE_READINESS.md",
+    )
+    release_docs = all(path.is_file() for path in release_docs_paths)
     checks = [
         _beta_gate_check("embedded_runtime_layout", layout["status"] in {"RUNTIME_LAYOUT_EXISTS", "RUNTIME_LAYOUT_CREATED"}, layout["status"]),
         _beta_gate_check("embedded_python_present", (runtime / "python" / "python.exe").is_file(), str(runtime / "python" / "python.exe")),
@@ -3429,11 +3439,23 @@ def build_beta_readiness_gate(install_root: str | Path | None = None) -> dict[st
         _beta_gate_check("lockfile_hashes_verified", not wheelhouse_plan["hash_pending"], "hash_pending" if wheelhouse_plan["hash_pending"] else "verified"),
         _beta_gate_check("clean_machine_emulator", clean_machine["status"] != "CLEAN_MACHINE_BLOCKED", clean_machine["status"]),
         _beta_gate_check("installer_rc_status", installer_rc["status"] == "RC_READY", installer_rc["status"]),
-        _beta_gate_check("qwen25_backend_readiness", launch_guard["status"] == "PASSED", launch_guard["status"]),
-        _beta_gate_check("first_real_inference_status", False, "not_executed"),
+        _beta_gate_check(
+            "qwen25_backend_readiness",
+            qwen25_ready,
+            "REAL_EVIDENCE_PASSED" if qwen25_evidence["passed"] else launch_guard["status"],
+        ),
+        _beta_gate_check(
+            "first_real_inference_status",
+            qwen25_evidence["passed"],
+            qwen25_evidence["status"],
+        ),
         _beta_gate_check("desktop_status", alpha["alpha"] == "ALPHA_READY_WITH_LIMITATIONS", alpha["alpha"]),
         _beta_gate_check("safe_mode", True, "allow_real_model_load=false"),
-        _beta_gate_check("release_docs", release_docs, "README_ALPHA_RELEASE_NOTES.md + README_FAQ.md"),
+        _beta_gate_check(
+            "release_docs",
+            release_docs,
+            ", ".join(path.relative_to(REPO_ROOT).as_posix() for path in release_docs_paths),
+        ),
     ]
     blockers = [check for check in checks if check["status"] == "BLOCKED"]
     if blockers:
@@ -3454,10 +3476,10 @@ def build_beta_readiness_gate(install_root: str | Path | None = None) -> dict[st
         "embedded_runtime_layout": layout["status"],
         "wheelhouse_materialization": wheelhouse_plan["status"],
         "clean_machine_emulator": clean_machine["status"],
-        "qwen2_5_backend_blocked": launch_guard["status"] != "PASSED",
-        "qwen3_blocked": True,
-        "deepseek_blocked": True,
-        "powerful_blocked": True,
+        "qwen2_5_backend_blocked": not qwen25_ready,
+        "qwen3_blocked": not qwen3_evidence["passed"],
+        "deepseek_blocked": not deepseek_evidence["passed"],
+        "powerful_blocked": not deepseek_evidence["passed"],
         "active_models": get_runtime_metrics().get("active_models", 0),
         "parallel_llm_loads": get_runtime_metrics().get("parallel_llm_loads", 0),
         "vram_policy": load_model_policy().vram_policy,
@@ -3700,13 +3722,23 @@ def build_beta_runtime_payload_readiness(runtime_root: str | Path | None = None)
     registry = build_wheelhouse_integrity_registry(root / "wheels")
     installer = build_installer_rc_readiness()
     launch_guard = build_real_inference_launch_guard(confirm=True, approval_token=LOCAL_TEST_TOKEN, experimental=True)
+    qwen25_evidence = build_qwen25_release_evidence()
+    qwen25_ready = launch_guard["status"] == "PASSED" or qwen25_evidence["passed"]
     checks = [
         _payload_readiness_check("embedded_runtime_ready", inventory["status"] == "INVENTORY_READY", inventory["status"]),
         _payload_readiness_check("wheelhouse_ready", registry["status"] == "HASH_VERIFIED", registry["status"]),
         _payload_readiness_check("installer_ready", installer["status"] == "RC_READY", installer["status"]),
         _payload_readiness_check("runtime_verified", verification["status"] == "VERIFICATION_READY", verification["status"]),
-        _payload_readiness_check("qwen25_backend_ready", launch_guard["status"] == "PASSED", launch_guard["status"]),
-        _payload_readiness_check("first_inference_executed", False, "not_executed"),
+        _payload_readiness_check(
+            "qwen25_backend_ready",
+            qwen25_ready,
+            "REAL_EVIDENCE_PASSED" if qwen25_evidence["passed"] else launch_guard["status"],
+        ),
+        _payload_readiness_check(
+            "first_inference_executed",
+            qwen25_evidence["passed"],
+            qwen25_evidence["status"],
+        ),
     ]
     blockers = [check for check in checks if check["status"] == "BLOCKED"]
     if blockers:
@@ -3742,7 +3774,7 @@ def write_beta_runtime_payload_readiness_artifacts(output_dir: str | Path | None
 
 
 def build_runtime_final_gap(runtime_root: str | Path | None = None) -> dict[str, Any]:
-    """Summarize what remains between current Alpha and Beta/Public runtime readiness."""
+    """Summarize current runtime gaps without retaining obsolete phase assumptions."""
 
     root_info = _runtime_path_info(runtime_root)
     root = root_info["path"]
@@ -3750,42 +3782,51 @@ def build_runtime_final_gap(runtime_root: str | Path | None = None) -> dict[str,
     registry = build_wheelhouse_integrity_registry(root / "wheels")
     inventory = build_embedded_runtime_inventory(root)
     verification = build_embedded_runtime_verification(root)
+    materialization = build_external_runtime_materialization(root)
     payload = build_beta_runtime_payload_readiness(root)
     beta_gate = build_beta_readiness_gate(root.parent)
+    qwen25_evidence = build_qwen25_release_evidence()
+    qwen3_evidence = build_qwen3_release_evidence()
+    deepseek_evidence = build_deepseek_powerful_release_evidence()
+    signing = build_code_signing_readiness()
+    clean_machine = build_clean_machine_evidence(root.parent)
     already_has = [
-        "Desktop App native foundation",
-        "Runtime Engine and Bundle APIs",
-        "Sequential Runtime policy",
-        "Safe Mode and Launch Guard",
-        "Model Inventory",
-        "Runtime Gap Report",
-        "Installer foundation and dry-run manifests",
-        "Alpha release notes, FAQ, smoke matrix, and Beta roadmap",
+        "Packaged native Desktop and local engineering workbench",
+        "Embedded Python runtime and hash-verified offline wheelhouse",
+        "Sequential Runtime policy with zero parallel LLM loads",
+        "Safe Mode, Launch Guard, and clean unload rollback",
+        "Qwen2.5, Qwen3, and DeepSeek real inference evidence",
+        "Seven verified autonomous project scenarios",
+        "Eight-hour, twenty-run release soak evidence",
+        "Installer RC, source release, and external assurance gates",
     ]
-    runtime_misses = [
-        "embedded_python",
-        "runtime_wheels",
-        "verified_hashes",
-        "runtime_payload_copy",
-        "clean_machine_validation",
+    runtime_misses = list(materialization["missing"])
+    if registry["status"] != "HASH_VERIFIED":
+        runtime_misses.append("verified_hashes")
+    first_inference_blockers = [] if qwen25_evidence["passed"] else [
+        "qwen25_real_inference_evidence_missing"
     ]
-    first_inference_blockers = [
-        "llama_cpp_cuda_backend_ready",
-        "torch_cuda_visible_in_embedded_runtime",
-        "launch_guard_passed",
-        "human_token_approval",
-        "first_qwen25_smoke_not_executed",
-    ]
-    public_release_blockers = [
-        "public_beta_not_completed",
-        "signed_installer_missing",
-        "support_docs_finalization",
-        "clean_machine_evidence_missing",
-    ]
+    public_release_blockers = []
+    if beta_gate["blockers"]:
+        public_release_blockers.append("public_beta_not_completed")
+    if not signing.get("signed"):
+        public_release_blockers.append("signed_installer_missing")
+    if clean_machine["status"] != "CLEAN_MACHINE_EXTERNAL_PASSED":
+        public_release_blockers.append("clean_machine_evidence_missing")
+    if not qwen3_evidence["passed"]:
+        public_release_blockers.append("qwen3_real_evidence_missing")
+    if not deepseek_evidence["passed"]:
+        public_release_blockers.append("deepseek_powerful_real_evidence_missing")
+    if runtime_misses or first_inference_blockers:
+        status = "RUNTIME_FINAL_GAP_BLOCKED"
+    elif public_release_blockers:
+        status = "RUNTIME_FINAL_GAP_EXTERNAL_RELEASE_BLOCKED"
+    else:
+        status = "RUNTIME_FINAL_GAP_CLOSED"
     return {
-        "version": "15.9",
+        "version": "18.9.23",
         "generated_at": _now(),
-        "status": "RUNTIME_FINAL_GAP_BLOCKED" if payload["status"] == "PAYLOAD_BLOCKED" else "RUNTIME_FINAL_GAP_REDUCED",
+        "status": status,
         "what_ann_already_has": already_has,
         "what_runtime_still_misses": runtime_misses,
         "what_blocks_beta": [item["id"] for item in beta_gate["blockers"]],
@@ -3798,6 +3839,11 @@ def build_runtime_final_gap(runtime_root: str | Path | None = None) -> dict[str,
             "runtime_verification": verification["status"],
             "payload_readiness": payload["status"],
             "beta_gate": beta_gate["status"],
+            "qwen25_release_evidence": qwen25_evidence["status"],
+            "qwen3_release_evidence": qwen3_evidence["status"],
+            "deepseek_release_evidence": deepseek_evidence["status"],
+            "clean_machine_evidence": clean_machine["status"],
+            "code_signing": signing["status"],
         },
         "safety": _safety_payload(),
     }
@@ -6513,7 +6559,11 @@ def build_autonomous_complex_capability_gate(evidence_root: str | Path | None = 
         evidence_level = ""
         if isinstance(verification, dict):
             evidence_level = str(verification.get("evidence_level", ""))
-        capability = evaluate_project_capability(scenario["id"], payload)
+        capability = evaluate_project_capability(
+            scenario["id"],
+            payload,
+            summary_path=summary_path,
+        )
         passed = (
             payload.get("status") == "COMPLETED_VERIFIED"
             and payload.get("completion_quality") == "VERIFIED"

@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "collected_at": "2026-08-12T12:02:27.8331790Z",
+  "report_path": "generated_software_acceptance_report.md",
+  "report_sha256": "de827fb4dc3ef3171d6aef852d8000ad7d810230c7ae2464f16a476e96493bf0",
+  "decision": "PENDING",
+  "evidence_type": "generated_software_acceptance",
+  "projects": [
+    {
+      "project_id": "complex_algorithm_service",
+      "run_id": "6bfeaf95-fb6d-4c16-81cf-69e949ddb4bf",
+      "archetype": "algorithm_service",
+      "decision": "PENDING",
+      "human_review": false,
+      "reviewer": "",
+      "build_status": "PASSED",
+      "test_status": "PASSED",
+      "security_status": "PASSED"
+    },
+    {
+      "project_id": "crm_saas_multitenant",
+      "run_id": "edf67ea0-c7c1-46c2-89b8-e607411636fb",
+      "archetype": "multi_tenant_saas",
+      "decision": "PENDING",
+      "human_review": false,
+      "reviewer": "",
+      "build_status": "PASSED",
+      "test_status": "PASSED",
+      "security_status": "PASSED"
+    },
+    {
+      "project_id": "complex_3d_game",
+      "run_id": "34521d75-9828-43e9-922c-b15e9b2a81c",
+      "archetype": "browser_3d_game",
+      "decision": "PENDING",
+      "human_review": false,
+      "reviewer": "",
+      "build_status": "PASSED",
+      "test_status": "PASSED",
+      "security_status": "PASSED"
+    }
+  ]
+}

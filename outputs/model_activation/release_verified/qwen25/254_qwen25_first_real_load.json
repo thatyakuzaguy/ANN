@@ -1,0 +1,33 @@
+{
+  "version": "18.3",
+  "generated_at": "2026-07-14T03:53:58.750013+00:00",
+  "status": "FIRST_REAL_LOAD_PASSED",
+  "model_name": "qwen2_5_coder_7b_v5",
+  "backend": "llama_cpp",
+  "runtime_type": "external_conda",
+  "model_path": "D:/AgenticEngineeringNetwork/models/qwen2.5-coder-7b-q4_k_m.gguf",
+  "resolved_model_path": "/mnt/d/AgenticEngineeringNetwork/models/qwen2.5-coder-7b-q4_k_m.gguf",
+  "real_load_attempted": true,
+  "real_load_success": true,
+  "load_time_seconds": 77.08741700999963,
+  "exception": "",
+  "errors": [],
+  "warnings": [
+    "child_stderr_captured"
+  ],
+  "safety": {
+    "local_only": true,
+    "internet": false,
+    "downloads": false,
+    "dependency_install": false,
+    "model_load": false,
+    "inference": false,
+    "training": false,
+    "modify_models": false,
+    "move_models": false,
+    "quantize_models": false,
+    "convert_models": false,
+    "write_adapters": false,
+    "write_datasets": false
+  }
+}

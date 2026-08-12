@@ -1,0 +1,34 @@
+{
+  "version": "18.3",
+  "generated_at": "2026-07-14T03:53:58.750038+00:00",
+  "status": "FIRST_REAL_INFERENCE_PASSED",
+  "model_name": "qwen2_5_coder_7b_v5",
+  "backend": "llama_cpp",
+  "prompt": "hello",
+  "generated_text": "import sys\n\ndef main():\n    if len(sys.argv) != 2:\n        print(\"Usage: python script.py <filename>\")\n        sys.exit(1",
+  "tokens_generated": 32,
+  "prompt_tokens": 1,
+  "real_inference_attempted": true,
+  "real_inference_success": true,
+  "inference_time_seconds": 0.8517952099937247,
+  "exception": "",
+  "errors": [],
+  "warnings": [
+    "child_stderr_captured"
+  ],
+  "safety": {
+    "local_only": true,
+    "internet": false,
+    "downloads": false,
+    "dependency_install": false,
+    "model_load": false,
+    "inference": false,
+    "training": false,
+    "modify_models": false,
+    "move_models": false,
+    "quantize_models": false,
+    "convert_models": false,
+    "write_adapters": false,
+    "write_datasets": false
+  }
+}

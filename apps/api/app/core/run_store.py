@@ -249,11 +249,10 @@ class RunStore:
             )
 
     def _resume_after_approvals(self, run_id: str) -> None:
-        record = self._record_for(run_id)
-        if record is None or record.status in {"running", "completed", "failed", "blocked"}:
-            return
         with self._lock:
-            current = self._records[run_id]
+            current = self._records.get(run_id)
+            if current is None or current.status in {"running", "completed", "failed", "blocked"}:
+                return
             current.status = "running"
             if current.result:
                 current.result["status"] = "running"

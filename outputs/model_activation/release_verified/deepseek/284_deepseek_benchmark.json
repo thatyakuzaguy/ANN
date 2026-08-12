@@ -1,0 +1,50 @@
+{
+  "version": "18.8",
+  "generated_at": "2026-07-14T04:03:27.594603+00:00",
+  "status": "DEEPSEEK_REAL_PASSED",
+  "peak_vram_mb": 5263.0,
+  "vram_samples": [
+    {
+      "label": "child_before_load",
+      "memory_used_mb": 1044.0,
+      "source": "nvidia-smi"
+    },
+    {
+      "label": "child_after_load",
+      "memory_used_mb": 5222.0,
+      "source": "nvidia-smi"
+    },
+    {
+      "label": "child_after_inference",
+      "memory_used_mb": 5263.0,
+      "source": "nvidia-smi"
+    },
+    {
+      "label": "child_after_rollback",
+      "memory_used_mb": 1210.0,
+      "source": "nvidia-smi"
+    }
+  ],
+  "load_time_seconds": 116.08507362099772,
+  "inference_time_seconds": 67.48262927000178,
+  "tokens_generated": 160,
+  "prompt_tokens": 59,
+  "active_models_after": 0,
+  "parallel_llm_loads_after": 0,
+  "safe_mode_final": true,
+  "safety": {
+    "local_only": true,
+    "internet": false,
+    "downloads": false,
+    "dependency_install": false,
+    "model_load": false,
+    "inference": false,
+    "training": false,
+    "modify_models": false,
+    "move_models": false,
+    "quantize_models": false,
+    "convert_models": false,
+    "write_adapters": false,
+    "write_datasets": false
+  }
+}

@@ -72,3 +72,16 @@ def test_complex_algorithm_prompt_routes_to_executable_algorithm_service() -> No
     assert ".aen" in dockerignore
     assert "release" in dockerignore
     assert len(tests) >= 4
+
+
+def test_generated_compose_waits_for_final_postgres_tcp_listener() -> None:
+    artifacts = build_project_artifacts(
+        "Build a full-stack incident response web application",
+        "12345678",
+    )
+
+    compose = next(value for path, value in artifacts.items() if path.endswith("docker-compose.yml"))
+
+    assert "pg_isready -h 127.0.0.1" in compose
+    assert 'restart: "on-failure:3"' in compose
+    assert "condition: service_healthy" in compose

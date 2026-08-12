@@ -1,0 +1,254 @@
+{
+  "attempts": 1,
+  "completed_at": "2026-08-12T11:13:25.331755+00:00",
+  "display_root": "E:\\ANN-Soak\\autonomous-capability-projects\\complex_3d_game\\20260812_110115_539480\\build-a-fully-playable-complex-3d-browser-game-with-scoring--34521d75",
+  "idea": "Build a fully playable complex 3D browser game with scoring, controls, physics, menus, and tests.",
+  "profile": "full_stack",
+  "project_root": "/host-e/ANN-Soak/autonomous-capability-projects/complex_3d_game/20260812_110115_539480/build-a-fully-playable-complex-3d-browser-game-with-scoring--34521d75",
+  "release_package": "E:\\ANN-Soak\\autonomous-capability-projects\\complex_3d_game\\20260812_110115_539480\\build-a-fully-playable-complex-3d-browser-game-with-scoring--34521d75\\.aen\\release\\build-a-fully-playable-complex-3d-browser-game-with-scoring--34521d75.zip",
+  "run_id": "34521d75-9828-43e9-922c-b15e9b2a81c2",
+  "sandbox_id": "aen-34521d75",
+  "schema_version": "ann.real-lifecycle-result.v1",
+  "status": "passed",
+  "steps": [
+    {
+      "command": null,
+      "detail": "All required project files exist.",
+      "name": "required_files",
+      "status": "passed"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "py_compile",
+        "/host-e/ANN-Soak/autonomous-capability-projects/complex_3d_game/20260812_110115_539480/build-a-fully-playable-complex-3d-browser-game-with-scoring--34521d75/apps/api/app/__init__.py",
+        "/host-e/ANN-Soak/autonomous-capability-projects/complex_3d_game/20260812_110115_539480/build-a-fully-playable-complex-3d-browser-game-with-scoring--34521d75/apps/api/app/main.py",
+        "/host-e/ANN-Soak/autonomous-capability-projects/complex_3d_game/20260812_110115_539480/build-a-fully-playable-complex-3d-browser-game-with-scoring--34521d75/apps/api/migrations/env.py",
+        "/host-e/ANN-Soak/autonomous-capability-projects/complex_3d_game/20260812_110115_539480/build-a-fully-playable-complex-3d-browser-game-with-scoring--34521d75/apps/api/migrations/versions/0001_initial.py"
+      ],
+      "detail": "Compiled 4 Python files.",
+      "name": "python_syntax",
+      "status": "passed"
+    },
+    {
+      "command": null,
+      "detail": "Compose file contains required services and health checks.",
+      "name": "compose_static",
+      "status": "passed"
+    },
+    {
+      "command": null,
+      "detail": "Web package contains build, E2E, and core dependencies.",
+      "name": "web_static",
+      "status": "passed"
+    },
+    {
+      "command": null,
+      "detail": "Initial Alembic migration is present.",
+      "name": "alembic_migrations",
+      "status": "passed"
+    },
+    {
+      "command": null,
+      "detail": "Desktop Windows packaging script is present.",
+      "name": "desktop_packaging",
+      "status": "passed"
+    },
+    {
+      "command": [
+        "docker",
+        "compose",
+        "config"
+      ],
+      "detail": "Compose configuration validated with docker compose.",
+      "name": "docker_compose_config",
+      "status": "passed"
+    },
+    {
+      "command": [
+        "docker",
+        "compose",
+        "--profile",
+        "test",
+        "build"
+      ],
+      "detail": "whl (98 kB)\nDownloading h11-0.16.0-py3-none-any.whl (37 kB)\nDownloading iniconfig-2.3.0-py3-none-any.whl (7.5 kB)\nDownloading packaging-26.3-py3-none-any.whl (129 kB)\nDownloading pip_api-0.0.34-py3-none-any.whl (120 kB)\nDownloading pip_requirements_parser-32.0.1-py3-none-any.whl (35 kB)\nDownloading platformdirs-4.11.2-py3-none-any.whl (23 kB)\nDownloading pydantic-2.13.4-py3-none-any.whl (472 kB)\nDownloading pydantic_core-2.46.4-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.1 MB)\n   \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 2.1/2.1 MB 19.5 MB/s  0:00:00\nDownloading annotated_types-0.8.0-py3-none-any.whl (13 kB)\nDownloading pygments-2.20.0-py3-none-any.whl (1.2 MB)\n   \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 1.2/1.2 MB 18.4 MB/s  0:00:00\nDownloading requests-2.34.2-py3-none-any.whl (73 kB)\nDownloading charset_normalizer-3.4.9-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (224 kB)\nDownloading idna-3.18-py3-none-any.whl (65 kB)\nDownloading urllib3-2.7.0-py3-none-any.whl (131 kB)\nDownloading certifi-2026.7.22-py3-none-any.whl (136 kB)\nDownloading rich-15.0.0-py3-none-any.whl (310 kB)\nDownloading markdown_it_py-4.2.0-py3-none-any.whl (91 kB)\nDownloading mdurl-0.1.2-py3-none-any.whl (10.0 kB)\nDownloading starlette-1.6.0-py3-none-any.whl (75 kB)\nDownloading anyio-4.14.2-py3-none-any.whl (125 kB)\nDownloading tomli-2.4.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (253 kB)\nDownloading tomli_w-1.2.0-py3-none-any.whl (6.7 kB)\nDownloading typing_inspection-0.4.3-py3-none-any.whl (14 kB)\nDownloading httptools-0.8.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (523 kB)\nDownloading python_dotenv-1.2.2-py3-none-any.whl (22 kB)\nDownloading pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (807 kB)\n   \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 807.9/807.9 kB 18.8 MB/s  0:00:00\nDownloading uvloop-0.22.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (4.4 MB)\n   \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 4.4/4.4 MB 14.2 MB/s  0:00:00\nDownloading watchfiles-1.2.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (456 kB)\nDownloading websockets-17.0.1-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (220 kB)\nDownloading pyparsing-3.3.2-py3-none-any.whl (122 kB)\nInstalling collected packages: sortedcontainers, boolean.py, websockets, uvloop, urllib3, typing-extensions, tomli-w, tomli, pyyaml, python-dotenv, pyparsing, pygments, pluggy, platformdirs, pip-api, packaging, packageurl-python, msgpack, mdurl, license-expression, iniconfig, idna, httptools, h11, filelock, defusedxml, click, charset_normalizer, certifi, annotated-types, annotated-doc, uvicorn, typing-inspection, requests, pytest, pydantic-core, py-serializable, pip-requirements-parser, markdown-it-py, httpcore, anyio, watchfiles, starlette, rich, pydantic, httpx, cyclonedx-python-lib, CacheControl, fastapi, pip-audit\n\nSuccessfully installed CacheControl-0.14.4 annotated-doc-0.0.5 annotated-types-0.8.0 anyio-4.14.2 boolean.py-5.0 certifi-2026.7.22 charset_normalizer-3.4.9 click-8.4.2 cyclonedx-python-lib-11.11.1 defusedxml-0.7.1 fastapi-0.141.1 filelock-3.32.2 h11-0.16.0 httpcore-1.0.9 httptools-0.8.0 httpx-0.28.1 idna-3.18 iniconfig-2.3.0 license-expression-30.4.4 markdown-it-py-4.2.0 mdurl-0.1.2 msgpack-1.2.1 packageurl-python-0.17.6 packaging-26.3 pip-api-0.0.34 pip-audit-2.10.1 pip-requirements-parser-32.0.1 platformdirs-4.11.2 pluggy-1.6.0 py-serializable-2.1.0 pydantic-2.13.4 pydantic-core-2.46.4 pygments-2.20.0 pyparsing-3.3.2 pytest-9.1.1 python-dotenv-1.2.2 pyyaml-6.0.3 requests-2.34.2 rich-15.0.0 sortedcontainers-2.4.0 starlette-1.6.0 tomli-2.4.1 tomli-w-1.2.0 typing-extensions-4.16.0 typing-inspection-0.4.3 urllib3-2.7.0 uvicorn-0.52.1 uvloop-0.22.1 watchfiles-1.2.0 websockets-17.0.1\n\u001b[91mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.\n\u001b[0m ---> Removed intermediate container e6cbb4c885fa\n ---> 55f6c8753cb7\nStep 6/12 : COPY app ./app\n\nadded 88 packages, and audited 89 packages in 44s\n\n19 packages are looking for funding\n  run `npm fund` for details\n\nfound 0 vulnerabilities\n\u001b[91mnpm notice\nnpm notice New minor version of npm available! 11.6.2 -> 11.19.0\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v11.19.0\nnpm notice To update run: npm install -g npm@11.19.0\nnpm notice\n\u001b[0m ---> 87b350574029\nStep 7/12 : COPY alembic.ini ./alembic.ini\n ---> 42a8702e8deb\nStep 8/12 : COPY migrations ./migrations\n ---> 703df673ad07\nStep 9/12 : COPY tests ./tests\n ---> 66de4b9f9de5\nStep 10/12 : EXPOSE 8000\n ---> Running in 9aa7f971a8d9\n ---> Removed intermediate container 9aa7f971a8d9\n ---> ffd0621f5252\nStep 11/12 : CMD [\"uvicorn\", \"app.main:app\", \"--host\", \"0.0.0.0\", \"--port\", \"8000\"]\n ---> Running in a90d73428b30\n ---> Removed intermediate container a90d73428b30\n ---> d18c8c0afed6\nStep 12/12 : LABEL com.docker.compose.image.builder=classic\n ---> Running in b10e68c255b9\n ---> Removed intermediate container b10e68c255b9\n ---> 8fa896298d63\nSuccessfully built 8fa896298d63\nSuccessfully tagged aen-34521d75-api:latest\nSending build context to Docker daemon  6.189kB\n\nStep 1/8 : FROM node:22-alpine\n ---> c610fcdfb1d5\nStep 2/8 : WORKDIR /app\n ---> Using cache\n ---> bd17f2175e29\nStep 3/8 : COPY package.json package-lock.json* ./\n ---> Removed intermediate container 957a50a4e9b0\n ---> 87c22bff50f8\nStep 5/9 : COPY . .\n ---> 582998fee655\nStep 4/8 : RUN npm install\n ---> Running in 03d67cb786fc\n ---> 4499ee19deaf\nStep 6/9 : ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright\n ---> Running in 0c0cef124bae\n\nadded 88 packages, and audited 89 packages in 43s\n\n19 packages are looking for funding\n  run `npm fund` for details\n\nfound 0 vulnerabilities\n\u001b[91mnpm notice\nnpm notice New major version of npm available! 10.9.8 -> 12.0.2\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.0.2\nnpm notice To update run: npm install -g npm@12.0.2\nnpm notice\n\u001b[0m ---> Removed intermediate container 0c0cef124bae\n ---> cca2a169f1cd\nStep 7/9 : ENV NEXT_TELEMETRY_DISABLED=1\n ---> Running in c0ed88dce93b\n ---> Removed intermediate container c0ed88dce93b\n ---> d7bc0edccae0\nStep 8/9 : CMD [\"npm\", \"run\", \"e2e\"]\n ---> Running in a9f2e734452c\n ---> Removed intermediate container a9f2e734452c\n ---> 681c2ef606a7\nStep 9/9 : LABEL com.docker.compose.image.builder=classic\n ---> Running in 0b0266733bae\n ---> Removed intermediate container 0b0266733bae\n ---> 0eb96d0c7e53\nSuccessfully built 0eb96d0c7e53\nSuccessfully tagged aen-34521d75-e2e:latest\n ---> Removed intermediate container 03d67cb786fc\n ---> 4130a8e4ea31\nStep 5/8 : COPY . .\n ---> d19bf1aa8fd1\nStep 6/8 : EXPOSE 3000\n ---> Running in 18aeaeb7b2bf\n ---> Removed intermediate container 18aeaeb7b2bf\n ---> d842dfafbdcf\nStep 7/8 : CMD [\"npm\", \"run\", \"dev\"]\n ---> Running in 86ea71554b80\n ---> Removed intermediate container 86ea71554b80\n ---> 63451c6d2476\nStep 8/8 : LABEL com.docker.compose.image.builder=classic\n ---> Running in 7241a920610b\n ---> Removed intermediate container 7241a920610b\n ---> 353b3fd76887\nSuccessfully built 353b3fd76887\nSuccessfully tagged aen-34521d75-web:latest\n\ntime=\"2026-08-12T11:05:23Z\" level=warning msg=\"Docker Compose requires buildx plugin to be installed\"\n Image aen-34521d75-e2e Building \n Image aen-34521d75-api Building \n Image aen-34521d75-e2e Building \n Image aen-34521d75-api Building \n Image aen-34521d75-api Built \n Image aen-34521d75-api Built \n Image aen-34521d75-web Building \n Image aen-34521d75-web Building \n Image aen-34521d75-e2e Built \n Image aen-34521d75-e2e Built \n Image aen-34521d75-web Built \n Image aen-34521d75-web Built \n",
+      "name": "docker_compose_build",
+      "status": "passed"
+    },
+    {
+      "command": [
+        "docker",
+        "compose",
+        "up",
+        "-d",
+        "postgres",
+        "api",
+        "web"
+      ],
+      "detail": "\n Network aen-34521d75_default Creating \n Network aen-34521d75_default Created \n Container aen-34521d75-postgres-1 Creating \n Container aen-34521d75-postgres-1 Created \n Container aen-34521d75-api-1 Creating \n Container aen-34521d75-api-1 Created \n Container aen-34521d75-web-1 Creating \n Container aen-34521d75-web-1 Created \n Container aen-34521d75-postgres-1 Starting \n Container aen-34521d75-postgres-1 Started \n Container aen-34521d75-postgres-1 Waiting \n Container aen-34521d75-postgres-1 Healthy \n Container aen-34521d75-api-1 Starting \n Container aen-34521d75-api-1 Started \n Container aen-34521d75-api-1 Waiting \n Container aen-34521d75-api-1 Healthy \n Container aen-34521d75-web-1 Starting \n Container aen-34521d75-web-1 Started \n",
+      "name": "docker_compose_up",
+      "status": "passed"
+    },
+    {
+      "command": null,
+      "detail": "http://host.docker.internal:18893/health returned HTTP 200.",
+      "name": "api_health_live",
+      "status": "passed"
+    },
+    {
+      "command": null,
+      "detail": "http://host.docker.internal:13893 returned HTTP 200.",
+      "name": "web_health_live",
+      "status": "passed"
+    },
+    {
+      "command": [
+        "docker",
+        "compose",
+        "run",
+        "--rm",
+        "--no-deps",
+        "-e",
+        "DATABASE_URL=sqlite:////tmp/ann-tests.db",
+        "api",
+        "pytest",
+        "-q"
+      ],
+      "detail": ".                                                                        [100%]\n=============================== warnings summary ===============================\n../usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1\n  /usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\n    from starlette.testclient import TestClient as TestClient  # noqa\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n1 passed, 1 warning in 0.79s\n\n Container aen-34521d75-api-run-ca37e7f53b20 Creating \n Container aen-34521d75-api-run-ca37e7f53b20 Created \n",
+      "name": "api_pytest_live",
+      "status": "passed"
+    },
+    {
+      "command": [
+        "docker",
+        "compose",
+        "run",
+        "--rm",
+        "--no-deps",
+        "api",
+        "pip",
+        "check"
+      ],
+      "detail": "No broken requirements found.\n\n Container aen-34521d75-api-run-69c54bc5c42b Creating \n Container aen-34521d75-api-run-69c54bc5c42b Created \n",
+      "name": "api_dependency_integrity_live",
+      "status": "passed"
+    },
+    {
+      "command": [
+        "docker",
+        "compose",
+        "run",
+        "--rm",
+        "--no-deps",
+        "api",
+        "pip-audit",
+        "--local",
+        "--progress-spinner",
+        "off"
+      ],
+      "detail": "\n Container aen-34521d75-api-run-3c6213d26784 Creating \n Container aen-34521d75-api-run-3c6213d26784 Created \nNo known vulnerabilities found\n",
+      "name": "api_dependency_audit_live",
+      "status": "passed"
+    },
+    {
+      "command": [
+        "docker",
+        "compose",
+        "run",
+        "--rm",
+        "--no-deps",
+        "web",
+        "npm",
+        "test"
+      ],
+      "detail": "\n> generated-3d-pong-web@0.1.0 test\n> vitest run\n\n\n RUN  v3.2.7 /app\n\n \u2713 src/game/physics.test.ts (3 tests) 9ms\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  11:12:09\n   Duration  839ms (transform 97ms, setup 0ms, collect 75ms, tests 9ms, environment 0ms, prepare 218ms)\n\n\n Container aen-34521d75-web-run-3ca8176b7ac3 Creating \n Container aen-34521d75-web-run-3ca8176b7ac3 Created \n",
+      "name": "web_unit_live",
+      "status": "passed"
+    },
+    {
+      "command": [
+        "docker",
+        "compose",
+        "run",
+        "--rm",
+        "--no-deps",
+        "web",
+        "npm",
+        "run",
+        "build"
+      ],
+      "detail": "\n> generated-3d-pong-web@0.1.0 build\n> next build\n\n\u25b2 Next.js 16.3.0 (Turbopack)\n\u2713 Running next.config.ts took 52ms\n\n  Creating an optimized production build ...\n\u2713 Compiled successfully in 5.6s\n  Running TypeScript ...\n\n  We detected TypeScript in your project and reconfigured your tsconfig.json file for you.\n  The following suggested values were added to your tsconfig.json. These values can be changed to fit your project's needs:\n\n  \t- include was updated to add '.next/dev/types/**/*.ts'\n\n  Finished TypeScript in 5.2s ...\n  Collecting page data using 4 workers ...\n  Generating static pages using 4 workers (0/3) ...\n\u2713 Generating static pages using 4 workers (3/3) in 968ms\n  Finalizing page optimization ...\n\nRoute (app)\n\u250c \u25cb /\n\u2514 \u25cb /_not-found\n\n\n\u25cb  (Static)  prerendered as static content\n\n\n Container aen-34521d75-web-run-68ff198120ee Creating \n Container aen-34521d75-web-run-68ff198120ee Created \n",
+      "name": "web_build_live",
+      "status": "passed"
+    },
+    {
+      "command": [
+        "docker",
+        "compose",
+        "run",
+        "--rm",
+        "--no-deps",
+        "web",
+        "npm",
+        "audit",
+        "--audit-level=moderate"
+      ],
+      "detail": "found 0 vulnerabilities\n\n Container aen-34521d75-web-run-1b191e378b7e Creating \n Container aen-34521d75-web-run-1b191e378b7e Created \n",
+      "name": "web_dependency_audit_live",
+      "status": "passed"
+    },
+    {
+      "command": [
+        "docker",
+        "compose",
+        "--profile",
+        "test",
+        "run",
+        "--rm",
+        "e2e"
+      ],
+      "detail": "\n> generated-3d-pong-web@0.1.0 e2e\n> playwright test\n\n\n\nRunning 1 test using 1 worker\n\n\u001b[1A\u001b[2K[1/1] tests/workbench.spec.ts:3:5 \u203a loads playable pong arena\n\u001b[1A\u001b[2K  1 passed (13.7s)\n\n Container aen-34521d75-e2e-run-e8f239a69ed3 Creating \n Container aen-34521d75-e2e-run-e8f239a69ed3 Created \n\u001b[1A\u001b[2K[WebServer] \u001b[33m\u001b[1m\u26a0\u001b[22m\u001b[39m Slow filesystem detected. The benchmark took 213ms. If /app/.next/dev is a network drive, consider moving it to a local folder.\n[WebServer] See more: https://nextjs.org/docs/app/guides/local-development\n",
+      "name": "web_e2e_live",
+      "status": "passed"
+    },
+    {
+      "command": [
+        "docker",
+        "compose",
+        "--profile",
+        "test",
+        "down",
+        "-v"
+      ],
+      "detail": "\n Container aen-34521d75-web-1 Stopping \n Container aen-34521d75-web-1 Stopped \n Container aen-34521d75-web-1 Removing \n Container aen-34521d75-web-1 Removed \n Container aen-34521d75-api-1 Stopping \n Container aen-34521d75-api-1 Stopped \n Container aen-34521d75-api-1 Removing \n Container aen-34521d75-api-1 Removed \n Container aen-34521d75-postgres-1 Stopping \n Container aen-34521d75-postgres-1 Stopped \n Container aen-34521d75-postgres-1 Removing \n Container aen-34521d75-postgres-1 Removed \n Network aen-34521d75_default Removing \n Network aen-34521d75_default Removed \n",
+      "name": "docker_compose_down",
+      "status": "passed"
+    },
+    {
+      "command": [
+        "docker",
+        "compose",
+        "down",
+        "--rmi",
+        "local"
+      ],
+      "detail": "Sandbox image cleanup is skipped for Docker Compose CLI compatibility; containers and volumes were removed by docker_compose_down.",
+      "name": "docker_compose_remove_sandbox_images",
+      "status": "skipped"
+    },
+    {
+      "command": null,
+      "detail": "{\"findings\": [], \"notes\": [\"Shell execution must be approval-gated and run in Docker where possible.\", \"Secrets belong in environment variables or a local secret store, never source files.\", \"Authentication code must be reviewed before deployment.\"], \"passed\": true}",
+      "name": "security_review",
+      "status": "passed"
+    },
+    {
+      "command": null,
+      "detail": "Created /host-e/ANN-Soak/autonomous-capability-projects/complex_3d_game/20260812_110115_539480/build-a-fully-playable-complex-3d-browser-game-with-scoring--34521d75/.aen/release/build-a-fully-playable-complex-3d-browser-game-with-scoring--34521d75.zip",
+      "name": "release_package",
+      "status": "passed"
+    }
+  ]
+}

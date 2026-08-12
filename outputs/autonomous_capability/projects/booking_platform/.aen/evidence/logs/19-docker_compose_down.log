@@ -1,0 +1,16 @@
+Container aen-5eae7c20-web-1 Stopping 
+ Container aen-5eae7c20-web-1 Stopped 
+ Container aen-5eae7c20-web-1 Removing 
+ Container aen-5eae7c20-web-1 Removed 
+ Container aen-5eae7c20-api-1 Stopping 
+ Container aen-5eae7c20-api-1 Stopped 
+ Container aen-5eae7c20-api-1 Removing 
+ Container aen-5eae7c20-api-1 Removed 
+ Container aen-5eae7c20-postgres-1 Stopping 
+ Container aen-5eae7c20-postgres-1 Stopped 
+ Container aen-5eae7c20-postgres-1 Removing 
+ Container aen-5eae7c20-postgres-1 Removed 
+ Volume aen-5eae7c20_postgres-data Removing 
+ Network aen-5eae7c20_default Removing 
+ Volume aen-5eae7c20_postgres-data Removed 
+ Network aen-5eae7c20_default Removed

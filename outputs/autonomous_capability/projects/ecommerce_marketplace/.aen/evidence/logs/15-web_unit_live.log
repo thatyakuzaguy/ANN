@@ -1,0 +1,16 @@
+> generated-crm-web@0.1.0 test
+> vitest run
+
+
+ RUN  v3.2.7 /app
+
+ ✓ src/lib/domain.test.ts (3 tests) 10ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  10:28:37
+   Duration  760ms (transform 67ms, setup 0ms, collect 50ms, tests 10ms, environment 0ms, prepare 148ms)
+
+
+ Container aen-e21bae94-web-run-408ec38a185b Creating 
+ Container aen-e21bae94-web-run-408ec38a185b Created

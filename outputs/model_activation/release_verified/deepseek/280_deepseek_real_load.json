@@ -1,0 +1,26 @@
+{
+  "version": "18.8",
+  "generated_at": "2026-07-14T04:03:27.594503+00:00",
+  "status": "DEEPSEEK_REAL_LOAD_PASSED",
+  "model_name": "deepseek_r1_distill_qwen_14b",
+  "model_path": "D:\\Models\\deepseek_hf\\DeepSeek-R1-Distill-Qwen-14B",
+  "real_load_attempted": true,
+  "real_load_success": true,
+  "load_time_seconds": 116.08507362099772,
+  "errors": [],
+  "safety": {
+    "local_only": true,
+    "internet": false,
+    "downloads": false,
+    "dependency_install": false,
+    "model_load": false,
+    "inference": false,
+    "training": false,
+    "modify_models": false,
+    "move_models": false,
+    "quantize_models": false,
+    "convert_models": false,
+    "write_adapters": false,
+    "write_datasets": false
+  }
+}

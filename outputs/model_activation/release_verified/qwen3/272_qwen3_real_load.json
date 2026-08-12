@@ -1,0 +1,26 @@
+{
+  "version": "18.7",
+  "generated_at": "2026-07-14T03:59:37.334589+00:00",
+  "status": "QWEN3_REAL_LOAD_PASSED",
+  "model_name": "qwen3_8b_product_v9_repaired_v2_bullets",
+  "model_path": "D:\\Models\\qwen3",
+  "real_load_attempted": true,
+  "real_load_success": true,
+  "load_time_seconds": 223.00002657099685,
+  "errors": [],
+  "safety": {
+    "local_only": true,
+    "internet": false,
+    "downloads": false,
+    "dependency_install": false,
+    "model_load": false,
+    "inference": false,
+    "training": false,
+    "modify_models": false,
+    "move_models": false,
+    "quantize_models": false,
+    "convert_models": false,
+    "write_adapters": false,
+    "write_datasets": false
+  }
+}

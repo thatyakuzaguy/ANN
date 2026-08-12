@@ -11,23 +11,26 @@ from agentic_network.runtime_engine.local_model_activation import (
 )
 
 
-def test_beta_readiness_gate_blocks_on_backend_and_first_inference_after_wheelhouse_ready() -> None:
+def test_beta_readiness_gate_uses_preserved_real_inference_evidence() -> None:
     gate = build_beta_readiness_gate()
     blockers = {item["id"] for item in gate["blockers"]}
     checks = {item["id"]: item for item in gate["checks"]}
 
-    assert gate["status"] == "BETA_BLOCKED"
     assert ("wheelhouse_integrity" in blockers) is (
         checks["wheelhouse_integrity"]["status"] == "BLOCKED"
     )
     assert ("installer_rc_status" in blockers) is (
         checks["installer_rc_status"]["status"] == "BLOCKED"
     )
-    assert {"qwen25_backend_readiness", "first_real_inference_status"}.issubset(blockers)
-    assert gate["qwen2_5_backend_blocked"] is True
-    assert gate["qwen3_blocked"] is True
-    assert gate["deepseek_blocked"] is True
-    assert gate["powerful_blocked"] is True
+    assert "qwen25_backend_readiness" not in blockers
+    assert "first_real_inference_status" not in blockers
+    assert "release_docs" not in blockers
+    assert checks["qwen25_backend_readiness"]["detail"] == "REAL_EVIDENCE_PASSED"
+    assert checks["first_real_inference_status"]["detail"] == "REAL_EVIDENCE_PASSED"
+    assert gate["qwen2_5_backend_blocked"] is False
+    assert gate["qwen3_blocked"] is False
+    assert gate["deepseek_blocked"] is False
+    assert gate["powerful_blocked"] is False
 
 
 def test_beta_readiness_gate_does_not_load_models() -> None:

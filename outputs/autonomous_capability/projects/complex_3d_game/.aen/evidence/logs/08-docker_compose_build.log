@@ -1,0 +1,152 @@
+whl (98 kB)
+Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+Downloading iniconfig-2.3.0-py3-none-any.whl (7.5 kB)
+Downloading packaging-26.3-py3-none-any.whl (129 kB)
+Downloading pip_api-0.0.34-py3-none-any.whl (120 kB)
+Downloading pip_requirements_parser-32.0.1-py3-none-any.whl (35 kB)
+Downloading platformdirs-4.11.2-py3-none-any.whl (23 kB)
+Downloading pydantic-2.13.4-py3-none-any.whl (472 kB)
+Downloading pydantic_core-2.46.4-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 19.5 MB/s  0:00:00
+Downloading annotated_types-0.8.0-py3-none-any.whl (13 kB)
+Downloading pygments-2.20.0-py3-none-any.whl (1.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 18.4 MB/s  0:00:00
+Downloading requests-2.34.2-py3-none-any.whl (73 kB)
+Downloading charset_normalizer-3.4.9-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (224 kB)
+Downloading idna-3.18-py3-none-any.whl (65 kB)
+Downloading urllib3-2.7.0-py3-none-any.whl (131 kB)
+Downloading certifi-2026.7.22-py3-none-any.whl (136 kB)
+Downloading rich-15.0.0-py3-none-any.whl (310 kB)
+Downloading markdown_it_py-4.2.0-py3-none-any.whl (91 kB)
+Downloading mdurl-0.1.2-py3-none-any.whl (10.0 kB)
+Downloading starlette-1.6.0-py3-none-any.whl (75 kB)
+Downloading anyio-4.14.2-py3-none-any.whl (125 kB)
+Downloading tomli-2.4.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (253 kB)
+Downloading tomli_w-1.2.0-py3-none-any.whl (6.7 kB)
+Downloading typing_inspection-0.4.3-py3-none-any.whl (14 kB)
+Downloading httptools-0.8.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (523 kB)
+Downloading python_dotenv-1.2.2-py3-none-any.whl (22 kB)
+Downloading pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (807 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 807.9/807.9 kB 18.8 MB/s  0:00:00
+Downloading uvloop-0.22.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (4.4 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.4/4.4 MB 14.2 MB/s  0:00:00
+Downloading watchfiles-1.2.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (456 kB)
+Downloading websockets-17.0.1-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (220 kB)
+Downloading pyparsing-3.3.2-py3-none-any.whl (122 kB)
+Installing collected packages: sortedcontainers, boolean.py, websockets, uvloop, urllib3, typing-extensions, tomli-w, tomli, pyyaml, python-dotenv, pyparsing, pygments, pluggy, platformdirs, pip-api, packaging, packageurl-python, msgpack, mdurl, license-expression, iniconfig, idna, httptools, h11, filelock, defusedxml, click, charset_normalizer, certifi, annotated-types, annotated-doc, uvicorn, typing-inspection, requests, pytest, pydantic-core, py-serializable, pip-requirements-parser, markdown-it-py, httpcore, anyio, watchfiles, starlette, rich, pydantic, httpx, cyclonedx-python-lib, CacheControl, fastapi, pip-audit
+
+Successfully installed CacheControl-0.14.4 annotated-doc-0.0.5 annotated-types-0.8.0 anyio-4.14.2 boolean.py-5.0 certifi-2026.7.22 charset_normalizer-3.4.9 click-8.4.2 cyclonedx-python-lib-11.11.1 defusedxml-0.7.1 fastapi-0.141.1 filelock-3.32.2 h11-0.16.0 httpcore-1.0.9 httptools-0.8.0 httpx-0.28.1 idna-3.18 iniconfig-2.3.0 license-expression-30.4.4 markdown-it-py-4.2.0 mdurl-0.1.2 msgpack-1.2.1 packageurl-python-0.17.6 packaging-26.3 pip-api-0.0.34 pip-audit-2.10.1 pip-requirements-parser-32.0.1 platformdirs-4.11.2 pluggy-1.6.0 py-serializable-2.1.0 pydantic-2.13.4 pydantic-core-2.46.4 pygments-2.20.0 pyparsing-3.3.2 pytest-9.1.1 python-dotenv-1.2.2 pyyaml-6.0.3 requests-2.34.2 rich-15.0.0 sortedcontainers-2.4.0 starlette-1.6.0 tomli-2.4.1 tomli-w-1.2.0 typing-extensions-4.16.0 typing-inspection-0.4.3 urllib3-2.7.0 uvicorn-0.52.1 uvloop-0.22.1 watchfiles-1.2.0 websockets-17.0.1
+[91mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+[0m ---> Removed intermediate container e6cbb4c885fa
+ ---> 55f6c8753cb7
+Step 6/12 : COPY app ./app
+
+added 88 packages, and audited 89 packages in 44s
+
+19 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+[91mnpm notice
+npm notice New minor version of npm available! 11.6.2 -> 11.19.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.19.0
+npm notice To update run: npm install -g npm@11.19.0
+npm notice
+[0m ---> 87b350574029
+Step 7/12 : COPY alembic.ini ./alembic.ini
+ ---> 42a8702e8deb
+Step 8/12 : COPY migrations ./migrations
+ ---> 703df673ad07
+Step 9/12 : COPY tests ./tests
+ ---> 66de4b9f9de5
+Step 10/12 : EXPOSE 8000
+ ---> Running in 9aa7f971a8d9
+ ---> Removed intermediate container 9aa7f971a8d9
+ ---> ffd0621f5252
+Step 11/12 : CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ ---> Running in a90d73428b30
+ ---> Removed intermediate container a90d73428b30
+ ---> d18c8c0afed6
+Step 12/12 : LABEL com.docker.compose.image.builder=classic
+ ---> Running in b10e68c255b9
+ ---> Removed intermediate container b10e68c255b9
+ ---> 8fa896298d63
+Successfully built 8fa896298d63
+Successfully tagged aen-34521d75-api:latest
+Sending build context to Docker daemon  6.189kB
+
+Step 1/8 : FROM node:22-alpine
+ ---> c610fcdfb1d5
+Step 2/8 : WORKDIR /app
+ ---> Using cache
+ ---> bd17f2175e29
+Step 3/8 : COPY package.json package-lock.json* ./
+ ---> Removed intermediate container 957a50a4e9b0
+ ---> 87c22bff50f8
+Step 5/9 : COPY . .
+ ---> 582998fee655
+Step 4/8 : RUN npm install
+ ---> Running in 03d67cb786fc
+ ---> 4499ee19deaf
+Step 6/9 : ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+ ---> Running in 0c0cef124bae
+
+added 88 packages, and audited 89 packages in 43s
+
+19 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+[91mnpm notice
+npm notice New major version of npm available! 10.9.8 -> 12.0.2
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.0.2
+npm notice To update run: npm install -g npm@12.0.2
+npm notice
+[0m ---> Removed intermediate container 0c0cef124bae
+ ---> cca2a169f1cd
+Step 7/9 : ENV NEXT_TELEMETRY_DISABLED=1
+ ---> Running in c0ed88dce93b
+ ---> Removed intermediate container c0ed88dce93b
+ ---> d7bc0edccae0
+Step 8/9 : CMD ["npm", "run", "e2e"]
+ ---> Running in a9f2e734452c
+ ---> Removed intermediate container a9f2e734452c
+ ---> 681c2ef606a7
+Step 9/9 : LABEL com.docker.compose.image.builder=classic
+ ---> Running in 0b0266733bae
+ ---> Removed intermediate container 0b0266733bae
+ ---> 0eb96d0c7e53
+Successfully built 0eb96d0c7e53
+Successfully tagged aen-34521d75-e2e:latest
+ ---> Removed intermediate container 03d67cb786fc
+ ---> 4130a8e4ea31
+Step 5/8 : COPY . .
+ ---> d19bf1aa8fd1
+Step 6/8 : EXPOSE 3000
+ ---> Running in 18aeaeb7b2bf
+ ---> Removed intermediate container 18aeaeb7b2bf
+ ---> d842dfafbdcf
+Step 7/8 : CMD ["npm", "run", "dev"]
+ ---> Running in 86ea71554b80
+ ---> Removed intermediate container 86ea71554b80
+ ---> 63451c6d2476
+Step 8/8 : LABEL com.docker.compose.image.builder=classic
+ ---> Running in 7241a920610b
+ ---> Removed intermediate container 7241a920610b
+ ---> 353b3fd76887
+Successfully built 353b3fd76887
+Successfully tagged aen-34521d75-web:latest
+
+time="2026-08-12T11:05:23Z" level=warning msg="Docker Compose requires buildx plugin to be installed"
+ Image aen-34521d75-e2e Building 
+ Image aen-34521d75-api Building 
+ Image aen-34521d75-e2e Building 
+ Image aen-34521d75-api Building 
+ Image aen-34521d75-api Built 
+ Image aen-34521d75-api Built 
+ Image aen-34521d75-web Building 
+ Image aen-34521d75-web Building 
+ Image aen-34521d75-e2e Built 
+ Image aen-34521d75-e2e Built 
+ Image aen-34521d75-web Built 
+ Image aen-34521d75-web Built

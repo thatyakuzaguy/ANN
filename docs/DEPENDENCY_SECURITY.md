@@ -23,15 +23,15 @@ suppression is reintroduced. Existing embedded runtimes are migrated with the
 transactional `scripts/security/harden_llama_cpp_runtime.py` tool. The migration
 loads no model and performs no inference.
 
-## JavaScript Override
+## JavaScript Dependency Gate
 
-Next.js 16.2.10 declares `postcss 8.4.31`, which is affected by
-`GHSA-qx2v-qp2m-jg93`. npm's automatic remediation proposes an unsafe downgrade
-to Next 9.3.3 because no patched stable Next release is currently available.
+PostCSS versions before `8.5.10` are affected by `GHSA-qx2v-qp2m-jg93`.
+Next.js 16.3.0 now declares the patched PostCSS 8.5.23 directly, so ANN removed
+the temporary root and Next-specific overrides used by earlier release
+candidates. The web workspace keeps an explicit PostCSS 8.5.23 development
+dependency for its own build configuration.
 
-ANN pins and overrides PostCSS to `8.5.20`, removes the vulnerable nested copy
-from the lockfile, and verifies both the lockfile and installed dependency tree
-with `scripts/security/verify-postcss-resolution.mjs`. `npm audit` reports zero
-findings and CI blocks at moderate severity. The verifier intentionally fails
-when Next changes its internal pin so the override can be reassessed and
-removed as soon as a stable upstream release carries the fix.
+`scripts/security/verify-postcss-resolution.mjs` verifies that Next declares a
+patched version, the lockfile resolves PostCSS 8.5.23, and no vulnerable nested
+copy exists. `npm audit` reports zero findings and CI blocks at moderate
+severity. The verifier fails if any of those properties regress.

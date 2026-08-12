@@ -1,0 +1,138 @@
+CREATE TABLE IF NOT EXISTS tenants (
+  id VARCHAR(36) PRIMARY KEY,
+  name VARCHAR(180) NOT NULL,
+  slug VARCHAR(120) UNIQUE NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS users (
+  id VARCHAR(36) PRIMARY KEY,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  name VARCHAR(120) NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS memberships (
+  id VARCHAR(36) PRIMARY KEY,
+  tenant_id VARCHAR(36) NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+  user_id VARCHAR(36) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  role VARCHAR(80) NOT NULL DEFAULT 'owner',
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS refresh_tokens (
+  id VARCHAR(36) PRIMARY KEY,
+  user_id VARCHAR(36) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  token_hash VARCHAR(255) NOT NULL,
+  expires_at TIMESTAMPTZ NOT NULL,
+  revoked_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS accounts (
+  id VARCHAR(36) PRIMARY KEY,
+  tenant_id VARCHAR(36) NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+  name VARCHAR(180) NOT NULL,
+  industry VARCHAR(120) NOT NULL DEFAULT 'General',
+  website VARCHAR(255),
+  owner_id VARCHAR(36) REFERENCES users(id),
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS contacts (
+  id VARCHAR(36) PRIMARY KEY,
+  tenant_id VARCHAR(36) NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+  account_id VARCHAR(36) NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+  name VARCHAR(160) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  role VARCHAR(120) NOT NULL DEFAULT 'Decision maker',
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS deals (
+  id VARCHAR(36) PRIMARY KEY,
+  tenant_id VARCHAR(36) NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+  account_id VARCHAR(36) NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+  name VARCHAR(180) NOT NULL,
+  stage VARCHAR(80) NOT NULL DEFAULT 'qualified',
+  value NUMERIC(12, 2) NOT NULL DEFAULT 0,
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS activities (
+  id VARCHAR(36) PRIMARY KEY,
+  tenant_id VARCHAR(36) NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+  account_id VARCHAR(36) NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+  kind VARCHAR(80) NOT NULL DEFAULT 'note',
+  summary VARCHAR(240) NOT NULL,
+  due_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS plans (
+  id VARCHAR(36) PRIMARY KEY,
+  name VARCHAR(120) NOT NULL,
+  price_cents INTEGER NOT NULL DEFAULT 0,
+  features_json TEXT NOT NULL DEFAULT '{}'
+);
+
+CREATE TABLE IF NOT EXISTS subscriptions (
+  id VARCHAR(36) PRIMARY KEY,
+  tenant_id VARCHAR(36) NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+  plan_id VARCHAR(36) NOT NULL REFERENCES plans(id),
+  status VARCHAR(80) NOT NULL DEFAULT 'trialing',
+  current_period_end TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS invoices (
+  id VARCHAR(36) PRIMARY KEY,
+  tenant_id VARCHAR(36) NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+  amount_cents INTEGER NOT NULL,
+  status VARCHAR(80) NOT NULL DEFAULT 'draft',
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS integration_connections (
+  id VARCHAR(36) PRIMARY KEY,
+  tenant_id VARCHAR(36) NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+  provider VARCHAR(120) NOT NULL,
+  status VARCHAR(80) NOT NULL DEFAULT 'configured',
+  config_json TEXT NOT NULL DEFAULT '{}',
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS workflow_definitions (
+  id VARCHAR(36) PRIMARY KEY,
+  tenant_id VARCHAR(36) NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+  name VARCHAR(180) NOT NULL,
+  trigger_name VARCHAR(120) NOT NULL,
+  definition_json TEXT NOT NULL DEFAULT '{}',
+  enabled BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+CREATE TABLE IF NOT EXISTS audit_log (
+  id VARCHAR(36) PRIMARY KEY,
+  tenant_id VARCHAR(36),
+  actor_id VARCHAR(36),
+  event_type VARCHAR(120) NOT NULL,
+  metadata_json TEXT NOT NULL DEFAULT '{}',
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+
+CREATE TABLE IF NOT EXISTS domain_records (
+  id VARCHAR(36) PRIMARY KEY,
+  tenant_id VARCHAR(36) NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+  entity_type VARCHAR(80) NOT NULL,
+  name VARCHAR(180) NOT NULL,
+  status VARCHAR(80) NOT NULL DEFAULT 'active',
+  payload JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_by VARCHAR(36) NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS ix_domain_records_tenant_entity
+  ON domain_records (tenant_id, entity_type);

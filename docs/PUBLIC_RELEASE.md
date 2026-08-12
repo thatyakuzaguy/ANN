@@ -66,23 +66,23 @@ manifest.
 ## Dependency Audit
 
 The release gate fails on moderate, high, or critical production dependency
-findings. Next.js still declares vulnerable PostCSS 8.4.31 and Sharp 0.34.x
-releases, so ANN applies root overrides to PostCSS 8.5.20 and Sharp 0.35.3 and
-verifies that no vulnerable nested copy remains. Both the production-only and
-complete npm audits must report zero findings. These overrides are temporary
-and must be removed when a stable Next.js release declares patched versions.
+findings. Next.js 16.3.0 declares patched PostCSS 8.5.23 directly, so ANN no
+longer carries the former PostCSS override. ANN still pins Sharp 0.35.3 through
+the root override and verifies that no vulnerable nested PostCSS copy remains.
+Both the production-only and complete npm audits must report zero findings.
 
 ## Stable Source Release Status
 
-ANN `v1.0.1` is the stable source and unsigned Community release. Its local
-release gate passed 1,599 Python tests with 54 intentional public-evidence
-skips, Ruff, frontend tests and TypeScript, the Next.js production build,
-Playwright, Electron packaging, split-bundle verification, isolated install,
-Desktop/API/web startup, and zero-residual uninstall. GitHub's Test, Lint,
-Security Scan, Docker Build, and CodeQL workflows remain mandatory for the
-exact published commit; a tag must not be created until those remote gates are
-green. The release bundle is split into GitHub-compatible parts and protected
-by an aggregate manifest and per-file SHA-256 hashes.
+ANN `v1.0.1` is the stable source and unsigned Community release. Its release
+evidence includes a passing eight-hour, 20-run soak across three archetypes,
+seven passing autonomous project scenarios, real sequential activation for
+all configured model roles, Ruff, frontend tests and TypeScript, the Next.js
+production build, Playwright, Electron packaging, split-bundle verification,
+isolated install, Desktop/API/web startup, and zero-residual uninstall. Exact
+test counts for the published commit are recorded in `TEST_RESULTS.md` after
+the final clean run. GitHub's Test, Lint, Security Scan, Docker Build, and
+CodeQL workflows remain mandatory for that exact commit; a tag must not be
+created until those remote gates are green.
 
 The final Windows offline archive is distributed in parts no larger than
 1.9 GB. `ANN_RELEASE_PARTS.json` is the normative source for the aggregate
@@ -107,9 +107,10 @@ have real, matching evidence:
 
 - timestamped Authenticode signatures from a trusted code-signing certificate;
 - transferred validation evidence from a separate clean Windows 11 machine.
-- fresh production-assurance evidence for the required hardware matrix,
-  prolonged real-project runs, independent security and legal review, model
-  licensing, and qualified human acceptance.
+- fresh production-assurance evidence for the required two-machine/two-GPU
+  hardware matrix, independent security and legal review, model licensing,
+  and qualified human acceptance. The prolonged real-project soak is already
+  present and hash-verified in the public evidence packet.
 
 See [RELEASE_ASSURANCE.md](RELEASE_ASSURANCE.md) for the fail-closed evidence
 contract and verification command.

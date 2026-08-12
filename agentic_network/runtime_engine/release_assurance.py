@@ -27,6 +27,9 @@ EVIDENCE_FILES = {
     "generated_software_acceptance": "generated_software_acceptance.json",
 }
 PASS_DECISIONS = {"PASSED", "APPROVED", "APPROVED_WITH_LIMITATIONS"}
+INTEGRITY_MANIFEST_FILES = frozenset(
+    {"INTEGRITY_MANIFEST.json", "INTEGRITY_MANIFEST.sha256", "INTEGRITY_MANIFEST.md"}
+)
 
 
 def build_release_assurance_report(
@@ -176,6 +179,69 @@ def write_release_assurance_artifacts(report: dict[str, Any], output_dir: str | 
     )
     markdown_path.write_text("\n".join(lines), encoding="utf-8")
     return [str(json_path), str(markdown_path)]
+
+
+def build_release_evidence_integrity_manifest(evidence_root: str | Path) -> dict[str, Any]:
+    """Build a deterministic file manifest without interpreting review decisions."""
+
+    root = Path(evidence_root).resolve()
+    if not root.is_dir():
+        raise ValueError(f"Release evidence root does not exist: {root}")
+    files = [
+        {
+            "relative_path": path.relative_to(root).as_posix(),
+            "size_bytes": path.stat().st_size,
+            "sha256": _sha256_file(path),
+        }
+        for path in sorted(root.rglob("*"), key=lambda item: item.as_posix().lower())
+        if path.is_file() and path.name not in INTEGRITY_MANIFEST_FILES
+    ]
+    canonical = json.dumps(files, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return {
+        "schema_version": "ann.release-evidence-integrity.v1",
+        "status": "INTEGRITY_MANIFEST_READY",
+        "file_count": len(files),
+        "total_size_bytes": sum(item["size_bytes"] for item in files),
+        "aggregate_sha256": hashlib.sha256(canonical).hexdigest(),
+        "canonical_scope": "files(relative_path,size_bytes,sha256)",
+        "files": files,
+        "claims": {
+            "content_approved": False,
+            "human_review_inferred": False,
+            "integrity_only": True,
+        },
+    }
+
+
+def write_release_evidence_integrity_manifest(evidence_root: str | Path) -> dict[str, Any]:
+    """Write deterministic manifest sidecars for an existing evidence directory."""
+
+    root = Path(evidence_root).resolve()
+    manifest = build_release_evidence_integrity_manifest(root)
+    manifest_path = root / "INTEGRITY_MANIFEST.json"
+    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    manifest_sha256 = _sha256_file(manifest_path)
+    (root / "INTEGRITY_MANIFEST.sha256").write_text(
+        f"{manifest_sha256}  INTEGRITY_MANIFEST.json\n",
+        encoding="utf-8",
+    )
+    (root / "INTEGRITY_MANIFEST.md").write_text(
+        "\n".join(
+            [
+                "# ANN Release Evidence Integrity",
+                "",
+                f"- Files: **{manifest['file_count']}**",
+                f"- Bytes: **{manifest['total_size_bytes']}**",
+                f"- Aggregate SHA-256: `{manifest['aggregate_sha256']}`",
+                f"- Manifest SHA-256: `{manifest_sha256}`",
+                "",
+                "This manifest proves file integrity only. It does not infer approval, legal review, security review, licensing, or human acceptance.",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    return {**manifest, "manifest_sha256": manifest_sha256}
 
 
 def _validate_common_evidence(

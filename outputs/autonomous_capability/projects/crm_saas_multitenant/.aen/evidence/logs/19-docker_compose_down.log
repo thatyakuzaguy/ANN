@@ -1,0 +1,16 @@
+Container aen-edf67ea0-web-1 Stopping 
+ Container aen-edf67ea0-web-1 Stopped 
+ Container aen-edf67ea0-web-1 Removing 
+ Container aen-edf67ea0-web-1 Removed 
+ Container aen-edf67ea0-api-1 Stopping 
+ Container aen-edf67ea0-api-1 Stopped 
+ Container aen-edf67ea0-api-1 Removing 
+ Container aen-edf67ea0-api-1 Removed 
+ Container aen-edf67ea0-postgres-1 Stopping 
+ Container aen-edf67ea0-postgres-1 Stopped 
+ Container aen-edf67ea0-postgres-1 Removing 
+ Container aen-edf67ea0-postgres-1 Removed 
+ Volume aen-edf67ea0_postgres-data Removing 
+ Network aen-edf67ea0_default Removing 
+ Volume aen-edf67ea0_postgres-data Removed 
+ Network aen-edf67ea0_default Removed

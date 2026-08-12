@@ -310,7 +310,7 @@ def _web_package() -> str:
     "vitest": "^3.2.0"
   },
   "overrides": {
-    "postcss": "8.5.20"
+    "postcss": "8.5.23"
   }
 }
 """

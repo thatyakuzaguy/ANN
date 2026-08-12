@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import importlib.util
+import os
 from dataclasses import asdict, dataclass
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Any
@@ -277,15 +278,26 @@ def _record_from_payload(payload: dict[str, Any], *, inventory_path: Path = DEFA
     )
 
 
-def _resolve_inventory_path(raw_path: str, inventory_path: Path) -> str:
-    """Resolve install-relative paths while preserving explicit D:/E: paths."""
+def _resolve_inventory_path(
+    raw_path: str,
+    inventory_path: Path,
+    *,
+    platform_name: str | None = None,
+) -> str:
+    """Resolve install-relative paths and translate Windows drives on POSIX."""
 
     if not raw_path:
         return ""
     normalized = raw_path.replace("\\", "/")
     if normalized.startswith("/mnt/d/") or normalized.startswith("/mnt/e/"):
         return raw_path
-    if PureWindowsPath(raw_path).drive:
+    effective_platform = platform_name or os.name
+    windows_path = PureWindowsPath(raw_path)
+    if windows_path.drive:
+        if effective_platform != "nt":
+            drive = windows_path.drive.rstrip(":").lower()
+            rest = "/".join(windows_path.parts[1:]).replace("\\", "/")
+            return f"/mnt/{drive}/{rest}".rstrip("/")
         return raw_path
     if PurePosixPath(normalized).is_absolute():
         # Preserve foreign absolute paths so policy validation can reject them.

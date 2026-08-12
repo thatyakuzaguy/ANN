@@ -1,0 +1,16 @@
+Container aen-e21bae94-web-1 Stopping 
+ Container aen-e21bae94-web-1 Stopped 
+ Container aen-e21bae94-web-1 Removing 
+ Container aen-e21bae94-web-1 Removed 
+ Container aen-e21bae94-api-1 Stopping 
+ Container aen-e21bae94-api-1 Stopped 
+ Container aen-e21bae94-api-1 Removing 
+ Container aen-e21bae94-api-1 Removed 
+ Container aen-e21bae94-postgres-1 Stopping 
+ Container aen-e21bae94-postgres-1 Stopped 
+ Container aen-e21bae94-postgres-1 Removing 
+ Container aen-e21bae94-postgres-1 Removed 
+ Volume aen-e21bae94_postgres-data Removing 
+ Network aen-e21bae94_default Removing 
+ Volume aen-e21bae94_postgres-data Removed 
+ Network aen-e21bae94_default Removed

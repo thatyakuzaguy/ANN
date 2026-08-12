@@ -1,0 +1,130 @@
+{
+  "version": "19.6",
+  "status": "GIT_SOURCE_RELEASE_READY",
+  "exit_code": 0,
+  "release_channel": "GIT_SOURCE",
+  "distribution_model": "source_first_git_distribution",
+  "trusted_windows_installer_status": "NOT_CLAIMED",
+  "unsigned_installer_status": "USER_APPROVAL_REQUIRED",
+  "final_signed_installer_channel": "FINAL_RELEASE_BLOCKED_UNTIL_AUTHENTICODE",
+  "repo_root": "D:\\AgenticEngineeringNetwork\\releases\\github-public\\ANN",
+  "runtime_root": "D:\\ANN\\runtime",
+  "bundle_root": "outputs\\release_candidates\\ANN_RC_HANDOFF",
+  "checks": [
+    {
+      "id": "source_tree_present",
+      "passed": true,
+      "status": "PASS",
+      "detail": "D:\\AgenticEngineeringNetwork\\releases\\github-public\\ANN"
+    },
+    {
+      "id": "source_path:README.md",
+      "passed": true,
+      "status": "PASS",
+      "detail": "D:\\AgenticEngineeringNetwork\\releases\\github-public\\ANN\\README.md"
+    },
+    {
+      "id": "source_path:pyproject.toml",
+      "passed": true,
+      "status": "PASS",
+      "detail": "D:\\AgenticEngineeringNetwork\\releases\\github-public\\ANN\\pyproject.toml"
+    },
+    {
+      "id": "source_path:agentic_network",
+      "passed": true,
+      "status": "PASS",
+      "detail": "D:\\AgenticEngineeringNetwork\\releases\\github-public\\ANN\\agentic_network"
+    },
+    {
+      "id": "source_path:scripts/runtime",
+      "passed": true,
+      "status": "PASS",
+      "detail": "D:\\AgenticEngineeringNetwork\\releases\\github-public\\ANN\\scripts\\runtime"
+    },
+    {
+      "id": "source_path:tests/python",
+      "passed": true,
+      "status": "PASS",
+      "detail": "D:\\AgenticEngineeringNetwork\\releases\\github-public\\ANN\\tests\\python"
+    },
+    {
+      "id": "source_path:installer",
+      "passed": true,
+      "status": "PASS",
+      "detail": "D:\\AgenticEngineeringNetwork\\releases\\github-public\\ANN\\installer"
+    },
+    {
+      "id": "runtime_materialization",
+      "passed": true,
+      "status": "PASS",
+      "detail": "READY"
+    },
+    {
+      "id": "wheelhouse_integrity",
+      "passed": true,
+      "status": "PASS",
+      "detail": "HASH_VERIFIED"
+    },
+    {
+      "id": "embedded_package_audit",
+      "passed": true,
+      "status": "PASS",
+      "detail": "PACKAGE_AUDIT_READY"
+    },
+    {
+      "id": "installer_rc",
+      "passed": true,
+      "status": "PASS",
+      "detail": "RC_READY:local_runtime_evidence"
+    },
+    {
+      "id": "autonomous_complex_capability",
+      "passed": true,
+      "status": "PASS",
+      "detail": "AUTONOMOUS_COMPLEX_CAPABILITY_PASSED:local_runtime_evidence"
+    },
+    {
+      "id": "release_candidate_handoff",
+      "passed": true,
+      "status": "PASS",
+      "detail": "HANDOFF_VERIFIED"
+    },
+    {
+      "id": "release_command_contract",
+      "passed": true,
+      "status": "PASS",
+      "detail": "contract_ready"
+    },
+    {
+      "id": "unsigned_installer_allowed",
+      "passed": true,
+      "status": "PASS",
+      "detail": "git_source_channel_requires_user_approval"
+    },
+    {
+      "id": "authenticode_not_required",
+      "passed": true,
+      "status": "PASS",
+      "detail": "trusted_installer_channel_separate"
+    }
+  ],
+  "blockers": [],
+  "runtime_materialization": "READY",
+  "wheelhouse_integrity": "HASH_VERIFIED",
+  "embedded_package_audit": "PACKAGE_AUDIT_READY",
+  "installer_rc": "RC_READY",
+  "installer_rc_evidence_source": "local_runtime_evidence",
+  "installer_rc_local_status": "RC_READY",
+  "autonomous_complex_capability": "AUTONOMOUS_COMPLEX_CAPABILITY_PASSED",
+  "autonomous_complex_capability_evidence_source": "local_runtime_evidence",
+  "autonomous_complex_capability_local_status": "AUTONOMOUS_COMPLEX_CAPABILITY_PASSED",
+  "release_candidate_handoff": "HANDOFF_VERIFIED",
+  "release_command_contract_ready": true,
+  "no_authenticode_required": true,
+  "no_signing": true,
+  "no_install": true,
+  "no_download": true,
+  "no_model_load": true,
+  "no_inference": true,
+  "next_step": "Publish the Git/source release with unsigned-installer user-approval notes."
+}

@@ -167,7 +167,7 @@ def _compose() -> str:
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-crm} -d ${POSTGRES_DB:-crm}"]
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U ${POSTGRES_USER:-crm} -d ${POSTGRES_DB:-crm}"]
       interval: 5s
       timeout: 3s
       retries: 20
@@ -175,6 +175,7 @@ def _compose() -> str:
   api:
     build:
       context: ./apps/api
+    restart: "on-failure:3"
     environment:
       DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://crm:change-me@postgres:5432/crm}
       JWT_SECRET: ${JWT_SECRET:-change-me}
@@ -1559,7 +1560,7 @@ def _web_package() -> str:
     "vitest": "^3.2.0"
   },
   "overrides": {
-    "postcss": "8.5.20"
+    "postcss": "8.5.23"
   }
 }
 '''

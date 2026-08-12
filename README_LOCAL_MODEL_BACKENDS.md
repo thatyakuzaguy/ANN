@@ -1,101 +1,76 @@
 # ANN Local Model Backends
 
-ANN keeps model execution local and safe by default. It does not install model
-backends, download model files, compile native libraries, or enable real model
-loading automatically.
+ANN runs model inference locally and routes every model through one sequential
+runtime. Model weights are never stored in this public repository and are not
+downloaded by setup or the installer.
 
-## Current Backend Status
+## Supported Roles
 
-The first controlled Qwen2.5 smoke in v13.1 reached the gate, but the backend
-reported `llama_cpp_binding_unavailable`. That means ANN could not import the
-local `llama_cpp` binding, so no real GGUF load or inference was performed.
+| Inventory ID | Intended role | Backend |
+|---|---|---|
+| `qwen3_4b_conversation_orchestrator` | ANN conversation and request handoff | GPU-capable `llama_cpp` GGUF runtime |
+| `qwen3_8b_product_v9_repaired_v2_bullets` | product and requirements work | GPU-capable `llama_cpp` GGUF runtime; private adapter not distributed or enabled by the public inventory |
+| `qwen2_5_coder_7b_v5` | implementation and repair | GPU-capable `llama_cpp` GGUF runtime |
+| `deepseek_r1_distill_qwen_14b` | POWERFUL review and reasoning | GPU-capable `llama_cpp` GGUF runtime |
 
-ANN continues to run in mock/safe mode when this happens.
+The inventory contains paths and policy, not redistribution rights. Operators
+must supply legally authorized model files and acknowledge their applicable
+licenses.
 
-## llama_cpp Readiness
+## Real Activation Evidence
 
-Artifact `110_llama_cpp_backend_readiness.json` reports:
-
-- Whether `llama_cpp` is importable.
-- Binding version if available.
-- CUDA/cuBLAS/GPU support when detectable without loading a model.
-- Qwen2.5 GGUF path, file size, and basic read access.
-- Whether the path is blocked or unsafe.
-- Whether a controlled load can be attempted.
-
-ANN does not run `pip install`, compile CUDA libraries, or download wheels.
-Verify `llama_cpp` manually outside ANN before retrying the smoke.
-
-## Controlled Qwen2.5 Retry
-
-Artifact `112_qwen25_retry_smoke.json` reports the controlled retry status.
-
-The retry:
-
-- Only targets `qwen2_5_coder_7b_v5`.
-- Requires token and explicit confirmation.
-- Uses FAST mode only.
-- Does not touch Qwen3.
-- Does not touch DeepSeek14B.
-- Does not activate POWERFUL.
-- Requires one-model-at-a-time execution.
-- Unloads and returns to safe/mock mode after the smoke.
-
-The smoke prompt is:
+The repository preserves load, inference, benchmark, and safe-rollback records
+under `outputs/model_activation/release_verified`. The records show that each
+model path used by ANN reached real inference and returned to:
 
 ```text
-Return exactly: ANN_QWEN25_SMOKE_OK
+active_models = 0
+parallel_llm_loads = 0
 ```
 
-ANN must not claim success unless real inference returns that exact text.
+The release soak and autonomous project campaigns independently preserve peak
+runtime telemetry. This evidence establishes runtime activation, not model
+quality for every task or a right to redistribute model weights.
 
-## Runtime Memory Probe
+## Sequential GPU Policy
 
-Artifact `114_runtime_memory_probe.json` reports:
+ANN enforces:
 
-- Torch availability.
-- CUDA availability.
-- GPU name when available.
-- VRAM total/allocated/reserved when available.
-- CPU RAM when detectable.
+- `active_models <= 1`;
+- `max_loaded_models = 1`;
+- `parallel_llm_loads = 0`;
+- `vram_policy = SEQUENTIAL`;
+- explicit unload verification between routed stages;
+- fail-closed activation when the configured GPU backend is unavailable.
 
-It does not load models, reserve VRAM, or run a benchmark.
+POWERFUL and Qwen3 stages are never parallel. The API exposes current and peak
+provider metrics so Desktop and release validators can detect a policy breach.
 
-## Qwen3 Preparation
+## Register A Model
 
-Artifact `116_qwen3_activation_preparation.json` is read-only. It checks:
+The Desktop **Models** view can register a user-supplied GGUF from D: or E:.
+ANN calculates SHA-256, records license acknowledgement, validates the storage
+policy, and does not load the file during registration. Real runtime enablement
+requires a GPU-capable `llama_cpp` binding and the existing activation gates.
 
-- `D:/Models/qwen3`
-- tokenizer/model files
-- `training/adapters/qwen3-8b-product-agent-v9-repaired-v2-bullets`
-- `qwen_local` backend availability
-- policy blocking real load
-- risks for RTX 3060 Ti 8GB
+For Hugging Face models or adapters, configure the existing inventory and
+runtime policy. ANN does not modify model weights, adapters, datasets, or
+training data during inference.
 
-Qwen3 is not activated in v13.2-v13.4.
+## Hardware Boundary
 
-## DeepSeek14B
+The primary validation workstation used an RTX 3060 Ti with 8 GB VRAM, Ryzen 5
+2600, and 32 GB DDR4. Quantization, context length, backend build, and model
+size determine whether a configuration fits. DeepSeek 14B POWERFUL execution
+may require aggressive offload and is slower than smaller routed stages.
 
-DeepSeek-R1-Distill-Qwen-14B remains POWERFUL and blocked. It is not touched by
-the Qwen2.5 retry or Qwen3 preparation phases.
+## Diagnostics
 
-## Sequential Policy
+```powershell
+python scripts\runtime\check_llama_cpp_cuda.py
+python scripts\runtime\check_ann_runtime_backend.py
+python scripts\runtime\verify_autonomous_capability.py
+```
 
-ANN preserves:
-
-- `active_models <= 1`
-- `max_loaded_models = 1`
-- `parallel_llm_loads = 0`
-- `vram_policy = SEQUENTIAL`
-
-## Artifacts 110-117
-
-- `110_llama_cpp_backend_readiness.json`
-- `111_llama_cpp_backend_readiness.md`
-- `112_qwen25_retry_smoke.json`
-- `113_qwen25_retry_smoke.md`
-- `114_runtime_memory_probe.json`
-- `115_runtime_memory_probe.md`
-- `116_qwen3_activation_preparation.json`
-- `117_qwen3_activation_preparation.md`
-
+All diagnostics are bounded and use the existing runtime. They do not install
+packages, download models, train, quantize, or mutate local model assets.

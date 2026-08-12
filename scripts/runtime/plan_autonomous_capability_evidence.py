@@ -12,7 +12,24 @@ import json
 import sys
 from pathlib import Path
 
-from agentic_network.runtime_engine.local_model_activation import (
+REPO_ROOT = Path(__file__).resolve().parents[2]
+for package_root in (
+    ".",
+    "packages/agents",
+    "packages/orchestration",
+    "packages/sandbox",
+    "packages/git",
+    "packages/logs",
+    "packages/shared",
+    "packages/database",
+    "packages/security",
+    "apps/api",
+):
+    candidate = str(REPO_ROOT / package_root)
+    if candidate not in sys.path:
+        sys.path.insert(0, candidate)
+
+from agentic_network.runtime_engine.local_model_activation import (  # noqa: E402
     build_autonomous_capability_evidence_plan,
     write_autonomous_capability_evidence_plan_artifacts,
 )

@@ -1,0 +1,39 @@
+{
+  "checks": [
+    {
+      "log": "../projects/crm_saas_multitenant/.aen/evidence/logs/10-api_health_live.log",
+      "name": "api_health_live",
+      "passed": true
+    },
+    {
+      "log": "../projects/crm_saas_multitenant/.aen/evidence/logs/12-api_pytest_live.log",
+      "name": "api_pytest_live",
+      "passed": true
+    },
+    {
+      "log": "../projects/crm_saas_multitenant/.aen/evidence/logs/16-web_build_live.log",
+      "name": "web_build_live",
+      "passed": true
+    },
+    {
+      "log": "../projects/crm_saas_multitenant/.aen/evidence/logs/18-web_e2e_live.log",
+      "name": "web_e2e_live",
+      "passed": true
+    },
+    {
+      "log": "../projects/crm_saas_multitenant/.aen/evidence/logs/11-web_health_live.log",
+      "name": "web_health_live",
+      "passed": true
+    },
+    {
+      "log": "../projects/crm_saas_multitenant/.aen/evidence/logs/15-web_unit_live.log",
+      "name": "web_unit_live",
+      "passed": true
+    }
+  ],
+  "screenshots": [
+    "../projects/crm_saas_multitenant/apps/web/test-results/workbench-loads-domain-dashboard-and-creates-a-record/test-finished-1.png"
+  ],
+  "source": "../projects/crm_saas_multitenant/.aen/real-lifecycle-result.json",
+  "status": "PASSED"
+}
